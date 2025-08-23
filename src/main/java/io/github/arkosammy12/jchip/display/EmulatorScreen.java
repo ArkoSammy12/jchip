@@ -1,8 +1,9 @@
-package io.github.arkosammy12.display;
+package io.github.arkosammy12.jchip.display;
 
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
@@ -10,6 +11,9 @@ import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -19,6 +23,8 @@ public class EmulatorScreen {
 
     private final Screen terminalScreen;
     private final char[][] screenBuffer = new char[64][32];
+    private Clip beepClip;
+    private boolean isBeeping = false;
 
     public EmulatorScreen() throws IOException {
 
@@ -39,26 +45,48 @@ public class EmulatorScreen {
     }
 
     public boolean togglePixelAt(int column, int row) {
-        char currentChar = this.screenBuffer[column][row];
-        char newChar = '█';
-        boolean onToOff = false;
-        if (currentChar == '█') {
-            newChar = ' ';
-            onToOff = true;
-        }
-        if (column > 64 || column < 0 || row > 32 || row < 0) {
+        if (column >= 64 || column < 0 || row >= 32 || row < 0) {
             return false;
         }
+        char currentChar = this.screenBuffer[column][row];
+        char newChar = '█';
+        boolean toggledOff = false;
+        if (currentChar == '█') {
+            newChar = ' ';
+            toggledOff = true;
+        }
         this.screenBuffer[column][row] = newChar;
-        return onToOff;
+        return toggledOff;
     }
 
-    public void setPixelAt(int column, int row) {
-        this.screenBuffer[row][column] = '█';
+    public KeyStroke pollInput() throws IOException {
+        return this.terminalScreen.pollInput();
     }
 
-    public void resetPixelAt(int column, int row) {
-        this.screenBuffer[row][column] = ' ';
+    public void beep() {
+        if (!isBeeping) {
+            try {
+                AudioFormat af = new AudioFormat( (float )44100, 8, 1, true, false );
+                beepClip = AudioSystem.getClip();
+                byte[] data = new byte[44100];
+                for (int i = 0; i < data.length; i++) {
+                    data[i] = (byte)(Math.sin(2 * Math.PI * i / ((double) 44100 / 440)) * 127);
+                }
+                beepClip.open(af, data, 0, data.length);
+                beepClip.loop(Clip.LOOP_CONTINUOUSLY);
+                isBeeping = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void stopBeep() {
+        if (isBeeping && beepClip != null) {
+            beepClip.stop();
+            beepClip.close();
+            isBeeping = false;
+        }
     }
 
      public void clear() {

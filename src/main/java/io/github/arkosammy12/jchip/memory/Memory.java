@@ -1,6 +1,6 @@
-package io.github.arkosammy12.hardware;
+package io.github.arkosammy12.jchip.memory;
 
-import io.github.arkosammy12.utils.Font;
+import io.github.arkosammy12.jchip.display.CharacterSprites;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ public class Memory {
 
     public Memory(int[] program) {
 
-        List<Font> fontCharacters = Font.getFontCharacters();
+        List<CharacterSprites> charactersCharacters = CharacterSprites.getFontCharacters();
 
-        for (Font character : fontCharacters) {
+        for (CharacterSprites character : charactersCharacters) {
 
             int[] bitmap = character.getBitmap();
             int offset = character.getOffset();
@@ -30,6 +30,10 @@ public class Memory {
 
     public int read(int address) {
         return this.bytes[address];
+    }
+
+    public void store(int address, int value) {
+        this.bytes[address] = value;
     }
 
 }
