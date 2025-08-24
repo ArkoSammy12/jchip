@@ -24,7 +24,7 @@ public class FOpcodeInstruction extends Instruction {
                 emulator.getProcessor().setByteInRegister(register, value);
             }
             case 0x0A -> { // Get key
-                KeyStroke keyStroke = emulator.pollInput();
+                KeyStroke keyStroke = emulator.getEmulatorScreen().pollInput();
                 int currentProgramCounter = emulator.getProcessor().getProgramCounter();
                 if (keyStroke == null) {
                     emulator.getProcessor().setProgramCounter(currentProgramCounter - 2);

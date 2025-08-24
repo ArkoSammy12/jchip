@@ -31,19 +31,7 @@ public class Emulator {
     }
 
     public void tick(boolean decrementTimers) throws IOException {
-        KeyStroke keyStroke = this.getEmulatorScreen().pollInput();
-        if (keyStroke != null) {
-            this.keyInputQueue.add(keyStroke);
-        }
         this.processor.cycle(this, decrementTimers);
-        this.keyInputQueue.clear();
-    }
-
-    public KeyStroke pollInput() {
-        if (this.keyInputQueue.isEmpty()) {
-            return null;
-        }
-        return keyInputQueue.poll();
     }
 
     public int[] fetch(int programCounter) {

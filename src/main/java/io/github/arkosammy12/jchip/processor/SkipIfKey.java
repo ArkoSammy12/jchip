@@ -19,7 +19,7 @@ public class SkipIfKey extends Instruction {
         int vx = emulator.getProcessor().getByteInRegister(register);
         int type = this.getSecondByte();
         int currentProgramCounter = emulator.getProcessor().getProgramCounter();
-        KeyStroke keyStroke = emulator.pollInput();
+        KeyStroke keyStroke = emulator.getEmulatorScreen().pollInput();
         switch (type) {
             case 0x9E -> { // Skip if pressed
                 if (keyStroke == null) {
@@ -44,7 +44,5 @@ public class SkipIfKey extends Instruction {
             }
         }
     }
-
-
 
 }
