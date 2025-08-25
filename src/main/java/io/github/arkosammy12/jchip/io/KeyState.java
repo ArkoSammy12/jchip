@@ -37,7 +37,10 @@ public class KeyState {
         //Arrays.fill(this.keyState, false);
         KeyStroke keyStroke;
         while ((keyStroke = emulator.getEmulatorScreen().pollInput()) != null) {
-            char c = keyStroke.getCharacter();
+            Character c = keyStroke.getCharacter();
+            if (c == null) {
+                continue;
+            }
             int keyCode = Utils.getIntegerForCharacter(c);
             if (keyCode < 0) {
                 continue;
