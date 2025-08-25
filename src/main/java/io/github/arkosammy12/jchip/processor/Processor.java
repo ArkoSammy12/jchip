@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.processor;
 import io.github.arkosammy12.jchip.Emulator;
 
 import java.io.IOException;
+import java.util.Random;
 import java.util.Stack;
 
 public class Processor {
@@ -13,12 +14,13 @@ public class Processor {
     private int delayTimer;
     private int soundTimer;
     private final int[] registers = new int[16];
+    private Random random;
 
     void setProgramCounter(int programCounter) {
         this.programCounter = programCounter;
     }
 
-    int getProgramCounter() {
+    public int getProgramCounter() {
         return this.programCounter;
     }
 
@@ -26,7 +28,7 @@ public class Processor {
         this.indexRegister = indexRegister;
     }
 
-    int getIndexRegister() {
+    public int getIndexRegister() {
         return this.indexRegister;
     }
 
@@ -42,7 +44,7 @@ public class Processor {
         this.delayTimer = timer;
     }
 
-    int getDelayTimer() {
+    public int getDelayTimer() {
         return this.delayTimer;
     }
 
@@ -54,23 +56,31 @@ public class Processor {
         return this.soundTimer;
     }
 
-    void setByteInRegister(int register, int value) {
+    void setRegisterValue(int register, int value) {
         this.registers[register] = value;
     }
 
-    int getByteInRegister(int register) {
+    public int getRegisterValue(int register) {
         return this.registers[register];
     }
 
-    public void cycle(Emulator emulator, boolean decrementTimers) throws IOException {
-        int[] newBytes = emulator.fetch(programCounter);
+    void setCarry(boolean carry) {
+        this.registers[0xF] = carry ? 1 : 0;
+    }
+
+    void incrementProgramCounter() {
         this.programCounter += 2;
-        Instruction instruction = Instructions.decodeBytes(newBytes[0], newBytes[1]);
-        instruction.execute(emulator);
-        if (decrementTimers) {
-            this.decrementTimers();
+    }
+
+    void decrementProgramCounter() {
+        this.programCounter -= 2;
+    }
+
+    Random getRandom() {
+        if (this.random == null) {
+            this.random = new Random();
         }
-        emulator.getEmulatorScreen().flush();
+        return this.random;
     }
 
     private void decrementTimers() {
@@ -80,6 +90,17 @@ public class Processor {
         if (this.soundTimer > 0) {
             this.soundTimer -= 1;
         }
+    }
+
+    public void cycle(Emulator emulator, boolean decrementTimers) throws IOException {
+        int[] newBytes = emulator.fetch();
+        this.incrementProgramCounter();
+        Instruction instruction = Instructions.decodeBytes(newBytes[0], newBytes[1]);
+        instruction.execute(emulator);
+        if (decrementTimers) {
+            this.decrementTimers();
+        }
+        emulator.getEmulatorScreen().flush();
     }
 
 }

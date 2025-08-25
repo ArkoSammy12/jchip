@@ -2,9 +2,9 @@ package io.github.arkosammy12.jchip.processor;
 
 import io.github.arkosammy12.jchip.Emulator;
 
-public class SetRegister extends Instruction {
+public class SetRegisterInstruction extends Instruction {
 
-    public SetRegister(int firstByte, int secondByte) {
+    public SetRegisterInstruction(int firstByte, int secondByte) {
         super(firstByte, secondByte);
     }
 
@@ -12,7 +12,7 @@ public class SetRegister extends Instruction {
     public void execute(Emulator emulator) {
         int register = this.getSecondNibble();
         int value = this.getSecondByte();
-        emulator.getProcessor().setByteInRegister(register, value);
+        emulator.getProcessor().setRegisterValue(register, value);
     }
 
 }

@@ -6,7 +6,7 @@ public final class Utils {
         throw new AssertionError();
     }
 
-    public static int getValueForCharacter(char c) {
+    public static int getIntegerForCharacter(char c) {
         return switch (c) {
           case '0' -> 0x0;
           case '1' -> 0x1;
@@ -24,7 +24,7 @@ public final class Utils {
           case 'd' -> 0xD;
           case 'e' -> 0xE;
           case 'f' -> 0xF;
-          default -> throw new IllegalArgumentException();
+          default -> -1;
         };
     }
 

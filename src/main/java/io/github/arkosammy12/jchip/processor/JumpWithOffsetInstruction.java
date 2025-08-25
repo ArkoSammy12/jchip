@@ -11,9 +11,9 @@ public class JumpWithOffsetInstruction extends Instruction {
     @Override
     public void execute(Emulator emulator) {
         int memoryAddress = this.getMemoryAddress();
-        int v0 = emulator.getProcessor().getByteInRegister(0x0);
-        int finalAddress = memoryAddress + v0;
-        emulator.getProcessor().setProgramCounter(finalAddress);
+        int v0 = emulator.getProcessor().getRegisterValue(0x0);
+        int jumpAddress = memoryAddress + v0;
+        emulator.getProcessor().setProgramCounter(jumpAddress);
     }
 
 }

@@ -2,9 +2,9 @@ package io.github.arkosammy12.jchip.processor;
 
 import io.github.arkosammy12.jchip.Emulator;
 
-public class RandomNumberInstruction extends Instruction {
+public class AddToRegisterInstruction extends Instruction {
 
-    public RandomNumberInstruction(int firstByte, int secondByte) {
+    public AddToRegisterInstruction(int firstByte, int secondByte) {
         super(firstByte, secondByte);
     }
 
@@ -12,8 +12,8 @@ public class RandomNumberInstruction extends Instruction {
     public void execute(Emulator emulator) {
         int register = this.getSecondNibble();
         int operand = this.getSecondByte();
-        int random = emulator.getProcessor().getRandom().nextInt();
-        int value = (random & operand) & 0xFF;
+        int vX = emulator.getProcessor().getRegisterValue(register);
+        int value = (vX + operand) & 0xFF;
         emulator.getProcessor().setRegisterValue(register, value);
     }
 

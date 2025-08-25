@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.display;
+package io.github.arkosammy12.jchip.io;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,13 +48,13 @@ public enum CharacterSprites {
         return this.character;
     }
 
-    public static int getMemoryOffsetForCharacter(int character) {
+    public static int getCharacterOffsetForValue(int value) {
         for (CharacterSprites sprite : CharacterSprites.values()) {
-            if (sprite.getCharacter() == character) {
+            if (sprite.getCharacter() == value) {
                 return sprite.getOffset();
             }
         }
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Tried to fetch character memory offset for unexpected value: " + value + "!");
     }
 
 }

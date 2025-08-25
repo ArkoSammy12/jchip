@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.display;
+package io.github.arkosammy12.jchip.io;
 
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextCharacter;
@@ -7,14 +7,12 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.terminal.Terminal;
-import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -25,34 +23,46 @@ public class EmulatorScreen {
     private final char[][] screenBuffer = new char[64][32];
     private Clip beepClip;
     private boolean isBeeping = false;
+    private static final char PIXEL_ON = '█';
+    private static final char PIXEL_OFF = ' ';
+    public static final int SCREEN_WIDTH = 64;
+    public static final int SCREEN_HEIGHT = 32;
+
 
     public EmulatorScreen() throws IOException {
-
-        Terminal terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
-                .setInitialTerminalSize(new TerminalSize(64, 32))
+        SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
+                .setInitialTerminalSize(new TerminalSize(SCREEN_WIDTH, SCREEN_HEIGHT))
                 .setTerminalEmulatorFrameAutoCloseTrigger(TerminalEmulatorAutoCloseTrigger.CloseOnEscape)
                 .setTerminalEmulatorTitle("Chip-8")
-                .setTerminalEmulatorFontConfiguration(AWTTerminalFontConfiguration.newInstance(new Font("Monospaced", Font.BOLD, 1)))
-                .setPreferTerminalEmulator(true)
-                .createTerminal();
+                .createSwingTerminal();
+        /*
+        Component[] components = terminal.getContentPane().getComponents();
+        for (Component component : components) {
+            component.addKeyListener(keyAdapter);
+        }
 
+         */
+        terminal.setVisible(true);
+        terminal.setFocusable(true);
         terminal.setForegroundColor(TextColor.ANSI.WHITE);
         terminal.setBackgroundColor(TextColor.ANSI.BLACK);
         terminal.setCursorVisible(false);
         this.terminalScreen = new TerminalScreen(terminal);
+        this.terminalScreen.getTerminalSize();
+        this.terminalScreen.doResizeIfNecessary();
         this.terminalScreen.startScreen();
         this.clear();
     }
 
     public boolean togglePixelAt(int column, int row) {
-        if (column >= 64 || column < 0 || row >= 32 || row < 0) {
+        if (column >= SCREEN_WIDTH || column < 0 || row >= SCREEN_HEIGHT || row < 0) {
             return false;
         }
         char currentChar = this.screenBuffer[column][row];
-        char newChar = '█';
+        char newChar = PIXEL_ON;
         boolean toggledOff = false;
-        if (currentChar == '█') {
-            newChar = ' ';
+        if (currentChar == PIXEL_ON) {
+            newChar = PIXEL_OFF;
             toggledOff = true;
         }
         this.screenBuffer[column][row] = newChar;
@@ -91,7 +101,7 @@ public class EmulatorScreen {
 
      public void clear() {
          for (char[] chars : screenBuffer) {
-             Arrays.fill(chars, ' ');
+             Arrays.fill(chars, PIXEL_OFF);
          }
      }
 
