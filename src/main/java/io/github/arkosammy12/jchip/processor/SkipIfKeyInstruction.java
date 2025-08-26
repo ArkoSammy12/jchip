@@ -27,7 +27,7 @@ public class SkipIfKeyInstruction extends Instruction {
                 }
             }
         }
-        emulator.getKeyState().setKeyUnpressed(vX);
+        //emulator.getKeyState().setKeyUnpressed(vX);
     }
 
 }

@@ -13,6 +13,8 @@ import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -28,20 +30,16 @@ public class EmulatorScreen {
     public static final int SCREEN_WIDTH = 64;
     public static final int SCREEN_HEIGHT = 32;
 
-
-    public EmulatorScreen() throws IOException {
+    public EmulatorScreen(KeyAdapter keyAdapter) throws IOException {
         SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
-                .setInitialTerminalSize(new TerminalSize(SCREEN_WIDTH, SCREEN_HEIGHT))
+                .setInitialTerminalSize(new TerminalSize(SCREEN_WIDTH * 2, SCREEN_HEIGHT))
                 .setTerminalEmulatorFrameAutoCloseTrigger(TerminalEmulatorAutoCloseTrigger.CloseOnEscape)
                 .setTerminalEmulatorTitle("Chip-8")
                 .createSwingTerminal();
-        /*
         Component[] components = terminal.getContentPane().getComponents();
         for (Component component : components) {
             component.addKeyListener(keyAdapter);
         }
-
-         */
         terminal.setVisible(true);
         terminal.setFocusable(true);
         terminal.setForegroundColor(TextColor.ANSI.WHITE);
@@ -69,14 +67,11 @@ public class EmulatorScreen {
         return toggledOff;
     }
 
-    public KeyStroke pollInput() throws IOException {
-        return this.terminalScreen.pollInput();
-    }
 
     public void beep() {
         if (!isBeeping) {
             try {
-                AudioFormat af = new AudioFormat( (float )44100, 8, 1, true, false );
+                AudioFormat af = new AudioFormat(44100f, 8, 1, true, false );
                 beepClip = AudioSystem.getClip();
                 byte[] data = new byte[44100];
                 for (int i = 0; i < data.length; i++) {
@@ -109,10 +104,15 @@ public class EmulatorScreen {
         for (int i = 0; i < this.screenBuffer.length; i++) {
             for (int j = 0; j < this.screenBuffer[i].length; j++) {
                 TextCharacter character = TextCharacter.fromCharacter(screenBuffer[i][j])[0];
-                this.terminalScreen.setCharacter(i, j, character);
+                this.terminalScreen.setCharacter(i * 2, j, character);
+                this.terminalScreen.setCharacter((i * 2) + 1, j, character);
             }
         }
         this.terminalScreen.refresh();
+    }
+
+    public void close() throws IOException {
+        this.terminalScreen.close();
     }
 
 }

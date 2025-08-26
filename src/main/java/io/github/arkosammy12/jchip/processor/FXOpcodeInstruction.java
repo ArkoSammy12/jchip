@@ -37,13 +37,11 @@ public class FXOpcodeInstruction extends Instruction {
                             break;
                         }
                         emulator.getProcessor().decrementProgramCounter();
-                        emulator.getKeyState().setKeyUnpressed(keyCode);
                     }
                 } else {
                     if (!pressedKeys.isEmpty()) {
                         int keyCode = pressedKeys.getFirst();
                         emulator.getKeyState().setWaitingKey(keyCode);
-                        emulator.getKeyState().setKeyUnpressed(keyCode);
                     }
                     emulator.getProcessor().decrementProgramCounter();
                 }
@@ -88,6 +86,8 @@ public class FXOpcodeInstruction extends Instruction {
                     int registerValue = emulator.getProcessor().getRegisterValue(i);
                     emulator.getMemory().store(currentIndexPointer + i, registerValue);
                 }
+                // Modify index register on memory store. COSMAC CHIP-8 quirk
+                emulator.getProcessor().setIndexRegister(currentIndexPointer + register + 1);
             }
             case 0x65 -> { // Load from memory
                 int currentIndexPointer = emulator.getProcessor().getIndexRegister();
@@ -95,6 +95,8 @@ public class FXOpcodeInstruction extends Instruction {
                     int memoryValue = emulator.getMemory().read(currentIndexPointer + i);
                     emulator.getProcessor().setRegisterValue(i, memoryValue);
                 }
+                // Modify index register on memory read. COSMAC CHIP-8 quirk
+                emulator.getProcessor().setIndexRegister(currentIndexPointer + register + 1);
             }
         }
     }

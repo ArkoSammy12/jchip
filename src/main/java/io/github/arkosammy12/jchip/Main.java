@@ -6,10 +6,10 @@ import java.nio.file.Path;
 
 public class Main {
 
-    private static final int TICKS_PER_SECOND = 720;
-    private static final long SKIP_TICKS = 1_000_000_000L / TICKS_PER_SECOND;
-    private static long nextTick = System.nanoTime();
-    private static long tickCount = 12;
+    private static final int TICKS_PER_SECOND = 60;
+    private static final long TICK_INTERVAL = 1_000_000_000L / TICKS_PER_SECOND;
+    private static final int INSTRUCTIONS_PER_FRAME = 11;
+    private static long lastSavedTime = System.nanoTime();
 
     public static void main(String[] args) throws IOException {
         String pathString = "";
@@ -23,26 +23,21 @@ public class Main {
             path = path.toAbsolutePath();
         }
         Emulator emulator = new Emulator(path);
-        while (true) {
+        while (!emulator.isTerminated()) {
             long now = System.nanoTime();
-            while (now > nextTick) {
-                boolean decrementTimers = false;
-                if (tickCount <= 0) {
-                    decrementTimers = true;
-                    tickCount = 12;
+            long deltaTime = now - lastSavedTime;
+            if (deltaTime > TICK_INTERVAL) {
+                for (int i = 0; i < INSTRUCTIONS_PER_FRAME; i++) {
+                    emulator.tick(i < 1);
+                    // Display wait quirk. COSMAC CHIP-8
+                    if (emulator.displayInstructionExecuted()) {
+                        break;
+                    }
                 }
-                if (emulator.getProcessor().getSoundTimer() > 0) {
-                    emulator.getEmulatorScreen().beep();
-                } else {
-                    emulator.getEmulatorScreen().stopBeep();
-                }
-                emulator.tick(decrementTimers);
-                nextTick += SKIP_TICKS;
-                tickCount--;
+                lastSavedTime = now;
             }
-
         }
-
+        emulator.close();
     }
 
 }

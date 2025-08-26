@@ -92,15 +92,12 @@ public class Processor {
         }
     }
 
-    public void cycle(Emulator emulator, boolean decrementTimers) throws IOException {
-        int[] newBytes = emulator.fetch();
+    public void execute(Emulator emulator, Instruction instruction, boolean decrementTimers) throws IOException {
         this.incrementProgramCounter();
-        Instruction instruction = Instructions.decodeBytes(newBytes[0], newBytes[1]);
         instruction.execute(emulator);
         if (decrementTimers) {
             this.decrementTimers();
         }
-        emulator.getEmulatorScreen().flush();
     }
 
 }
