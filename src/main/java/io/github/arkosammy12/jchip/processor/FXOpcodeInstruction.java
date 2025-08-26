@@ -90,7 +90,7 @@ public class FXOpcodeInstruction extends Instruction {
             case 0x65 -> { // Load from memory
                 int currentIndexPointer = emulator.getProcessor().getIndexRegister();
                 for (int i = 0; i < register + 1; i++) {
-                    // Loading from memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
+                    // Reading from memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
                     int memoryValue = emulator.getMemory().read((currentIndexPointer + i) & 0xFFF);
                     emulator.getProcessor().setRegisterValue(i, memoryValue);
                 }

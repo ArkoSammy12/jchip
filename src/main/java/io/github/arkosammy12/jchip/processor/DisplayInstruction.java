@@ -26,7 +26,8 @@ public class DisplayInstruction extends Instruction {
                 break;
             }
             int indexRegisterValue = emulator.getProcessor().getIndexRegister();
-            int sprite = emulator.getMemory().read(indexRegisterValue + i);
+            // Reading from memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
+            int sprite = emulator.getMemory().read((indexRegisterValue + i) & 0xFFF);
             for (int j = 0; j < 8; j++) {
                 int spriteX = column + j;
                 // Clip sprites horizontally. COSMAC CHIP-8 quirk
