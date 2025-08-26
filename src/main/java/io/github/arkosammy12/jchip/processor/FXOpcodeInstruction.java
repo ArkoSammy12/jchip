@@ -54,12 +54,8 @@ public class FXOpcodeInstruction extends Instruction {
             }
             case 0x1E -> { // Add to index
                 int currentIndexRegister = emulator.getProcessor().getIndexRegister();
-                int value = vX + currentIndexRegister;
-                if (value > 0xFFF) {
-                    emulator.getProcessor().setCarry(true);
-                }
-                int maskedValue = value & 0xFFF;
-                emulator.getProcessor().setIndexRegister(maskedValue);
+                int value = (vX + currentIndexRegister) & 0xFFF;
+                emulator.getProcessor().setIndexRegister(value);
             }
             case 0x29 -> { // Point to font character
                 int character = vX & 0xF;
