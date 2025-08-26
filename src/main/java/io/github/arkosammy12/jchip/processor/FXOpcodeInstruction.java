@@ -73,14 +73,16 @@ public class FXOpcodeInstruction extends Instruction {
                     temp -= digit * power;
                 }
                 for (int i = 0; i < 3; i++) {
-                    emulator.getMemory().store(currentIndexPointer + i, digits[i]);
+                    // Storing to memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
+                    emulator.getMemory().store((currentIndexPointer + i) & 0xFFF, digits[i]);
                 }
             }
             case 0x55 -> { // Store in memory
                 int currentIndexPointer = emulator.getProcessor().getIndexRegister();
                 for (int i = 0; i < register + 1; i++) {
                     int registerValue = emulator.getProcessor().getRegisterValue(i);
-                    emulator.getMemory().store(currentIndexPointer + i, registerValue);
+                    // Storing to memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
+                    emulator.getMemory().store((currentIndexPointer + i) & 0xFFF, registerValue);
                 }
                 // Modify index register on memory store. COSMAC CHIP-8 quirk
                 emulator.getProcessor().setIndexRegister(currentIndexPointer + register + 1);
@@ -88,7 +90,8 @@ public class FXOpcodeInstruction extends Instruction {
             case 0x65 -> { // Load from memory
                 int currentIndexPointer = emulator.getProcessor().getIndexRegister();
                 for (int i = 0; i < register + 1; i++) {
-                    int memoryValue = emulator.getMemory().read(currentIndexPointer + i);
+                    // Loading from memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
+                    int memoryValue = emulator.getMemory().read((currentIndexPointer + i) & 0xFFF);
                     emulator.getProcessor().setRegisterValue(i, memoryValue);
                 }
                 // Modify index register on memory read. COSMAC CHIP-8 quirk
