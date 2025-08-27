@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.processor;
 
 import io.github.arkosammy12.jchip.Emulator;
-import io.github.arkosammy12.jchip.io.CharacterSprites;
+import io.github.arkosammy12.jchip.io.ConsoleVariant;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +18,29 @@ public class FXOpcodeInstruction extends Instruction {
         int register = this.getSecondNibble();
         int vX = emulator.getProcessor().getRegisterValue(register);
         switch (type) {
+            case 0x00 -> { // TODO: Name this instruction
+                if (emulator.getProgramArgs().getConsoleVariant() != ConsoleVariant.XO_CHIP) {
+                    break;
+                }
+                if (this.getSecondNibble() != 0) {
+                    break;
+                }
+                // TODO: Implement
+            }
+            case 0x01 -> { // Select bit plane when drawing with DXY0/DXYN
+                if (emulator.getProgramArgs().getConsoleVariant() != ConsoleVariant.XO_CHIP) {
+                    break;
+                }
+            }
+            case 0x02 -> { // Load audio pattern
+                if (emulator.getProgramArgs().getConsoleVariant() != ConsoleVariant.XO_CHIP) {
+                    break;
+                }
+                if (this.getSecondNibble() != 0) {
+                    break;
+                }
+                // TODO: Implement
+            }
             case 0x07 -> { // Set VX to current delay timer
                 int value = emulator.getProcessor().getDelayTimer();
                 emulator.getProcessor().setRegisterValue(register, value);
@@ -57,9 +80,17 @@ public class FXOpcodeInstruction extends Instruction {
                 int value = (vX + currentIndexRegister) & 0xFFF;
                 emulator.getProcessor().setIndexRegister(value);
             }
-            case 0x29 -> { // Point to font character
+            case 0x29 -> { // Point to small font character
                 int character = vX & 0xF;
-                int memoryOffset = CharacterSprites.getCharacterOffsetForValue(character);
+                int memoryOffset = emulator.getCharacterFont().getSmallCharacterOffset(character);
+                emulator.getProcessor().setIndexRegister(memoryOffset);
+            }
+            case 0x30 -> { // Point to big font character
+                if (!emulator.getProgramArgs().getConsoleVariant().isSchipOrXoChip()) {
+                    break;
+                }
+                int character = vX & 0xF;
+                int memoryOffset = emulator.getCharacterFont().getBigFontCharacterOffset(character);
                 emulator.getProcessor().setIndexRegister(memoryOffset);
             }
             case 0x33 -> { // Convert to binary-coded decimal
@@ -77,6 +108,11 @@ public class FXOpcodeInstruction extends Instruction {
                     emulator.getMemory().store((currentIndexPointer + i) & 0xFFF, digits[i]);
                 }
             }
+            case 0x3A -> { // Set audio pattern pitch
+                if (emulator.getProgramArgs().getConsoleVariant() != ConsoleVariant.XO_CHIP) {
+                    break;
+                }
+            }
             case 0x55 -> { // Store in memory
                 int currentIndexPointer = emulator.getProcessor().getIndexRegister();
                 for (int i = 0; i < register + 1; i++) {
@@ -84,8 +120,9 @@ public class FXOpcodeInstruction extends Instruction {
                     // Storing to memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
                     emulator.getMemory().store((currentIndexPointer + i) & 0xFFF, registerValue);
                 }
-                // Modify index register on memory store. COSMAC CHIP-8 quirk
-                emulator.getProcessor().setIndexRegister(currentIndexPointer + register + 1);
+                if (emulator.getConsoleVariant() == ConsoleVariant.CHIP_8) {
+                    emulator.getProcessor().setIndexRegister(currentIndexPointer + register + 1);
+                }
             }
             case 0x65 -> { // Load from memory
                 int currentIndexPointer = emulator.getProcessor().getIndexRegister();
@@ -94,8 +131,15 @@ public class FXOpcodeInstruction extends Instruction {
                     int memoryValue = emulator.getMemory().read((currentIndexPointer + i) & 0xFFF);
                     emulator.getProcessor().setRegisterValue(i, memoryValue);
                 }
-                // Modify index register on memory read. COSMAC CHIP-8 quirk
-                emulator.getProcessor().setIndexRegister(currentIndexPointer + register + 1);
+                if (emulator.getConsoleVariant() == ConsoleVariant.CHIP_8) {
+                    emulator.getProcessor().setIndexRegister(currentIndexPointer + register + 1);
+                }
+            }
+            case 0x75 -> { // Store registers to flags storage
+                emulator.getProcessor().saveFlags(vX);
+            }
+            case 0x85 -> { // Load registers from flags storage
+                emulator.getProcessor().loadFlags(vX);
             }
         }
     }

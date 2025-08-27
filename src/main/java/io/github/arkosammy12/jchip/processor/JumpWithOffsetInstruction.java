@@ -10,10 +10,11 @@ public class JumpWithOffsetInstruction extends Instruction {
 
     @Override
     public void execute(Emulator emulator) {
+        int register = this.getSecondNibble();
         int memoryAddress = this.getMemoryAddress();
-        // Using v0 as the offset instead of jumping to XNN + VX is a quirk. COSMAC CHIP-8
-        int v0 = emulator.getProcessor().getRegisterValue(0x0);
-        int jumpAddress = memoryAddress + v0;
+        int offsetRegister = emulator.getConsoleVariant().isSchip() ? register : 0x0;
+        int offset = emulator.getProcessor().getRegisterValue(offsetRegister);
+        int jumpAddress = memoryAddress + offset;
         emulator.getProcessor().setProgramCounter(jumpAddress);
     }
 

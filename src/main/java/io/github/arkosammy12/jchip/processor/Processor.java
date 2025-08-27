@@ -14,6 +14,7 @@ public class Processor {
     private int delayTimer;
     private int soundTimer;
     private final int[] registers = new int[16];
+    private final int[] flagsStorage = new int[16];
     private Random random;
 
     void setProgramCounter(int programCounter) {
@@ -90,6 +91,15 @@ public class Processor {
         if (this.soundTimer > 0) {
             this.soundTimer -= 1;
         }
+    }
+
+    void loadFlags(int length) {
+        // TODO: Implementation may be wrong
+        System.arraycopy(this.flagsStorage, 0, this.registers, 0, length);
+    }
+
+    void saveFlags(int length) {
+        System.arraycopy(this.registers, 0, this.flagsStorage, 0, length);
     }
 
     public void execute(Emulator emulator, Instruction instruction, boolean decrementTimers) throws IOException {

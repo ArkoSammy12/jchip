@@ -8,7 +8,7 @@ public enum Instructions {
     CALL(0x2, CallInstruction::new),
     SKIP_IF_EQUALS_IMMEDIATE(0x3, SkipIfEqualsImmediateInstruction::new),
     SKIP_IF_NOT_EQUALS_IMMEDIATE(0x4, SkipIfNotEqualsImmediateInstruction::new),
-    SKIP_IF_REGISTERS_EQUAL(0x5, SkipIfRegistersEqualInstruction::new),
+    FIVE_OPCODE(0x5, FiveOpcodeInstruction::new),
     SET_REGISTER(0x6, SetRegisterInstruction::new),
     ADD_TO_REGISTER(0x7, AddToRegisterInstruction::new),
     LOGICAL_OR_ARITHMETIC(0x8, LogicalOrArithmeticInstruction::new),

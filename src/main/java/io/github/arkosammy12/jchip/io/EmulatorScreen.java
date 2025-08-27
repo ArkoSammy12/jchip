@@ -7,8 +7,11 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
+import io.github.arkosammy12.jchip.Emulator;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -22,19 +25,28 @@ import java.util.Arrays;
 public class EmulatorScreen {
 
     private final Screen terminalScreen;
-    private final char[][] screenBuffer = new char[64][32];
+    private final char[][] screenBuffer = new char[128][64];
     private Clip beepClip;
     private boolean isBeeping = false;
     private static final char PIXEL_ON = '█';
     private static final char PIXEL_OFF = ' ';
     public static final int SCREEN_WIDTH = 64;
     public static final int SCREEN_HEIGHT = 32;
+    private int screenWidth = 128;
+    private int screenHeight = 64;
+    private boolean extendedMode = false;
 
-    public EmulatorScreen(KeyAdapter keyAdapter) throws IOException {
+    public EmulatorScreen(Emulator emulator, KeyAdapter keyAdapter) throws IOException {
+        if (emulator.getConsoleVariant() == ConsoleVariant.CHIP_8) {
+            this.screenWidth = 64;
+            this.screenHeight = 32;
+        }
+        this.clear();
         SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
-                .setInitialTerminalSize(new TerminalSize(SCREEN_WIDTH * 2, SCREEN_HEIGHT))
+                .setInitialTerminalSize(new TerminalSize(this.screenWidth * 2, this.screenHeight))
+                .setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(10))
                 .setTerminalEmulatorFrameAutoCloseTrigger(TerminalEmulatorAutoCloseTrigger.CloseOnEscape)
-                .setTerminalEmulatorTitle("Chip-8")
+                .setTerminalEmulatorTitle(emulator.getProgramArgs().getConsoleVariant().getDisplayName())
                 .createSwingTerminal();
         Component[] components = terminal.getContentPane().getComponents();
         for (Component component : components) {
@@ -45,15 +57,16 @@ public class EmulatorScreen {
         terminal.setForegroundColor(TextColor.ANSI.WHITE);
         terminal.setBackgroundColor(TextColor.ANSI.BLACK);
         terminal.setCursorVisible(false);
+
         this.terminalScreen = new TerminalScreen(terminal);
         this.terminalScreen.getTerminalSize();
         this.terminalScreen.doResizeIfNecessary();
         this.terminalScreen.startScreen();
-        this.clear();
+
     }
 
     public boolean togglePixelAt(int column, int row) {
-        if (column >= SCREEN_WIDTH || column < 0 || row >= SCREEN_HEIGHT || row < 0) {
+        if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
             return false;
         }
         char currentChar = this.screenBuffer[column][row];
@@ -101,11 +114,11 @@ public class EmulatorScreen {
      }
 
     public void flush() throws IOException {
-        for (int i = 0; i < this.screenBuffer.length; i++) {
-            for (int j = 0; j < this.screenBuffer[i].length; j++) {
+        for (int i = 0; i < this.screenWidth; i++) {
+            for (int j = 0; j < this.screenHeight; j++) {
                 TextCharacter character = TextCharacter.fromCharacter(screenBuffer[i][j])[0];
-                this.terminalScreen.setCharacter(i * 2, j, character);
-                this.terminalScreen.setCharacter((i * 2) + 1, j, character);
+                this.terminalScreen.setCharacter(i, j, character);
+                //this.terminalScreen.setCharacter((i * 2) + 1, j, character);
             }
         }
         this.terminalScreen.refresh();
@@ -113,6 +126,58 @@ public class EmulatorScreen {
 
     public void close() throws IOException {
         this.terminalScreen.close();
+    }
+
+    public void scrollDown(int scrollOffset) {
+        for (int i = this.screenHeight - 1; i >= 0; i--) {
+            int shiftedVerticalPosition = scrollOffset + i;
+            if (shiftedVerticalPosition >= this.screenHeight) {
+                continue;
+            }
+            for (int j = 0; j < this.screenWidth; j++) {
+                this.screenBuffer[j][shiftedVerticalPosition] = this.screenBuffer[j][i];
+            }
+        }
+    }
+
+    public void scrollRight() {
+        for (int i = this.screenWidth - 1; i >= 0; i--) {
+            int shiftedHorizontalPosition = i + 4;
+            if (shiftedHorizontalPosition >= this.screenWidth) {
+                continue;
+            }
+            for (int j = 0; j < this.screenHeight; j++) {
+                this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
+            }
+        }
+    }
+
+    public void scrollLeft() {
+        for (int i = 0; i < this.screenWidth; i++) {
+            int shiftedHorizontalPosition = i - 4;
+            if (shiftedHorizontalPosition < 0) {
+                continue;
+            }
+            for (int j = 0; j < this.screenHeight; j++) {
+                this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
+            }
+        }
+    }
+
+    public void setExtendedMode(boolean extendedMode) {
+        this.extendedMode = extendedMode;
+    }
+
+    public int getScreenWidth() {
+        return this.screenWidth;
+    }
+
+    public int getScreenHeight() {
+        return this.screenHeight;
+    }
+
+    public boolean isExtendedMode() {
+        return this.extendedMode;
     }
 
 }

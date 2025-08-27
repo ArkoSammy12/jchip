@@ -1,6 +1,10 @@
 package io.github.arkosammy12.jchip;
 
 
+import io.github.arkosammy12.jchip.io.ProgramArgs;
+import picocli.CommandLine;
+
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -12,17 +16,15 @@ public class Main {
     private static long lastSavedTime = System.nanoTime();
 
     public static void main(String[] args) throws IOException {
-        String pathString = "";
-        for (String arg : args) {
-            if (!arg.startsWith("--")) {
-                pathString = arg;
-            }
-        }
+        ProgramArgs programArgs = CommandLine.populateSpec(ProgramArgs.class, args);
+        /*
         Path path = Path.of(pathString);
         if (!path.isAbsolute()) {
             path = path.toAbsolutePath();
         }
-        Emulator emulator = new Emulator(path);
+
+         */
+        Emulator emulator = new Emulator(programArgs);
         while (!emulator.isTerminated()) {
             long now = System.nanoTime();
             long deltaTime = now - lastSavedTime;

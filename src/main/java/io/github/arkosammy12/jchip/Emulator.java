@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip;
 
-import io.github.arkosammy12.jchip.io.EmulatorScreen;
-import io.github.arkosammy12.jchip.io.KeyState;
+import io.github.arkosammy12.jchip.io.*;
 import io.github.arkosammy12.jchip.memory.Memory;
 import io.github.arkosammy12.jchip.processor.DisplayInstruction;
 import io.github.arkosammy12.jchip.processor.Instruction;
@@ -20,16 +19,22 @@ public class Emulator {
     private final EmulatorScreen emulatorScreen;
     private final Processor processor = new Processor();
     private final KeyState keyState = new KeyState();
+    private final CharacterFont characterFont;
     private boolean terminated = false;
     private boolean displayInstructionExecuted = false;
+    private final ProgramArgs programArgs;
 
-    public Emulator(Path programPath) throws IOException {
+    public Emulator(ProgramArgs programArgs) throws IOException {
+        this.programArgs = programArgs;
+        Path programPath = this.programArgs.getRomPath();
+        if (!programPath.isAbsolute()) {
+            programPath = programPath.toAbsolutePath();
+        }
         byte[] programAsBytes = Files.readAllBytes(programPath);
         int[] program = new int[programAsBytes.length];
         for (int i = 0; i < program.length; i++) {
             program[i] = programAsBytes[i] & 0xFF;
         }
-        this.memory = new Memory(program);
         KeyAdapter keyAdapter = new KeyAdapter() {
 
             @Override
@@ -67,7 +72,9 @@ public class Emulator {
                 keyState.setKeyUnpressed(keyCode);
             }
         };
-        emulatorScreen = new EmulatorScreen(keyAdapter);
+        this.emulatorScreen = new EmulatorScreen(this, keyAdapter);
+        this.characterFont = new CharacterFont(this);
+        this.memory = new Memory(program, this.characterFont);
     }
 
     public void tick(boolean decrementTimers) throws IOException {
@@ -124,6 +131,18 @@ public class Emulator {
             this.displayInstructionExecuted = false;
         }
         return returnValue;
+    }
+
+    public ProgramArgs getProgramArgs() {
+        return this.programArgs;
+    }
+
+    public ConsoleVariant getConsoleVariant() {
+        return this.programArgs.getConsoleVariant();
+    }
+
+    public CharacterFont getCharacterFont() {
+        return this.characterFont;
     }
 
 }

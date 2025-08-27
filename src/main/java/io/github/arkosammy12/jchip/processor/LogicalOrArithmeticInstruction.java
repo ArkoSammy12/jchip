@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.processor;
 
 import io.github.arkosammy12.jchip.Emulator;
+import io.github.arkosammy12.jchip.io.ConsoleVariant;
 
 public class LogicalOrArithmeticInstruction extends Instruction {
 
@@ -22,20 +23,23 @@ public class LogicalOrArithmeticInstruction extends Instruction {
             case 0x1 -> { // Or and register
                 int value = (vX | vY) & 0xFF;
                 emulator.getProcessor().setRegisterValue(firstRegister, value);
-                // Reset carry register on bitwise operation. COSMAC CHIP-8 quirk
-                emulator.getProcessor().setCarry(false);
+                if (emulator.getConsoleVariant() == ConsoleVariant.CHIP_8) {
+                    emulator.getProcessor().setCarry(false);
+                }
             }
             case 0x2 -> { // AND and register
                 int value = (vX & vY) & 0xFF;
                 emulator.getProcessor().setRegisterValue(firstRegister, value);
-                // Reset carry register on bitwise operation. COSMAC CHIP-8 quirk
-                emulator.getProcessor().setCarry(false);
+                if (emulator.getConsoleVariant() == ConsoleVariant.CHIP_8) {
+                    emulator.getProcessor().setCarry(false);
+                }
             }
             case 0x3 -> { // XOR and register
                 int value = (vX ^ vY) & 0xFF;
                 emulator.getProcessor().setRegisterValue(firstRegister, value);
-                // Reset carry register on bitwise operation. COSMAC CHIP-8 quirk
-                emulator.getProcessor().setCarry(false);
+                if (emulator.getConsoleVariant() == ConsoleVariant.CHIP_8) {
+                    emulator.getProcessor().setCarry(false);
+                }
             }
             case 0x4 -> { // Add registers
                 int value = vX + vY;
@@ -52,8 +56,9 @@ public class LogicalOrArithmeticInstruction extends Instruction {
             }
             case 0x6 -> { // Shift right and register
                 // Copying vY into Vx then shifting vX is a quirk. COSMAC CHIP-8
-                boolean shiftedOut = (vY & 1) > 0;
-                int value = (vY >>> 1) & 0xFF;
+                int operand = emulator.getConsoleVariant() == ConsoleVariant.CHIP_8 ? vY : vX;
+                boolean shiftedOut = (operand & 1) > 0;
+                int value = (operand >>> 1) & 0xFF;
                 emulator.getProcessor().setRegisterValue(firstRegister, value);
                 emulator.getProcessor().setCarry(shiftedOut);
             }
@@ -65,8 +70,9 @@ public class LogicalOrArithmeticInstruction extends Instruction {
             }
             case 0xE -> { // Shift left and register
                 // Copying vY into Vx then shifting vX is a quirk. COSMAC CHIP-8
-                boolean shiftedOut = (vY & 128) > 0;
-                int value = (vY << 1) & 0xFF;
+                int operand = emulator.getConsoleVariant() == ConsoleVariant.CHIP_8 ? vY : vX;
+                boolean shiftedOut = (operand & 128) > 0;
+                int value = (operand << 1) & 0xFF;
                 emulator.getProcessor().setRegisterValue(firstRegister, value);
                 emulator.getProcessor().setCarry(shiftedOut);
             }
