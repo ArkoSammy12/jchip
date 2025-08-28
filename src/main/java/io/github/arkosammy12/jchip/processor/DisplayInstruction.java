@@ -78,7 +78,7 @@ public class DisplayInstruction extends Instruction {
                 } else {
                     // TODO: Copy top row of pixels into bottom one instead of xoring bottom row for schip-legacy
                     toggledOff = emulator.getEmulatorScreen().togglePixelAt(sliceX * 2, sliceY * 2);
-                    emulator.getEmulatorScreen().togglePixelAt((sliceX * 2) + 1, sliceY * 2);
+                    toggledOff |= emulator.getEmulatorScreen().togglePixelAt((sliceX * 2) + 1, sliceY * 2);
                     emulator.getEmulatorScreen().togglePixelAt(sliceX * 2, (sliceY * 2) + 1);
                     emulator.getEmulatorScreen().togglePixelAt((sliceX * 2) + 1, (sliceY * 2) + 1);
                 }
