@@ -19,6 +19,11 @@ public class DisplayInstruction extends Instruction {
         int screenHeight = emulator.getEmulatorScreen().getScreenHeight();
         boolean extendedMode = emulator.getEmulatorScreen().isExtendedMode();
         ConsoleVariant consoleVariant = emulator.getConsoleVariant();
+        // Halve screen height and width to account for doubled sprite size in lores mode to fix clipping
+        if (!extendedMode && consoleVariant != ConsoleVariant.CHIP_8) {
+            screenHeight /= 2;
+            screenWidth /= 2;
+        }
         int spriteX = emulator.getProcessor().getRegisterValue(firstRegister) % screenWidth;
         int spriteY = emulator.getProcessor().getRegisterValue(secondRegister) % screenHeight;
         int collisionCounter = 0;
