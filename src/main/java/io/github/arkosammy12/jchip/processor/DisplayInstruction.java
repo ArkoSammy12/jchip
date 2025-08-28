@@ -73,7 +73,7 @@ public class DisplayInstruction extends Instruction {
                     emulator.getEmulatorScreen().togglePixelAt(sliceX * 2, (sliceY * 2) + 1);
                     emulator.getEmulatorScreen().togglePixelAt((sliceX * 2) + 1, (sliceY * 2) + 1);
                 }
-                if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && toggledOff && !extendedMode) {
+                if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && toggledOff /*&& !extendedMode*/) {
                     rowHasCollision = true;
                 } else if (toggledOff) {
                     collisionCounter = 1;
