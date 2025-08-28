@@ -94,7 +94,6 @@ public class Processor {
     }
 
     void loadFlags(int length) {
-        // TODO: Implementation may be wrong
         System.arraycopy(this.flagsStorage, 0, this.registers, 0, length);
     }
 

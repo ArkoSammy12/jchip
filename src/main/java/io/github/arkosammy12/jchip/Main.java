@@ -4,9 +4,7 @@ package io.github.arkosammy12.jchip;
 import io.github.arkosammy12.jchip.io.ProgramArgs;
 import picocli.CommandLine;
 
-import java.awt.*;
 import java.io.IOException;
-import java.nio.file.Path;
 
 public class Main {
 
@@ -17,13 +15,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         ProgramArgs programArgs = CommandLine.populateSpec(ProgramArgs.class, args);
-        /*
-        Path path = Path.of(pathString);
-        if (!path.isAbsolute()) {
-            path = path.toAbsolutePath();
-        }
-
-         */
         Emulator emulator = new Emulator(programArgs);
         while (!emulator.isTerminated()) {
             long now = System.nanoTime();
@@ -31,8 +22,7 @@ public class Main {
             if (deltaTime > TICK_INTERVAL) {
                 for (int i = 0; i < INSTRUCTIONS_PER_FRAME; i++) {
                     emulator.tick(i < 1);
-                    // Display wait quirk. COSMAC CHIP-8
-                    if (emulator.displayInstructionExecuted()) {
+                    if (emulator.shouldWaitForVblank()) {
                         break;
                     }
                 }

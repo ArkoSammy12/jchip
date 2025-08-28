@@ -55,7 +55,6 @@ public class LogicalOrArithmeticInstruction extends Instruction {
                 emulator.getProcessor().setCarry(noBorrow);
             }
             case 0x6 -> { // Shift right and register
-                // Copying vY into Vx then shifting vX is a quirk. COSMAC CHIP-8
                 int operand = emulator.getConsoleVariant() == ConsoleVariant.CHIP_8 ? vY : vX;
                 boolean shiftedOut = (operand & 1) > 0;
                 int value = (operand >>> 1) & 0xFF;
@@ -69,7 +68,6 @@ public class LogicalOrArithmeticInstruction extends Instruction {
                 emulator.getProcessor().setCarry(noBorrow);
             }
             case 0xE -> { // Shift left and register
-                // Copying vY into Vx then shifting vX is a quirk. COSMAC CHIP-8
                 int operand = emulator.getConsoleVariant() == ConsoleVariant.CHIP_8 ? vY : vX;
                 boolean shiftedOut = (operand & 128) > 0;
                 int value = (operand << 1) & 0xFF;

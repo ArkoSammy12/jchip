@@ -31,6 +31,7 @@ public class FXOpcodeInstruction extends Instruction {
                 if (emulator.getProgramArgs().getConsoleVariant() != ConsoleVariant.XO_CHIP) {
                     break;
                 }
+                // TODO: Implement
             }
             case 0x02 -> { // Load audio pattern
                 if (emulator.getProgramArgs().getConsoleVariant() != ConsoleVariant.XO_CHIP) {
@@ -112,6 +113,7 @@ public class FXOpcodeInstruction extends Instruction {
                 if (emulator.getProgramArgs().getConsoleVariant() != ConsoleVariant.XO_CHIP) {
                     break;
                 }
+                // TODO: Implement
             }
             case 0x55 -> { // Store in memory
                 int currentIndexPointer = emulator.getProcessor().getIndexRegister();

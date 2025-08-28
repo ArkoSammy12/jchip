@@ -52,7 +52,7 @@ public class ZeroOpcodeInstruction extends Instruction {
                         emulator.getEmulatorScreen().scrollLeft();
                     }
                     case 0xD -> { // Exit interpreter
-
+                        emulator.terminate();
                     }
                     case 0xE -> { // Set lowres mode
                         emulator.getEmulatorScreen().setExtendedMode(false);

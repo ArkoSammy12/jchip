@@ -44,7 +44,7 @@ public class EmulatorScreen {
         this.clear();
         SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
                 .setInitialTerminalSize(new TerminalSize(this.screenWidth * 2, this.screenHeight))
-                .setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(10))
+                .setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(9))
                 .setTerminalEmulatorFrameAutoCloseTrigger(TerminalEmulatorAutoCloseTrigger.CloseOnEscape)
                 .setTerminalEmulatorTitle(emulator.getProgramArgs().getConsoleVariant().getDisplayName())
                 .createSwingTerminal();
@@ -117,8 +117,8 @@ public class EmulatorScreen {
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
                 TextCharacter character = TextCharacter.fromCharacter(screenBuffer[i][j])[0];
-                this.terminalScreen.setCharacter(i, j, character);
-                //this.terminalScreen.setCharacter((i * 2) + 1, j, character);
+                this.terminalScreen.setCharacter(i * 2, j, character);
+                this.terminalScreen.setCharacter((i * 2) + 1, j, character);
             }
         }
         this.terminalScreen.refresh();
@@ -138,6 +138,12 @@ public class EmulatorScreen {
                 this.screenBuffer[j][shiftedVerticalPosition] = this.screenBuffer[j][i];
             }
         }
+        // Clear the top scrollOffset rows
+        for (int y = 0; y < scrollOffset && y < this.screenHeight; y++) {
+            for (int x = 0; x < this.screenWidth; x++) {
+                this.screenBuffer[x][y] = PIXEL_OFF;
+            }
+        }
     }
 
     public void scrollRight() {
@@ -150,6 +156,12 @@ public class EmulatorScreen {
                 this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
             }
         }
+        // Clear the leftmost 4 columns
+        for (int x = 0; x < 4 && x < this.screenWidth; x++) {
+            for (int y = 0; y < this.screenHeight; y++) {
+                this.screenBuffer[x][y] = PIXEL_OFF;
+            }
+        }
     }
 
     public void scrollLeft() {
@@ -160,6 +172,13 @@ public class EmulatorScreen {
             }
             for (int j = 0; j < this.screenHeight; j++) {
                 this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
+            }
+        }
+        // Clear the rightmost 4 columns
+        for (int x = this.screenWidth - 4; x < this.screenWidth; x++) {
+            if (x < 0) continue;
+            for (int y = 0; y < this.screenHeight; y++) {
+                this.screenBuffer[x][y] = PIXEL_OFF;
             }
         }
     }

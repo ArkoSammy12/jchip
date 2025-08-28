@@ -21,7 +21,7 @@ public class Emulator {
     private final KeyState keyState = new KeyState();
     private final CharacterFont characterFont;
     private boolean terminated = false;
-    private boolean displayInstructionExecuted = false;
+    private boolean waitForVblank = false;
     private final ProgramArgs programArgs;
 
     public Emulator(ProgramArgs programArgs) throws IOException {
@@ -86,9 +86,9 @@ public class Emulator {
         int[] newBytes = this.fetch();
         Instruction instruction = Instructions.decodeBytes(newBytes[0], newBytes[1]);
         this.processor.execute(this, instruction, decrementTimers);
-
-        if (instruction instanceof DisplayInstruction) {
-            this.displayInstructionExecuted = true;
+        ConsoleVariant consoleVariant = this.getConsoleVariant();
+        if (instruction instanceof DisplayInstruction && (consoleVariant == ConsoleVariant.CHIP_8 || (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && !this.getEmulatorScreen().isExtendedMode()))) {
+            this.waitForVblank = true;
         }
         this.getEmulatorScreen().flush();
     }
@@ -125,10 +125,10 @@ public class Emulator {
         this.emulatorScreen.close();
     }
 
-    public boolean displayInstructionExecuted() {
-        boolean returnValue = this.displayInstructionExecuted;
+    public boolean shouldWaitForVblank() {
+        boolean returnValue = this.waitForVblank;
         if (returnValue) {
-            this.displayInstructionExecuted = false;
+            this.waitForVblank = false;
         }
         return returnValue;
     }
@@ -143,6 +143,10 @@ public class Emulator {
 
     public CharacterFont getCharacterFont() {
         return this.characterFont;
+    }
+
+    public void terminate() {
+        this.terminated = true;
     }
 
 }
