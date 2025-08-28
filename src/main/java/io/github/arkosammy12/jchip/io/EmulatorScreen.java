@@ -34,17 +34,13 @@ public class EmulatorScreen {
 
     public EmulatorScreen(Emulator emulator, KeyAdapter keyAdapter) throws IOException {
         ConsoleVariant consoleVariant = emulator.getConsoleVariant();
+        int fontSize = 9;
         if (consoleVariant == ConsoleVariant.CHIP_8) {
             this.screenWidth = 64;
             this.screenHeight = 32;
+            fontSize = 16;
         }
         this.clear();
-        int fontSize;
-        if (consoleVariant == ConsoleVariant.CHIP_8) {
-            fontSize = 16;
-        } else {
-            fontSize = 9;
-        }
         SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
                 .setInitialTerminalSize(new TerminalSize(this.screenWidth * 2, this.screenHeight))
                 .setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(fontSize))
