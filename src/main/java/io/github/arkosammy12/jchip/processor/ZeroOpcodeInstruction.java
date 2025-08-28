@@ -12,6 +12,7 @@ public class ZeroOpcodeInstruction extends Instruction {
     @Override
     public void execute(Emulator emulator) {
         int type = this.getThirdNibble();
+        ConsoleVariant consoleVariant = emulator.getConsoleVariant();
         switch (type) {
             case 0xC -> { // Scroll screen down
                 if (!emulator.getProgramArgs().getConsoleVariant().isSchipOrXoChip()) {
@@ -56,9 +57,15 @@ public class ZeroOpcodeInstruction extends Instruction {
                     }
                     case 0xE -> { // Set lowres mode
                         emulator.getEmulatorScreen().setExtendedMode(false);
+                        if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
+                            emulator.getEmulatorScreen().clear();
+                        }
                     }
                     case 0xF -> { // Set highres mode
                         emulator.getEmulatorScreen().setExtendedMode(true);
+                        if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
+                            emulator.getEmulatorScreen().clear();
+                        }
                     }
                 }
             }

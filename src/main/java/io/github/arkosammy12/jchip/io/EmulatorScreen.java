@@ -33,14 +33,21 @@ public class EmulatorScreen {
     private boolean extendedMode = false;
 
     public EmulatorScreen(Emulator emulator, KeyAdapter keyAdapter) throws IOException {
-        if (emulator.getConsoleVariant() == ConsoleVariant.CHIP_8) {
+        ConsoleVariant consoleVariant = emulator.getConsoleVariant();
+        if (consoleVariant == ConsoleVariant.CHIP_8) {
             this.screenWidth = 64;
             this.screenHeight = 32;
         }
         this.clear();
+        int fontSize;
+        if (consoleVariant == ConsoleVariant.CHIP_8) {
+            fontSize = 16;
+        } else {
+            fontSize = 9;
+        }
         SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
                 .setInitialTerminalSize(new TerminalSize(this.screenWidth * 2, this.screenHeight))
-                .setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(9))
+                .setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(fontSize))
                 .setTerminalEmulatorFrameAutoCloseTrigger(TerminalEmulatorAutoCloseTrigger.CloseOnEscape)
                 .setTerminalEmulatorTitle(emulator.getProgramArgs().getConsoleVariant().getDisplayName())
                 .createSwingTerminal();

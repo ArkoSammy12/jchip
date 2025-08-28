@@ -32,11 +32,14 @@ public class DisplayInstruction extends Instruction {
         for (int i = 0; i < spriteHeight; i++) {
             int sliceY = spriteY + i;
             if (sliceY >= screenHeight) {
-                if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
-                    collisionCounter++;
-                    continue;
-                } else if (consoleVariant == ConsoleVariant.XO_CHIP) {
+                if (consoleVariant == ConsoleVariant.XO_CHIP) {
                     sliceY %= screenHeight;
+                } else {
+                    if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode) {
+                        collisionCounter++;
+                        continue;
+                    }
+                    break;
                 }
             }
             int slice;
@@ -73,7 +76,7 @@ public class DisplayInstruction extends Instruction {
                     emulator.getEmulatorScreen().togglePixelAt(sliceX * 2, (sliceY * 2) + 1);
                     emulator.getEmulatorScreen().togglePixelAt((sliceX * 2) + 1, (sliceY * 2) + 1);
                 }
-                if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && toggledOff /*&& !extendedMode*/) {
+                if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && toggledOff && extendedMode) {
                     rowHasCollision = true;
                 } else if (toggledOff) {
                     collisionCounter = 1;
@@ -83,7 +86,7 @@ public class DisplayInstruction extends Instruction {
                 collisionCounter++;
             }
         }
-        emulator.getProcessor().setRegisterValue(0xF, collisionCounter);
+        emulator.getProcessor().setRegisterValue(0xF, collisionCounter & 0xFF);
     }
 
 }
