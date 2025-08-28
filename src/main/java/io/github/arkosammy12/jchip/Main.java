@@ -10,6 +10,7 @@ public class Main {
 
     private static final int TICKS_PER_SECOND = 60;
     private static final long TICK_INTERVAL = 1_000_000_000L / TICKS_PER_SECOND;
+    // 20 if schip legacy
     private static final int INSTRUCTIONS_PER_FRAME = 11;
     private static long lastSavedTime = System.nanoTime();
 
@@ -31,5 +32,4 @@ public class Main {
         }
         emulator.close();
     }
-
 }

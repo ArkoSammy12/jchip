@@ -131,10 +131,12 @@ public class Emulator {
         Instruction instruction = Instructions.decodeBytes(newBytes[0], newBytes[1]);
         this.processor.execute(this, instruction, decrementTimers);
         ConsoleVariant consoleVariant = this.getConsoleVariant();
+        if (this.getEmulatorScreen().isModified()) {
+            this.getEmulatorScreen().flush();
+        }
         if (instruction instanceof DisplayInstruction && (consoleVariant == ConsoleVariant.CHIP_8 || (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && !this.getEmulatorScreen().isExtendedMode()))) {
             this.waitForVBlank = true;
         }
-        this.getEmulatorScreen().flush();
     }
 
     private int[] fetch() {

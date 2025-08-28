@@ -31,6 +31,7 @@ public class EmulatorScreen {
     private int screenWidth = 128;
     private int screenHeight = 64;
     private boolean extendedMode = false;
+    private boolean modified = false;
 
     public EmulatorScreen(Emulator emulator, KeyAdapter keyAdapter) throws IOException {
         ConsoleVariant consoleVariant = emulator.getConsoleVariant();
@@ -78,6 +79,10 @@ public class EmulatorScreen {
         return this.extendedMode;
     }
 
+    public boolean isModified() {
+        return this.modified;
+    }
+
     public boolean togglePixelAt(int column, int row) {
         if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
             return false;
@@ -90,6 +95,7 @@ public class EmulatorScreen {
             toggledOff = true;
         }
         this.screenBuffer[column][row] = newChar;
+        this.modified = true;
         return toggledOff;
     }
 
@@ -127,6 +133,7 @@ public class EmulatorScreen {
      }
 
     public void flush() throws IOException {
+        this.modified = false;
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
                 TextCharacter character = TextCharacter.fromCharacter(screenBuffer[i][j])[0];
