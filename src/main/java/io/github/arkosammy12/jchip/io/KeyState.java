@@ -28,7 +28,6 @@ public class KeyState {
         return waitingKey;
     }
 
-
     public void resetWaitingKey() {
         this.waitingKey = -1;
     }

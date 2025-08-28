@@ -1,29 +1,34 @@
 package io.github.arkosammy12.jchip.io;
 
-import picocli.CommandLine;
-
-public enum ConsoleVariant implements CommandLine.ITypeConverter<ConsoleVariant> {
+public enum ConsoleVariant {
     CHIP_8("chip-8", "CHIP-8"),
     SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1"),
     SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN"),
     XO_CHIP("xo-chip", "XO-CHIP");
 
-    private final String name;
+    private final String identifier;
     private final String displayName;
 
-    ConsoleVariant(String name, String displayName) {
-        this.name = name;
+    ConsoleVariant(String identifier, String displayName) {
+        this.identifier = identifier;
         this.displayName = displayName;
     }
 
-    @Override
-    public ConsoleVariant convert(String value) {
+    public static ConsoleVariant getVariantForIdentifier(String identifier) {
         for (ConsoleVariant variant : ConsoleVariant.values()) {
-            if (variant.name.equals(value)) {
+            if (variant.identifier.equals(identifier)) {
                 return variant;
             }
         }
-        throw new IllegalArgumentException("Unknown chip-8 variant: " + value);
+        throw new IllegalArgumentException("Unknown chip-8 variant: " + identifier);
+    }
+
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
+    public String getIdentifier() {
+        return this.identifier;
     }
 
     public boolean isSchip() {
@@ -34,7 +39,4 @@ public enum ConsoleVariant implements CommandLine.ITypeConverter<ConsoleVariant>
         return this.isSchip() || this == ConsoleVariant.XO_CHIP;
     }
 
-    public String getDisplayName() {
-        return this.displayName;
-    }
 }

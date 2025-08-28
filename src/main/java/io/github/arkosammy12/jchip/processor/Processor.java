@@ -57,12 +57,29 @@ public class Processor {
         return this.soundTimer;
     }
 
+    private void decrementTimers() {
+        if (this.delayTimer > 0) {
+            this.delayTimer -= 1;
+        }
+        if (this.soundTimer > 0) {
+            this.soundTimer -= 1;
+        }
+    }
+
     void setRegisterValue(int register, int value) {
         this.registers[register] = value;
     }
 
     public int getRegisterValue(int register) {
         return this.registers[register];
+    }
+
+    void loadFlags(int length) {
+        System.arraycopy(this.flagsStorage, 0, this.registers, 0, length);
+    }
+
+    void saveFlags(int length) {
+        System.arraycopy(this.registers, 0, this.flagsStorage, 0, length);
     }
 
     void setCarry(boolean carry) {
@@ -82,23 +99,6 @@ public class Processor {
             this.random = new Random();
         }
         return this.random;
-    }
-
-    private void decrementTimers() {
-        if (this.delayTimer > 0) {
-            this.delayTimer -= 1;
-        }
-        if (this.soundTimer > 0) {
-            this.soundTimer -= 1;
-        }
-    }
-
-    void loadFlags(int length) {
-        System.arraycopy(this.flagsStorage, 0, this.registers, 0, length);
-    }
-
-    void saveFlags(int length) {
-        System.arraycopy(this.registers, 0, this.flagsStorage, 0, length);
     }
 
     public void execute(Emulator emulator, Instruction instruction, boolean decrementTimers) throws IOException {

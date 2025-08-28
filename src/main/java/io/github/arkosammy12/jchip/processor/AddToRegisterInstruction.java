@@ -11,9 +11,9 @@ public class AddToRegisterInstruction extends Instruction {
     @Override
     public void execute(Emulator emulator) {
         int register = this.getSecondNibble();
-        int operand = this.getSecondByte();
+        int addend = this.getSecondByte();
         int vX = emulator.getProcessor().getRegisterValue(register);
-        int value = (vX + operand) & 0xFF;
+        int value = (vX + addend) & 0xFF;
         emulator.getProcessor().setRegisterValue(register, value);
     }
 

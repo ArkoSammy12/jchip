@@ -43,8 +43,8 @@ public class FXOpcodeInstruction extends Instruction {
                 // TODO: Implement
             }
             case 0x07 -> { // Set VX to current delay timer
-                int value = emulator.getProcessor().getDelayTimer();
-                emulator.getProcessor().setRegisterValue(register, value);
+                int delayTimer = emulator.getProcessor().getDelayTimer();
+                emulator.getProcessor().setRegisterValue(register, delayTimer);
             }
             case 0x0A -> { // Get key
                 List<Integer> pressedKeys = emulator.getKeyState().getPressedKeys();

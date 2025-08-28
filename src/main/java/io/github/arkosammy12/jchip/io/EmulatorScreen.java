@@ -3,11 +3,9 @@ package io.github.arkosammy12.jchip.io;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
@@ -30,8 +28,6 @@ public class EmulatorScreen {
     private boolean isBeeping = false;
     private static final char PIXEL_ON = '█';
     private static final char PIXEL_OFF = ' ';
-    public static final int SCREEN_WIDTH = 64;
-    public static final int SCREEN_HEIGHT = 32;
     private int screenWidth = 128;
     private int screenHeight = 64;
     private boolean extendedMode = false;
@@ -57,12 +53,26 @@ public class EmulatorScreen {
         terminal.setForegroundColor(TextColor.ANSI.WHITE);
         terminal.setBackgroundColor(TextColor.ANSI.BLACK);
         terminal.setCursorVisible(false);
-
         this.terminalScreen = new TerminalScreen(terminal);
         this.terminalScreen.getTerminalSize();
         this.terminalScreen.doResizeIfNecessary();
         this.terminalScreen.startScreen();
+    }
 
+    public int getScreenWidth() {
+        return this.screenWidth;
+    }
+
+    public int getScreenHeight() {
+        return this.screenHeight;
+    }
+
+    public void setExtendedMode(boolean extendedMode) {
+        this.extendedMode = extendedMode;
+    }
+
+    public boolean isExtendedMode() {
+        return this.extendedMode;
     }
 
     public boolean togglePixelAt(int column, int row) {
@@ -81,7 +91,7 @@ public class EmulatorScreen {
     }
 
 
-    public void beep() {
+    public void buzz() {
         if (!isBeeping) {
             try {
                 AudioFormat af = new AudioFormat(44100f, 8, 1, true, false );
@@ -99,7 +109,7 @@ public class EmulatorScreen {
         }
     }
 
-    public void stopBeep() {
+    public void stopBuzz() {
         if (isBeeping && beepClip != null) {
             beepClip.stop();
             beepClip.close();
@@ -122,10 +132,6 @@ public class EmulatorScreen {
             }
         }
         this.terminalScreen.refresh();
-    }
-
-    public void close() throws IOException {
-        this.terminalScreen.close();
     }
 
     public void scrollDown(int scrollOffset) {
@@ -183,20 +189,8 @@ public class EmulatorScreen {
         }
     }
 
-    public void setExtendedMode(boolean extendedMode) {
-        this.extendedMode = extendedMode;
-    }
-
-    public int getScreenWidth() {
-        return this.screenWidth;
-    }
-
-    public int getScreenHeight() {
-        return this.screenHeight;
-    }
-
-    public boolean isExtendedMode() {
-        return this.extendedMode;
+    public void close() throws IOException {
+        this.terminalScreen.close();
     }
 
 }

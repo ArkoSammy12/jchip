@@ -13,30 +13,30 @@ public class ProgramArgs {
     private Path romPath;
 
     @CommandLine.Option(names = "--variant")
-    private ConsoleVariant consoleVariant = ConsoleVariant.CHIP_8;
+    private String consoleVariant = ConsoleVariant.CHIP_8.getIdentifier();
 
-     @CommandLine.Option(names = {"--save-state", "--save-path"})
+    @CommandLine.Option(names = {"--save-state", "--save-path"})
     private Path saveStatePath;
 
+    public boolean debugEnabled() {
+        return this.debug;
+    }
 
-     public Path getRomPath() {
-         return this.convertToAbsolutePathIfNeeded(this.romPath);
-     }
-
-     public Path getSaveStatePath() {
-         return this.convertToAbsolutePathIfNeeded(this.saveStatePath);
-     }
-
-     public ConsoleVariant getConsoleVariant() {
-         return this.consoleVariant;
-     }
-
-     private Path convertToAbsolutePathIfNeeded(Path path) {
-         Path ret = path;
-         if (!ret.isAbsolute()) {
-             ret = ret.toAbsolutePath();
-         }
-         return ret;
-     }
+    public Path getRomPath() {
+        return this.convertToAbsolutePathIfNeeded(this.romPath);
+    }
+    public Path getSaveStatePath() {
+        return this.convertToAbsolutePathIfNeeded(this.saveStatePath);
+    }
+    public ConsoleVariant getConsoleVariant() {
+        return ConsoleVariant.getVariantForIdentifier(this.consoleVariant);
+    }
+    private Path convertToAbsolutePathIfNeeded(Path path) {
+        Path ret = path;
+        if (!ret.isAbsolute()) {
+            ret = ret.toAbsolutePath();
+        }
+        return ret;
+    }
 
 }

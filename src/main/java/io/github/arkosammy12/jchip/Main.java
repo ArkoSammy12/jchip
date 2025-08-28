@@ -22,7 +22,7 @@ public class Main {
             if (deltaTime > TICK_INTERVAL) {
                 for (int i = 0; i < INSTRUCTIONS_PER_FRAME; i++) {
                     emulator.tick(i < 1);
-                    if (emulator.shouldWaitForVblank()) {
+                    if (emulator.shouldWaitForVBlank()) {
                         break;
                     }
                 }
