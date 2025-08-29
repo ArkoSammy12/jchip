@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.io;
 
 public enum ConsoleVariant {
-    CHIP_8("chip-8", "CHIP-8", 11),
+    CHIP_8("chip-8", "CHIP-8", 15),
     SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", 30),
     SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", 30),
     XO_CHIP("xo-chip", "XO-CHIP", 1000);
@@ -33,8 +33,12 @@ public enum ConsoleVariant {
         return this.identifier;
     }
 
-    public int getDefaultInstructionsPerFrame() {
-        return this.defaultInstructionsPerFrame;
+    public int getDefaultInstructionsPerFrame(boolean displayWaitEnabled) {
+        int ret = this.defaultInstructionsPerFrame;
+        if (this == ConsoleVariant.CHIP_8 && !displayWaitEnabled) {
+            ret = 11;
+        }
+        return ret;
     }
 
     public boolean isSchip() {

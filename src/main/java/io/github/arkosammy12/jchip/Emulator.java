@@ -28,7 +28,7 @@ public class Emulator implements AutoCloseable {
         this.consoleVariant = programArgs.getConsoleVariant();
         int instructionsPerFrame = programArgs.getInstructionsPerFrame();
         if (instructionsPerFrame <= 0) {
-            this.instructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame();
+            this.instructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame(programArgs.isDisplayWaitEnabled());
         } else {
             this.instructionsPerFrame = instructionsPerFrame;
         }
