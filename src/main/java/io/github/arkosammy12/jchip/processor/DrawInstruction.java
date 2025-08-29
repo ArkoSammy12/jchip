@@ -3,9 +3,9 @@ package io.github.arkosammy12.jchip.processor;
 import io.github.arkosammy12.jchip.Emulator;
 import io.github.arkosammy12.jchip.io.ConsoleVariant;
 
-public class DisplayInstruction extends Instruction {
+public class DrawInstruction extends Instruction {
 
-    public DisplayInstruction(int firstByte, int secondByte) {
+    public DrawInstruction(int firstByte, int secondByte) {
         super(firstByte, secondByte);
     }
 

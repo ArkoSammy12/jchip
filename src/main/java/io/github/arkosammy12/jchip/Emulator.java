@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip;
 
 import io.github.arkosammy12.jchip.io.*;
 import io.github.arkosammy12.jchip.memory.Memory;
-import io.github.arkosammy12.jchip.processor.DisplayInstruction;
+import io.github.arkosammy12.jchip.processor.DrawInstruction;
 import io.github.arkosammy12.jchip.processor.Instruction;
 import io.github.arkosammy12.jchip.processor.Instructions;
 import io.github.arkosammy12.jchip.processor.Processor;
@@ -88,7 +88,7 @@ public class Emulator implements AutoCloseable {
             Instruction instruction = Instructions.decodeBytes(newBytes[0], newBytes[1]);
             this.processor.execute(this, instruction, i < 1);
             ConsoleVariant consoleVariant = this.getConsoleVariant();
-            if (programArgs.isDisplayWaitEnabled() && instruction instanceof DisplayInstruction && (consoleVariant == ConsoleVariant.CHIP_8 || (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && !this.getEmulatorScreen().isExtendedMode()))) {
+            if (programArgs.isDisplayWaitEnabled() && instruction instanceof DrawInstruction && (consoleVariant == ConsoleVariant.CHIP_8 || (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && !this.getEmulatorScreen().isExtendedMode()))) {
                 break;
             }
             if (this.getKeyState().shouldTerminate()) {

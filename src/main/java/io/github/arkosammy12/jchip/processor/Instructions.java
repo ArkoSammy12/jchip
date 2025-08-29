@@ -16,7 +16,7 @@ public enum Instructions {
     SET_INDEX_REGISTER(0xA, SetIndexInstruction::new),
     JUMP_WITH_OFFSET(0xB, JumpWithOffsetInstruction::new),
     GENERATE_RANDOM(0xC, RandomNumberInstruction::new),
-    DISPLAY_INSTRUCTION(0xD, DisplayInstruction::new),
+    DRAW(0xD, DrawInstruction::new),
     SKIP_IF_KEY(0xE, SkipIfKeyInstruction::new),
     FX_OPCODE(0xF, FXOpcodeInstruction::new);
 
