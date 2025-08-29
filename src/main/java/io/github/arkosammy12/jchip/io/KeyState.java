@@ -1,7 +1,5 @@
 package io.github.arkosammy12.jchip.io;
 
-import io.github.arkosammy12.jchip.Utils;
-
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ public class KeyState extends KeyAdapter {
             terminateEmulator = true;
         }
         char c = e.getKeyChar();
-        int keyCode = Utils.getIntegerForCharacter(c);
+        int keyCode = getIntegerForCharacterQWERTY(c);
         if (keyCode < 0) {
             return;
         }
@@ -29,7 +27,7 @@ public class KeyState extends KeyAdapter {
     @Override
     public void keyReleased(KeyEvent e) {
         char c = e.getKeyChar();
-        int keyCode = Utils.getIntegerForCharacter(c);
+        int keyCode = getIntegerForCharacterQWERTY(c);
         if (keyCode < 0) {
             return;
         }
@@ -72,6 +70,72 @@ public class KeyState extends KeyAdapter {
 
     private synchronized void setKeyUnpressed(int keyCode) {
         this.keyState[keyCode] = false;
+    }
+
+    public static int getIntegerForCharacterQWERTY(char c) {
+        return switch (c) {
+            case 'x' -> 0x0;
+            case '1' -> 0x1;
+            case '2' -> 0x2;
+            case '3' -> 0x3;
+            case 'q' -> 0x4;
+            case 'w' -> 0x5;
+            case 'e' -> 0x6;
+            case 'a' -> 0x7;
+            case 's' -> 0x8;
+            case 'd' -> 0x9;
+            case 'z' -> 0xA;
+            case 'c' -> 0xB;
+            case '4' -> 0xC;
+            case 'r' -> 0xD;
+            case 'f' -> 0xE;
+            case 'v' -> 0xF;
+            default -> -1;
+        };
+    }
+
+    public static int getIntegerForCharacterAZERTY(char c) {
+        return switch (c) {
+            case 'x' -> 0x0;
+            case '1' -> 0x1;
+            case '2' -> 0x2;
+            case '3' -> 0x3;
+            case 'a' -> 0x4;
+            case 'z' -> 0x5;
+            case 'e' -> 0x6;
+            case 'q' -> 0x7;
+            case 's' -> 0x8;
+            case 'd' -> 0x9;
+            case 'w' -> 0xA;
+            case 'c' -> 0xB;
+            case '4' -> 0xC;
+            case 'r' -> 0xD;
+            case 'f' -> 0xE;
+            case 'v' -> 0xF;
+            default -> -1;
+        };
+    }
+
+    public static int getIntegerForCharacterColemak(char c) {
+        return switch (c) {
+            case 'x' -> 0x0;
+            case '1' -> 0x1;
+            case '2' -> 0x2;
+            case '3' -> 0x3;
+            case 'q' -> 0x4;
+            case 'w' -> 0x5;
+            case 'f' -> 0x6;
+            case 'a' -> 0x7;
+            case 'r' -> 0x8;
+            case 's' -> 0x9;
+            case 'z' -> 0xA;
+            case 'c' -> 0xB;
+            case '4' -> 0xC;
+            case 'p' -> 0xD;
+            case 't' -> 0xE;
+            case 'v' -> 0xF;
+            default -> -1;
+        };
     }
 
 }
