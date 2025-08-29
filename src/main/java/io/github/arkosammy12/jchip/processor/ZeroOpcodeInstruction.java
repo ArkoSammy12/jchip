@@ -19,7 +19,7 @@ public class ZeroOpcodeInstruction extends Instruction {
                     break;
                 }
                 int n = this.getFourthNibble();
-                emulator.getEmulatorScreen().scrollDown(n);
+                emulator.getEmulatorScreen().scrollDown(emulator, n);
             }
             case 0xD -> { // Scroll screen up
                 if (emulator.getProgramArgs().getConsoleVariant() != ConsoleVariant.XO_CHIP) {
@@ -47,10 +47,10 @@ public class ZeroOpcodeInstruction extends Instruction {
                 int subType = this.getFourthNibble();
                 switch (subType) {
                     case 0xB -> { // Scroll screen right
-                        emulator.getEmulatorScreen().scrollRight();
+                        emulator.getEmulatorScreen().scrollRight(emulator);
                     }
                     case 0xC -> { // Scroll screen left
-                        emulator.getEmulatorScreen().scrollLeft();
+                        emulator.getEmulatorScreen().scrollLeft(emulator);
                     }
                     case 0xD -> { // Exit interpreter
                         emulator.terminate();

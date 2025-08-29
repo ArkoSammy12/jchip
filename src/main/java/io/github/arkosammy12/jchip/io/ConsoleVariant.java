@@ -1,17 +1,19 @@
 package io.github.arkosammy12.jchip.io;
 
 public enum ConsoleVariant {
-    CHIP_8("chip-8", "CHIP-8"),
-    SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1"),
-    SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN"),
-    XO_CHIP("xo-chip", "XO-CHIP");
+    CHIP_8("chip-8", "CHIP-8", 11),
+    SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", 30),
+    SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", 30),
+    XO_CHIP("xo-chip", "XO-CHIP", 1000);
 
     private final String identifier;
     private final String displayName;
+    private final int defaultInstructionsPerFrame;
 
-    ConsoleVariant(String identifier, String displayName) {
+    ConsoleVariant(String identifier, String displayName, int defaultInstructionsPerFrame) {
         this.identifier = identifier;
         this.displayName = displayName;
+        this.defaultInstructionsPerFrame = defaultInstructionsPerFrame;
     }
 
     public static ConsoleVariant getVariantForIdentifier(String identifier) {
@@ -29,6 +31,10 @@ public enum ConsoleVariant {
 
     public String getIdentifier() {
         return this.identifier;
+    }
+
+    public int getDefaultInstructionsPerFrame() {
+        return this.defaultInstructionsPerFrame;
     }
 
     public boolean isSchip() {

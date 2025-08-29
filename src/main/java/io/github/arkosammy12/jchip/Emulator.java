@@ -7,13 +7,11 @@ import io.github.arkosammy12.jchip.processor.Instruction;
 import io.github.arkosammy12.jchip.processor.Instructions;
 import io.github.arkosammy12.jchip.processor.Processor;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Emulator {
+public class Emulator implements AutoCloseable {
 
     private final Processor processor = new Processor();
     private final Memory memory;
@@ -22,12 +20,18 @@ public class Emulator {
     private final CharacterFont characterFont;
     private final ProgramArgs programArgs;
     private final ConsoleVariant consoleVariant;
+    private final int instructionsPerFrame;
     private boolean terminated = false;
-    private boolean waitForVBlank = false;
 
     public Emulator(ProgramArgs programArgs) throws IOException {
         this.programArgs = programArgs;
         this.consoleVariant = programArgs.getConsoleVariant();
+        int instructionsPerFrame = programArgs.getInstructionsPerFrame();
+        if (instructionsPerFrame <= 0) {
+            this.instructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame();
+        } else {
+            this.instructionsPerFrame = instructionsPerFrame;
+        }
         Path programPath = this.programArgs.getRomPath();
         if (!programPath.isAbsolute()) {
             programPath = programPath.toAbsolutePath();
@@ -37,42 +41,7 @@ public class Emulator {
         for (int i = 0; i < program.length; i++) {
             program[i] = programAsBytes[i] & 0xFF;
         }
-        KeyAdapter keyAdapter = new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    terminated = true;
-                }
-                char c = e.getKeyChar();
-                int keyCode = Utils.getIntegerForCharacter(c);
-                if (keyCode < 0) {
-                    return;
-                }
-                keyState.setKeyPressed(keyCode);
-            }
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    terminated = true;
-                }
-                char c = e.getKeyChar();
-                int keyCode = Utils.getIntegerForCharacter(c);
-                if (keyCode < 0) {
-                    return;
-                }
-                keyState.setKeyPressed(keyCode);
-            }
-            @Override
-            public void keyReleased(KeyEvent e) {
-                char c = e.getKeyChar();
-                int keyCode = Utils.getIntegerForCharacter(c);
-                if (keyCode < 0) {
-                    return;
-                }
-                keyState.setKeyUnpressed(keyCode);
-            }
-        };
-        this.emulatorScreen = new EmulatorScreen(this, keyAdapter);
+        this.emulatorScreen = new EmulatorScreen(this, this.keyState);
         this.characterFont = new CharacterFont(this);
         this.memory = new Memory(program, this.characterFont);
     }
@@ -105,14 +74,6 @@ public class Emulator {
         return this.consoleVariant;
     }
 
-    public boolean shouldWaitForVBlank() {
-        boolean returnValue = this.waitForVBlank;
-        if (returnValue) {
-            this.waitForVBlank = false;
-        }
-        return returnValue;
-    }
-
     public void terminate() {
         this.terminated = true;
     }
@@ -121,21 +82,24 @@ public class Emulator {
         return this.terminated;
     }
 
-    public void tick(boolean decrementTimers) throws IOException {
+    public void tick() throws IOException {
+        for (int i = 0; i < this.instructionsPerFrame; i++) {
+            int[] newBytes = this.fetch();
+            Instruction instruction = Instructions.decodeBytes(newBytes[0], newBytes[1]);
+            this.processor.execute(this, instruction, i < 1);
+            ConsoleVariant consoleVariant = this.getConsoleVariant();
+            if (programArgs.isDisplayWaitEnabled() && instruction instanceof DisplayInstruction && (consoleVariant == ConsoleVariant.CHIP_8 || (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && !this.getEmulatorScreen().isExtendedMode()))) {
+                break;
+            }
+            if (this.getKeyState().shouldTerminate()) {
+                this.terminated = true;
+            }
+        }
+        this.getEmulatorScreen().flush();
         if (this.getProcessor().getSoundTimer() > 0) {
             this.getEmulatorScreen().buzz();
         } else {
             this.getEmulatorScreen().stopBuzz();
-        }
-        int[] newBytes = this.fetch();
-        Instruction instruction = Instructions.decodeBytes(newBytes[0], newBytes[1]);
-        this.processor.execute(this, instruction, decrementTimers);
-        ConsoleVariant consoleVariant = this.getConsoleVariant();
-        if (this.getEmulatorScreen().isModified()) {
-            this.getEmulatorScreen().flush();
-        }
-        if (instruction instanceof DisplayInstruction && (consoleVariant == ConsoleVariant.CHIP_8 || (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && !this.getEmulatorScreen().isExtendedMode()))) {
-            this.waitForVBlank = true;
         }
     }
 

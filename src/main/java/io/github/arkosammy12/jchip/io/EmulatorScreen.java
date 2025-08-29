@@ -16,11 +16,12 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-public class EmulatorScreen {
+public class EmulatorScreen implements Closeable {
 
     private final Screen terminalScreen;
     private final char[][] screenBuffer = new char[128][64];
@@ -41,7 +42,6 @@ public class EmulatorScreen {
             this.screenHeight = 32;
             fontSize = 16;
         }
-        this.clear();
         SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
                 .setInitialTerminalSize(new TerminalSize(this.screenWidth * 2, this.screenHeight))
                 .setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.getDefaultOfSize(fontSize))
@@ -60,6 +60,7 @@ public class EmulatorScreen {
         this.terminalScreen = new TerminalScreen(terminal);
         this.terminalScreen.getTerminalSize();
         this.terminalScreen.doResizeIfNecessary();
+        this.clear();
         this.terminalScreen.startScreen();
     }
 
@@ -79,14 +80,11 @@ public class EmulatorScreen {
         return this.extendedMode;
     }
 
-    public boolean isModified() {
-        return this.modified;
-    }
-
     public boolean togglePixelAt(int column, int row) {
         if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
             return false;
         }
+        this.modified = true;
         char currentChar = this.screenBuffer[column][row];
         char newChar = PIXEL_ON;
         boolean toggledOff = false;
@@ -95,10 +93,121 @@ public class EmulatorScreen {
             toggledOff = true;
         }
         this.screenBuffer[column][row] = newChar;
-        this.modified = true;
         return toggledOff;
     }
 
+    public void scrollDown(Emulator emulator, int n) {
+        this.modified = true;
+        ConsoleVariant consoleVariant = emulator.getConsoleVariant();
+        int scrollAmount;
+        if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+            scrollAmount = n;
+        } else {
+            if (this.extendedMode) {
+                scrollAmount = n;
+            } else {
+                scrollAmount = n * 2;
+            }
+        }
+        for (int i = this.screenHeight - 1; i >= 0; i--) {
+            int shiftedVerticalPosition = scrollAmount + i;
+            if (shiftedVerticalPosition >= this.screenHeight) {
+                continue;
+            }
+            for (int j = 0; j < this.screenWidth; j++) {
+                this.screenBuffer[j][shiftedVerticalPosition] = this.screenBuffer[j][i];
+            }
+        }
+        // Clear the top scrollOffset rows
+        for (int y = 0; y < scrollAmount && y < this.screenHeight; y++) {
+            for (int x = 0; x < this.screenWidth; x++) {
+                this.screenBuffer[x][y] = PIXEL_OFF;
+            }
+        }
+    }
+
+    public void scrollRight(Emulator emulator) {
+        this.modified = true;
+        ConsoleVariant consoleVariant = emulator.getConsoleVariant();
+        int scrollAmount;
+        if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+            scrollAmount = 4;
+        } else {
+            if (this.extendedMode) {
+                scrollAmount = 4;
+            } else {
+                scrollAmount = 8;
+            }
+        }
+        for (int i = this.screenWidth - 1; i >= 0; i--) {
+            int shiftedHorizontalPosition = i + scrollAmount;
+            if (shiftedHorizontalPosition >= this.screenWidth) {
+                continue;
+            }
+            for (int j = 0; j < this.screenHeight; j++) {
+                this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
+            }
+        }
+        // Clear the leftmost 4 columns
+        for (int x = 0; x < scrollAmount && x < this.screenWidth; x++) {
+            for (int y = 0; y < this.screenHeight; y++) {
+                this.screenBuffer[x][y] = PIXEL_OFF;
+            }
+        }
+    }
+
+    public void scrollLeft(Emulator emulator) {
+        this.modified = true;
+        ConsoleVariant consoleVariant = emulator.getConsoleVariant();
+        int scrollAmount;
+        if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+            scrollAmount = 4;
+        } else {
+            if (this.extendedMode) {
+                scrollAmount = 4;
+            } else {
+                scrollAmount = 8;
+            }
+        }
+        for (int i = 0; i < this.screenWidth; i++) {
+            int shiftedHorizontalPosition = i - scrollAmount;
+            if (shiftedHorizontalPosition < 0) {
+                continue;
+            }
+            for (int j = 0; j < this.screenHeight; j++) {
+                this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
+            }
+        }
+
+        for (int x = this.screenWidth - scrollAmount; x < this.screenWidth; x++) {
+            if (x < 0) continue;
+            for (int y = 0; y < this.screenHeight; y++) {
+                this.screenBuffer[x][y] = PIXEL_OFF;
+            }
+        }
+    }
+
+    public void clear() {
+        this.modified = false;
+        for (char[] chars : screenBuffer) {
+            Arrays.fill(chars, PIXEL_OFF);
+        }
+    }
+
+    public void flush() throws IOException {
+        if (!this.modified) {
+            return;
+        }
+        this.modified = false;
+        for (int i = 0; i < this.screenWidth; i++) {
+            for (int j = 0; j < this.screenHeight; j++) {
+                TextCharacter character = TextCharacter.fromCharacter(screenBuffer[i][j])[0];
+                this.terminalScreen.setCharacter(i * 2, j, character);
+                this.terminalScreen.setCharacter((i * 2) + 1, j, character);
+            }
+        }
+        this.terminalScreen.refresh();
+    }
 
     public void buzz() {
         if (!isBeeping) {
@@ -123,79 +232,6 @@ public class EmulatorScreen {
             beepClip.stop();
             beepClip.close();
             isBeeping = false;
-        }
-    }
-
-     public void clear() {
-         for (char[] chars : screenBuffer) {
-             Arrays.fill(chars, PIXEL_OFF);
-         }
-     }
-
-    public void flush() throws IOException {
-        this.modified = false;
-        for (int i = 0; i < this.screenWidth; i++) {
-            for (int j = 0; j < this.screenHeight; j++) {
-                TextCharacter character = TextCharacter.fromCharacter(screenBuffer[i][j])[0];
-                this.terminalScreen.setCharacter(i * 2, j, character);
-                this.terminalScreen.setCharacter((i * 2) + 1, j, character);
-            }
-        }
-        this.terminalScreen.refresh();
-    }
-
-    public void scrollDown(int scrollOffset) {
-        for (int i = this.screenHeight - 1; i >= 0; i--) {
-            int shiftedVerticalPosition = scrollOffset + i;
-            if (shiftedVerticalPosition >= this.screenHeight) {
-                continue;
-            }
-            for (int j = 0; j < this.screenWidth; j++) {
-                this.screenBuffer[j][shiftedVerticalPosition] = this.screenBuffer[j][i];
-            }
-        }
-        // Clear the top scrollOffset rows
-        for (int y = 0; y < scrollOffset && y < this.screenHeight; y++) {
-            for (int x = 0; x < this.screenWidth; x++) {
-                this.screenBuffer[x][y] = PIXEL_OFF;
-            }
-        }
-    }
-
-    public void scrollRight() {
-        for (int i = this.screenWidth - 1; i >= 0; i--) {
-            int shiftedHorizontalPosition = i + 4;
-            if (shiftedHorizontalPosition >= this.screenWidth) {
-                continue;
-            }
-            for (int j = 0; j < this.screenHeight; j++) {
-                this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
-            }
-        }
-        // Clear the leftmost 4 columns
-        for (int x = 0; x < 4 && x < this.screenWidth; x++) {
-            for (int y = 0; y < this.screenHeight; y++) {
-                this.screenBuffer[x][y] = PIXEL_OFF;
-            }
-        }
-    }
-
-    public void scrollLeft() {
-        for (int i = 0; i < this.screenWidth; i++) {
-            int shiftedHorizontalPosition = i - 4;
-            if (shiftedHorizontalPosition < 0) {
-                continue;
-            }
-            for (int j = 0; j < this.screenHeight; j++) {
-                this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
-            }
-        }
-        // Clear the rightmost 4 columns
-        for (int x = this.screenWidth - 4; x < this.screenWidth; x++) {
-            if (x < 0) continue;
-            for (int y = 0; y < this.screenHeight; y++) {
-                this.screenBuffer[x][y] = PIXEL_OFF;
-            }
         }
     }
 
