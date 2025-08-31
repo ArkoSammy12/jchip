@@ -56,7 +56,7 @@ public class FiveOpcodeInstruction extends AbstractInstruction {
                     throw new InvalidInstructionException(this, consoleVariant);
                 }
                 int currentIndexPointer = processor.getIndexRegister();
-                boolean iterateInReverse = vX > vY;
+                boolean iterateInReverse = firstRegister > secondRegister;
                 for (int i = firstRegister, j = 0; iterateInReverse ? i >= secondRegister : i <= secondRegister; j++) {
                     int memoryValue = memory.readByte(currentIndexPointer + j);
                     processor.setRegister(i, memoryValue);
