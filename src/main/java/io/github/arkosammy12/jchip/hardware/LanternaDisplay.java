@@ -33,22 +33,10 @@ public class LanternaDisplay implements Display {
     private boolean modified = false;
 
     int[] cBitColors = {
-            0x00000000,
-            0xFFFFFFFF,
-            0xFFAAAAAA,
-            0xFF555555,
-            0xFFFF0000,
-            0xFF00FF00,
-            0xFF0000FF,
-            0xFFFFFF00,
-            0xFF880000,
-            0xFF008800,
-            0xFF000088,
-            0xFF888800,
-            0xFFFF00FF,
-            0xFF00FFFF,
-            0xFF880088,
-            0xFF008888
+            0x181C2000, 0xE4DCD400, 0x8C888400, 0x403C3800,
+            0xD8201000, 0x40D02000, 0x1040D000, 0xE0C81800,
+            0x50101000, 0x10501000, 0x50B0C000, 0xF0801000,
+            0xE0609000, 0xE0F09000, 0xB050F000, 0x70402000,
     };
 
     int[][] rgbColors = new int[cBitColors.length][3];
