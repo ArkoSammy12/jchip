@@ -24,23 +24,21 @@ public class LanternaDisplay implements Display {
     private final Screen terminalScreen;
     private final CharacterFont characterFont;
     private final ConsoleVariant consoleVariant;
-    private final char[][][] bitPlanes = new char[4][128][64];
-    private static final char PIXEL_ON = '█';
-    private static final char PIXEL_OFF = ' ';
+    private final boolean[][][] bitPlanes = new boolean[4][128][64];
+    private static final char PIXEL_CHAR = '█';
     private int screenWidth = 128;
     private int screenHeight = 64;
     private boolean extendedMode = false;
     private boolean modified = false;
 
     int[] cBitColors = {
-            0x181C2000, 0xE4DCD400, 0x8C888400, 0x403C3800,
-            0xD8201000, 0x40D02000, 0x1040D000, 0xE0C81800,
-            0x50101000, 0x10501000, 0x50B0C000, 0xF0801000,
-            0xE0609000, 0xE0F09000, 0xB050F000, 0x70402000,
+            0x1a1c2cff, 0xf4f4f4ff, 0x94b0c2ff, 0x333c57ff,
+            0xb13e53ff, 0xa7f070ff, 0x3b5dc9ff, 0xffcd75ff,
+            0x5d275dff, 0x38b764ff, 0x29366fff, 0x566c86ff,
+            0xef7d57ff, 0x73eff7ff, 0x41a6f6ff, 0x257179ff
     };
 
     int[][] rgbColors = new int[cBitColors.length][3];
-
 
     public LanternaDisplay(ConsoleVariant consoleVariant, KeyAdapter keyAdapter) throws IOException {
         int fontSize = 9;
@@ -116,15 +114,29 @@ public class LanternaDisplay implements Display {
             return false;
         }
         this.modified = true;
-        char currentChar = this.bitPlanes[bitPlane][column][row];
-        char newChar = PIXEL_ON;
+        boolean pixelSet = this.bitPlanes[bitPlane][column][row];
+        boolean newPixel = true;
         boolean collided = false;
-        if (currentChar == PIXEL_ON) {
-            newChar = PIXEL_OFF;
+        if (pixelSet) {
+            newPixel = false;
             collided = true;
         }
-        this.bitPlanes[bitPlane][column][row] = newChar;
+        this.bitPlanes[bitPlane][column][row] = newPixel;
         return collided;
+    }
+
+    @Override
+    public void setPixel(int column, int row, int bitPlane, boolean value) {
+        if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
+            return;
+        }
+        this.modified = true;
+        this.bitPlanes[bitPlane][column][row] = value;
+    }
+
+    @Override
+    public boolean getPixel(int column, int row, int bitPlane) {
+        return this.bitPlanes[bitPlane][column][row];
     }
 
     @Override
@@ -141,7 +153,7 @@ public class LanternaDisplay implements Display {
             }
         }
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
@@ -158,7 +170,7 @@ public class LanternaDisplay implements Display {
             for (int y = this.screenHeight - trueScrollAmount; y < this.screenHeight; y++) {
                 if (y < 0) continue;
                 for (int x = 0; x < this.screenWidth; x++) {
-                    this.bitPlanes[bitPlane][x][y] = PIXEL_OFF;
+                    this.bitPlanes[bitPlane][x][y] = false;
                 }
             }
         }
@@ -179,7 +191,7 @@ public class LanternaDisplay implements Display {
         }
 
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
@@ -195,7 +207,7 @@ public class LanternaDisplay implements Display {
             // Clear the top scrollOffset rows
             for (int y = 0; y < trueScrollAmount && y < this.screenHeight; y++) {
                 for (int x = 0; x < this.screenWidth; x++) {
-                    this.bitPlanes[bitPlane][x][y] = PIXEL_OFF;
+                    this.bitPlanes[bitPlane][x][y] = false;
                 }
             }
         }
@@ -215,7 +227,7 @@ public class LanternaDisplay implements Display {
             }
         }
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
@@ -231,7 +243,7 @@ public class LanternaDisplay implements Display {
             // Clear the leftmost 4 columns
             for (int x = 0; x < scrollAmount && x < this.screenWidth; x++) {
                 for (int y = 0; y < this.screenHeight; y++) {
-                    this.bitPlanes[bitPlane][x][y] = PIXEL_OFF;
+                    this.bitPlanes[bitPlane][x][y] = false;
                 }
             }
         }
@@ -251,7 +263,7 @@ public class LanternaDisplay implements Display {
             }
         }
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
@@ -267,7 +279,7 @@ public class LanternaDisplay implements Display {
             for (int x = this.screenWidth - scrollAmount; x < this.screenWidth; x++) {
                 if (x < 0) continue;
                 for (int y = 0; y < this.screenHeight; y++) {
-                    this.bitPlanes[bitPlane][x][y] = PIXEL_OFF;
+                    this.bitPlanes[bitPlane][x][y] = false;
                 }
             }
         }
@@ -277,12 +289,12 @@ public class LanternaDisplay implements Display {
     public void clear(int selectedBitPlanes) {
         this.modified = true;
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
             for (int i = 0; i < this.bitPlanes[bitPlane].length; i++) {
-                Arrays.fill(this.bitPlanes[bitPlane][i], PIXEL_OFF);
+                Arrays.fill(this.bitPlanes[bitPlane][i], false);
             }
         }
     }
@@ -297,9 +309,9 @@ public class LanternaDisplay implements Display {
             for (int j = 0; j < this.screenHeight; j++) {
                 int screenNibble = 0;
                 for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-                    screenNibble |= (this.bitPlanes[bitPlane][i][j] == PIXEL_ON ? 1 << bitPlane : 0);
+                    screenNibble |= (this.bitPlanes[bitPlane][i][j] ? 1 << bitPlane : 0);
                 }
-                TextCharacter character = TextCharacter.fromCharacter(PIXEL_ON)[0].withForegroundColor(new TextColor.RGB(this.rgbColors[screenNibble][0], this.rgbColors[screenNibble][1], this.rgbColors[screenNibble][2]));
+                TextCharacter character = TextCharacter.fromCharacter(PIXEL_CHAR)[0].withForegroundColor(new TextColor.RGB(this.rgbColors[screenNibble][0], this.rgbColors[screenNibble][1], this.rgbColors[screenNibble][2]));
                 this.terminalScreen.setCharacter(i * 2, j, character);
                 this.terminalScreen.setCharacter((i * 2) + 1, j, character);
             }

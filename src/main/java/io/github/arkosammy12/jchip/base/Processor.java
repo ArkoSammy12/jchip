@@ -32,9 +32,9 @@ public interface Processor {
 
     void setRegister(int register, int value);
 
-    void setBitPlane(int bitPlane);
+    void setSelectedBitPlanes(int selectedBitPlanes);
 
-    int getBitPlane();
+    int getSelectedBitPlanes();
 
     default void setCarry(boolean value) {
         this.setRegister(0xF, value ? 1 : 0);

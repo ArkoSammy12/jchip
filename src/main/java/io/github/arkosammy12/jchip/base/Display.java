@@ -15,6 +15,10 @@ public interface Display extends Closeable {
 
     boolean togglePixel(int column, int row, int bitPlane);
 
+    void setPixel(int column, int row, int bitPlane, boolean value);
+
+    boolean getPixel(int column, int row, int bitPlane);
+
     void setExtendedMode(boolean extendedMode);
 
     boolean isExtendedMode();

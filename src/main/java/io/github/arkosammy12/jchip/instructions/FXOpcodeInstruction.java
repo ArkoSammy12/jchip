@@ -47,7 +47,7 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                     throw new InvalidInstructionException(this, consoleVariant);
                 }
                 int bitPlane = this.getSecondNibble();
-                processor.setBitPlane(bitPlane);
+                processor.setSelectedBitPlanes(bitPlane);
 
             }
             case 0x02 -> { // Load audio pattern

@@ -16,12 +16,12 @@ public class XOChipDraw extends Draw {
         Processor processor = this.executionContext.getProcessor();
         Display display = this.executionContext.getDisplay();
         Memory memory = this.executionContext.getMemory();
-        processor.setCarry(false);
-        int selectedBitPlanes = processor.getBitPlane();
-        int planeIterator = 0;
+        int selectedBitPlanes = processor.getSelectedBitPlanes();
         boolean collided = false;
+        processor.setCarry(false);
+        int planeIterator = 0;
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
@@ -33,7 +33,7 @@ public class XOChipDraw extends Draw {
                 int slice;
                 int sliceLength;
                 if (spriteHeight >= 16) {
-                    int firstByte = memory.readByte((currentIndexRegister + (planeIterator * 2)));
+                    int firstByte = memory.readByte(currentIndexRegister + (planeIterator * 2));
                     int secondByte = memory.readByte(currentIndexRegister + (planeIterator * 2) + 1);
                     slice = (firstByte << 8) | secondByte;
                     sliceLength = 16;
@@ -46,18 +46,19 @@ public class XOChipDraw extends Draw {
                     if (sliceX >= screenWidth) {
                         sliceX %= screenWidth;
                     }
-                    int mask = (int) Math.pow(2, (sliceLength - 1) - j);
+                    int mask = 1 << ((sliceLength - 1) - j);
                     if ((slice & mask) <= 0) {
                         continue;
                     }
                     if (extendedMode) {
-                        collided = display.togglePixel(sliceX, sliceY, bitPlane);
+                        collided |= display.togglePixel(sliceX, sliceY, bitPlane);
                     } else {
-                        // TODO: Copy top row of pixels into bottom one instead of xoring bottom row for schip-legacy
-                        collided = display.togglePixel(sliceX * 2, sliceY * 2, bitPlane);
+                        collided |= display.togglePixel(sliceX * 2, sliceY * 2, bitPlane);
                         collided |= display.togglePixel((sliceX * 2) + 1, sliceY * 2, bitPlane);
-                        display.togglePixel(sliceX * 2, (sliceY * 2) + 1, bitPlane);
-                        display.togglePixel((sliceX * 2) + 1, (sliceY * 2) + 1, bitPlane);
+                        boolean topLeftPixel = display.getPixel(sliceX * 2, sliceY * 2, bitPlane);
+                        boolean topRightPixel = display.getPixel((sliceX * 2) + 1, sliceY * 2, bitPlane);
+                        display.setPixel(sliceX * 2, (sliceY * 2) + 1, bitPlane, topLeftPixel);
+                        display.setPixel((sliceX * 2) + 1, (sliceY * 2) + 1, bitPlane, topRightPixel);
                     }
                 }
                 planeIterator++;
@@ -65,4 +66,5 @@ public class XOChipDraw extends Draw {
         }
         processor.setCarry(collided);
     }
+
 }

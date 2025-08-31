@@ -63,7 +63,7 @@ public class ALUInstruction extends AbstractInstruction {
                 processor.setCarry(noBorrow);
             }
             case 0x6 -> { // Shift right and register
-                int operand = consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP? vY : vX;
+                int operand = consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP ? vY : vX;
                 boolean shiftedOut = (operand & 1) > 0;
                 int value = (operand >>> 1) & 0xFF;
                 processor.setRegister(firstRegister, value);

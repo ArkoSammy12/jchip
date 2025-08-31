@@ -25,16 +25,13 @@ public class Draw extends AbstractInstruction {
         this.extendedMode = display.isExtendedMode();
         int firstRegister = this.getSecondNibble();
         int secondRegister = this.getThirdNibble();
-
         int spriteHeight = this.getFourthNibble();
-        if (spriteHeight < 1) {
+        if (spriteHeight < 1 && consoleVariant.isSchipOrXoChip()) {
             spriteHeight = 16;
         }
         this.spriteHeight = spriteHeight;
-
         int screenWidth = display.getWidth();
         int screenHeight = display.getHeight();
-
         if (!this.extendedMode && consoleVariant != ConsoleVariant.CHIP_8) {
             screenWidth /= 2;
             screenHeight /= 2;
@@ -79,7 +76,7 @@ public class Draw extends AbstractInstruction {
                 if (sliceX >= screenWidth) {
                     break;
                 }
-                int mask = (int) Math.pow(2, (sliceLength - 1) - j);
+                int mask = 1 << ((sliceLength - 1) - j);
                 if ((slice & mask) <= 0) {
                     continue;
                 }
@@ -87,11 +84,12 @@ public class Draw extends AbstractInstruction {
                 if (extendedMode || consoleVariant == ConsoleVariant.CHIP_8) {
                     collided = display.togglePixel(sliceX, sliceY, 0);
                 } else {
-                    // TODO: Copy top row of pixels into bottom one instead of xoring bottom row for schip-legacy
                     collided = display.togglePixel(sliceX * 2, sliceY * 2, 0);
                     collided |= display.togglePixel((sliceX * 2) + 1, sliceY * 2, 0);
-                    display.togglePixel(sliceX * 2, (sliceY * 2) + 1, 0);
-                    display.togglePixel((sliceX * 2) + 1, (sliceY * 2) + 1, 0);
+                    boolean topLeftPixel = display.getPixel(sliceX * 2, sliceY * 2, 0);
+                    boolean topRightPixel = display.getPixel((sliceX * 2) + 1, sliceY * 2, 0);
+                    display.setPixel(sliceX * 2, (sliceY * 2) + 1, 0, topLeftPixel);
+                    display.setPixel((sliceX * 2) + 1, (sliceY * 2) + 1, 0, topRightPixel);
                 }
                 if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && collided && extendedMode) {
                     rowHasCollision = true;

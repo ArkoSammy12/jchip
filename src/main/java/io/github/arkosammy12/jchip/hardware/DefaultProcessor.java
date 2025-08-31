@@ -18,7 +18,7 @@ public class DefaultProcessor implements Processor {
     private final Stack<Integer> programStack = new Stack<>();
     private int delayTimer;
     private int soundTimer;
-    private int bitPlane = 1;
+    private int selectedBitPlanes = 1;
     private final int[] registers = new int[16];
     private final int[] flagsStorage = new int[16];
     private Random random;
@@ -83,13 +83,13 @@ public class DefaultProcessor implements Processor {
     }
 
     @Override
-    public void setBitPlane(int bitPlane) {
-        this.bitPlane = bitPlane;
+    public void setSelectedBitPlanes(int selectedBitPlanes) {
+        this.selectedBitPlanes = selectedBitPlanes;
     }
 
     @Override
-    public int getBitPlane() {
-        return this.bitPlane;
+    public int getSelectedBitPlanes() {
+        return this.selectedBitPlanes;
     }
 
     @Override
