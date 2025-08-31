@@ -36,14 +36,14 @@ public class ZeroOpcodeInstruction extends AbstractInstruction {
                 if (scrollAmount <= 0 && consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
                     throw new InvalidInstructionException(this, consoleVariant);
                 }
-                display.scrollDown(scrollAmount);
+                display.scrollDown(scrollAmount, processor.getBitPlane());
             }
             case 0xD -> { // Scroll screen up
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
                     break;
                 }
                 int scrollAmount = this.getFourthNibble();
-                // TODO: Implement
+                display.scrollUp(scrollAmount, processor.getBitPlane());
             }
             case 0xE -> this.handleEType();
             case 0xF -> this.handleFType();
@@ -55,7 +55,7 @@ public class ZeroOpcodeInstruction extends AbstractInstruction {
         int subType = this.getFourthNibble();
         switch (subType) { // Clear screen
             case 0x0 -> {
-                display.clear();
+                display.clear(processor.getBitPlane());
             }
             case 0xE -> { // Return from subroutine
                 int returnAddress = processor.pop();
@@ -72,10 +72,10 @@ public class ZeroOpcodeInstruction extends AbstractInstruction {
         int subType = this.getFourthNibble();
         switch (subType) {
             case 0xB -> { // Scroll screen right
-                display.scrollRight();
+                display.scrollRight(processor.getBitPlane());
             }
             case 0xC -> { // Scroll screen left
-                display.scrollLeft();
+                display.scrollLeft(processor.getBitPlane());
             }
             case 0xD -> { // Exit interpreter
                 this.terminateEmulator = true;
@@ -83,13 +83,13 @@ public class ZeroOpcodeInstruction extends AbstractInstruction {
             case 0xE -> { // Set lores mode
                 display.setExtendedMode(false);
                 if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
-                    display.clear();
+                    display.clear(processor.getBitPlane());
                 }
             }
             case 0xF -> { // Set hires mode
                 display.setExtendedMode(true);
                 if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
-                    display.clear();
+                    display.clear(processor.getBitPlane());
                 }
             }
             default -> throw new InvalidInstructionException(this);

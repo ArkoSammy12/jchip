@@ -24,23 +24,31 @@ public class FXOpcodeInstruction extends AbstractInstruction {
 
     @Override
     public void execute() throws InvalidInstructionException {
-        Processor processor = this.executionContext.getProcessor();;
+        Processor processor = this.executionContext.getProcessor();
         ConsoleVariant consoleVariant = this.executionContext.getConsoleVariant();
         switch (type) {
-            case 0x00 -> { // TODO: Name this instruction
+            case 0x00 -> { // Point to 16 bit address
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    break;
+                    throw new InvalidInstructionException(this, consoleVariant);
                 }
                 if (this.getSecondNibble() != 0) {
-                    break;
+                    throw new InvalidInstructionException(this, consoleVariant);
                 }
-                // TODO: Implement
+                Memory memory = this.executionContext.getMemory();
+                int currentProgramCounter = processor.getProgramCounter();
+                int firstByte = memory.readByte(currentProgramCounter);
+                int secondByte = memory.readByte(currentProgramCounter + 1);
+                int address = (firstByte << 8) | secondByte;
+                processor.setIndexRegister(address);
+                processor.incrementProgramCounter();
             }
             case 0x01 -> { // Select bit plane when drawing with DXY0/DXYN
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    break;
+                    throw new InvalidInstructionException(this, consoleVariant);
                 }
-                // TODO: Implement
+                int bitPlane = this.getSecondNibble();
+                processor.setBitPlane(bitPlane);
+
             }
             case 0x02 -> { // Load audio pattern
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
@@ -87,8 +95,9 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                 processor.setSoundTimer(vX);
             }
             case 0x1E -> { // Add to index
+                Memory memory = executionContext.getMemory();
                 int currentIndexRegister = processor.getIndexRegister();
-                int value = (vX + currentIndexRegister) & 0xFFF;
+                int value = (vX + currentIndexRegister) & (memory.getMemorySize() - 1);
                 processor.setIndexRegister(value);
             }
             case 0x29 -> { // Point to small font character
@@ -126,27 +135,25 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                 }
                 // TODO: Implement
             }
-            case 0x55 -> { // Store in memory
+            case 0x55 -> { // Store in memory v0 - vX
                 Memory memory = this.executionContext.getMemory();
                 int currentIndexPointer = processor.getIndexRegister();
-                for (int i = 0; i < register + 1; i++) {
+                for (int i = 0; i <= register; i++) {
                     int registerValue = processor.getRegister(i);
-                    // Storing to memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
-                    memory.storeByte((currentIndexPointer + i) & 0xFFF, registerValue);
+                    memory.storeByte(currentIndexPointer + i, registerValue);
                 }
-                if (consoleVariant == ConsoleVariant.CHIP_8) {
+                if (consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP) {
                     processor.setIndexRegister(currentIndexPointer + register + 1);
                 }
             }
-            case 0x65 -> { // Load from memory
+            case 0x65 -> { // Load from memory v0 - vY
                 Memory memory = this.executionContext.getMemory();
                 int currentIndexPointer = processor.getIndexRegister();
-                for (int i = 0; i < register + 1; i++) {
-                    // Reading from memory beyond 0xFFF is undefined behavior. Chosen action is to overflow back to 0
+                for (int i = 0; i <= register; i++) {
                     int memoryValue = memory.readByte(currentIndexPointer + i);
                     processor.setRegister(i, memoryValue);
                 }
-                if (consoleVariant == ConsoleVariant.CHIP_8) {
+                if (consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP) {
                     processor.setIndexRegister(currentIndexPointer + register + 1);
                 }
             }

@@ -24,7 +24,7 @@ public class LanternaDisplay implements Display {
     private final Screen terminalScreen;
     private final CharacterFont characterFont;
     private final ConsoleVariant consoleVariant;
-    private final char[][] screenBuffer = new char[128][64];
+    private final char[][][] bitPlanes = new char[4][128][64];
     private static final char PIXEL_ON = '█';
     private static final char PIXEL_OFF = ' ';
     private int screenWidth = 128;
@@ -32,12 +32,43 @@ public class LanternaDisplay implements Display {
     private boolean extendedMode = false;
     private boolean modified = false;
 
+    int[] cBitColors = {
+            0x00000000,
+            0xFFFFFFFF,
+            0xFFAAAAAA,
+            0xFF555555,
+            0xFFFF0000,
+            0xFF00FF00,
+            0xFF0000FF,
+            0xFFFFFF00,
+            0xFF880000,
+            0xFF008800,
+            0xFF000088,
+            0xFF888800,
+            0xFFFF00FF,
+            0xFF00FFFF,
+            0xFF880088,
+            0xFF008888
+    };
+
+    int[][] rgbColors = new int[cBitColors.length][3];
+
+
     public LanternaDisplay(ConsoleVariant consoleVariant, KeyAdapter keyAdapter) throws IOException {
         int fontSize = 9;
         if (consoleVariant == ConsoleVariant.CHIP_8) {
             this.screenWidth = 64;
             this.screenHeight = 32;
             fontSize = 16;
+        }
+        for (int i = 0; i < cBitColors.length; i++) {
+            int color = cBitColors[i];
+            int r = (color >> 24) & 0xFF;
+            int g = (color >> 16) & 0xFF;
+            int b = (color >> 8) & 0xFF;
+            rgbColors[i][0] = r;
+            rgbColors[i][1] = g;
+            rgbColors[i][2] = b;
         }
         SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
                 .setInitialTerminalSize(new TerminalSize(this.screenWidth * 2, this.screenHeight))
@@ -59,9 +90,12 @@ public class LanternaDisplay implements Display {
         this.consoleVariant = consoleVariant;
         this.characterFont = new CharacterFont(consoleVariant);
 
+        for (int i = 0; i < 4; i++) {
+            this.clear(i);
+        }
+
         this.terminalScreen.getTerminalSize();
         this.terminalScreen.doResizeIfNecessary();
-        this.clear();
         this.terminalScreen.startScreen();
     }
 
@@ -89,24 +123,24 @@ public class LanternaDisplay implements Display {
     }
 
     @Override
-    public boolean togglePixel(int column, int row) {
+    public boolean togglePixel(int column, int row, int bitPlane) {
         if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
             return false;
         }
         this.modified = true;
-        char currentChar = this.screenBuffer[column][row];
+        char currentChar = this.bitPlanes[bitPlane][column][row];
         char newChar = PIXEL_ON;
         boolean collided = false;
         if (currentChar == PIXEL_ON) {
             newChar = PIXEL_OFF;
             collided = true;
         }
-        this.screenBuffer[column][row] = newChar;
+        this.bitPlanes[bitPlane][column][row] = newChar;
         return collided;
     }
 
     @Override
-    public void scrollDown(int scrollAmount) {
+    public void scrollUp(int scrollAmount, int selectedBitPlanes) {
         this.modified = true;
         int trueScrollAmount;
         if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
@@ -118,25 +152,69 @@ public class LanternaDisplay implements Display {
                 trueScrollAmount = scrollAmount * 2;
             }
         }
-        for (int i = this.screenHeight - 1; i >= 0; i--) {
-            int shiftedVerticalPosition = trueScrollAmount + i;
-            if (shiftedVerticalPosition >= this.screenHeight) {
+        for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
+            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
-            for (int j = 0; j < this.screenWidth; j++) {
-                this.screenBuffer[j][shiftedVerticalPosition] = this.screenBuffer[j][i];
+            for (int i = 0; i < this.screenHeight; i++) {
+                int shiftedVerticalPosition = i - trueScrollAmount;
+                if (shiftedVerticalPosition < 0) {
+                    continue;
+                }
+                for (int j = 0; j < this.screenWidth; j++) {
+                    this.bitPlanes[bitPlane][j][shiftedVerticalPosition] = this.bitPlanes[bitPlane][j][i];
+                }
             }
-        }
-        // Clear the top scrollOffset rows
-        for (int y = 0; y < trueScrollAmount && y < this.screenHeight; y++) {
-            for (int x = 0; x < this.screenWidth; x++) {
-                this.screenBuffer[x][y] = PIXEL_OFF;
+            // Clear the bottom scrollOffset rows
+            for (int y = this.screenHeight - trueScrollAmount; y < this.screenHeight; y++) {
+                if (y < 0) continue;
+                for (int x = 0; x < this.screenWidth; x++) {
+                    this.bitPlanes[bitPlane][x][y] = PIXEL_OFF;
+                }
             }
         }
     }
 
     @Override
-    public void scrollRight() {
+    public void scrollDown(int scrollAmount, int selectedBitPlanes) {
+        this.modified = true;
+        int trueScrollAmount;
+        if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+            trueScrollAmount = scrollAmount;
+        } else {
+            if (this.extendedMode) {
+                trueScrollAmount = scrollAmount;
+            } else {
+                trueScrollAmount = scrollAmount * 2;
+            }
+        }
+
+        for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
+            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            if ((bitPlaneMask & selectedBitPlanes) <= 0) {
+                continue;
+            }
+            for (int i = this.screenHeight - 1; i >= 0; i--) {
+                int shiftedVerticalPosition = trueScrollAmount + i;
+                if (shiftedVerticalPosition >= this.screenHeight) {
+                    continue;
+                }
+                for (int j = 0; j < this.screenWidth; j++) {
+                    this.bitPlanes[bitPlane][j][shiftedVerticalPosition] = this.bitPlanes[bitPlane][j][i];
+                }
+            }
+            // Clear the top scrollOffset rows
+            for (int y = 0; y < trueScrollAmount && y < this.screenHeight; y++) {
+                for (int x = 0; x < this.screenWidth; x++) {
+                    this.bitPlanes[bitPlane][x][y] = PIXEL_OFF;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void scrollRight(int selectedBitPlanes) {
         this.modified = true;
         int scrollAmount;
         if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
@@ -148,25 +226,31 @@ public class LanternaDisplay implements Display {
                 scrollAmount = 8;
             }
         }
-        for (int i = this.screenWidth - 1; i >= 0; i--) {
-            int shiftedHorizontalPosition = i + scrollAmount;
-            if (shiftedHorizontalPosition >= this.screenWidth) {
+        for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
+            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
-            for (int j = 0; j < this.screenHeight; j++) {
-                this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
+            for (int i = this.screenWidth - 1; i >= 0; i--) {
+                int shiftedHorizontalPosition = i + scrollAmount;
+                if (shiftedHorizontalPosition >= this.screenWidth) {
+                    continue;
+                }
+                for (int j = 0; j < this.screenHeight; j++) {
+                    this.bitPlanes[bitPlane][shiftedHorizontalPosition][j] = this.bitPlanes[bitPlane][i][j];
+                }
             }
-        }
-        // Clear the leftmost 4 columns
-        for (int x = 0; x < scrollAmount && x < this.screenWidth; x++) {
-            for (int y = 0; y < this.screenHeight; y++) {
-                this.screenBuffer[x][y] = PIXEL_OFF;
+            // Clear the leftmost 4 columns
+            for (int x = 0; x < scrollAmount && x < this.screenWidth; x++) {
+                for (int y = 0; y < this.screenHeight; y++) {
+                    this.bitPlanes[bitPlane][x][y] = PIXEL_OFF;
+                }
             }
         }
     }
 
     @Override
-    public void scrollLeft() {
+    public void scrollLeft(int selectedBitPlanes) {
         this.modified = true;
         int scrollAmount;
         if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
@@ -178,29 +262,40 @@ public class LanternaDisplay implements Display {
                 scrollAmount = 8;
             }
         }
-        for (int i = 0; i < this.screenWidth; i++) {
-            int shiftedHorizontalPosition = i - scrollAmount;
-            if (shiftedHorizontalPosition < 0) {
+        for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
+            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
-            for (int j = 0; j < this.screenHeight; j++) {
-                this.screenBuffer[shiftedHorizontalPosition][j] = this.screenBuffer[i][j];
+            for (int i = 0; i < this.screenWidth; i++) {
+                int shiftedHorizontalPosition = i - scrollAmount;
+                if (shiftedHorizontalPosition < 0) {
+                    continue;
+                }
+                for (int j = 0; j < this.screenHeight; j++) {
+                    this.bitPlanes[bitPlane][shiftedHorizontalPosition][j] = this.bitPlanes[bitPlane][i][j];
+                }
             }
-        }
-
-        for (int x = this.screenWidth - scrollAmount; x < this.screenWidth; x++) {
-            if (x < 0) continue;
-            for (int y = 0; y < this.screenHeight; y++) {
-                this.screenBuffer[x][y] = PIXEL_OFF;
+            for (int x = this.screenWidth - scrollAmount; x < this.screenWidth; x++) {
+                if (x < 0) continue;
+                for (int y = 0; y < this.screenHeight; y++) {
+                    this.bitPlanes[bitPlane][x][y] = PIXEL_OFF;
+                }
             }
         }
     }
 
     @Override
-    public void clear() {
-        this.modified = false;
-        for (char[] chars : screenBuffer) {
-            Arrays.fill(chars, PIXEL_OFF);
+    public void clear(int selectedBitPlanes) {
+        this.modified = true;
+        for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
+            int bitPlaneMask = (int) Math.pow(2, bitPlane);
+            if ((bitPlaneMask & selectedBitPlanes) <= 0) {
+                continue;
+            }
+            for (int i = 0; i < this.bitPlanes[bitPlane].length; i++) {
+                Arrays.fill(this.bitPlanes[bitPlane][i], PIXEL_OFF);
+            }
         }
     }
 
@@ -212,7 +307,11 @@ public class LanternaDisplay implements Display {
         this.modified = false;
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
-                TextCharacter character = TextCharacter.fromCharacter(screenBuffer[i][j])[0];
+                int screenNibble = 0;
+                for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
+                    screenNibble |= (this.bitPlanes[bitPlane][i][j] == PIXEL_ON ? 1 << bitPlane : 0);
+                }
+                TextCharacter character = TextCharacter.fromCharacter(PIXEL_ON)[0].withForegroundColor(new TextColor.RGB(this.rgbColors[screenNibble][0], this.rgbColors[screenNibble][1], this.rgbColors[screenNibble][2]));
                 this.terminalScreen.setCharacter(i * 2, j, character);
                 this.terminalScreen.setCharacter((i * 2) + 1, j, character);
             }
@@ -223,4 +322,5 @@ public class LanternaDisplay implements Display {
     public void close() throws IOException {
         this.terminalScreen.close();
     }
+
 }

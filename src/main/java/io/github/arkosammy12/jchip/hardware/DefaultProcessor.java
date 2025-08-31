@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.hardware;
 import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.instructions.*;
+import io.github.arkosammy12.jchip.util.ConsoleVariant;
 import io.github.arkosammy12.jchip.util.DefaultExecutionContext;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 
@@ -17,6 +18,7 @@ public class DefaultProcessor implements Processor {
     private final Stack<Integer> programStack = new Stack<>();
     private int delayTimer;
     private int soundTimer;
+    private int bitPlane = 1;
     private final int[] registers = new int[16];
     private final int[] flagsStorage = new int[16];
     private Random random;
@@ -78,6 +80,16 @@ public class DefaultProcessor implements Processor {
     @Override
     public void setRegister(int register, int value) {
         this.registers[register] = value;
+    }
+
+    @Override
+    public void setBitPlane(int bitPlane) {
+        this.bitPlane = bitPlane;
+    }
+
+    @Override
+    public int getBitPlane() {
+        return this.bitPlane;
     }
 
     @Override
@@ -152,6 +164,7 @@ public class DefaultProcessor implements Processor {
     private Instruction decode(int firstByte, int secondByte) {
         int firstNibble = (firstByte  & 0xF0) >> 4;
         ExecutionContext executionContext = new DefaultExecutionContext(this.emulator.getProcessor(), this.emulator.getMemory(), this.emulator.getDisplay(), this.emulator.getConsoleVariant(), this.emulator.getKeyState());
+        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         return switch (firstNibble) {
             case 0x0 -> new ZeroOpcodeInstruction(firstByte, secondByte, executionContext);
             case 0x1 -> new Jump(firstByte, secondByte, executionContext);
@@ -166,7 +179,10 @@ public class DefaultProcessor implements Processor {
             case 0xA -> new SetIndexRegister(firstByte, secondByte, executionContext);
             case 0xB -> new JumpWithOffset(firstByte, secondByte, executionContext);
             case 0xC -> new GetRandomNumber(firstByte, secondByte, executionContext);
-            case 0xD -> new Draw(firstByte, secondByte, executionContext);
+            case 0xD -> switch (consoleVariant) {
+                case XO_CHIP -> new XOChipDraw(firstByte, secondByte, executionContext);
+                default -> new Draw(firstByte, secondByte, executionContext);
+            };
             case 0xE -> new SkipIfKey(firstByte, secondByte, executionContext);
             case 0xF -> new FXOpcodeInstruction(firstByte, secondByte, executionContext);
             default -> throw new IllegalArgumentException("Invalid instruction opcode: " + firstNibble + "!");

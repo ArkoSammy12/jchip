@@ -46,7 +46,7 @@ public class Chip8Emulator implements Emulator {
             rom[i] = rawRom[i] & 0xFF;
         }
         this.display = new LanternaDisplay(this.consoleVariant, this.keyState);
-        this.memory = new DefaultMemory(rom, this.display.getCharacterFont());
+        this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
         this.processor = new DefaultProcessor(this);
     }
 

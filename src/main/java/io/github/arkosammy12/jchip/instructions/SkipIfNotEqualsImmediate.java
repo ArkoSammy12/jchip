@@ -1,7 +1,9 @@
 package io.github.arkosammy12.jchip.instructions;
 
 import io.github.arkosammy12.jchip.base.ExecutionContext;
+import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.base.Processor;
+import io.github.arkosammy12.jchip.util.ConsoleVariant;
 
 public class SkipIfNotEqualsImmediate extends AbstractInstruction {
 
@@ -18,8 +20,14 @@ public class SkipIfNotEqualsImmediate extends AbstractInstruction {
     @Override
     public void execute() {
         Processor processor = executionContext.getProcessor();
+        Memory memory = executionContext.getMemory();
+        ConsoleVariant consoleVariant = executionContext.getConsoleVariant();
         if (operand != vX) {
+            boolean nextOpcodeIsF000 = Processor.nextOpcodeIsF000(processor, memory);
             processor.incrementProgramCounter();
+            if (consoleVariant == ConsoleVariant.XO_CHIP && nextOpcodeIsF000) {
+                processor.incrementProgramCounter();
+            }
         }
     }
 

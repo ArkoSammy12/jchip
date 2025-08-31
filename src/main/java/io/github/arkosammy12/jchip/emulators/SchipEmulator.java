@@ -15,7 +15,7 @@ public class SchipEmulator extends Chip8Emulator {
 
     public SchipEmulator(ProgramArgs programArgs) throws IOException {
         super(programArgs);
-        this.isModern = this.getConsoleVariant() == ConsoleVariant.SUPER_CHIP_MODERN;
+        this.isModern = this.getConsoleVariant() == ConsoleVariant.SUPER_CHIP_MODERN || this.getConsoleVariant() ==ConsoleVariant.XO_CHIP;
     }
 
     @Override

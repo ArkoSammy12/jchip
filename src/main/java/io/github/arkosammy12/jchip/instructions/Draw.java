@@ -8,14 +8,14 @@ import io.github.arkosammy12.jchip.util.ConsoleVariant;
 
 public class Draw extends AbstractInstruction {
 
-    private final int spriteX;
-    private final int spriteY;
-    private final int spriteHeight;
-    private final int screenWidth;
-    private final int screenHeight;
-    private final int currentIndexRegister;
-    private final boolean extendedMode;
-    private final ConsoleVariant consoleVariant;
+    protected final int spriteX;
+    protected final int spriteY;
+    protected final int spriteHeight;
+    protected final int screenWidth;
+    protected final int screenHeight;
+    protected final int currentIndexRegister;
+    protected final boolean extendedMode;
+    protected final ConsoleVariant consoleVariant;
 
     public Draw(int firstByte, int secondByte, ExecutionContext executionContext) {
         super(firstByte, secondByte, executionContext);
@@ -56,15 +56,11 @@ public class Draw extends AbstractInstruction {
         for (int i = 0; i < spriteHeight; i++) {
             int sliceY = spriteY + i;
             if (sliceY >= screenHeight) {
-                if (consoleVariant == ConsoleVariant.XO_CHIP) {
-                    sliceY %= screenHeight;
-                } else {
-                    if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode) {
-                        collisionCounter++;
-                        continue;
-                    }
-                    break;
+                if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode) {
+                    collisionCounter++;
+                    continue;
                 }
+                break;
             }
             int slice;
             int sliceLength;
@@ -81,11 +77,7 @@ public class Draw extends AbstractInstruction {
             for (int j = 0; j < sliceLength; j++) {
                 int sliceX = spriteX + j;
                 if (sliceX >= screenWidth) {
-                    if (consoleVariant == ConsoleVariant.XO_CHIP) {
-                        sliceX %= screenWidth;
-                    } else {
-                        break;
-                    }
+                    break;
                 }
                 int mask = (int) Math.pow(2, (sliceLength - 1) - j);
                 if ((slice & mask) <= 0) {
@@ -93,13 +85,13 @@ public class Draw extends AbstractInstruction {
                 }
                 boolean collided;
                 if (extendedMode || consoleVariant == ConsoleVariant.CHIP_8) {
-                    collided = display.togglePixel(sliceX, sliceY);
+                    collided = display.togglePixel(sliceX, sliceY, 0);
                 } else {
                     // TODO: Copy top row of pixels into bottom one instead of xoring bottom row for schip-legacy
-                    collided = display.togglePixel(sliceX * 2, sliceY * 2);
-                    collided |= display.togglePixel((sliceX * 2) + 1, sliceY * 2);
-                    display.togglePixel(sliceX * 2, (sliceY * 2) + 1);
-                    display.togglePixel((sliceX * 2) + 1, (sliceY * 2) + 1);
+                    collided = display.togglePixel(sliceX * 2, sliceY * 2, 0);
+                    collided |= display.togglePixel((sliceX * 2) + 1, sliceY * 2, 0);
+                    display.togglePixel(sliceX * 2, (sliceY * 2) + 1, 0);
+                    display.togglePixel((sliceX * 2) + 1, (sliceY * 2) + 1, 0);
                 }
                 if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && collided && extendedMode) {
                     rowHasCollision = true;

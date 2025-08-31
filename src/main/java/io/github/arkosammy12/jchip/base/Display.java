@@ -13,19 +13,21 @@ public interface Display extends Closeable {
 
     CharacterFont getCharacterFont();
 
-    boolean togglePixel(int column, int row);
+    boolean togglePixel(int column, int row, int bitPlane);
 
     void setExtendedMode(boolean extendedMode);
 
     boolean isExtendedMode();
 
-    void scrollDown(int scrollAmount);
+    void scrollUp(int scrollAmount, int bitPlane);
 
-    void scrollRight();
+    void scrollDown(int scrollAmount, int bitPlane);
 
-    void scrollLeft();
+    void scrollRight(int bitPlane);
 
-    void clear();
+    void scrollLeft(int bitPlane);
+
+    void clear(int bitPlane);
 
     void flush() throws IOException;
 
