@@ -109,7 +109,7 @@ public class LanternaDisplay implements Display {
     }
 
     @Override
-    public boolean togglePixel(int column, int row, int bitPlane) {
+    public boolean togglePixel(int bitPlane, int column, int row) {
         if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
             return false;
         }
@@ -126,7 +126,7 @@ public class LanternaDisplay implements Display {
     }
 
     @Override
-    public void setPixel(int column, int row, int bitPlane, boolean value) {
+    public void setPixel(int bitPlane, int column, int row, boolean value) {
         if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
             return;
         }
@@ -135,7 +135,7 @@ public class LanternaDisplay implements Display {
     }
 
     @Override
-    public boolean getPixel(int column, int row, int bitPlane) {
+    public boolean getPixel(int bitPlane, int column, int row) {
         return this.bitPlanes[bitPlane][column][row];
     }
 

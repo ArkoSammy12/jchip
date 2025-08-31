@@ -70,7 +70,7 @@ public class Draw extends AbstractInstruction {
                 slice = memory.readByte(currentIndexRegister + i);
                 sliceLength = 8;
             }
-            boolean rowHasCollision = false;
+            boolean rowCollided = false;
             for (int j = 0; j < sliceLength; j++) {
                 int sliceX = spriteX + j;
                 if (sliceX >= screenWidth) {
@@ -80,25 +80,24 @@ public class Draw extends AbstractInstruction {
                 if ((slice & mask) <= 0) {
                     continue;
                 }
-                boolean collided;
                 if (extendedMode || consoleVariant == ConsoleVariant.CHIP_8) {
-                    collided = display.togglePixel(sliceX, sliceY, 0);
+                    rowCollided |= display.togglePixel(0, sliceX, sliceY);
                 } else {
-                    collided = display.togglePixel(sliceX * 2, sliceY * 2, 0);
-                    collided |= display.togglePixel((sliceX * 2) + 1, sliceY * 2, 0);
-                    boolean topLeftPixel = display.getPixel(sliceX * 2, sliceY * 2, 0);
-                    boolean topRightPixel = display.getPixel((sliceX * 2) + 1, sliceY * 2, 0);
-                    display.setPixel(sliceX * 2, (sliceY * 2) + 1, 0, topLeftPixel);
-                    display.setPixel((sliceX * 2) + 1, (sliceY * 2) + 1, 0, topRightPixel);
-                }
-                if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && collided && extendedMode) {
-                    rowHasCollision = true;
-                } else if (collided) {
-                    collisionCounter = 1;
+                    rowCollided |= display.togglePixel(0, sliceX * 2, sliceY * 2);
+                    rowCollided |= display.togglePixel(0, (sliceX * 2) + 1, sliceY * 2);
+                    boolean topLeftPixel = display.getPixel(0, sliceX * 2, sliceY * 2);
+                    boolean topRightPixel = display.getPixel(0, (sliceX * 2) + 1, sliceY * 2);
+                    display.setPixel(0, sliceX * 2, (sliceY * 2) + 1, topLeftPixel);
+                    display.setPixel(0, (sliceX * 2) + 1, (sliceY * 2) + 1, topRightPixel);
                 }
             }
-            if (rowHasCollision && consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+            if (!rowCollided) {
+                continue;
+            }
+            if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode) {
                 collisionCounter++;
+            } else {
+                collisionCounter = 1;
             }
         }
         processor.setRegister(0xF, collisionCounter & 0xFF);

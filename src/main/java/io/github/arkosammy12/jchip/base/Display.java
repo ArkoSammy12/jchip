@@ -13,11 +13,11 @@ public interface Display extends Closeable {
 
     CharacterFont getCharacterFont();
 
-    boolean togglePixel(int column, int row, int bitPlane);
+    boolean togglePixel(int bitPlane, int column, int row);
 
-    void setPixel(int column, int row, int bitPlane, boolean value);
+    void setPixel(int bitPlane, int column, int row, boolean value);
 
-    boolean getPixel(int column, int row, int bitPlane);
+    boolean getPixel(int bitPlane, int column, int row);
 
     void setExtendedMode(boolean extendedMode);
 
