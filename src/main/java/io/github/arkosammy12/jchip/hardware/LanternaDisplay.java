@@ -291,11 +291,11 @@ public class LanternaDisplay implements Display {
         this.modified = false;
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
-                int pixelNibble = 0;
+                int colorIndex = 0;
                 for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-                    pixelNibble |= (this.bitPlanes[bitPlane][i][j] ? 1 << bitPlane : 0);
+                    colorIndex |= (this.bitPlanes[bitPlane][i][j] ? 1 << bitPlane : 0);
                 }
-                TextCharacter character = this.colorPalette.getPixel(pixelNibble);
+                TextCharacter character = this.colorPalette.getPixel(colorIndex);
                 this.terminalScreen.setCharacter(i * 2, j, character);
                 this.terminalScreen.setCharacter((i * 2) + 1, j, character);
             }
