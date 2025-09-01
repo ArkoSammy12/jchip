@@ -3,9 +3,6 @@ package io.github.arkosammy12.jchip.util;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ColorPalette {
 
 
@@ -56,7 +53,7 @@ public class ColorPalette {
             0xef7d57ff, 0x73eff7ff, 0x41a6f6ff, 0x257179ff
     };
 
-    private final TextCharacter[] characterMap = new TextCharacter[16];
+    private final TextCharacter[] colorMap = new TextCharacter[16];
 
     public ColorPalette(String colorPalette) {
         int[] chosenPalette = switch (colorPalette) {
@@ -72,13 +69,13 @@ public class ColorPalette {
             int r = (color >> 24) & 0xFF;
             int g = (color >> 16) & 0xFF;
             int b = (color >> 8) & 0xFF;
-            this.characterMap[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
+            this.colorMap[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
         }
 
     }
 
     public TextCharacter getPixel(int colorIndex) {
-        return this.characterMap[colorIndex];
+        return this.colorMap[colorIndex];
     }
 
 }
