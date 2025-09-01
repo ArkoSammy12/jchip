@@ -25,7 +25,7 @@ public class ProgramArgs {
     @CommandLine.Option(names = {"--ipf", "--instructions-per-frame"}, defaultValue = "0")
     private int instructionsPerFrame;
 
-    @CommandLine.Option(names = "--color-palette", defaultValue = "octo")
+    @CommandLine.Option(names = "--color-palette", defaultValue = "raus")
     private String colorPalette;
 
     public boolean debugEnabled() {

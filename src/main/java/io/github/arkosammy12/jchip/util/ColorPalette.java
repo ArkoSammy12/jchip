@@ -56,7 +56,7 @@ public class ColorPalette {
             0xef7d57ff, 0x73eff7ff, 0x41a6f6ff, 0x257179ff
     };
 
-    private final Map<Integer, TextCharacter> characterMap = new HashMap<>(16);
+    private final TextCharacter[] characterMap = new TextCharacter[16];
 
     public ColorPalette(String colorPalette) {
         int[] chosenPalette = switch (colorPalette) {
@@ -72,13 +72,13 @@ public class ColorPalette {
             int r = (color >> 24) & 0xFF;
             int g = (color >> 16) & 0xFF;
             int b = (color >> 8) & 0xFF;
-            this.characterMap.put(i, TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b)));
+            this.characterMap[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
         }
 
     }
 
     public TextCharacter getPixel(int colorIndex) {
-        return this.characterMap.get(colorIndex);
+        return this.characterMap[colorIndex];
     }
 
 }
