@@ -1,13 +1,13 @@
 package io.github.arkosammy12.jchip.base;
 
-public interface AudioSystem {
+import java.io.Closeable;
+
+public interface AudioSystem extends Closeable {
 
     void loadPatternByte(int index, int value);
 
     void setPitch(int pitch);
 
-    void buzz();
-
-    void stopBuzz();
+    void pushFrame(int soundTimer);
 
 }

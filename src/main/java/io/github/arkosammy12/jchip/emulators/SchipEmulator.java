@@ -33,11 +33,7 @@ public class SchipEmulator extends Chip8Emulator {
             }
         }
         this.getDisplay().flush();
-        if (this.getProcessor().getSoundTimer() > 0) {
-            this.getAudioSystem().buzz();
-        } else {
-            this.getAudioSystem().stopBuzz();
-        }
+        this.getAudioSystem().pushFrame(this.getProcessor().getSoundTimer());
     }
 
 }

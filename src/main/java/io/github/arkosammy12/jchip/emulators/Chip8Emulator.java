@@ -19,7 +19,7 @@ public class Chip8Emulator implements Emulator {
     private final Memory memory;
     private final Display display;
     private final KeyState keyState = new KeyState();
-    private final AudioSystem audioSystem = new DefaultAudioSystem();
+    private final AudioSystem audioSystem;
     private final ConsoleVariant consoleVariant;
     private final boolean debug;
     protected final int instructionsPerFrame;
@@ -43,6 +43,7 @@ public class Chip8Emulator implements Emulator {
         for (int i = 0; i < rom.length; i++) {
             rom[i] = rawRom[i] & 0xFF;
         }
+        this.audioSystem = new DefaultAudioSystem(this.consoleVariant);
         this.display = new LanternaDisplay(this.consoleVariant, this.keyState, colorPalette);
         this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
         this.processor = new DefaultProcessor(this);
@@ -103,16 +104,13 @@ public class Chip8Emulator implements Emulator {
             }
         }
         this.getDisplay().flush();
-        if (this.getProcessor().getSoundTimer() > 0) {
-            this.getAudioSystem().buzz();
-        } else {
-            this.getAudioSystem().stopBuzz();
-        }
+        this.getAudioSystem().pushFrame(this.getProcessor().getSoundTimer());
     }
 
     @Override
     public void close() throws Exception {
         this.display.close();
+        this.audioSystem.close();
     }
 
 }
