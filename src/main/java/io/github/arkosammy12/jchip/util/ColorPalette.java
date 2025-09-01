@@ -72,7 +72,7 @@ public class ColorPalette {
             case "octoclassic" -> PALETTE_OCTO_CLASSIC;
             case "lcd" -> PALETTE_LCD;
             case "c64" -> PALETTE_C64;
-            case "intellivison" -> PALETTE_INTELLIVISION;
+            case "intellivision" -> PALETTE_INTELLIVISION;
             case "cga" -> PALETTE_CGA;
             default -> throw new IllegalArgumentException("Unknown color palette: " + colorPalette + "!");
         };
