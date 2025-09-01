@@ -15,4 +15,6 @@ public interface ExecutionContext {
 
     KeyState getKeyState();
 
+    AudioSystem getAudioSystem();
+
 }

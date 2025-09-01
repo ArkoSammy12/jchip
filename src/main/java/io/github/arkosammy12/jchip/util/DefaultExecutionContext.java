@@ -1,11 +1,8 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.base.Display;
-import io.github.arkosammy12.jchip.base.ExecutionContext;
-import io.github.arkosammy12.jchip.base.Memory;
-import io.github.arkosammy12.jchip.base.Processor;
+import io.github.arkosammy12.jchip.base.*;
 
-public record DefaultExecutionContext(Processor processor, Memory memory, Display display, ConsoleVariant consoleVariant, KeyState keyState) implements ExecutionContext {
+public record DefaultExecutionContext(Processor processor, Memory memory, Display display, ConsoleVariant consoleVariant, KeyState keyState, AudioSystem audioSystem) implements ExecutionContext {
 
     @Override
     public Display getDisplay() {
@@ -31,4 +28,10 @@ public record DefaultExecutionContext(Processor processor, Memory memory, Displa
     public KeyState getKeyState() {
         return this.keyState();
     }
+
+    @Override
+    public AudioSystem getAudioSystem() {
+        return this.audioSystem();
+    }
+
 }

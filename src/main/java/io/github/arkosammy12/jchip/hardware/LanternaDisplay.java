@@ -11,6 +11,7 @@ import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
 import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.util.CharacterFont;
+import io.github.arkosammy12.jchip.util.ColorPalette;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 
 import java.awt.*;
@@ -24,37 +25,19 @@ public class LanternaDisplay implements Display {
     private final Screen terminalScreen;
     private final CharacterFont characterFont;
     private final ConsoleVariant consoleVariant;
+    private final ColorPalette colorPalette;
     private final boolean[][][] bitPlanes = new boolean[4][128][64];
-    private static final char PIXEL_CHAR = '█';
     private int screenWidth = 128;
     private int screenHeight = 64;
     private boolean extendedMode = false;
     private boolean modified = false;
 
-    int[] cBitColors = {
-            0x1a1c2cff, 0xf4f4f4ff, 0x94b0c2ff, 0x333c57ff,
-            0xb13e53ff, 0xa7f070ff, 0x3b5dc9ff, 0xffcd75ff,
-            0x5d275dff, 0x38b764ff, 0x29366fff, 0x566c86ff,
-            0xef7d57ff, 0x73eff7ff, 0x41a6f6ff, 0x257179ff
-    };
-
-    int[][] rgbColors = new int[cBitColors.length][3];
-
-    public LanternaDisplay(ConsoleVariant consoleVariant, KeyAdapter keyAdapter) throws IOException {
+    public LanternaDisplay(ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
         int fontSize = 9;
         if (consoleVariant == ConsoleVariant.CHIP_8) {
             this.screenWidth = 64;
             this.screenHeight = 32;
             fontSize = 16;
-        }
-        for (int i = 0; i < cBitColors.length; i++) {
-            int color = cBitColors[i];
-            int r = (color >> 24) & 0xFF;
-            int g = (color >> 16) & 0xFF;
-            int b = (color >> 8) & 0xFF;
-            rgbColors[i][0] = r;
-            rgbColors[i][1] = g;
-            rgbColors[i][2] = b;
         }
         SwingTerminalFrame terminal = new DefaultTerminalFactory(System.out, System.in, Charset.defaultCharset())
                 .setInitialTerminalSize(new TerminalSize(this.screenWidth * 2, this.screenHeight))
@@ -72,6 +55,7 @@ public class LanternaDisplay implements Display {
         terminal.setBackgroundColor(TextColor.ANSI.BLACK);
         terminal.setCursorVisible(false);
 
+        this.colorPalette = colorPalette;
         this.terminalScreen = new TerminalScreen(terminal);
         this.consoleVariant = consoleVariant;
         this.characterFont = new CharacterFont(consoleVariant);
@@ -307,11 +291,11 @@ public class LanternaDisplay implements Display {
         this.modified = false;
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
-                int screenNibble = 0;
+                int pixelNibble = 0;
                 for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-                    screenNibble |= (this.bitPlanes[bitPlane][i][j] ? 1 << bitPlane : 0);
+                    pixelNibble |= (this.bitPlanes[bitPlane][i][j] ? 1 << bitPlane : 0);
                 }
-                TextCharacter character = TextCharacter.fromCharacter(PIXEL_CHAR)[0].withForegroundColor(new TextColor.RGB(this.rgbColors[screenNibble][0], this.rgbColors[screenNibble][1], this.rgbColors[screenNibble][2]));
+                TextCharacter character = this.colorPalette.getPixel(pixelNibble);
                 this.terminalScreen.setCharacter(i * 2, j, character);
                 this.terminalScreen.setCharacter((i * 2) + 1, j, character);
             }

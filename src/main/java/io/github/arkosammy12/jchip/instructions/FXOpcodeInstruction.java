@@ -1,9 +1,6 @@
 package io.github.arkosammy12.jchip.instructions;
 
-import io.github.arkosammy12.jchip.base.Display;
-import io.github.arkosammy12.jchip.base.ExecutionContext;
-import io.github.arkosammy12.jchip.base.Memory;
-import io.github.arkosammy12.jchip.base.Processor;
+import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.KeyState;
@@ -52,12 +49,18 @@ public class FXOpcodeInstruction extends AbstractInstruction {
             }
             case 0x02 -> { // Load audio pattern
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    break;
+                    throw new InvalidInstructionException(this, consoleVariant);
                 }
                 if (this.getSecondNibble() != 0) {
-                    break;
+                    throw new InvalidInstructionException(this, ConsoleVariant.XO_CHIP);
                 }
-                // TODO: Implement
+                Memory memory = executionContext.getMemory();
+                AudioSystem audioSystem = executionContext.getAudioSystem();
+                int currentIndexRegister = processor.getIndexRegister();
+                for (int i = 0; i < 16; i++) {
+                    int audioByte = memory.readByte(currentIndexRegister + 1);
+                    audioSystem.loadPatternByte(i, audioByte);
+                }
             }
             case 0x07 -> { // Set VX to current delay timer
                 int delayTimer = processor.getDelayTimer();
@@ -131,9 +134,10 @@ public class FXOpcodeInstruction extends AbstractInstruction {
             }
             case 0x3A -> { // Set audio pattern pitch
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    break;
+                    throw new InvalidInstructionException(this, consoleVariant);
                 }
-                // TODO: Implement
+                AudioSystem audioSystem = executionContext.getAudioSystem();
+                audioSystem.setPitch(vX);
             }
             case 0x55 -> { // Store in memory v0 - vX
                 Memory memory = this.executionContext.getMemory();

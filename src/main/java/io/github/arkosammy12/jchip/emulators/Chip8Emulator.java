@@ -7,10 +7,7 @@ import io.github.arkosammy12.jchip.hardware.DefaultProcessor;
 import io.github.arkosammy12.jchip.hardware.LanternaDisplay;
 import io.github.arkosammy12.jchip.instructions.Draw;
 import io.github.arkosammy12.jchip.instructions.ZeroOpcodeInstruction;
-import io.github.arkosammy12.jchip.util.ConsoleVariant;
-import io.github.arkosammy12.jchip.util.InvalidInstructionException;
-import io.github.arkosammy12.jchip.util.KeyState;
-import io.github.arkosammy12.jchip.util.ProgramArgs;
+import io.github.arkosammy12.jchip.util.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +30,8 @@ public class Chip8Emulator implements Emulator {
         this.consoleVariant = programArgs.getConsoleVariant();
         this.debug = programArgs.debugEnabled();
         this.displayWaitEnabled = programArgs.isDisplayWaitEnabled();
-        int instructionsPerFrame = programArgs.getInstructionsPerFrame();;
+        int instructionsPerFrame = programArgs.getInstructionsPerFrame();
+        ColorPalette colorPalette = programArgs.getColorPalette();
         if (instructionsPerFrame <= 0) {
             this.instructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame(programArgs.isDisplayWaitEnabled());
         } else {
@@ -45,7 +43,7 @@ public class Chip8Emulator implements Emulator {
         for (int i = 0; i < rom.length; i++) {
             rom[i] = rawRom[i] & 0xFF;
         }
-        this.display = new LanternaDisplay(this.consoleVariant, this.keyState);
+        this.display = new LanternaDisplay(this.consoleVariant, this.keyState, colorPalette);
         this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
         this.processor = new DefaultProcessor(this);
     }

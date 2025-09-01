@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.util;
 
 import picocli.CommandLine;
 
+import java.awt.*;
 import java.nio.file.Path;
 
 public class ProgramArgs {
@@ -23,6 +24,9 @@ public class ProgramArgs {
 
     @CommandLine.Option(names = {"--ipf", "--instructions-per-frame"}, defaultValue = "0")
     private int instructionsPerFrame;
+
+    @CommandLine.Option(names = "--color-palette", defaultValue = "octo")
+    private String colorPalette;
 
     public boolean debugEnabled() {
         return this.debug;
@@ -54,6 +58,10 @@ public class ProgramArgs {
             ret = ret.toAbsolutePath();
         }
         return ret;
+    }
+
+    public ColorPalette getColorPalette() {
+        return new ColorPalette(this.colorPalette);
     }
 
 }
