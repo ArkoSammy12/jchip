@@ -162,10 +162,10 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                 }
             }
             case 0x75 -> { // Store registers to flags storage
-                processor.saveFlags(vX);
+                processor.saveRegistersToFlags(register);
             }
             case 0x85 -> { // Load registers from flags storage
-                processor.loadFlags(vX);
+                processor.loadFlagsToRegisters(register);
             }
             default -> throw new InvalidInstructionException(this);
         }
