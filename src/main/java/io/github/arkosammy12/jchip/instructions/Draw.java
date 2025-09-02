@@ -85,18 +85,25 @@ public class Draw extends AbstractInstruction {
                 } else {
                     rowCollided |= display.togglePixel(0, sliceX * 2, sliceY * 2);
                     rowCollided |= display.togglePixel(0, (sliceX * 2) + 1, sliceY * 2);
-                    boolean topLeftPixel = display.getPixel(0, sliceX * 2, sliceY * 2);
-                    boolean topRightPixel = display.getPixel(0, (sliceX * 2) + 1, sliceY * 2);
-                    display.setPixel(0, sliceX * 2, (sliceY * 2) + 1, topLeftPixel);
-                    display.setPixel(0, (sliceX * 2) + 1, (sliceY * 2) + 1, topRightPixel);
+                    display.togglePixel(0, sliceX * 2, (sliceY * 2) + 1);
+                    display.togglePixel(0, (sliceX * 2) + 1, (sliceY * 2) + 1);
                 }
             }
-            if (!rowCollided) {
-                continue;
-            }
-            if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode) {
-                collisionCounter++;
-            } else {
+            if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+                if (!extendedMode) {
+                    int x1 = (spriteX * 2) & 0x70;
+                    int x2 = Math.min(x1 + 32, screenWidth * 2);
+                    for (int j = x1; j < x2; j++) {
+                        boolean pixel = display.getPixel(0, j, spriteY * 2);
+                        display.setPixel(0, j, (spriteY * 2) + 1, pixel);
+                    }
+                    if (rowCollided) {
+                        collisionCounter = 1;
+                    }
+                } else if (rowCollided) {
+                    collisionCounter++;
+                }
+            } else if (rowCollided) {
                 collisionCounter = 1;
             }
         }
