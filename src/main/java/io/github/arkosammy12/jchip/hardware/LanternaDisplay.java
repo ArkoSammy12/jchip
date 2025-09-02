@@ -152,7 +152,9 @@ public class LanternaDisplay implements Display {
             }
             // Clear the bottom scrollOffset rows
             for (int y = this.screenHeight - trueScrollAmount; y < this.screenHeight; y++) {
-                if (y < 0) continue;
+                if (y < 0) {
+                    continue;
+                }
                 for (int x = 0; x < this.screenWidth; x++) {
                     this.bitPlanes[bitPlane][x][y] = false;
                 }
@@ -261,7 +263,9 @@ public class LanternaDisplay implements Display {
                 }
             }
             for (int x = this.screenWidth - scrollAmount; x < this.screenWidth; x++) {
-                if (x < 0) continue;
+                if (x < 0) {
+                    continue;
+                }
                 for (int y = 0; y < this.screenHeight; y++) {
                     this.bitPlanes[bitPlane][x][y] = false;
                 }

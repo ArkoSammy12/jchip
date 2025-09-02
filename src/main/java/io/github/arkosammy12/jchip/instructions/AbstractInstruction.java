@@ -24,7 +24,6 @@ public abstract class AbstractInstruction implements Instruction {
         this.memoryAddress = ((firstByte << 8) | secondByte) & 0x0FFF;
     }
 
-
     @Override
     public int getSecondNibble() {
         return this.secondNibble;

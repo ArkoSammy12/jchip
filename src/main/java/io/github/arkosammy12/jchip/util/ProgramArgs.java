@@ -53,11 +53,11 @@ public class ProgramArgs {
     }
 
     private Path convertToAbsolutePathIfNeeded(Path path) {
-        Path ret = path;
-        if (!ret.isAbsolute()) {
-            ret = ret.toAbsolutePath();
+        Path returned = path;
+        if (!returned.isAbsolute()) {
+            returned = returned.toAbsolutePath();
         }
-        return ret;
+        return returned;
     }
 
     public ColorPalette getColorPalette() {

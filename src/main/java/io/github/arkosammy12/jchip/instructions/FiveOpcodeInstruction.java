@@ -39,26 +39,26 @@ public class FiveOpcodeInstruction extends AbstractInstruction {
                     }
                 }
             }
-            case 0x2 -> { // Copy values vX to vY to memory
+            case 0x2 -> { // Write vX to vY to memory
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
                     throw new InvalidInstructionException(this, consoleVariant);
                 }
-                int currentIndexPointer = processor.getIndexRegister();
+                int currentIndexRegister = processor.getIndexRegister();
                 boolean iterateInReverse = firstRegister > secondRegister;
                 for (int i = firstRegister, j = 0; iterateInReverse ? i >= secondRegister : i <= secondRegister; j++) {
                     int registerValue = processor.getRegister(i);
-                    memory.storeByte(currentIndexPointer + j, registerValue);
+                    memory.writeByte(currentIndexRegister + j, registerValue);
                     i = iterateInReverse ? i - 1 : i + 1;
                 }
             }
-            case 0x3 -> { // Load values vY to vY from memory
+            case 0x3 -> { // Read values vX to vY from memory
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
                     throw new InvalidInstructionException(this, consoleVariant);
                 }
-                int currentIndexPointer = processor.getIndexRegister();
+                int currentIndexRegister = processor.getIndexRegister();
                 boolean iterateInReverse = firstRegister > secondRegister;
                 for (int i = firstRegister, j = 0; iterateInReverse ? i >= secondRegister : i <= secondRegister; j++) {
-                    int memoryValue = memory.readByte(currentIndexPointer + j);
+                    int memoryValue = memory.readByte(currentIndexRegister + j);
                     processor.setRegister(i, memoryValue);
                     i = iterateInReverse ? i - 1 : i + 1;
                 }

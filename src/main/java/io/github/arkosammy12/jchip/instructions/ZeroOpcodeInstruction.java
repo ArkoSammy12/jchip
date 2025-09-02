@@ -30,7 +30,7 @@ public class ZeroOpcodeInstruction extends AbstractInstruction {
         switch (type) {
             case 0xC -> { // Scroll screen down
                 if (!consoleVariant.isSchipOrXoChip()) {
-                    break;
+                    throw new InvalidInstructionException(this, consoleVariant);
                 }
                 int scrollAmount = this.getFourthNibble();
                 if (scrollAmount <= 0 && consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
@@ -40,7 +40,7 @@ public class ZeroOpcodeInstruction extends AbstractInstruction {
             }
             case 0xD -> { // Scroll screen up
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    break;
+                    throw new InvalidInstructionException(this, consoleVariant);
                 }
                 int scrollAmount = this.getFourthNibble();
                 display.scrollUp(scrollAmount, processor.getSelectedBitPlanes());
@@ -67,7 +67,7 @@ public class ZeroOpcodeInstruction extends AbstractInstruction {
 
     private void handleFType() throws InvalidInstructionException {
         if (!consoleVariant.isSchipOrXoChip()) {
-            return;
+            throw new InvalidInstructionException(this, ConsoleVariant.CHIP_8);
         }
         int subType = this.getFourthNibble();
         switch (subType) {

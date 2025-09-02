@@ -4,7 +4,7 @@ public interface Memory {
 
     int getMemorySize();
 
-    void storeByte(int address, int value);
+    void writeByte(int address, int value);
 
     int readByte(int address);
 

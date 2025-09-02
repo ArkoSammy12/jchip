@@ -48,11 +48,11 @@ public enum ConsoleVariant {
     }
 
     public int getDefaultInstructionsPerFrame(boolean displayWaitEnabled) {
-        int ret = this.defaultInstructionsPerFrame;
+        int ipf = this.defaultInstructionsPerFrame;
         if (this == ConsoleVariant.CHIP_8 && !displayWaitEnabled) {
-            ret = 11;
+            ipf = 11;
         }
-        return ret;
+        return ipf;
     }
 
     public boolean isSchip() {

@@ -55,10 +55,8 @@ public class XOChipDraw extends Draw {
                     } else {
                         collided |= display.togglePixel(bitPlane, sliceX * 2, sliceY * 2);
                         collided |= display.togglePixel(bitPlane, (sliceX * 2) + 1, sliceY * 2);
-                        boolean topLeftPixel = display.getPixel(bitPlane, sliceX * 2, sliceY * 2);
-                        boolean topRightPixel = display.getPixel(bitPlane, (sliceX * 2) + 1, sliceY * 2);
-                        display.setPixel(bitPlane, sliceX * 2, (sliceY * 2) + 1, topLeftPixel);
-                        display.setPixel(bitPlane, (sliceX * 2) + 1, (sliceY * 2) + 1, topRightPixel);
+                        display.togglePixel(bitPlane, sliceX * 2, (sliceY * 2) + 1);
+                        display.togglePixel(bitPlane, (sliceX * 2) + 1, (sliceY * 2) + 1);
                     }
                 }
                 planeIterator++;

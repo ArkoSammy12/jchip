@@ -24,7 +24,7 @@ public class FXOpcodeInstruction extends AbstractInstruction {
         Processor processor = this.executionContext.getProcessor();
         ConsoleVariant consoleVariant = this.executionContext.getConsoleVariant();
         switch (type) {
-            case 0x00 -> { // Point to 16 bit address
+            case 0x00 -> { // Set index register to 16-bit address
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
                     throw new InvalidInstructionException(this, consoleVariant);
                 }
@@ -39,7 +39,7 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                 processor.setIndexRegister(address);
                 processor.incrementProgramCounter();
             }
-            case 0x01 -> { // Select bit plane when drawing with DXY0/DXYN
+            case 0x01 -> { // Set selected bit planes
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
                     throw new InvalidInstructionException(this, consoleVariant);
                 }
@@ -97,21 +97,21 @@ public class FXOpcodeInstruction extends AbstractInstruction {
             case 0x18 -> { // Set sound timer to VX
                 processor.setSoundTimer(vX);
             }
-            case 0x1E -> { // Add to index
+            case 0x1E -> { // Add to index immediate
                 Memory memory = executionContext.getMemory();
                 int currentIndexRegister = processor.getIndexRegister();
                 int value = (vX + currentIndexRegister) & (memory.getMemorySize() - 1);
                 processor.setIndexRegister(value);
             }
-            case 0x29 -> { // Point to small font character
+            case 0x29 -> { // Set index register to small font character location
                 Display display = this.executionContext.getDisplay();
                 int character = vX & 0xF;
                 int memoryOffset = display.getCharacterFont().getSmallCharacterOffset(character);
                 processor.setIndexRegister(memoryOffset);
             }
-            case 0x30 -> { // Point to big font character
+            case 0x30 -> { // Set index register to big font character location
                 if (!consoleVariant.isSchipOrXoChip()) {
-                    break;
+                    throw new InvalidInstructionException(this, consoleVariant);
                 }
                 Display display = this.executionContext.getDisplay();
                 int character = vX & 0xF;
@@ -129,7 +129,7 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                     temp -= digit * power;
                 }
                 for (int i = 0; i < 3; i++) {
-                    this.executionContext.getMemory().storeByte(currentIndexPointer + i, digits[i]);
+                    this.executionContext.getMemory().writeByte(currentIndexPointer + i, digits[i]);
                 }
             }
             case 0x3A -> { // Set audio pattern pitch
@@ -139,26 +139,26 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                 AudioSystem audioSystem = executionContext.getAudioSystem();
                 audioSystem.setPlaybackRate(vX);
             }
-            case 0x55 -> { // Store in memory v0 - vX
+            case 0x55 -> { // Write to memory v0 - vX
                 Memory memory = this.executionContext.getMemory();
                 int currentIndexPointer = processor.getIndexRegister();
                 for (int i = 0; i <= register; i++) {
                     int registerValue = processor.getRegister(i);
-                    memory.storeByte(currentIndexPointer + i, registerValue);
+                    memory.writeByte(currentIndexPointer + i, registerValue);
                 }
                 if (consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP) {
                     processor.setIndexRegister(currentIndexPointer + register + 1);
                 }
             }
-            case 0x65 -> { // Load from memory v0 - vY
+            case 0x65 -> { // Read from memory v0 - vX
                 Memory memory = this.executionContext.getMemory();
-                int currentIndexPointer = processor.getIndexRegister();
+                int currentIndexRegister = processor.getIndexRegister();
                 for (int i = 0; i <= register; i++) {
-                    int memoryValue = memory.readByte(currentIndexPointer + i);
+                    int memoryValue = memory.readByte(currentIndexRegister + i);
                     processor.setRegister(i, memoryValue);
                 }
                 if (consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP) {
-                    processor.setIndexRegister(currentIndexPointer + register + 1);
+                    processor.setIndexRegister(currentIndexRegister + register + 1);
                 }
             }
             case 0x75 -> { // Store registers to flags storage

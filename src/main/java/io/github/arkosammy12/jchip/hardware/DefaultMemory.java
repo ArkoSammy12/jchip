@@ -12,15 +12,12 @@ public class DefaultMemory implements Memory {
     public DefaultMemory(int[] program, ConsoleVariant consoleVariant, CharacterFont characterFont) {
         int[][] smallFont = characterFont.getSmallFont();
         int[][] bigFont = characterFont.getBigFont();
-
         if (consoleVariant == ConsoleVariant.XO_CHIP) {
             this.memorySize = 65536;
         } else {
             this.memorySize = 4096;
         }
-
         this.bytes = new int[this.memorySize];
-
         for (int i = 0; i < smallFont.length; i++) {
             int[] slice = smallFont[i];
             int sliceLength = slice.length;
@@ -52,8 +49,8 @@ public class DefaultMemory implements Memory {
     }
 
     @Override
-    public void storeByte(int address, int value) {
-        // Storing to memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
+    public void writeByte(int address, int value) {
+        // Writing to memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
         this.bytes[address & (this.memorySize - 1)] = value;
     }
 
