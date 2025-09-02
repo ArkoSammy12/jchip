@@ -42,9 +42,9 @@ public interface Processor {
 
     int getRegister(int register);
 
-    void saveFlags(int length);
+    void saveRegistersToFlags(int length);
 
-    void loadFlags(int length);
+    void loadFlagsToRegisters(int length);
 
     Random getRandom();
 

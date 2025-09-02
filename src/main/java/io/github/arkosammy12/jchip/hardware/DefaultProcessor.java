@@ -107,12 +107,12 @@ public class DefaultProcessor implements Processor {
     }
 
     @Override
-    public void loadFlags(int length) {
+    public void loadFlagsToRegisters(int length) {
         System.arraycopy(this.flagsStorage, 0, this.registers, 0, length);
     }
 
     @Override
-    public void saveFlags(int length) {
+    public void saveRegistersToFlags(int length) {
         System.arraycopy(this.registers, 0, this.flagsStorage, 0, length);
     }
 
