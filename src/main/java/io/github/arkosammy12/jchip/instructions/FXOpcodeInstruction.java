@@ -58,7 +58,7 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                 AudioSystem audioSystem = executionContext.getAudioSystem();
                 int currentIndexRegister = processor.getIndexRegister();
                 for (int i = 0; i < 16; i++) {
-                    int audioByte = memory.readByte(currentIndexRegister + 1);
+                    int audioByte = memory.readByte(currentIndexRegister + i);
                     audioSystem.loadPatternByte(i, audioByte);
                 }
             }
@@ -137,7 +137,7 @@ public class FXOpcodeInstruction extends AbstractInstruction {
                     throw new InvalidInstructionException(this, consoleVariant);
                 }
                 AudioSystem audioSystem = executionContext.getAudioSystem();
-                audioSystem.setPitch(vX);
+                audioSystem.setPlaybackRate(vX);
             }
             case 0x55 -> { // Store in memory v0 - vX
                 Memory memory = this.executionContext.getMemory();

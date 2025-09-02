@@ -6,7 +6,7 @@ public interface AudioSystem extends Closeable {
 
     void loadPatternByte(int index, int value);
 
-    void setPitch(int pitch);
+    void setPlaybackRate(int pitch);
 
     void pushFrame(int soundTimer);
 
