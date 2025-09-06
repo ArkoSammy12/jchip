@@ -1,11 +1,8 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.base.Instruction;
-import io.github.arkosammy12.jchip.instructions.Draw;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.ProgramArgs;
-import io.github.arkosammy12.jchip.instructions.ZeroOpcodeInstruction;
 
 import java.io.IOException;
 
@@ -21,11 +18,11 @@ public class SChipEmulator extends Chip8Emulator {
     @Override
     protected void runInstructionLoop() throws InvalidInstructionException {
         for (int i = 0; i < this.targetInstructionsPerFrame; i++) {
-            Instruction executedInstruction = this.processor.cycle(i < 1);
-            if (this.displayWaitEnabled && executedInstruction instanceof Draw && !this.isModern && !this.getDisplay().isExtendedMode()) {
+            boolean shouldWaitForNextFrame = this.processor.cycle(i < 1);
+            if (this.displayWaitEnabled && shouldWaitForNextFrame && !this.isModern && !this.getDisplay().isExtendedMode()) {
                 break;
             }
-            if (executedInstruction instanceof ZeroOpcodeInstruction zeroOpcodeInstruction && zeroOpcodeInstruction.shouldTerminateEmulator()) {
+            if (this.processor.shouldTerminate()) {
                 this.terminate();
             }
             if (this.getKeyState().shouldTerminate()) {

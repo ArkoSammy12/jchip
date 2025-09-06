@@ -55,12 +55,12 @@ public enum ConsoleVariant {
         return ipf;
     }
 
-    public boolean isSchip() {
+    public boolean isSChip() {
         return this == ConsoleVariant.SUPER_CHIP_LEGACY || this == ConsoleVariant.SUPER_CHIP_MODERN;
     }
 
-    public boolean isSchipOrXoChip() {
-        return this.isSchip() || this == ConsoleVariant.XO_CHIP;
+    public boolean isSChipOrXOChip() {
+        return this.isSChip() || this == ConsoleVariant.XO_CHIP;
     }
 
 }

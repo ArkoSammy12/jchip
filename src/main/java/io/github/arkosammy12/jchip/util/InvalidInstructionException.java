@@ -1,15 +1,13 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.base.Instruction;
-
 public class InvalidInstructionException extends Exception {
 
-    public InvalidInstructionException(Instruction instruction) {
-        super("Invalid instruction: " + instruction.toString() + "!");
+    public InvalidInstructionException(int firstNibble, int secondNibble, int secondByte) {
+        super("Invalid instruction: " + ((((firstNibble << 4) | secondNibble) << 8) | secondByte) + "!");
     }
 
-    public InvalidInstructionException(Instruction instruction, ConsoleVariant consoleVariant) {
-        super("Instruction " + instruction.toString() + " is invalid on the " + consoleVariant.getDisplayName() + " variant!");
+    public InvalidInstructionException(int firstNibble, int secondNibble, int secondByte, ConsoleVariant consoleVariant) {
+        super("Instruction " + ((((firstNibble << 4) | secondNibble) << 8) | secondByte) + " is invalid on the " + consoleVariant.getDisplayName() + " variant!");
     }
 
 }

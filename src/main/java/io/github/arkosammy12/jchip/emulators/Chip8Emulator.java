@@ -2,12 +2,7 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.*;
-import io.github.arkosammy12.jchip.hardware.DefaultAudioSystem;
-import io.github.arkosammy12.jchip.hardware.DefaultMemory;
-import io.github.arkosammy12.jchip.hardware.DefaultProcessor;
-import io.github.arkosammy12.jchip.hardware.LanternaDisplay;
-import io.github.arkosammy12.jchip.instructions.Draw;
-import io.github.arkosammy12.jchip.instructions.ZeroOpcodeInstruction;
+import io.github.arkosammy12.jchip.hardware.*;
 import io.github.arkosammy12.jchip.util.*;
 
 import java.io.IOException;
@@ -49,7 +44,11 @@ public class Chip8Emulator implements Emulator {
         this.audioSystem = new DefaultAudioSystem(this.consoleVariant);
         this.display = new LanternaDisplay(this.consoleVariant, this.keyState, colorPalette);
         this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
-        this.processor = new DefaultProcessor(this);
+        if (consoleVariant == ConsoleVariant.XO_CHIP) {
+            this.processor = new XOChipProcessor(this);
+        } else {
+            this.processor = new Chip8Processor(this);
+        }
     }
 
     @Override
@@ -99,20 +98,28 @@ public class Chip8Emulator implements Emulator {
         this.getAudioSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
         long deltaTime = endOfFrame - startOfFrame;
+        long frameTime = deltaTime / 1000000;
+        System.out.println(frameTime);
+        double timePhase = Math.min(frameTime * 1.03 / Main.FRAME_INTERVAL, 2);
+        int ipfOffset = (int) (1e5 * Math.cos(timePhase * (Math.PI / 2)));
+        this.currentInstructionsPerFrame += ipfOffset;
+        //this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame + ipfOffset, 1, this.targetInstructionsPerFrame);
+        /*
         if (deltaTime != Main.FRAME_INTERVAL) {
             long adjust = (deltaTime - Main.FRAME_INTERVAL) / 10000;
             this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
         }
 
+         */
     }
 
     protected void runInstructionLoop() throws InvalidInstructionException {
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-            Instruction executedInstruction = this.processor.cycle(i < 1);
-            if (this.displayWaitEnabled && executedInstruction instanceof Draw) {
+            boolean shouldWaitForNextFrame = this.processor.cycle(i < 1);
+            if (this.displayWaitEnabled && shouldWaitForNextFrame) {
                 break;
             }
-            if (executedInstruction instanceof ZeroOpcodeInstruction zeroOpcodeInstruction && zeroOpcodeInstruction.shouldTerminateEmulator()) {
+            if (this.processor.shouldTerminate()) {
                 this.terminate();
             }
             if (this.getKeyState().shouldTerminate()) {
