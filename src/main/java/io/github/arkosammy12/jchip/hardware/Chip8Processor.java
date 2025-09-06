@@ -153,7 +153,8 @@ public class Chip8Processor implements Processor {
         int thirdNibble = (secondByte & 0xF0) >> 4;
         int fourthNibble = (secondByte & 0x0F);
         int memoryAddress = ((firstByte << 8) | secondByte) & 0x0FFF;
-        switch (firstNibble) {
+        boolean shouldWaitForNextFrame = false;
+        boolean opcodeHandled = switch (firstNibble) {
             case 0x0 -> executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
             case 0x1 -> executeJump(memoryAddress);
             case 0x2 -> executeCall(memoryAddress);
@@ -162,197 +163,122 @@ public class Chip8Processor implements Processor {
             case 0x5 -> executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
             case 0x6 -> executeSetRegisterImmediate(secondNibble, secondByte);
             case 0x7 -> executeAddRegisterImmediate(secondNibble, secondByte);
-            case 0x8 -> executeALUInstruction(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+            case 0x8 -> executeALUInstruction(secondNibble, thirdNibble, fourthNibble);
             case 0x9 -> executeSkipIfRegistersNotEqual(secondNibble, thirdNibble);
             case 0xA -> executeSetIndexRegister(memoryAddress);
             case 0xB -> executeJumpWithOffset(secondNibble, memoryAddress);
             case 0xC -> executeGetRandomNumber(secondNibble, secondByte);
             case 0xD -> {
-                executeDraw(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
-                return true;
+                shouldWaitForNextFrame = true;
+                yield executeDraw(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
             }
-            case 0xE -> executeSkipIfKey(firstNibble, secondNibble, secondByte);
+            case 0xE -> executeSkipIfKey(secondNibble, secondByte);
             case 0xF -> executeFXOpcode(firstNibble, secondNibble, secondByte);
-            default -> throw new IllegalArgumentException("Invalid instruction opcode: " + firstNibble + "!");
+            default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, this.emulator.getConsoleVariant());
         };
-        return false;
+        if (!opcodeHandled) {
+            throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, this.emulator.getConsoleVariant());
+        }
+        return shouldWaitForNextFrame;
     }
 
-    protected void executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
-        Display display = this.emulator.getDisplay();
+    protected boolean executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+        boolean opcodeHandled = true;
         switch (thirdNibble) {
-            case 0xC -> { // 00CN: Scroll screen down
-                if (!consoleVariant.isSChipOrXOChip()) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                if (fourthNibble <= 0 && consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                display.scrollDown(fourthNibble, this.getSelectedBitPlanes());
-            }
-            case 0xD -> { // OODN: Scroll screen up
-                if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                display.scrollUp(fourthNibble, this.getSelectedBitPlanes());
-            }
             case 0xE -> {
-                switch (fourthNibble) { // 00E0: Clear screen
-                    case 0x0 -> {
-                        display.clear(this.getSelectedBitPlanes());
+                switch (fourthNibble) {
+                    case 0x0 -> { // 00E0: Clear screen
+                        this.emulator.getDisplay().clear(this.getSelectedBitPlanes());
                     }
                     case 0xE -> { // 00EE: Return from subroutine
                         int returnAddress = this.pop();
                         this.setProgramCounter(returnAddress);
                     }
-                    default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte);
+                    default -> opcodeHandled = false;
                 }
             }
-            case 0xF -> {
-                if (!consoleVariant.isSChipOrXOChip()) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, ConsoleVariant.CHIP_8);
-                }
-                switch (fourthNibble) {
-                    case 0xB -> { // 00FB: Scroll screen right
-                        display.scrollRight(this.getSelectedBitPlanes());
-                    }
-                    case 0xC -> { // 00FC: Scroll screen left
-                        display.scrollLeft(this.getSelectedBitPlanes());
-                    }
-                    case 0xD -> { // 00FD: Exit interpreter
-                        this.shouldTerminate = true;
-                    }
-                    case 0xE -> { // 00FE: Set lores mode
-                        display.setExtendedMode(false);
-                        if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
-                            display.clear(this.getSelectedBitPlanes());
-                        }
-                    }
-                    case 0xF -> { // 00FF: Set hires mode
-                        display.setExtendedMode(true);
-                        if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
-                            display.clear(this.getSelectedBitPlanes());
-                        }
-                    }
-                    default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte);
-                }
-            }
-            default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte);
+            default -> opcodeHandled = false;
         }
+        return opcodeHandled;
     }
 
     // 1NNN
-    protected void executeJump(int memoryAddress) {
+    protected boolean executeJump(int memoryAddress) {
         this.setProgramCounter(memoryAddress);
+        return true;
     }
 
     // 2NNN
-    protected void executeCall(int memoryAddress) {
+    protected boolean executeCall(int memoryAddress) {
         int currentProgramCounter = this.getProgramCounter();
         this.push(currentProgramCounter);
         this.setProgramCounter(memoryAddress);
+        return true;
     }
 
     // 3XNN
-    protected void executeSkipIfEqualsImmediate(int secondNibble, int secondByte) {
-        Memory memory = this.emulator.getMemory();
+    protected boolean executeSkipIfEqualsImmediate(int secondNibble, int secondByte) {
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         if (secondByte == vX) {
-            if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(this, memory)) {
+            if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                 this.incrementProgramCounter();
             }
             this.incrementProgramCounter();
         }
+        return true;
     }
 
     // 4XNN
-    protected void executeSkipIfNotEqualsImmediate(int secondNibble, int secondByte) {
-        Memory memory = this.emulator.getMemory();
+    protected boolean executeSkipIfNotEqualsImmediate(int secondNibble, int secondByte) {
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         if (secondByte != vX) {
-            if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(this, memory)) {
+            if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                 this.incrementProgramCounter();
             }
             this.incrementProgramCounter();
         }
+        return true;
     }
-    protected void executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        Memory memory = this.emulator.getMemory();
+    protected boolean executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         int vY = this.getRegister(thirdNibble);
+        boolean opcodeHandled = true;
         switch (fourthNibble) {
             case 0x0 -> { // 5XY0: Skip if registers equal
                 if (vX == vY) {
-                    if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(this, memory)) {
+                    if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                         this.incrementProgramCounter();
                     }
                     this.incrementProgramCounter();
                 }
             }
-            case 0x2 -> { // 5XY2: Write vX to vY to memory
-                if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                int currentIndexRegister = this.getIndexRegister();
-                boolean iterateInReverse = secondNibble > thirdNibble;
-                if (iterateInReverse) {
-                    for (int i = secondNibble, j = 0; i >= thirdNibble; i--) {
-                        int registerValue = this.getRegister(i);
-                        memory.writeByte(currentIndexRegister + j, registerValue);
-                        j++;
-                    }
-                } else {
-                    for (int i = secondNibble, j = 0; i <= thirdNibble; i++) {
-                        int registerValue = this.getRegister(i);
-                        memory.writeByte(currentIndexRegister + j, registerValue);
-                        j++;
-                    }
-                }
-            }
-            case 0x3 -> { // 5XY3: Read values vX to vY from memory
-                if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                int currentIndexRegister = this.getIndexRegister();
-                boolean iterateInReverse = secondNibble > thirdNibble;
-                if (iterateInReverse) {
-                    for (int i = secondNibble, j = 0; i >= thirdNibble; i--) {
-                        int memoryValue = memory.readByte(currentIndexRegister + j);
-                        this.setRegister(i, memoryValue);
-                        j++;
-                    }
-                } else {
-                    for (int i = secondNibble, j = 0; i <= thirdNibble; i++) {
-                        int memoryValue = memory.readByte(currentIndexRegister + j);
-                        this.setRegister(i, memoryValue);
-                        j++;
-                    }
-                }
-            }
-            default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte);
+            default -> opcodeHandled = false;
         }
+        return opcodeHandled;
     }
 
     // 6XNN
-    protected void executeSetRegisterImmediate(int secondNibble, int secondByte) {
+    protected boolean executeSetRegisterImmediate(int secondNibble, int secondByte) {
         this.setRegister(secondNibble, secondByte);
+        return true;
     }
 
     // 7XNN
-    protected void executeAddRegisterImmediate(int secondNibble, int secondByte) {
+    protected boolean executeAddRegisterImmediate(int secondNibble, int secondByte) {
         int vX = this.getRegister(secondNibble);
         int value = (vX + secondByte) & 0xFF;
         this.setRegister(secondNibble, value);
+        return true;
     }
 
-    protected void executeALUInstruction(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+    protected boolean executeALUInstruction(int secondNibble, int thirdNibble, int fourthNibble) {
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         int vY = this.getRegister(thirdNibble);
+        boolean opcodeHandled = true;
         switch (fourthNibble) {
             case 0x0 -> { // 8XY0: Copy to register
                 this.setRegister(secondNibble, vY);
@@ -411,47 +337,49 @@ public class Chip8Processor implements Processor {
                 this.setRegister(secondNibble, value);
                 this.setCarry(shiftedOut);
             }
-            default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte);
+            default -> opcodeHandled = false;
         }
-
+        return opcodeHandled;
     }
 
     // 9XY0
-    protected void executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble) {
-        Memory memory = this.emulator.getMemory();
+    protected boolean executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble) {
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         int vY = this.getRegister(thirdNibble);
         if (vX != vY) {
-            if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(this, memory)) {
+            if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                 this.incrementProgramCounter();
             }
             this.incrementProgramCounter();
         }
+        return true;
     }
 
     // ANNN
-    protected void executeSetIndexRegister(int memoryAddress) {
+    protected boolean executeSetIndexRegister(int memoryAddress) {
         this.setIndexRegister(memoryAddress);
+        return true;
     }
 
-    // BNNN/BXNN
-    protected void executeJumpWithOffset(int secondNibble, int memoryAddress) {
-        int offsetRegister = this.emulator.getConsoleVariant().isSChip() ? secondNibble : 0x0;
-        int offset = this.getRegister(offsetRegister);
+    // BNNN
+    protected boolean executeJumpWithOffset(int secondNibble, int memoryAddress) {
+        int offset = this.getRegister(0x0);
         int jumpAddress = memoryAddress + offset;
         this.setProgramCounter(jumpAddress);
+        return true;
     }
 
     // CXNN
-    protected void executeGetRandomNumber(int secondNibble, int secondByte) {
+    protected boolean executeGetRandomNumber(int secondNibble, int secondByte) {
         int random = this.getRandom().nextInt();
         int value = (random & secondByte) & 0xFF;
         this.setRegister(secondNibble, value);
+        return true;
     }
 
     // DXYN
-    protected void executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
+    protected boolean executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
         Display display = this.emulator.getDisplay();
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         Memory memory = this.emulator.getMemory();
@@ -532,18 +460,19 @@ public class Chip8Processor implements Processor {
             }
         }
         this.setRegister(0xF, collisionCounter & 0xFF);
+        return true;
     }
 
-    protected void executeSkipIfKey(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
-        Memory memory = this.emulator.getMemory();
+    protected boolean executeSkipIfKey(int secondNibble, int secondByte) {
         KeyState keyState = this.emulator.getKeyState();
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         int keyCode = vX & 0xF;
+        boolean opcodeHandled = true;
         switch (secondByte) {
             case 0x9E -> { // EX9E: Skip if key pressed
                 if (keyState.isKeyPressed(keyCode)) {
-                    if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(this, memory)) {
+                    if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                         this.incrementProgramCounter();
                     }
                     this.incrementProgramCounter();
@@ -551,57 +480,22 @@ public class Chip8Processor implements Processor {
             }
             case 0xA1 -> { // EXA1: Skip if key not pressed
                 if (!keyState.isKeyPressed(keyCode)) {
-                    if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(this, memory)) {
+                    if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                         this.incrementProgramCounter();
                     }
                     this.incrementProgramCounter();
                 }
             }
-            default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte);
+            default -> opcodeHandled = false;
         }
+        return opcodeHandled;
     }
 
-    protected void executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
+    protected boolean executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
+        boolean opcodeHandled = true;
         switch (secondByte) {
-            case 0x00 -> { // F000 NNNN: Set index register to 16-bit address
-                if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                if (secondNibble != 0) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                Memory memory = this.emulator.getMemory();
-                int currentProgramCounter = this.getProgramCounter();
-                int firstAddressByte = memory.readByte(currentProgramCounter);
-                int secondAddressByte = memory.readByte(currentProgramCounter + 1);
-                int address = (firstAddressByte << 8) | secondAddressByte;
-                this.setIndexRegister(address);
-                this.incrementProgramCounter();
-            }
-            case 0x01 -> { // FX01: Set selected bit planes
-                if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                this.setSelectedBitPlanes(secondNibble);
-
-            }
-            case 0x02 -> { // F002: Load audio pattern
-                if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                if (secondNibble != 0) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, ConsoleVariant.XO_CHIP);
-                }
-                Memory memory = this.emulator.getMemory();
-                AudioSystem audioSystem = this.emulator.getAudioSystem();
-                int currentIndexRegister = this.getIndexRegister();
-                for (int i = 0; i < 16; i++) {
-                    int audioByte = memory.readByte(currentIndexRegister + i);
-                    audioSystem.loadPatternByte(i, audioByte);
-                }
-            }
             case 0x07 -> { // FX07: Set VX to current delay timer
                 int delayTimer = this.getDelayTimer();
                 this.setRegister(secondNibble, delayTimer);
@@ -649,15 +543,6 @@ public class Chip8Processor implements Processor {
                 int memoryOffset = display.getCharacterFont().getSmallCharacterOffset(character);
                 this.setIndexRegister(memoryOffset);
             }
-            case 0x30 -> { // FX30: Set index register to big font character location
-                if (!consoleVariant.isSChipOrXOChip()) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                Display display = this.emulator.getDisplay();
-                int character = vX & 0xF;
-                int memoryOffset = display.getCharacterFont().getBigFontCharacterOffset(character);
-                this.setIndexRegister(memoryOffset);
-            }
             case 0x33 -> { // FX33: Convert to binary-coded decimal
                 int currentIndexPointer = this.getIndexRegister();
                 int[] digits = new int[3];
@@ -671,12 +556,6 @@ public class Chip8Processor implements Processor {
                 for (int i = 0; i < 3; i++) {
                     this.emulator.getMemory().writeByte(currentIndexPointer + i, digits[i]);
                 }
-            }
-            case 0x3A -> { // FX33: Set audio pattern pitch
-                if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
-                this.emulator.getAudioSystem().setPlaybackRate(vX);
             }
             case 0x55 -> { // FX55: Write to memory v0 - vX
                 Memory memory = this.emulator.getMemory();
@@ -700,14 +579,18 @@ public class Chip8Processor implements Processor {
                     this.setIndexRegister(currentIndexRegister + secondNibble + 1);
                 }
             }
-            case 0x75 -> { // FX75: Store registers to flags storage
-                this.saveRegistersToFlags(secondNibble);
-            }
-            case 0x85 -> { // FX85: Load registers from flags storage
-                this.loadFlagsToRegisters(secondNibble);
-            }
-            default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte);
+            default -> opcodeHandled = false;
         }
+        return opcodeHandled;
+    }
+
+    private boolean nextOpcodeIsF000() {
+        Memory memory = this.emulator.getMemory();
+        int currentProgramCounter = this.getProgramCounter();
+        int firstByte = memory.readByte(currentProgramCounter);
+        int secondByte = memory.readByte(currentProgramCounter + 1);
+        int opcode = (firstByte << 8) | secondByte;
+        return opcode == 0xF000;
     }
 
 }

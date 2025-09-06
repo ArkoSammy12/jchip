@@ -1,17 +1,87 @@
 package io.github.arkosammy12.jchip.hardware;
 
+import io.github.arkosammy12.jchip.base.AudioSystem;
 import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.base.Memory;
+import io.github.arkosammy12.jchip.util.ConsoleVariant;
+import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 
-public class XOChipProcessor extends Chip8Processor {
+public class XOChipProcessor extends SChipProcessor {
 
     public XOChipProcessor(Emulator emulator) {
         super(emulator);
     }
 
     @Override
-    protected void executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
+    protected boolean executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+        if (super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte)) {
+            return true;
+        }
+        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
+        Display display = this.emulator.getDisplay();
+        boolean opcodeHandled = true;
+        switch (thirdNibble) {
+            case 0xD -> { // OODN: Scroll screen up
+                if (consoleVariant != ConsoleVariant.XO_CHIP) {
+                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
+                }
+                display.scrollUp(fourthNibble, this.getSelectedBitPlanes());
+            }
+            default -> opcodeHandled = false;
+        }
+        return opcodeHandled;
+    }
+
+    @Override
+    protected boolean executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+        if (super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte)) {
+            return true;
+        }
+        Memory memory = this.emulator.getMemory();
+        boolean opcodeHandled = true;
+        switch (fourthNibble) {
+            case 0x2 -> { // 5XY2: Write vX to vY to memory
+                int currentIndexRegister = this.getIndexRegister();
+                boolean iterateInReverse = secondNibble > thirdNibble;
+                if (iterateInReverse) {
+                    for (int i = secondNibble, j = 0; i >= thirdNibble; i--) {
+                        int registerValue = this.getRegister(i);
+                        memory.writeByte(currentIndexRegister + j, registerValue);
+                        j++;
+                    }
+                } else {
+                    for (int i = secondNibble, j = 0; i <= thirdNibble; i++) {
+                        int registerValue = this.getRegister(i);
+                        memory.writeByte(currentIndexRegister + j, registerValue);
+                        j++;
+                    }
+                }
+            }
+            case 0x3 -> { // 5XY3: Read values vX to vY from memory
+                int currentIndexRegister = this.getIndexRegister();
+                boolean iterateInReverse = secondNibble > thirdNibble;
+                if (iterateInReverse) {
+                    for (int i = secondNibble, j = 0; i >= thirdNibble; i--) {
+                        int memoryValue = memory.readByte(currentIndexRegister + j);
+                        this.setRegister(i, memoryValue);
+                        j++;
+                    }
+                } else {
+                    for (int i = secondNibble, j = 0; i <= thirdNibble; i++) {
+                        int memoryValue = memory.readByte(currentIndexRegister + j);
+                        this.setRegister(i, memoryValue);
+                        j++;
+                    }
+                }
+            }
+            default -> opcodeHandled = false;
+        }
+        return opcodeHandled;
+    }
+
+    @Override
+    protected boolean executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
         Display display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
         int selectedBitPlanes = this.getSelectedBitPlanes();
@@ -76,6 +146,50 @@ public class XOChipProcessor extends Chip8Processor {
             }
         }
         this.setCarry(collided);
+        return true;
+    }
+
+    @Override
+    protected boolean executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
+        if (super.executeFXOpcode(firstNibble, secondNibble, secondByte)) {
+            return true;
+        }
+        int vX = this.getRegister(secondNibble);
+        boolean opcodeHanded = true;
+        switch (secondByte) {
+            case 0x00 -> { // F000 NNNN: Set index register to 16-bit address
+                if (secondNibble != 0) {
+                    return false;
+                }
+                Memory memory = this.emulator.getMemory();
+                int currentProgramCounter = this.getProgramCounter();
+                int firstAddressByte = memory.readByte(currentProgramCounter);
+                int secondAddressByte = memory.readByte(currentProgramCounter + 1);
+                int address = (firstAddressByte << 8) | secondAddressByte;
+                this.setIndexRegister(address);
+                this.incrementProgramCounter();
+            }
+            case 0x01 -> { // FX01: Set selected bit planes
+                this.setSelectedBitPlanes(secondNibble);
+            }
+            case 0x02 -> { // F002: Load audio pattern
+                if (secondNibble != 0) {
+                    return false;
+                }
+                Memory memory = this.emulator.getMemory();
+                AudioSystem audioSystem = this.emulator.getAudioSystem();
+                int currentIndexRegister = this.getIndexRegister();
+                for (int i = 0; i < 16; i++) {
+                    int audioByte = memory.readByte(currentIndexRegister + i);
+                    audioSystem.loadPatternByte(i, audioByte);
+                }
+            }
+            case 0x3A -> { // FX33: Set audio pattern pitch
+                this.emulator.getAudioSystem().setPlaybackRate(vX);
+            }
+            default -> opcodeHanded = false;
+        }
+        return opcodeHanded;
     }
 
 }

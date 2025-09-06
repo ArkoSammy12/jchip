@@ -44,11 +44,11 @@ public class Chip8Emulator implements Emulator {
         this.audioSystem = new DefaultAudioSystem(this.consoleVariant);
         this.display = new LanternaDisplay(this.consoleVariant, this.keyState, colorPalette);
         this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
-        if (consoleVariant == ConsoleVariant.XO_CHIP) {
-            this.processor = new XOChipProcessor(this);
-        } else {
-            this.processor = new Chip8Processor(this);
-        }
+        this.processor = switch (consoleVariant) {
+            case XO_CHIP -> new XOChipProcessor(this);
+            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipProcessor(this);
+            default -> new Chip8Processor(this);
+        };
     }
 
     @Override

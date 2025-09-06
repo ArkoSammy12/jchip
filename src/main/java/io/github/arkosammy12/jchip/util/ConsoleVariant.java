@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.util;
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
+import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 
 import java.io.IOException;
 
@@ -34,8 +35,9 @@ public enum ConsoleVariant {
     public static Emulator getEmulatorForVariant(ProgramArgs programArgs) throws IOException {
         ConsoleVariant consoleVariant = programArgs.getConsoleVariant();
         return switch (consoleVariant) {
-            case CHIP_8 -> new Chip8Emulator(programArgs);
-            default -> new SChipEmulator(programArgs);
+            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator(programArgs);
+            case XO_CHIP -> new XOChipEmulator(programArgs);
+            default -> new Chip8Emulator(programArgs);
         };
     }
 
