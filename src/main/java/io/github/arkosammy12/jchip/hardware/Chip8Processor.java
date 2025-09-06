@@ -362,9 +362,10 @@ public class Chip8Processor implements Processor {
         return true;
     }
 
-    // BNNN
+    // BNNN / BXNN
     protected boolean executeJumpWithOffset(int secondNibble, int memoryAddress) {
-        int offset = this.getRegister(0x0);
+        int offsetRegister = this.emulator.getConsoleVariant().isSChip() ? secondNibble : 0x0;
+        int offset = this.getRegister(offsetRegister);
         int jumpAddress = memoryAddress + offset;
         this.setProgramCounter(jumpAddress);
         return true;

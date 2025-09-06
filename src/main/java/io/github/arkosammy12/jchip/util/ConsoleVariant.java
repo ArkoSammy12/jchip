@@ -57,6 +57,13 @@ public enum ConsoleVariant {
         return ipf;
     }
 
+    public boolean getDefaultDisplayWaitBehavior() {
+        return switch (this) {
+            case CHIP_8, SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> true;
+            case XO_CHIP -> false;
+        };
+    }
+
     public boolean isSChip() {
         return this == ConsoleVariant.SUPER_CHIP_LEGACY || this == ConsoleVariant.SUPER_CHIP_MODERN;
     }

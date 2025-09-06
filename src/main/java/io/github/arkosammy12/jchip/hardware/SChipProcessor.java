@@ -57,15 +57,6 @@ public class SChipProcessor extends Chip8Processor {
         return opcodeHandled;
     }
 
-    // BXNN
-    @Override
-    protected boolean executeJumpWithOffset(int secondNibble, int memoryAddress) {
-        int offset = this.getRegister(secondNibble);
-        int jumpAddress = memoryAddress + offset;
-        this.setProgramCounter(jumpAddress);
-        return true;
-    }
-
     @Override
     protected boolean executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
         if (super.executeFXOpcode(firstNibble, secondNibble, secondByte)) {

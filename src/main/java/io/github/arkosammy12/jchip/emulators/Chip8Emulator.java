@@ -26,11 +26,11 @@ public class Chip8Emulator implements Emulator {
     public Chip8Emulator(ProgramArgs programArgs) throws IOException {
         this.consoleVariant = programArgs.getConsoleVariant();
         this.debug = programArgs.debugEnabled();
-        this.displayWaitEnabled = programArgs.isDisplayWaitEnabled();
+        this.displayWaitEnabled = programArgs.isDisplayWaitEnabled().orElse(consoleVariant.getDefaultDisplayWaitBehavior());
         int instructionsPerFrame = programArgs.getInstructionsPerFrame();
         ColorPalette colorPalette = programArgs.getColorPalette();
         if (instructionsPerFrame <= 0) {
-            this.targetInstructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame(programArgs.isDisplayWaitEnabled());
+            this.targetInstructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame(this.displayWaitEnabled);
         } else {
             this.targetInstructionsPerFrame = instructionsPerFrame;
         }

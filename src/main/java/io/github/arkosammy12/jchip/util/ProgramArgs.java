@@ -4,6 +4,7 @@ import picocli.CommandLine;
 
 import java.awt.*;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class ProgramArgs {
 
@@ -13,8 +14,8 @@ public class ProgramArgs {
     @CommandLine.Option(names = {"--rom", "--rom-path"})
     private Path romPath;
 
-    @CommandLine.Option(names = "--display-wait", negatable = true, defaultValue = "true", fallbackValue = "true")
-    private boolean displayWaitEnabled;
+    @CommandLine.Option(names = "--display-wait", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
+    private Optional<Boolean> displayWaitEnabled;
 
     @CommandLine.Option(names = "--variant")
     private String consoleVariant = ConsoleVariant.CHIP_8.getIdentifier();
@@ -32,7 +33,7 @@ public class ProgramArgs {
         return this.debug;
     }
 
-    public boolean isDisplayWaitEnabled() {
+    public Optional<Boolean> isDisplayWaitEnabled() {
         return this.displayWaitEnabled;
     }
 
