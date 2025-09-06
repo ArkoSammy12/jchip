@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.hardware;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
@@ -23,8 +22,7 @@ import java.nio.charset.Charset;
 
 public class LanternaDisplay implements Display {
 
-    private final Screen terminalScreen;
-    private final SwingTerminalFrame underlyingTerminal;
+    private final TerminalScreen terminalScreen;
     private final CharacterFont characterFont;
     private final ConsoleVariant consoleVariant;
     private final ColorPalette colorPalette;
@@ -64,7 +62,6 @@ public class LanternaDisplay implements Display {
         terminal.setBackgroundColor(TextColor.ANSI.BLACK);
         terminal.setCursorVisible(false);
 
-        this.underlyingTerminal = terminal;
         this.colorPalette = colorPalette;
         this.terminalScreen = new TerminalScreen(terminal);
         this.consoleVariant = consoleVariant;
@@ -78,7 +75,6 @@ public class LanternaDisplay implements Display {
                 this.terminalScreen.setCharacter(i, j, this.colorPalette.getPixel(0));
             }
         }
-        this.terminalScreen.getTerminalSize();
         this.terminalScreen.doResizeIfNecessary();
         this.terminalScreen.startScreen();
     }
@@ -323,7 +319,7 @@ public class LanternaDisplay implements Display {
             }
         }
         double mips = (double) (currentInstructionsPerFrame * Main.FRAMES_PER_SECOND) / 1000000;
-        this.underlyingTerminal.setTitle(String.format("%s | IPF: %d | Mips: %f", this.consoleVariant.getDisplayName(), currentInstructionsPerFrame, mips));
+        ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(String.format("%s | IPF: %d | Mips: %f", this.consoleVariant.getDisplayName(), currentInstructionsPerFrame, mips));
         this.terminalScreen.refresh();
     }
 
