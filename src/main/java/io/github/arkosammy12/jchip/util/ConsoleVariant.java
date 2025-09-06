@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.util;
 
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
-import io.github.arkosammy12.jchip.emulators.SchipEmulator;
+import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 
 import java.io.IOException;
 
@@ -35,7 +35,7 @@ public enum ConsoleVariant {
         ConsoleVariant consoleVariant = programArgs.getConsoleVariant();
         return switch (consoleVariant) {
             case CHIP_8 -> new Chip8Emulator(programArgs);
-            default -> new SchipEmulator(programArgs);
+            default -> new SChipEmulator(programArgs);
         };
     }
 

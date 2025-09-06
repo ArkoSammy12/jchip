@@ -9,11 +9,11 @@ import io.github.arkosammy12.jchip.instructions.ZeroOpcodeInstruction;
 
 import java.io.IOException;
 
-public class SchipEmulator extends Chip8Emulator {
+public class SChipEmulator extends Chip8Emulator {
 
     private final boolean isModern;
 
-    public SchipEmulator(ProgramArgs programArgs) throws IOException {
+    public SChipEmulator(ProgramArgs programArgs) throws IOException {
         super(programArgs);
         this.isModern = this.getConsoleVariant() == ConsoleVariant.SUPER_CHIP_MODERN || this.getConsoleVariant() ==ConsoleVariant.XO_CHIP;
     }
