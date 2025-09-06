@@ -15,7 +15,7 @@ public class DefaultAudioSystem implements AudioSystem {
     private final int[] patternBuffer = new int[16];
     private double playbackRate = 4000;
 
-    private SourceDataLine line;
+    private SourceDataLine audioLine;
     private double phase = 0.0;
 
     private static final int[] DEFAULT_PATTERN_1 = {
@@ -34,9 +34,9 @@ public class DefaultAudioSystem implements AudioSystem {
         }
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
-            line = javax.sound.sampled.AudioSystem.getSourceDataLine(format);
-            line.open(format);
-            line.start();
+            audioLine = javax.sound.sampled.AudioSystem.getSourceDataLine(format);
+            audioLine.open(format);
+            audioLine.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -52,12 +52,12 @@ public class DefaultAudioSystem implements AudioSystem {
         this.playbackRate = 4000 * Math.pow(2.0, (pitch - 64) / 48.0);
     }
 
-    public void pushFrame(int soundTimer) {
+    public void pushSamples(int soundTimer) {
         byte[] data = new byte[SAMPLES_PER_FRAME];
         if (soundTimer <= 0) {
             this.phase = 0;
             Arrays.fill(data, (byte) 0);
-            line.write(data, 0, data.length);
+            audioLine.write(data, 0, data.length);
             return;
         }
         double step = this.playbackRate / 128.0 / SAMPLE_RATE;
@@ -71,12 +71,12 @@ public class DefaultAudioSystem implements AudioSystem {
             this.phase += step;
             this.phase %= 1.0f;
         }
-        line.write(data, 0, data.length);
+        audioLine.write(data, 0, data.length);
     }
 
     @Override
     public void close() {
-        this.line.close();
+        this.audioLine.close();
     }
 
 }

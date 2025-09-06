@@ -19,8 +19,8 @@ public class SchipEmulator extends Chip8Emulator {
     }
 
     @Override
-    public void tick() throws IOException, InvalidInstructionException {
-        for (int i = 0; i < this.instructionsPerFrame; i++) {
+    protected void runInstructionLoop() throws InvalidInstructionException {
+        for (int i = 0; i < this.targetInstructionsPerFrame; i++) {
             Instruction executedInstruction = this.processor.cycle(i < 1);
             if (this.displayWaitEnabled && executedInstruction instanceof Draw && !this.isModern && !this.getDisplay().isExtendedMode()) {
                 break;
@@ -32,8 +32,6 @@ public class SchipEmulator extends Chip8Emulator {
                 this.terminate();
             }
         }
-        this.getDisplay().flush();
-        this.getAudioSystem().pushFrame(this.getProcessor().getSoundTimer());
     }
 
 }

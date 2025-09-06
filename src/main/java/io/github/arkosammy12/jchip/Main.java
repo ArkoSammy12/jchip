@@ -9,7 +9,7 @@ import picocli.CommandLine;
 public class Main {
 
     public static final int FRAMES_PER_SECOND = 60;
-    private static final long FRAME_INTERVAL = 1_000_000_000L / FRAMES_PER_SECOND;
+    public static final long FRAME_INTERVAL = 1_000_000_000L / FRAMES_PER_SECOND;
     private static long lastSavedTime = System.nanoTime();
 
     public static void main(String[] args) {
@@ -19,7 +19,7 @@ public class Main {
                 long now = System.nanoTime();
                 long deltaTime = now - lastSavedTime;
                 if (deltaTime > FRAME_INTERVAL) {
-                    emulator.tick();
+                    emulator.tick(now);
                     lastSavedTime = now;
                 }
             }

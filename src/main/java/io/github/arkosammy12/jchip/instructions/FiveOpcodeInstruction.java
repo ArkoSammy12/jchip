@@ -32,11 +32,10 @@ public class FiveOpcodeInstruction extends AbstractInstruction {
         switch (type) {
             case 0x0 -> { // Skip if registers equal
                 if (vX == vY) {
-                    boolean nextOpcodeIsF000 = Processor.nextOpcodeIsF000(processor, memory);
-                    processor.incrementProgramCounter();
-                    if (consoleVariant == ConsoleVariant.XO_CHIP && nextOpcodeIsF000) {
+                    if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(processor, memory)) {
                         processor.incrementProgramCounter();
                     }
+                    processor.incrementProgramCounter();
                 }
             }
             case 0x2 -> { // Write vX to vY to memory
@@ -45,10 +44,18 @@ public class FiveOpcodeInstruction extends AbstractInstruction {
                 }
                 int currentIndexRegister = processor.getIndexRegister();
                 boolean iterateInReverse = firstRegister > secondRegister;
-                for (int i = firstRegister, j = 0; iterateInReverse ? i >= secondRegister : i <= secondRegister; j++) {
-                    int registerValue = processor.getRegister(i);
-                    memory.writeByte(currentIndexRegister + j, registerValue);
-                    i = iterateInReverse ? i - 1 : i + 1;
+                if (iterateInReverse) {
+                    for (int i = firstRegister, j = 0; i >= secondRegister; i--) {
+                        int registerValue = processor.getRegister(i);
+                        memory.writeByte(currentIndexRegister + j, registerValue);
+                        j++;
+                    }
+                } else {
+                    for (int i = firstRegister, j = 0; i <= secondRegister; i++) {
+                        int registerValue = processor.getRegister(i);
+                        memory.writeByte(currentIndexRegister + j, registerValue);
+                        j++;
+                    }
                 }
             }
             case 0x3 -> { // Read values vX to vY from memory
@@ -57,10 +64,18 @@ public class FiveOpcodeInstruction extends AbstractInstruction {
                 }
                 int currentIndexRegister = processor.getIndexRegister();
                 boolean iterateInReverse = firstRegister > secondRegister;
-                for (int i = firstRegister, j = 0; iterateInReverse ? i >= secondRegister : i <= secondRegister; j++) {
-                    int memoryValue = memory.readByte(currentIndexRegister + j);
-                    processor.setRegister(i, memoryValue);
-                    i = iterateInReverse ? i - 1 : i + 1;
+                if (iterateInReverse) {
+                    for (int i = firstRegister, j = 0; i >= secondRegister; i--) {
+                        int memoryValue = memory.readByte(currentIndexRegister + j);
+                        processor.setRegister(i, memoryValue);
+                        j++;
+                    }
+                } else {
+                    for (int i = firstRegister, j = 0; i <= secondRegister; i++) {
+                        int memoryValue = memory.readByte(currentIndexRegister + j);
+                        processor.setRegister(i, memoryValue);
+                        j++;
+                    }
                 }
             }
             default -> throw new InvalidInstructionException(this);

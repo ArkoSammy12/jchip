@@ -8,6 +8,6 @@ public interface AudioSystem extends Closeable {
 
     void setPlaybackRate(int pitch);
 
-    void pushFrame(int soundTimer);
+    void pushSamples(int soundTimer);
 
 }

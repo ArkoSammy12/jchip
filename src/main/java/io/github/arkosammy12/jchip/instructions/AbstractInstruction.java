@@ -16,8 +16,8 @@ public abstract class AbstractInstruction implements Instruction {
 
     public AbstractInstruction(int firstByte, int secondByte, ExecutionContext executionContext) {
         this.executionContext = executionContext;
-        this.firstNibble = (firstByte  & 0xF0) >> 4;
-        this.secondNibble = (firstByte  & 0x0F);
+        this.firstNibble = (firstByte & 0xF0) >> 4;
+        this.secondNibble = (firstByte & 0x0F);
         this.thirdNibble = (secondByte & 0xF0) >> 4;
         this.fourthNibble = (secondByte & 0x0F);
         this.secondByte = secondByte;

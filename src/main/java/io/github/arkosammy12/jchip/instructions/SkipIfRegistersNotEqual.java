@@ -25,11 +25,10 @@ public class SkipIfRegistersNotEqual extends AbstractInstruction {
         Memory memory = executionContext.getMemory();
         ConsoleVariant consoleVariant = executionContext.getConsoleVariant();
         if (vX != vY) {
-            boolean nextOpcodeIsF000 = Processor.nextOpcodeIsF000(processor, memory);
-            processor.incrementProgramCounter();
-            if (consoleVariant == ConsoleVariant.XO_CHIP && nextOpcodeIsF000) {
+            if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(processor, memory)) {
                 processor.incrementProgramCounter();
             }
+            processor.incrementProgramCounter();
         }
     }
 

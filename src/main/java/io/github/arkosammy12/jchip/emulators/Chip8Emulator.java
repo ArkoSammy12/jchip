@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.hardware.DefaultAudioSystem;
 import io.github.arkosammy12.jchip.hardware.DefaultMemory;
@@ -22,7 +23,8 @@ public class Chip8Emulator implements Emulator {
     private final AudioSystem audioSystem;
     private final ConsoleVariant consoleVariant;
     private final boolean debug;
-    protected final int instructionsPerFrame;
+    protected final int targetInstructionsPerFrame;
+    protected int currentInstructionsPerFrame;
     protected final boolean displayWaitEnabled;
     private boolean isTerminated = false;
 
@@ -33,9 +35,9 @@ public class Chip8Emulator implements Emulator {
         int instructionsPerFrame = programArgs.getInstructionsPerFrame();
         ColorPalette colorPalette = programArgs.getColorPalette();
         if (instructionsPerFrame <= 0) {
-            this.instructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame(programArgs.isDisplayWaitEnabled());
+            this.targetInstructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame(programArgs.isDisplayWaitEnabled());
         } else {
-            this.instructionsPerFrame = instructionsPerFrame;
+            this.targetInstructionsPerFrame = instructionsPerFrame;
         }
         Path romPath = programArgs.getRomPath();
         byte[] rawRom = Files.readAllBytes(romPath);
@@ -43,6 +45,7 @@ public class Chip8Emulator implements Emulator {
         for (int i = 0; i < rom.length; i++) {
             rom[i] = rawRom[i] & 0xFF;
         }
+        this.currentInstructionsPerFrame = targetInstructionsPerFrame;
         this.audioSystem = new DefaultAudioSystem(this.consoleVariant);
         this.display = new LanternaDisplay(this.consoleVariant, this.keyState, colorPalette);
         this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
@@ -90,8 +93,21 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public void tick() throws IOException, InvalidInstructionException {
-        for (int i = 0; i < this.instructionsPerFrame; i++) {
+    public void tick(long startOfFrame) throws IOException, InvalidInstructionException {
+        this.runInstructionLoop();
+        this.getDisplay().flush(this.currentInstructionsPerFrame);
+        this.getAudioSystem().pushSamples(this.getProcessor().getSoundTimer());
+        long endOfFrame = System.nanoTime();
+        long deltaTime = endOfFrame - startOfFrame;
+        if (deltaTime != Main.FRAME_INTERVAL) {
+            long adjust = (deltaTime - Main.FRAME_INTERVAL) / 10000;
+            this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
+        }
+
+    }
+
+    protected void runInstructionLoop() throws InvalidInstructionException {
+        for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
             Instruction executedInstruction = this.processor.cycle(i < 1);
             if (this.displayWaitEnabled && executedInstruction instanceof Draw) {
                 break;
@@ -103,8 +119,6 @@ public class Chip8Emulator implements Emulator {
                 this.terminate();
             }
         }
-        this.getDisplay().flush();
-        this.getAudioSystem().pushFrame(this.getProcessor().getSoundTimer());
     }
 
     @Override

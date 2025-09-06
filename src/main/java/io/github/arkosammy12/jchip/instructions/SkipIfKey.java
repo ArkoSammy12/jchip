@@ -30,20 +30,18 @@ public class SkipIfKey extends AbstractInstruction {
         switch (type) {
             case 0x9E -> { // Skip if key pressed
                 if (keyState.isKeyPressed(keyCode)) {
-                    boolean nextOpcodeIsF000 = Processor.nextOpcodeIsF000(processor, memory);
-                    processor.incrementProgramCounter();
-                    if (consoleVariant == ConsoleVariant.XO_CHIP && nextOpcodeIsF000) {
+                    if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(processor, memory)) {
                         processor.incrementProgramCounter();
                     }
+                    processor.incrementProgramCounter();
                 }
             }
             case 0xA1 -> { // Skip if key not pressed
                 if (!keyState.isKeyPressed(keyCode)) {
-                    boolean nextOpcodeIsF000 = Processor.nextOpcodeIsF000(processor, memory);
-                    processor.incrementProgramCounter();
-                    if (consoleVariant == ConsoleVariant.XO_CHIP && nextOpcodeIsF000) {
+                    if (consoleVariant == ConsoleVariant.XO_CHIP && Processor.nextOpcodeIsF000(processor, memory)) {
                         processor.incrementProgramCounter();
                     }
+                    processor.incrementProgramCounter();
                 }
             }
             default -> throw new InvalidInstructionException(this);

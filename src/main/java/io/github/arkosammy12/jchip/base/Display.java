@@ -13,26 +13,26 @@ public interface Display extends Closeable {
 
     CharacterFont getCharacterFont();
 
-    boolean togglePixel(int bitPlane, int column, int row);
+    boolean togglePixel(int bitPlaneIndex, int column, int row);
 
-    void setPixel(int bitPlane, int column, int row, boolean value);
+    void setPixel(int bitPlaneIndex, int column, int row, boolean value);
 
-    boolean getPixel(int bitPlane, int column, int row);
+    boolean getPixel(int bitPlaneIndex, int column, int row);
 
     void setExtendedMode(boolean extendedMode);
 
     boolean isExtendedMode();
 
-    void scrollUp(int scrollAmount, int bitPlane);
+    void scrollUp(int scrollAmount, int selectedBitPlanes);
 
-    void scrollDown(int scrollAmount, int bitPlane);
+    void scrollDown(int scrollAmount, int selectedBitPlanes);
 
-    void scrollRight(int bitPlane);
+    void scrollRight(int selectedBitPlanes);
 
-    void scrollLeft(int bitPlane);
+    void scrollLeft(int selectedBitPlanes);
 
-    void clear(int bitPlane);
+    void clear(int selectedBitPlanes);
 
-    void flush() throws IOException;
+    void flush(int currentInstructionsPerFrame) throws IOException;
 
 }

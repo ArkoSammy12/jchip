@@ -21,10 +21,12 @@ public class DefaultProcessor implements Processor {
     private int selectedBitPlanes = 1;
     private final int[] registers = new int[16];
     private final int[] flagsStorage = new int[16];
+    private final ExecutionContext executionContext;
     private Random random;
 
     public DefaultProcessor(Emulator emulator) {
         this.emulator = emulator;
+        this.executionContext = new DefaultExecutionContext(this, this.emulator.getMemory(), this.emulator.getDisplay(), this.emulator.getConsoleVariant(), this.emulator.getKeyState(), this.emulator.getAudioSystem());
     }
 
     @Override
@@ -163,7 +165,6 @@ public class DefaultProcessor implements Processor {
 
     private Instruction decode(int firstByte, int secondByte) {
         int firstNibble = (firstByte  & 0xF0) >> 4;
-        ExecutionContext executionContext = new DefaultExecutionContext(this.emulator.getProcessor(), this.emulator.getMemory(), this.emulator.getDisplay(), this.emulator.getConsoleVariant(), this.emulator.getKeyState(), this.emulator.getAudioSystem());
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         return switch (firstNibble) {
             case 0x0 -> new ZeroOpcodeInstruction(firstByte, secondByte, executionContext);
