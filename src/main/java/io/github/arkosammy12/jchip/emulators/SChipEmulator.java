@@ -1,5 +1,7 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.base.Processor;
+import io.github.arkosammy12.jchip.hardware.SChipProcessor;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.ProgramArgs;
@@ -13,6 +15,11 @@ public class SChipEmulator extends Chip8Emulator {
     public SChipEmulator(ProgramArgs programArgs) throws IOException {
         super(programArgs);
         this.isModern = this.getConsoleVariant() == ConsoleVariant.SUPER_CHIP_MODERN;
+    }
+
+    @Override
+    protected Processor createProcessor() {
+        return new SChipProcessor(this);
     }
 
     @Override

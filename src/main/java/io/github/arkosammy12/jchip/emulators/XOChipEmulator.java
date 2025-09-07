@@ -1,5 +1,8 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.base.Processor;
+import io.github.arkosammy12.jchip.hardware.SChipProcessor;
+import io.github.arkosammy12.jchip.hardware.XOChipProcessor;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.ProgramArgs;
 
@@ -9,6 +12,11 @@ public class XOChipEmulator extends Chip8Emulator {
 
     public XOChipEmulator(ProgramArgs programArgs) throws IOException {
         super(programArgs);
+    }
+
+    @Override
+    protected Processor createProcessor() {
+        return new XOChipProcessor(this);
     }
 
     @Override
