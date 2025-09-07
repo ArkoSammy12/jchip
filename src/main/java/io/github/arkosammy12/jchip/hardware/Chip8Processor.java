@@ -543,19 +543,22 @@ public class Chip8Processor implements Processor {
                 int memoryOffset = display.getCharacterFont().getSmallCharacterOffset(character);
                 this.setIndexRegister(memoryOffset);
             }
-            case 0x33 -> { // FX33: Convert to binary-coded decimal
+            case 0x33 -> { // FX33: Store BCD representation of VX at I, I+1, I+2
                 int currentIndexPointer = this.getIndexRegister();
-                int[] digits = new int[3];
-                int temp = vX;
-                for (int i = 0; i < 3; i++) {
-                    int power = (int) Math.pow(10, 2 - i);
-                    int digit = (int) Math.floor((double) temp / power);
-                    digits[i] = digit;
-                    temp -= digit * power;
-                }
-                for (int i = 0; i < 3; i++) {
-                    this.emulator.getMemory().writeByte(currentIndexPointer + i, digits[i]);
-                }
+                int value = vX & 0xFF;
+
+                // Compute hundreds digit using "magic number" multiplication instead of division
+                long hundreds = (value * 0x51EB851FL) >> 37;
+                long remainder = value - hundreds * 100;
+
+                // Compute tens digit using another magic number multiplication
+                long tens = (remainder * 0xCCCDL) >> 19;
+
+                // Ones digit is the remainder after removing hundreds and tens
+                long ones = remainder - tens * 10;
+                this.emulator.getMemory().writeByte(currentIndexPointer, (int) hundreds);
+                this.emulator.getMemory().writeByte(currentIndexPointer + 1, (int) tens);
+                this.emulator.getMemory().writeByte(currentIndexPointer + 2, (int) ones);
             }
             case 0x55 -> { // FX55: Write to memory v0 - vX
                 Memory memory = this.emulator.getMemory();
