@@ -28,8 +28,8 @@ public class LanternaDisplay implements Display {
     private final ColorPalette colorPalette;
     private final int[][] bitPlanes = new int[128][64];
 
-    private int screenWidth = 128;
-    private int screenHeight = 64;
+    private final int screenWidth;
+    private final int screenHeight;
     private boolean extendedMode = false;
     private boolean modified = false;
 
@@ -39,6 +39,9 @@ public class LanternaDisplay implements Display {
             this.screenWidth = 64;
             this.screenHeight = 32;
             fontSize = 16;
+        } else {
+            this.screenWidth = 128;
+            this.screenHeight = 64;
         }
 
         Font terminalFont = new Font("Courier New", Font.PLAIN, fontSize);
