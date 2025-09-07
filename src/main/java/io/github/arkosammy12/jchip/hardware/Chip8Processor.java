@@ -8,19 +8,19 @@ import io.github.arkosammy12.jchip.util.KeyState;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Stack;
 
 public class Chip8Processor implements Processor {
 
     protected final Emulator emulator;
     private int programCounter = 512;
+    private int stackPointer = 0;
     private int indexRegister;
-    private final Stack<Integer> programStack = new Stack<>();
     private int delayTimer;
     private int soundTimer;
     private int selectedBitPlanes = 1;
     private final int[] registers = new int[16];
     private final int[] flagsStorage = new int[16];
+    private final int[] stack = new int[16];
     private Random random;
     protected boolean shouldTerminate;
 
@@ -46,11 +46,13 @@ public class Chip8Processor implements Processor {
     }
 
     protected void push(int value) {
-        this.programStack.push(value);
+        this.stack[stackPointer] = value;
+        this.stackPointer = (this.stackPointer + 1) & 0xF;
     }
 
     protected int pop() {
-        return this.programStack.pop();
+        this.stackPointer = (this.stackPointer - 1) & 0xF;
+        return this.stack[stackPointer];
     }
 
     protected void setDelayTimer(int timer) {
@@ -120,22 +122,15 @@ public class Chip8Processor implements Processor {
 
     @Override
     public boolean cycle(boolean sixtiethOfASecond) throws InvalidInstructionException {
-        int[] newBytes = this.fetch();
+        Memory memory = this.emulator.getMemory();
+        int firstByte = memory.readByte(this.programCounter);
+        int secondByte = memory.readByte(this.programCounter + 1);
         this.incrementProgramCounter();
-        boolean shouldWaitForNextFrame = this.execute(newBytes[0], newBytes[1]);
+        boolean shouldWaitForNextFrame = this.execute(firstByte, secondByte);
         if (sixtiethOfASecond) {
             this.decrementTimers();
         }
         return shouldWaitForNextFrame;
-    }
-
-    private int[] fetch() {
-        Memory memory = this.emulator.getMemory();
-        int programCounter = this.emulator.getProcessor().getProgramCounter();
-        return new int[] {
-                memory.readByte(programCounter),
-                memory.readByte(programCounter + 1)
-        };
     }
 
     private void decrementTimers() {

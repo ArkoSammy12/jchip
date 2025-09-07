@@ -26,7 +26,8 @@ public class LanternaDisplay implements Display {
     private final CharacterFont characterFont;
     private final ConsoleVariant consoleVariant;
     private final ColorPalette colorPalette;
-    private final int[][] bitPlanes = new int[128][64];
+    private final int[][] frameBuffer = new int[128][64];
+    private final int[][] previousFrameBuffer = new int[128][64];
 
     private final int screenWidth;
     private final int screenHeight;
@@ -124,23 +125,20 @@ public class LanternaDisplay implements Display {
 
     public void setPixel(int bitPlaneIndex, int column, int row, boolean value) {
         int mask = 1 << bitPlaneIndex;
-        int newPixel = bitPlanes[column][row];
-        int currentPixel = newPixel & 0xF;
+        int newPixel = frameBuffer[column][row];
+        //int currentPixel = newPixel & 0xF;
         if (value) {
             newPixel |= mask;
         } else {
             newPixel &= ~mask;
         }
-        if ((currentPixel) != (newPixel & 0xF)) {
-            this.modified = true;
-            newPixel |= 0b10000;
-        }
-        bitPlanes[column][row] = newPixel;
+        //this.modified = true;
+        frameBuffer[column][row] = newPixel;
     }
 
     @Override
     public boolean getPixel(int bitPlaneIndex, int column, int row) {
-        int bit = (this.bitPlanes[column][row] >> bitPlaneIndex) & 1;
+        int bit = (this.frameBuffer[column][row] >> bitPlaneIndex) & 1;
         return bit == 1;
     }
 
@@ -297,8 +295,8 @@ public class LanternaDisplay implements Display {
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
                 continue;
             }
-            for (int i = 0; i < this.bitPlanes.length; i++) {
-                for (int j = 0; j < this.bitPlanes[i].length; j++) {
+            for (int i = 0; i < this.frameBuffer.length; i++) {
+                for (int j = 0; j < this.frameBuffer[i].length; j++) {
                     this.setPixel(bitPlane, i, j, false);
                 }
             }
@@ -307,19 +305,23 @@ public class LanternaDisplay implements Display {
 
     @Override
     public void flush(int currentInstructionsPerFrame) throws IOException {
+        /*
         if (!this.modified) {
             return;
         }
+
+         */
         this.modified = false;
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
-                if (!this.isPixelModified(i, j)) {
+                int currentPixel = this.frameBuffer[i][j] & 0xF;
+                int previousPixel = this.previousFrameBuffer[i][j] & 0xF;
+                if ((currentPixel ^ previousPixel) == 0) {
                     continue;
                 }
-                int colorIndex = this.bitPlanes[i][j] & 0xF;
-                TextCharacter character = this.colorPalette.getPixel(colorIndex);
+                TextCharacter character = this.colorPalette.getPixel(currentPixel);
                 this.terminalScreen.setCharacter(i, j, character);
-                this.clearModifiedFlag(i, j);
+                this.previousFrameBuffer[i][j] = currentPixel;
             }
         }
         double mips = (double) (currentInstructionsPerFrame * Main.FRAMES_PER_SECOND) / 1000000;
@@ -329,14 +331,6 @@ public class LanternaDisplay implements Display {
 
     public void close() throws IOException {
         this.terminalScreen.close();
-    }
-
-    private boolean isPixelModified(int column, int row) {
-        return (bitPlanes[column][row] & 0b10000) != 0;
-    }
-
-    private void clearModifiedFlag(int column, int row) {
-        bitPlanes[column][row] &= 0b01111;
     }
 
 }
