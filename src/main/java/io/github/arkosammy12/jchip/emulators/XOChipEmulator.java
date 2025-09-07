@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.base.Processor;
-import io.github.arkosammy12.jchip.hardware.SChipProcessor;
 import io.github.arkosammy12.jchip.hardware.XOChipProcessor;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.ProgramArgs;
