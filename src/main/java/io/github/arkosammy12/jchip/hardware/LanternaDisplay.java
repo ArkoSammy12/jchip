@@ -66,6 +66,7 @@ public class LanternaDisplay implements Display {
         this.terminalScreen = new TerminalScreen(terminal);
         this.consoleVariant = consoleVariant;
         this.characterFont = new CharacterFont(consoleVariant);
+        this.terminalScreen.setCursorPosition(null);
 
         for (int i = 0; i < 4; i++) {
             this.clear(i);
