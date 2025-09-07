@@ -32,7 +32,6 @@ public class LanternaDisplay implements Display {
     private final int screenWidth;
     private final int screenHeight;
     private boolean extendedMode = false;
-    private boolean modified = false;
 
     public LanternaDisplay(ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
         int fontSize = 9;
@@ -305,13 +304,6 @@ public class LanternaDisplay implements Display {
 
     @Override
     public void flush(int currentInstructionsPerFrame) throws IOException {
-        /*
-        if (!this.modified) {
-            return;
-        }
-
-         */
-        this.modified = false;
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
                 int currentPixel = this.frameBuffer[i][j] & 0xF;
