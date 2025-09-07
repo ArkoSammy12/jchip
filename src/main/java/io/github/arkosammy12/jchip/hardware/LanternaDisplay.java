@@ -125,13 +125,11 @@ public class LanternaDisplay implements Display {
     public void setPixel(int bitPlaneIndex, int column, int row, boolean value) {
         int mask = 1 << bitPlaneIndex;
         int newPixel = frameBuffer[column][row];
-        //int currentPixel = newPixel & 0xF;
         if (value) {
             newPixel |= mask;
         } else {
             newPixel &= ~mask;
         }
-        //this.modified = true;
         frameBuffer[column][row] = newPixel;
     }
 
