@@ -29,8 +29,8 @@ public class DefaultAudioSystem implements AudioSystem {
     public DefaultAudioSystem(ConsoleVariant consoleVariant) {
         Arrays.fill(this.patternBuffer, 0);
         if (consoleVariant != ConsoleVariant.XO_CHIP) {
-            System.arraycopy(DEFAULT_PATTERN_1, 0, this.patternBuffer, 0, DEFAULT_PATTERN_1.length);
-            this.playbackRate = 400;
+            System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
+            this.setPlaybackRate(175);
         }
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
