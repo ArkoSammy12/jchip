@@ -32,6 +32,7 @@ public class LanternaDisplay implements Display {
     private final int screenWidth;
     private final int screenHeight;
     private boolean extendedMode = false;
+    private long lastTitleUpdate = 0;
 
     public LanternaDisplay(ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
         int fontSize = 9;
@@ -314,8 +315,16 @@ public class LanternaDisplay implements Display {
                 this.previousFrameBuffer[i][j] = currentPixel;
             }
         }
-        double mips = (double) (currentInstructionsPerFrame * Main.FRAMES_PER_SECOND) / 1000000;
-        ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(String.format("%s | IPF: %d | Mips: %f", this.consoleVariant.getDisplayName(), currentInstructionsPerFrame, mips));
+        long now = System.currentTimeMillis();
+        if (now - lastTitleUpdate >= 1000) {
+            double mips = (double) (currentInstructionsPerFrame * Main.FRAMES_PER_SECOND) / 1_000_000;
+            ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(
+                    String.format("%s | IPF: %d | Mips: %f",
+                            this.consoleVariant.getDisplayName(),
+                            currentInstructionsPerFrame,
+                            mips));
+            lastTitleUpdate = now;
+        }
         this.terminalScreen.refresh();
     }
 
