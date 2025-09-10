@@ -413,7 +413,7 @@ public class Chip8Processor implements Processor {
             }
             int slice;
             int sliceLength;
-            if (consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN && spriteHeight >= 16) {
+            if (consoleVariant.isSChipOrXOChip() && spriteHeight >= 16) {
                 int firstSliceByte = memory.readByte(currentIndexRegister + i * 2);
                 int secondSliceByte = memory.readByte(currentIndexRegister + (i * 2) + 1);
                 slice = (firstSliceByte << 8) | secondSliceByte;

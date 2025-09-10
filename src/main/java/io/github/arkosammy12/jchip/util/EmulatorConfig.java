@@ -20,37 +20,46 @@ public class EmulatorConfig {
     private Path romPath;
 
     @CommandLine.Option(names = {"--variant", "-v"}, converter = ConsoleVariant.Converter.class, defaultValue = CommandLine.Option.NULL_VALUE)
-    private Optional<ConsoleVariant> consoleVariant;
+    private Optional<ConsoleVariant> cliConsoleVariant;
 
-    @CommandLine.Option(names = {"--instructions-per-frame", "-i"}, defaultValue = "0")
-    private int instructionsPerFrame;
+    @CommandLine.Option(names = {"--instructions-per-frame", "-i"}, fallbackValue = CommandLine.Option.NULL_VALUE)
+    private Optional<Integer> cliInstructionsPerFrame;
 
     @CommandLine.Option(names = {"--color-palette", "-c"}, defaultValue = "cadmium")
     private String colorPalette;
 
     @CommandLine.Option(names = "--vf-reset", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> doVFReset;
+    private Optional<Boolean> cliDoVFReset;
 
     @CommandLine.Option(names = "--increment-i", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> doIncrementIndex;
+    private Optional<Boolean> cliDoIncrementIndex;
 
     @CommandLine.Option(names = "--display-wait", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> doDisplayWait;
+    private Optional<Boolean> cliDoDisplayWait;
 
     @CommandLine.Option(names = "--clipping", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> doClipping;
+    private Optional<Boolean> cliDoClipping;
 
     @CommandLine.Option(names = "--shift-vx-in-place", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> doShiftVXInPlace;
+    private Optional<Boolean> cliDoShiftVXInPlace;
 
     @CommandLine.Option(names = "--jump-with-vx", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> doJumpWithVX;
+    private Optional<Boolean> cliDoJumpWithVX;
 
     private final int[] rom;
 
     private JsonObject programObject;
     private JsonObject platformObject;
     private JsonObject romObject;
+
+    private final ConsoleVariant consoleVariant;
+    private final int instructionsPerFrame;
+    private final boolean doVfReset;
+    private final boolean doIncrementIndex;
+    private final boolean doDisplayWait;
+    private final boolean doClipping;
+    private final boolean doShiftVXInPlace;
+    private final boolean doJumpWithVX;
 
     public EmulatorConfig(String[] args) throws Exception {
         CommandLine.populateCommand(this, args);
@@ -60,6 +69,16 @@ public class EmulatorConfig {
         for (int i = 0; i < rom.length; i++) {
             this.rom[i] = rawRom[i] & 0xFF;
         }
+
+        ConsoleVariant consoleVariant = null;
+        Integer instructionsPerFrame = null;
+        Boolean doVfReset = null;
+        Boolean doIncrementIndex = null;
+        Boolean doDisplayWait = null;
+        Boolean doClipping = null;
+        Boolean doShiftVXInPlace = null;
+        Boolean doJumpWithVX = null;
+
         try {
             JsonObject hashesDatabase = loadJsonFromResources("/database/sha1-hashes.json").getAsJsonObject();
             JsonArray programDatabase = loadJsonFromResources("/database/programs.json").getAsJsonArray();
@@ -94,82 +113,125 @@ public class EmulatorConfig {
             }
 
             // Populate emulator configs with values from the database if corresponding cli args weren't provided
-            if (this.consoleVariant.isEmpty()) {
-                ConsoleVariant variant = ConsoleVariant.getVariantForDatabaseId(romPlatform);
-                this.consoleVariant = Optional.of(variant);
+            consoleVariant = ConsoleVariant.getVariantForDatabaseId(romPlatform);
+            instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
+
+            Boolean logicQuirk = getQuirk("logic");
+            if (logicQuirk != null) {
+                doVfReset = logicQuirk;
             }
-            if (this.instructionsPerFrame <= 0) {
-                if (this.romObject.has("tickrate")) {
-                    this.instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
-                } else {
-                    this.instructionsPerFrame = this.getConsoleVariant().getDefaultInstructionsPerFrame(this.doDisplayWait());
-                }
+            if (quirkSet != null && quirkSet.has("logic")) {
+                doVfReset = quirkSet.get("logic").getAsBoolean();
             }
-            if (this.doVFReset.isEmpty()) {
-                Boolean quirk = getQuirk("logic");
-                if (quirk != null) {
-                    this.doVFReset = Optional.of(quirk);
-                }
-                if (quirkSet != null && quirkSet.has("logic")) {
-                    boolean override = quirkSet.get("logic").getAsBoolean();
-                    this.doVFReset = Optional.of(override);
-                }
+
+            Boolean memoryLeaveIUnchangedQuirk = getQuirk("memoryLeaveIUnchanged");
+            if (memoryLeaveIUnchangedQuirk != null) {
+                doIncrementIndex = !memoryLeaveIUnchangedQuirk;
             }
-            if (this.doIncrementIndex.isEmpty()) {
-                Boolean quirk = getQuirk("memoryLeaveIUnchanged");
-                if (quirk != null) {
-                    quirk = !quirk;
-                    this.doIncrementIndex = Optional.of(quirk);
-                }
-                if (quirkSet != null && quirkSet.has("memoryLeaveIUnchanged")) {
-                    boolean override = !quirkSet.get("memoryLeaveIUnchanged").getAsBoolean();
-                    this.doIncrementIndex = Optional.of(override);
-                }
+            if (quirkSet != null && quirkSet.has("memoryLeaveIUnchanged")) {
+                doIncrementIndex = !quirkSet.get("memoryLeaveIUnchanged").getAsBoolean();
             }
-            if (this.doDisplayWait.isEmpty()) {
-                Boolean quirk = getQuirk("vblank");
-                if (quirk != null) {
-                    this.doDisplayWait = Optional.of(quirk);
-                }
-                if (quirkSet != null && quirkSet.has("vblank")) {
-                    boolean override = quirkSet.get("vblank").getAsBoolean();
-                    this.doDisplayWait = Optional.of(override);
-                }
+
+
+            Boolean vblankQuirk = getQuirk("vblank");
+            if (vblankQuirk != null) {
+                doDisplayWait = vblankQuirk;
             }
-            if (this.doClipping.isEmpty()) {
-                Boolean quirk = getQuirk("wrap");
-                if (quirk != null) {
-                    quirk = !quirk;
-                    this.doClipping = Optional.of(quirk);
-                }
-                if (quirkSet != null && quirkSet.has("wrap")) {
-                    boolean override = !quirkSet.get("wrap").getAsBoolean();
-                    this.doClipping = Optional.of(override);
-                }
+            if (quirkSet != null && quirkSet.has("vblank")) {
+                doDisplayWait = quirkSet.get("vblank").getAsBoolean();
             }
-            if (this.doShiftVXInPlace.isEmpty()) {
-                Boolean quirk = getQuirk("shift");
-                if (quirk != null) {
-                    this.doShiftVXInPlace = Optional.of(quirk);
-                }
-                if (quirkSet != null && quirkSet.has("shift")) {
-                    boolean override = quirkSet.get("shift").getAsBoolean();
-                    this.doShiftVXInPlace = Optional.of(override);
-                }
+
+            Boolean wrapQuirk = getQuirk("wrap");
+            if (wrapQuirk != null) {
+                doClipping = !wrapQuirk;
             }
-            if (this.doJumpWithVX.isEmpty()) {
-                Boolean quirk = getQuirk("jump");
-                if (quirk != null) {
-                    this.doJumpWithVX = Optional.of(quirk);
-                }
-                if (quirkSet != null && quirkSet.has("jump")) {
-                    boolean override = quirkSet.get("jump").getAsBoolean();
-                    this.doJumpWithVX = Optional.of(override);
-                }
+            if (quirkSet != null && quirkSet.has("wrap")) {
+                doClipping = !quirkSet.get("wrap").getAsBoolean();
+            }
+
+            Boolean shiftQuirk = getQuirk("shift");
+            if (shiftQuirk != null) {
+                doShiftVXInPlace = shiftQuirk;
+            }
+            if (quirkSet != null && quirkSet.has("shift")) {
+                doShiftVXInPlace = quirkSet.get("shift").getAsBoolean();
+            }
+
+            Boolean jumpQuirk = getQuirk("jump");
+            if (jumpQuirk != null) {
+                doJumpWithVX = jumpQuirk;
+            }
+            if (quirkSet != null && quirkSet.has("jump")) {
+                doJumpWithVX = quirkSet.get("jump").getAsBoolean();
             }
         } catch (Exception e) {
-            throw new IllegalStateException("Error loading values from database. Emulator will use default or cli provided values", e);
+            System.err.println("Error loading values from database. Emulator will use default or cli provided values: " + e);
         }
+
+        if (this.cliConsoleVariant.isPresent()) {
+            this.consoleVariant = this.cliConsoleVariant.get();
+        } else if (consoleVariant == null) {
+            this.consoleVariant = ConsoleVariant.CHIP_8;
+        } else {
+            this.consoleVariant = consoleVariant;
+        }
+
+        if (this.cliDoVFReset.isPresent()) {
+            this.doVfReset = this.cliDoVFReset.get();
+        } else if (doVfReset == null) {
+            this.doVfReset = this.consoleVariant == ConsoleVariant.CHIP_8;
+        } else {
+            this.doVfReset = doVfReset;
+        }
+
+        if (this.cliDoIncrementIndex.isPresent()) {
+            this.doIncrementIndex = this.cliDoIncrementIndex.get();
+        } else if (doIncrementIndex == null) {
+            this.doIncrementIndex = this.consoleVariant == ConsoleVariant.CHIP_8 || this.consoleVariant == ConsoleVariant.XO_CHIP;
+        } else {
+            this.doIncrementIndex = doIncrementIndex;
+        }
+
+        if (this.cliDoDisplayWait.isPresent()) {
+            this.doDisplayWait = this.cliDoDisplayWait.get();
+        } else if (doDisplayWait == null) {
+            this.doDisplayWait = this.consoleVariant == ConsoleVariant.CHIP_8 || this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY;
+        } else {
+            this.doDisplayWait = doDisplayWait;
+        }
+
+        if (this.cliDoClipping.isPresent()) {
+            this.doClipping = this.cliDoClipping.get();
+        } else if (doClipping == null) {
+            this.doClipping = this.consoleVariant != ConsoleVariant.XO_CHIP;
+        } else {
+            this.doClipping = doClipping;
+        }
+
+        if (this.cliDoShiftVXInPlace.isPresent()) {
+            this.doShiftVXInPlace = this.cliDoShiftVXInPlace.get();
+        } else if (doShiftVXInPlace == null) {
+            this.doShiftVXInPlace = this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || this.consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN;
+        } else {
+            this.doShiftVXInPlace = doShiftVXInPlace;
+        }
+
+        if (this.cliDoJumpWithVX.isPresent()) {
+            this.doJumpWithVX = this.cliDoJumpWithVX.get();
+        } else if (doJumpWithVX == null) {
+            this.doJumpWithVX = this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || this.consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN;
+        } else {
+            this.doJumpWithVX = doJumpWithVX;
+        }
+
+        if (this.cliInstructionsPerFrame.isPresent()) {
+            this.instructionsPerFrame = this.cliInstructionsPerFrame.get();
+        } else if (instructionsPerFrame == null) {
+            this.instructionsPerFrame = this.consoleVariant.getDefaultInstructionsPerFrame(this.doDisplayWait());
+        } else {
+            this.instructionsPerFrame = instructionsPerFrame;
+        }
+
     }
 
     public int[] getRom() {
@@ -178,56 +240,50 @@ public class EmulatorConfig {
 
     public String getProgramTitle() {
         String name = null;
-        if (this.programObject.has("title")) {
+        if (this.programObject != null && this.programObject.has("title")) {
             name = this.programObject.get("title").getAsString();
         }
         return name;
-    }
-
-    public boolean doVFReset() {
-        ConsoleVariant consoleVariant = this.getConsoleVariant();
-        return doVFReset.orElse(consoleVariant == ConsoleVariant.CHIP_8);
-    }
-
-    public boolean doIncrementIndex() {
-        ConsoleVariant consoleVariant = this.getConsoleVariant();
-        return doIncrementIndex.orElse(consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP);
-    }
-
-    public boolean doDisplayWait() {
-        ConsoleVariant consoleVariant = this.getConsoleVariant();
-        return doDisplayWait.orElse(consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY);
-    }
-
-    public boolean doClipping() {
-        ConsoleVariant consoleVariant = this.getConsoleVariant();
-        return doClipping.orElse(consoleVariant != ConsoleVariant.XO_CHIP);
-    }
-
-    public boolean doShiftVXInPlace() {
-        ConsoleVariant consoleVariant = this.getConsoleVariant();
-        return doShiftVXInPlace.orElse(consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN);
-    }
-
-    public boolean doJumpWithVX() {
-        ConsoleVariant consoleVariant = this.getConsoleVariant();
-        return doJumpWithVX.orElse(consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN);
     }
 
     public int getInstructionsPerFrame() {
         return this.instructionsPerFrame;
     }
 
-    public Path getRomPath() {
-        return convertToAbsolutePathIfNeeded(romPath);
+    public ColorPalette getColorPalette() {
+        return new ColorPalette(colorPalette);
     }
 
     public ConsoleVariant getConsoleVariant() {
-        return this.consoleVariant.orElse(ConsoleVariant.CHIP_8);
+        return this.consoleVariant;
     }
 
-    public ColorPalette getColorPalette() {
-        return new ColorPalette(colorPalette);
+    public boolean doVFReset() {
+        return this.doVfReset;
+    }
+
+    public boolean doIncrementIndex() {
+        return this.doIncrementIndex;
+    }
+
+    public boolean doDisplayWait() {
+        return this.doDisplayWait;
+    }
+
+    public boolean doClipping() {
+        return this.doClipping;
+    }
+
+    public boolean doShiftVXInPlace() {
+        return this.doShiftVXInPlace;
+    }
+
+    public boolean doJumpWithVX() {
+        return this.doJumpWithVX;
+    }
+
+    private Path getRomPath() {
+        return convertToAbsolutePathIfNeeded(romPath);
     }
 
     private JsonElement loadJsonFromResources(String resourcePath) throws Exception {
