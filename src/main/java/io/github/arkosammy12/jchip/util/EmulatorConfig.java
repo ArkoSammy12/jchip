@@ -114,7 +114,9 @@ public class EmulatorConfig {
 
             // Populate emulator configs with values from the database if corresponding cli args weren't provided
             consoleVariant = ConsoleVariant.getVariantForDatabaseId(romPlatform);
-            instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
+            if (this.romObject.has("tickrate")) {
+                instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
+            }
 
             Boolean logicQuirk = getQuirk("logic");
             if (logicQuirk != null) {
