@@ -12,7 +12,6 @@ public class Main {
     private static long lastSavedTime = System.nanoTime();
 
     public static void main(String[] args) {
-        //EmulatorConfig emulatorConfig = CommandLine.populateSpec(EmulatorConfig.class, args);
         try (Emulator emulator = ConsoleVariant.getEmulatorForVariant(new EmulatorConfig(args))) {
             while (!emulator.isTerminated()) {
                 long now = System.nanoTime();
