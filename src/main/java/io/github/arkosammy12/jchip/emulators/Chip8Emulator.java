@@ -6,8 +6,6 @@ import io.github.arkosammy12.jchip.hardware.*;
 import io.github.arkosammy12.jchip.util.*;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class Chip8Emulator implements Emulator {
 
@@ -17,32 +15,22 @@ public class Chip8Emulator implements Emulator {
     private final KeyState keyState = new KeyState();
     private final AudioSystem audioSystem;
     private final ConsoleVariant consoleVariant;
-    private final boolean debug;
+    protected final EmulatorConfig config;
     protected final int targetInstructionsPerFrame;
     protected int currentInstructionsPerFrame;
     protected final boolean displayWaitEnabled;
     private boolean isTerminated = false;
 
-    public Chip8Emulator(ProgramArgs programArgs) throws IOException {
-        this.consoleVariant = programArgs.getConsoleVariant();
-        this.debug = programArgs.debugEnabled();
-        this.displayWaitEnabled = programArgs.isDisplayWaitEnabled().orElse(consoleVariant.getDefaultDisplayWaitBehavior());
-        int instructionsPerFrame = programArgs.getInstructionsPerFrame();
-        ColorPalette colorPalette = programArgs.getColorPalette();
-        if (instructionsPerFrame <= 0) {
-            this.targetInstructionsPerFrame = consoleVariant.getDefaultInstructionsPerFrame(this.displayWaitEnabled);
-        } else {
-            this.targetInstructionsPerFrame = instructionsPerFrame;
-        }
-        Path romPath = programArgs.getRomPath();
-        byte[] rawRom = Files.readAllBytes(romPath);
-        int[] rom = new int[rawRom.length];
-        for (int i = 0; i < rom.length; i++) {
-            rom[i] = rawRom[i] & 0xFF;
-        }
+    public Chip8Emulator(EmulatorConfig emulatorConfig) throws IOException {
+        this.config = emulatorConfig;
+        this.consoleVariant = emulatorConfig.getConsoleVariant();
+        this.displayWaitEnabled = emulatorConfig.doDisplayWait();
+        ColorPalette colorPalette = emulatorConfig.getColorPalette();
+        this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
+        int[] rom = this.config.getRom();
         this.currentInstructionsPerFrame = targetInstructionsPerFrame;
         this.audioSystem = new DefaultAudioSystem(this.consoleVariant);
-        this.display = new LanternaDisplay(this.consoleVariant, this.keyState, colorPalette);
+        this.display = new LanternaDisplay(config.getProgramTitle(), this.consoleVariant, this.keyState, colorPalette);
         this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
         this.processor = this.createProcessor();
     }
@@ -82,6 +70,11 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
+    public EmulatorConfig getEmulatorConfig() {
+        return this.config;
+    }
+
+    @Override
     public void terminate() {
         this.isTerminated = true;
     }
@@ -107,7 +100,7 @@ public class Chip8Emulator implements Emulator {
     protected void runInstructionLoop() throws InvalidInstructionException {
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
             boolean shouldWaitForNextFrame = this.processor.cycle(i < 1);
-            if (this.displayWaitEnabled && shouldWaitForNextFrame) {
+            if (this.config.doDisplayWait() && shouldWaitForNextFrame) {
                 break;
             }
             if (this.processor.shouldTerminate()) {

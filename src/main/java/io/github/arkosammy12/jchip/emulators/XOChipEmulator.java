@@ -3,14 +3,14 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.base.Processor;
 import io.github.arkosammy12.jchip.hardware.XOChipProcessor;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
-import io.github.arkosammy12.jchip.util.ProgramArgs;
+import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 import java.io.IOException;
 
 public class XOChipEmulator extends Chip8Emulator {
 
-    public XOChipEmulator(ProgramArgs programArgs) throws IOException {
-        super(programArgs);
+    public XOChipEmulator(EmulatorConfig emulatorConfig) throws IOException {
+        super(emulatorConfig);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class XOChipEmulator extends Chip8Emulator {
     protected void runInstructionLoop() throws InvalidInstructionException {
         for (int i = 0; i < this.targetInstructionsPerFrame; i++) {
             boolean shouldWaitForNextFrame = this.processor.cycle(i < 1);
-            if (this.displayWaitEnabled && shouldWaitForNextFrame && !this.getDisplay().isExtendedMode()) {
+            if (this.config.doDisplayWait() && shouldWaitForNextFrame && !this.getDisplay().isExtendedMode()) {
                 break;
             }
             if (this.processor.shouldTerminate()) {

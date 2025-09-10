@@ -5,6 +5,7 @@ import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
+import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 
 public class XOChipProcessor extends SChipProcessor {
@@ -84,6 +85,7 @@ public class XOChipProcessor extends SChipProcessor {
     protected boolean executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
         Display display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
+        EmulatorConfig config = this.emulator.getEmulatorConfig();
         int selectedBitPlanes = this.getSelectedBitPlanes();
         boolean extendedMode = display.isExtendedMode();
         int spriteHeight = fourthNibble;
@@ -111,7 +113,11 @@ public class XOChipProcessor extends SChipProcessor {
             for (int i = 0; i < spriteHeight; i++) {
                 int sliceY = spriteY + i;
                 if (sliceY >= screenHeight) {
-                    sliceY %= screenHeight;
+                    if (config.doClipping()) {
+                        break;
+                    } else {
+                        sliceY %= screenHeight;
+                    }
                 }
                 int slice;
                 int sliceLength;
@@ -127,7 +133,11 @@ public class XOChipProcessor extends SChipProcessor {
                 for (int j = 0; j < sliceLength; j++) {
                     int sliceX = spriteX + j;
                     if (sliceX >= screenWidth) {
-                        sliceX %= screenWidth;
+                        if (config.doClipping()) {
+                            break;
+                        } else {
+                            sliceX %= screenWidth;
+                        }
                     }
                     int mask = 1 << ((sliceLength - 1) - j);
                     if ((slice & mask) <= 0) {

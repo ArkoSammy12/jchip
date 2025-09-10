@@ -34,7 +34,10 @@ public class LanternaDisplay implements Display {
     private boolean extendedMode = false;
     private long lastTitleUpdate = 0;
 
-    public LanternaDisplay(ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
+    private final String title;
+
+    public LanternaDisplay(String title, ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
+        this.title = title;
         int fontSize = 9;
         if (consoleVariant == ConsoleVariant.CHIP_8) {
             this.screenWidth = 64;
@@ -319,8 +322,9 @@ public class LanternaDisplay implements Display {
         if (now - lastTitleUpdate >= 1000) {
             double mips = (double) (currentInstructionsPerFrame * Main.FRAMES_PER_SECOND) / 1_000_000;
             ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(
-                    String.format("%s | IPF: %d | Mips: %f",
+                    String.format("%s %s| IPF: %d | Mips: %f",
                             this.consoleVariant.getDisplayName(),
+                            this.title != null ? "| " + title + " " : "",
                             currentInstructionsPerFrame,
                             mips));
             lastTitleUpdate = now;

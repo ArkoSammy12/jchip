@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.hardware;
 import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
+import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.KeyState;
 
@@ -74,7 +75,7 @@ public class Chip8Processor implements Processor {
     }
 
     protected void setRegister(int register, int value) {
-        this.registers[register] = value;
+        this.registers[register] = value & 0xFF;
     }
 
     protected void setCarry(boolean value) {
@@ -270,7 +271,6 @@ public class Chip8Processor implements Processor {
     }
 
     protected boolean executeALUInstruction(int secondNibble, int thirdNibble, int fourthNibble) {
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         int vY = this.getRegister(thirdNibble);
         boolean opcodeHandled = true;
@@ -281,21 +281,21 @@ public class Chip8Processor implements Processor {
             case 0x1 -> { // 8XY1: Or and register
                 int value = (vX | vY) & 0xFF;
                 this.setRegister(secondNibble, value);
-                if (consoleVariant == ConsoleVariant.CHIP_8) {
+                if (this.emulator.getEmulatorConfig().doVFReset()) {
                     this.setCarry(false);
                 }
             }
             case 0x2 -> { // 8XY2: AND and register
                 int value = (vX & vY) & 0xFF;
                 this.setRegister(secondNibble, value);
-                if (consoleVariant == ConsoleVariant.CHIP_8) {
+                if (this.emulator.getEmulatorConfig().doVFReset()) {
                     this.setCarry(false);
                 }
             }
             case 0x3 -> { // 8XY3: XOR and register
                 int value = (vX ^ vY) & 0xFF;
                 this.setRegister(secondNibble, value);
-                if (consoleVariant == ConsoleVariant.CHIP_8) {
+                if (this.emulator.getEmulatorConfig().doVFReset()) {
                     this.setCarry(false);
                 }
             }
@@ -313,7 +313,7 @@ public class Chip8Processor implements Processor {
                 this.setCarry(noBorrow);
             }
             case 0x6 -> { // 8XY6: Shift right and register
-                int operand = consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP ? vY : vX;
+                int operand = this.emulator.getEmulatorConfig().doShiftVXInPlace() ? vX : vY;
                 boolean shiftedOut = (operand & 1) > 0;
                 int value = (operand >>> 1) & 0xFF;
                 this.setRegister(secondNibble, value);
@@ -326,7 +326,7 @@ public class Chip8Processor implements Processor {
                 this.setCarry(noBorrow);
             }
             case 0xE -> { // 8XYE: Shift left and register
-                int operand = consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP ? vY : vX;
+                int operand = this.emulator.getEmulatorConfig().doShiftVXInPlace() ? vX : vY;
                 boolean shiftedOut = (operand & 128) > 0;
                 int value = (operand << 1) & 0xFF;
                 this.setRegister(secondNibble, value);
@@ -378,6 +378,7 @@ public class Chip8Processor implements Processor {
         Display display = this.emulator.getDisplay();
         ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         Memory memory = this.emulator.getMemory();
+        EmulatorConfig config = this.emulator.getEmulatorConfig();
 
         boolean extendedMode = display.isExtendedMode();
         int spriteHeight = fourthNibble;
@@ -400,15 +401,19 @@ public class Chip8Processor implements Processor {
         for (int i = 0; i < spriteHeight; i++) {
             int sliceY = spriteY + i;
             if (sliceY >= screenHeight) {
-                if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode) {
-                    collisionCounter++;
-                    continue;
+                if (config.doClipping()) {
+                    if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode) {
+                        collisionCounter++;
+                        continue;
+                    }
+                    break;
+                } else {
+                    sliceY %= screenHeight;
                 }
-                break;
             }
             int slice;
             int sliceLength;
-            if (consoleVariant.isSChipOrXOChip() && spriteHeight >= 16) {
+            if (consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN && spriteHeight >= 16) {
                 int firstSliceByte = memory.readByte(currentIndexRegister + i * 2);
                 int secondSliceByte = memory.readByte(currentIndexRegister + (i * 2) + 1);
                 slice = (firstSliceByte << 8) | secondSliceByte;
@@ -421,7 +426,11 @@ public class Chip8Processor implements Processor {
             for (int j = 0; j < sliceLength; j++) {
                 int sliceX = spriteX + j;
                 if (sliceX >= screenWidth) {
-                    break;
+                    if (config.doClipping()) {
+                        break;
+                    } else {
+                        sliceX %= screenWidth;
+                    }
                 }
                 int mask = 1 << ((sliceLength - 1) - j);
                 if ((slice & mask) <= 0) {
@@ -487,7 +496,6 @@ public class Chip8Processor implements Processor {
     }
 
     protected boolean executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         boolean opcodeHandled = true;
         switch (secondByte) {
@@ -562,7 +570,7 @@ public class Chip8Processor implements Processor {
                     int registerValue = this.getRegister(i);
                     memory.writeByte(currentIndexPointer + i, registerValue);
                 }
-                if (consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP) {
+                if (this.emulator.getEmulatorConfig().doIncrementIndex()) {
                     this.setIndexRegister(currentIndexPointer + secondNibble + 1);
                 }
             }
@@ -573,7 +581,7 @@ public class Chip8Processor implements Processor {
                     int memoryValue = memory.readByte(currentIndexRegister + i);
                     this.setRegister(i, memoryValue);
                 }
-                if (consoleVariant == ConsoleVariant.CHIP_8 || consoleVariant == ConsoleVariant.XO_CHIP) {
+                if (this.emulator.getEmulatorConfig().doIncrementIndex()) {
                     this.setIndexRegister(currentIndexRegister + secondNibble + 1);
                 }
             }

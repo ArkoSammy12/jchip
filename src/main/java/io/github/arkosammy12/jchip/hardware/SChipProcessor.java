@@ -60,7 +60,7 @@ public class SChipProcessor extends Chip8Processor {
     // BXNN
     @Override
     protected boolean executeJumpWithOffset(int secondNibble, int memoryAddress) {
-        if (this instanceof XOChipProcessor) {
+        if (!this.emulator.getEmulatorConfig().doJumpWithVX()) {
             return super.executeJumpWithOffset(secondNibble, memoryAddress);
         }
         int offset = this.getRegister(secondNibble);

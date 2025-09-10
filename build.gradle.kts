@@ -26,6 +26,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("com.googlecode.lanterna:lanterna:${property("lanterna_version")}")
     implementation("info.picocli:picocli:${property("picocli_version")}")
+    implementation("com.google.code.gson:gson:${property("gson_version")}")
 }
 
 tasks.test {

@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
+import picocli.CommandLine;
 
 import java.io.IOException;
 
@@ -32,12 +33,21 @@ public enum ConsoleVariant {
         throw new IllegalArgumentException("Unknown chip-8 variant: " + identifier);
     }
 
-    public static Emulator getEmulatorForVariant(ProgramArgs programArgs) throws IOException {
-        ConsoleVariant consoleVariant = programArgs.getConsoleVariant();
+    public static ConsoleVariant getVariantForDatabaseId(String id) {
+        return switch (id) {
+            case "originalChip8", "modernChip8", "chip48" -> ConsoleVariant.CHIP_8;
+            case "superchip1", "superchip" -> ConsoleVariant.SUPER_CHIP_LEGACY;
+            case "xochip" -> ConsoleVariant.XO_CHIP;
+            default -> throw new IllegalArgumentException("Unsupported chip-8 variant: " + id);
+        };
+    }
+
+    public static Emulator getEmulatorForVariant(EmulatorConfig emulatorConfig) throws IOException {
+        ConsoleVariant consoleVariant = emulatorConfig.getConsoleVariant();
         return switch (consoleVariant) {
-            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator(programArgs);
-            case XO_CHIP -> new XOChipEmulator(programArgs);
-            default -> new Chip8Emulator(programArgs);
+            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator(emulatorConfig);
+            case XO_CHIP -> new XOChipEmulator(emulatorConfig);
+            default -> new Chip8Emulator(emulatorConfig);
         };
     }
 
@@ -45,9 +55,6 @@ public enum ConsoleVariant {
         return this.displayName;
     }
 
-    public String getIdentifier() {
-        return this.identifier;
-    }
 
     public int getDefaultInstructionsPerFrame(boolean displayWaitEnabled) {
         int ipf = this.defaultInstructionsPerFrame;
@@ -57,19 +64,26 @@ public enum ConsoleVariant {
         return ipf;
     }
 
-    public boolean getDefaultDisplayWaitBehavior() {
-        return switch (this) {
-            case CHIP_8, SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> true;
-            case XO_CHIP -> false;
-        };
-    }
-
     public boolean isSChip() {
         return this == ConsoleVariant.SUPER_CHIP_LEGACY || this == ConsoleVariant.SUPER_CHIP_MODERN;
     }
 
     public boolean isSChipOrXOChip() {
         return this.isSChip() || this == ConsoleVariant.XO_CHIP;
+    }
+
+    public static class Converter implements CommandLine.ITypeConverter<ConsoleVariant> {
+
+        @Override
+        public ConsoleVariant convert(String value) {
+            for (ConsoleVariant variant : ConsoleVariant.values()) {
+                if (variant.identifier.equals(value)) {
+                    return variant;
+                }
+            }
+            throw new IllegalArgumentException("Unknown chip-8 variant: " + value);
+        }
+
     }
 
 }

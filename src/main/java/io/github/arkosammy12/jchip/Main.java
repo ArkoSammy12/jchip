@@ -3,8 +3,7 @@ package io.github.arkosammy12.jchip;
 
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
-import io.github.arkosammy12.jchip.util.ProgramArgs;
-import picocli.CommandLine;
+import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 public class Main {
 
@@ -13,8 +12,8 @@ public class Main {
     private static long lastSavedTime = System.nanoTime();
 
     public static void main(String[] args) {
-        ProgramArgs programArgs = CommandLine.populateSpec(ProgramArgs.class, args);
-        try (Emulator emulator = ConsoleVariant.getEmulatorForVariant(programArgs)) {
+        //EmulatorConfig emulatorConfig = CommandLine.populateSpec(EmulatorConfig.class, args);
+        try (Emulator emulator = ConsoleVariant.getEmulatorForVariant(new EmulatorConfig(args))) {
             while (!emulator.isTerminated()) {
                 long now = System.nanoTime();
                 long deltaTime = now - lastSavedTime;
