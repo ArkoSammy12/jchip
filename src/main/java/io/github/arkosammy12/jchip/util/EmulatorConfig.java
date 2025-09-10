@@ -79,6 +79,7 @@ public class EmulatorConfig {
         Boolean doShiftVXInPlace = null;
         Boolean doJumpWithVX = null;
 
+        /*
         try {
             JsonObject hashesDatabase = loadJsonFromResources("/database/sha1-hashes.json").getAsJsonObject();
             JsonArray programDatabase = loadJsonFromResources("/database/programs.json").getAsJsonArray();
@@ -169,6 +170,8 @@ public class EmulatorConfig {
         } catch (Exception e) {
             System.err.println("Error loading values from database. Emulator will use default or cli provided values: " + e);
         }
+
+         */
 
         if (this.cliConsoleVariant.isPresent()) {
             this.consoleVariant = this.cliConsoleVariant.get();
