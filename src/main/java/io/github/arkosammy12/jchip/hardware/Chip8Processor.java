@@ -123,14 +123,14 @@ public class Chip8Processor implements Processor {
 
     @Override
     public boolean cycle(boolean sixtiethOfASecond) throws InvalidInstructionException {
+        if (sixtiethOfASecond) {
+            this.decrementTimers();
+        }
         Memory memory = this.emulator.getMemory();
         int firstByte = memory.readByte(this.programCounter);
         int secondByte = memory.readByte(this.programCounter + 1);
         this.incrementProgramCounter();
         boolean shouldWaitForNextFrame = this.execute(firstByte, secondByte);
-        if (sixtiethOfASecond) {
-            this.decrementTimers();
-        }
         return shouldWaitForNextFrame;
     }
 
