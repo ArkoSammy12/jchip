@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.Map;
 import java.util.Optional;
 
 public class EmulatorConfig {
@@ -79,7 +80,7 @@ public class EmulatorConfig {
         Boolean doShiftVXInPlace = null;
         Boolean doJumpWithVX = null;
 
-        /*
+
         try {
             JsonObject hashesDatabase = loadJsonFromResources("/database/sha1-hashes.json").getAsJsonObject();
             JsonArray programDatabase = loadJsonFromResources("/database/programs.json").getAsJsonArray();
@@ -94,85 +95,97 @@ public class EmulatorConfig {
             JsonObject programRoms = this.programObject.get("roms").getAsJsonObject();
             this.romObject = programRoms.get(sha1).getAsJsonObject();
 
-            // Get the supported platforms for this rom
-            JsonArray romPlatforms = this.romObject.get("platforms").getAsJsonArray();
-            String romPlatform = romPlatforms.get(0).getAsString();
-            for (int i = 0; i < platformDatabase.size(); i++) {
-                JsonElement value = platformDatabase.get(i);
-                JsonObject obj = value.getAsJsonObject();
-                if (!obj.get("id").getAsString().equals(romPlatform)) {
-                    continue;
+
+            JsonObject quirksObject = null;
+
+            // First, use the quirks established by the platform obtained via the "platforms" array in the rom object
+            if (this.romObject != null && this.romObject.has("platforms")) {
+                JsonArray romPlatforms = this.romObject.get("platforms").getAsJsonArray();
+                if (!romPlatforms.isEmpty()) {
+                    String romPlatform = romPlatforms.get(0).getAsString();
+                    for (int i = 0; i < platformDatabase.size(); i++) {
+                        JsonElement value = platformDatabase.get(i);
+                        JsonObject obj = value.getAsJsonObject();
+                        if (!obj.get("id").getAsString().equals(romPlatform)) {
+                            continue;
+                        }
+                        this.platformObject = obj;
+                        if (obj.has("quirks")) {
+                            quirksObject = obj.get("quirks").getAsJsonObject();
+                        }
+                        break;
+                    }
                 }
-                this.platformObject = obj;
-                break;
             }
 
-            // Get the quirkset from the program object if it exists
-            JsonObject quirkSet = null;
+            // Then, check if this program object contains a "quirkset" object, and use its defined quirks if so
             if (this.programObject.has("quirkset")) {
-                quirkSet = this.programObject.get("quirkset").getAsJsonObject();
+                quirksObject = this.programObject.get("quirkset").getAsJsonObject();
+            }
+
+            // Finally, check if this rom object contains a "quirkyPlatforms" object, and merge the platform's quirks with the
+            // overrides defined by the value of the platform field within this quirkyPlatform object.
+            // The quirks established by quirkPlatforms take priority over the ones in "quirkset", and it takes priority over the quirks in the platform obtained via the "platforms" array.
+            if (this.romObject != null && this.romObject.has("quirkyPlatforms")) {
+                JsonObject quirkyPlatformsObject = this.romObject.get("quirkyPlatforms").getAsJsonObject();
+                Map.Entry<String, JsonElement> entry = quirkyPlatformsObject.entrySet().stream().toList().getFirst();
+                String romPlatform = entry.getKey();
+                JsonObject quirkOverridesObject = entry.getValue().getAsJsonObject();
+                JsonObject normalPlatformQuirks = null;
+                for (int i = 0; i < platformDatabase.size(); i++) {
+                    JsonElement value = platformDatabase.get(i);
+                    JsonObject obj = value.getAsJsonObject();
+                    if (!obj.get("id").getAsString().equals(romPlatform)) {
+                        continue;
+                    }
+                    this.platformObject = obj;
+                    if (this.platformObject.has("quirks")) {
+                        normalPlatformQuirks = this.platformObject.getAsJsonObject("quirks");
+                    }
+                    break;
+                }
+                if (normalPlatformQuirks != null) {
+                    quirksObject = normalPlatformQuirks.deepCopy();
+                    for (Map.Entry<String, JsonElement> override : quirkOverridesObject.entrySet()) {
+                        String key = override.getKey();
+                        JsonElement value = override.getValue();
+                        quirksObject.addProperty(key, value.getAsBoolean());
+                    }
+                }
             }
 
             // Populate emulator configs with values from the database if corresponding cli args weren't provided
-            consoleVariant = ConsoleVariant.getVariantForDatabaseId(romPlatform);
-            if (this.romObject.has("tickrate")) {
+            if (this.platformObject != null) {
+                consoleVariant = ConsoleVariant.getVariantForDatabaseId(this.platformObject.get("id").getAsString());
+            }
+            if (this.romObject != null && this.romObject.has("tickrate")) {
                 instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
             }
-
-            Boolean logicQuirk = getQuirk("logic");
-            if (logicQuirk != null) {
-                doVfReset = logicQuirk;
+            if (quirksObject != null && quirksObject.has("logic")) {
+                doVfReset = quirksObject.get("logic").getAsBoolean();
             }
-            if (quirkSet != null && quirkSet.has("logic")) {
-                doVfReset = quirkSet.get("logic").getAsBoolean();
+            if (quirksObject != null && quirksObject.has("memoryLeaveIUnchanged")) {
+                doIncrementIndex = !quirksObject.get("memoryLeaveIUnchanged").getAsBoolean();
             }
-
-            Boolean memoryLeaveIUnchangedQuirk = getQuirk("memoryLeaveIUnchanged");
-            if (memoryLeaveIUnchangedQuirk != null) {
-                doIncrementIndex = !memoryLeaveIUnchangedQuirk;
+            if (quirksObject != null && quirksObject.has("vblank")) {
+                doDisplayWait = quirksObject.get("vblank").getAsBoolean();
             }
-            if (quirkSet != null && quirkSet.has("memoryLeaveIUnchanged")) {
-                doIncrementIndex = !quirkSet.get("memoryLeaveIUnchanged").getAsBoolean();
+            if (quirksObject != null && quirksObject.has("wrap")) {
+                doClipping = !quirksObject.get("wrap").getAsBoolean();
             }
-
-
-            Boolean vblankQuirk = getQuirk("vblank");
-            if (vblankQuirk != null) {
-                doDisplayWait = vblankQuirk;
+            if (quirksObject != null && quirksObject.has("shift")) {
+                doShiftVXInPlace = quirksObject.get("shift").getAsBoolean();
             }
-            if (quirkSet != null && quirkSet.has("vblank")) {
-                doDisplayWait = quirkSet.get("vblank").getAsBoolean();
-            }
-
-            Boolean wrapQuirk = getQuirk("wrap");
-            if (wrapQuirk != null) {
-                doClipping = !wrapQuirk;
-            }
-            if (quirkSet != null && quirkSet.has("wrap")) {
-                doClipping = !quirkSet.get("wrap").getAsBoolean();
-            }
-
-            Boolean shiftQuirk = getQuirk("shift");
-            if (shiftQuirk != null) {
-                doShiftVXInPlace = shiftQuirk;
-            }
-            if (quirkSet != null && quirkSet.has("shift")) {
-                doShiftVXInPlace = quirkSet.get("shift").getAsBoolean();
-            }
-
-            Boolean jumpQuirk = getQuirk("jump");
-            if (jumpQuirk != null) {
-                doJumpWithVX = jumpQuirk;
-            }
-            if (quirkSet != null && quirkSet.has("jump")) {
-                doJumpWithVX = quirkSet.get("jump").getAsBoolean();
+            if (quirksObject != null && quirksObject.has("jump")) {
+                doJumpWithVX = quirksObject.get("jump").getAsBoolean();
             }
         } catch (Exception e) {
             System.err.println("Error loading values from database. Emulator will use default or cli provided values: " + e);
         }
 
-         */
-
+        // CLI provided settings take priority over database ones.
+        // If neither CLI args were provided and values weren't found from the database,
+        // use hardcoded default values.
         if (this.cliConsoleVariant.isPresent()) {
             this.consoleVariant = this.cliConsoleVariant.get();
         } else if (consoleVariant == null) {
@@ -297,17 +310,6 @@ public class EmulatorConfig {
             String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             return JsonParser.parseString(json);
         }
-    }
-
-
-    private Boolean getQuirk(String key) {
-        if (platformObject != null && platformObject.has("quirks")) {
-            JsonObject quirks = platformObject.getAsJsonObject("quirks");
-            if (quirks.has(key)) {
-                return quirks.get(key).getAsBoolean();
-            }
-        }
-        return null;
     }
 
     private Path convertToAbsolutePathIfNeeded(Path path) {
