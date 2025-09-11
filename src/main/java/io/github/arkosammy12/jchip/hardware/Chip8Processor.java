@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.KeyState;
 
+import java.io.Console;
 import java.util.List;
 import java.util.Random;
 
@@ -396,6 +397,9 @@ public class Chip8Processor implements Processor {
         int spriteY = this.getRegister(thirdNibble) % screenHeight;
         int currentIndexRegister = this.getIndexRegister();
 
+        // Previous implementation just checked for either schip variant and spriteHeight >= 16
+        boolean draw16WideSprite = (consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN || (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode)) && spriteHeight >= 16;
+
         int collisionCounter = 0;
         this.setCarry(false);
         for (int i = 0; i < spriteHeight; i++) {
@@ -413,7 +417,7 @@ public class Chip8Processor implements Processor {
             }
             int slice;
             int sliceLength;
-            if (consoleVariant.isSChipOrXOChip() && spriteHeight >= 16) {
+            if (draw16WideSprite) {
                 int firstSliceByte = memory.readByte(currentIndexRegister + i * 2);
                 int secondSliceByte = memory.readByte(currentIndexRegister + (i * 2) + 1);
                 slice = (firstSliceByte << 8) | secondSliceByte;

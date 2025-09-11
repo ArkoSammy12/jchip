@@ -80,7 +80,7 @@ public class EmulatorConfig {
         Boolean doShiftVXInPlace = null;
         Boolean doJumpWithVX = null;
 
-
+        /*
         try {
             JsonObject hashesDatabase = loadJsonFromResources("/database/sha1-hashes.json").getAsJsonObject();
             JsonArray programDatabase = loadJsonFromResources("/database/programs.json").getAsJsonArray();
@@ -182,6 +182,8 @@ public class EmulatorConfig {
         } catch (Exception e) {
             System.err.println("Error loading values from database. Emulator will use default or cli provided values: " + e);
         }
+
+         */
 
         // CLI provided settings take priority over database ones.
         // If neither CLI args were provided and values weren't found from the database,

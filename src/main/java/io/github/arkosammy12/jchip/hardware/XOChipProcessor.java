@@ -102,6 +102,8 @@ public class XOChipProcessor extends SChipProcessor {
         int spriteY = this.getRegister(thirdNibble) % screenHeight;
         int currentIndexRegister = this.getIndexRegister();
 
+        boolean draw16WideSprite = spriteHeight >= 16;
+
         boolean collided = false;
         this.setCarry(false);
         int planeIterator = 0;
@@ -121,7 +123,7 @@ public class XOChipProcessor extends SChipProcessor {
                 }
                 int slice;
                 int sliceLength;
-                if (spriteHeight >= 16) {
+                if (draw16WideSprite) {
                     int firstSliceByte = memory.readByte(currentIndexRegister + (planeIterator * 2));
                     int secondSliceByte = memory.readByte(currentIndexRegister + (planeIterator * 2) + 1);
                     slice = (firstSliceByte << 8) | secondSliceByte;
