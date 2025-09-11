@@ -320,7 +320,7 @@ public class LanternaDisplay implements Display {
         }
         long now = System.currentTimeMillis();
         if (now - lastTitleUpdate >= 1000) {
-            double mips = (double) (currentInstructionsPerFrame * Main.FRAMES_PER_SECOND) / 1_000_000;
+            double mips = (double) (currentInstructionsPerFrame * 60) / 1_000_000;
             ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(
                     String.format("%s %s| IPF: %d | Mips: %f",
                             this.consoleVariant.getDisplayName(),
