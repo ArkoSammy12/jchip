@@ -3,6 +3,8 @@ package io.github.arkosammy12.jchip.util;
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
 
+import java.awt.*;
+
 public class ColorPalette {
 
 
@@ -62,7 +64,10 @@ public class ColorPalette {
             0xff55ffff, 0x55ffffff, 0xaa00aaff, 0x00aaaaff
     };
 
-    private final TextCharacter[] colorMap = new TextCharacter[16];
+    private final TextCharacter[] textCharacterColors = new TextCharacter[16];
+    private final Color[] colorMap = new Color[16];
+    private final int[][] colors = new int[16][3];
+    private final int[] rgbColors = new int[16];
 
     public ColorPalette(String colorPalette) {
         int[] chosenPalette = switch (colorPalette) {
@@ -81,13 +86,28 @@ public class ColorPalette {
             int r = (color >> 24) & 0xFF;
             int g = (color >> 16) & 0xFF;
             int b = (color >> 8) & 0xFF;
-            this.colorMap[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
+
+            this.colors[i][0] = r;
+            this.colors[i][1] = g;
+            this.colors[i][2] = b;
+
+            this.colorMap[i] = new Color(r, g, b);
+            this.rgbColors[i] = (r << 16) | (g << 8) | b;
+            this.textCharacterColors[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
         }
 
     }
 
     public TextCharacter getPixel(int colorIndex) {
+        return this.textCharacterColors[colorIndex];
+    }
+
+    public Color getColor(int colorIndex) {
         return this.colorMap[colorIndex];
+    }
+
+    public int getRGB(int colorIndex) {
+        return this.rgbColors[colorIndex];
     }
 
 }
