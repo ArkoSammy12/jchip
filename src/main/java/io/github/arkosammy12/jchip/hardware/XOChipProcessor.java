@@ -27,7 +27,7 @@ public class XOChipProcessor extends SChipProcessor {
                 if (consoleVariant != ConsoleVariant.XO_CHIP) {
                     throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
                 }
-                display.scrollUp(fourthNibble, this.getSelectedBitPlanes());
+                display.scrollUp(fourthNibble);
             }
             default -> opcodeHandled = false;
         }
@@ -86,7 +86,7 @@ public class XOChipProcessor extends SChipProcessor {
         Display display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
-        int selectedBitPlanes = this.getSelectedBitPlanes();
+        int selectedBitPlanes = display.getSelectedBitPlanes();
         boolean extendedMode = display.isExtendedMode();
         int spriteHeight = fourthNibble;
         if (spriteHeight < 1) {
@@ -103,6 +103,10 @@ public class XOChipProcessor extends SChipProcessor {
         int currentIndexRegister = this.getIndexRegister();
 
         boolean draw16WideSprite = spriteHeight >= 16;
+        int sliceLength = 8;
+        if (draw16WideSprite) {
+            sliceLength = 16;
+        }
 
         boolean collided = false;
         this.setCarry(false);
@@ -122,15 +126,12 @@ public class XOChipProcessor extends SChipProcessor {
                     }
                 }
                 int slice;
-                int sliceLength;
                 if (draw16WideSprite) {
                     int firstSliceByte = memory.readByte(currentIndexRegister + (planeIterator * 2));
                     int secondSliceByte = memory.readByte(currentIndexRegister + (planeIterator * 2) + 1);
                     slice = (firstSliceByte << 8) | secondSliceByte;
-                    sliceLength = 16;
                 } else {
                     slice = memory.readByte(currentIndexRegister + planeIterator);
-                    sliceLength = 8;
                 }
                 for (int j = 0; j < sliceLength; j++) {
                     int sliceX = spriteX + j;
@@ -182,7 +183,7 @@ public class XOChipProcessor extends SChipProcessor {
                 this.incrementProgramCounter();
             }
             case 0x01 -> { // FX01: Set selected bit planes
-                this.setSelectedBitPlanes(secondNibble);
+                this.emulator.getDisplay().setSelectedBitPlanes(secondNibble);
             }
             case 0x02 -> { // F002: Load audio pattern
                 if (secondNibble != 0) {

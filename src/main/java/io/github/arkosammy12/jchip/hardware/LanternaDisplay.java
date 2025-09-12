@@ -28,7 +28,7 @@ public class LanternaDisplay extends AbstractDisplay {
         if (consoleVariant == ConsoleVariant.CHIP_8) {
             fontSize = 16;
         }
-        Font terminalFont = new Font("Courier New", Font.PLAIN, fontSize);
+        Font terminalFont = new Font("Monospaced", Font.PLAIN, fontSize);
         AffineTransform horizontalStretchTransform = new AffineTransform();
         horizontalStretchTransform.scale(2, 1.0);
         Font actualFont = terminalFont.deriveFont(horizontalStretchTransform);
@@ -51,7 +51,7 @@ public class LanternaDisplay extends AbstractDisplay {
         this.terminalScreen.setCursorPosition(null);
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
-                this.terminalScreen.setCharacter(i, j, this.colorPalette.getTextCharacter(0));
+                this.terminalScreen.setCharacter(i, j, this.colorPalette.getTextCharacterColor(0));
             }
         }
         this.terminalScreen.doResizeIfNecessary();
@@ -67,7 +67,7 @@ public class LanternaDisplay extends AbstractDisplay {
                 if ((currentPixel ^ previousPixel) == 0) {
                     continue;
                 }
-                TextCharacter character = this.colorPalette.getTextCharacter(currentPixel);
+                TextCharacter character = this.colorPalette.getTextCharacterColor(currentPixel);
                 this.terminalScreen.setCharacter(i, j, character);
                 this.previousFrameBuffer[i][j] = currentPixel;
             }

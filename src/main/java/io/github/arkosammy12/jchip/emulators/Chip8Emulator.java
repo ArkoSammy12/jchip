@@ -30,7 +30,7 @@ public class Chip8Emulator implements Emulator {
         int[] rom = this.config.getRom();
         this.currentInstructionsPerFrame = targetInstructionsPerFrame;
         this.audioSystem = new DefaultAudioSystem(this.consoleVariant);
-        this.display = new Graphics2DDisplay(config.getProgramTitle(), this.consoleVariant, this.keyState, colorPalette);
+        this.display = new BufferedImageDisplay(config.getProgramTitle(), this.consoleVariant, this.keyState, colorPalette);
         this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
         this.processor = this.createProcessor();
     }

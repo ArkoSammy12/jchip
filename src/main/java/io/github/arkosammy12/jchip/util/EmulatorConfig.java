@@ -11,9 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.util.HexFormat;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class EmulatorConfig {
 
@@ -88,17 +86,34 @@ public class EmulatorConfig {
 
             // Get our program object using the index in the hashes database
             String sha1 = getSha1Hash(rawRom);
-            int programIndex = hashesDatabase.get(sha1).getAsInt();
-            this.programObject = programDatabase.get(programIndex).getAsJsonObject();
+            JsonElement indexElement = hashesDatabase.get(sha1);
+            if (indexElement == null) {
+                throw new IllegalStateException("Index for loaded ROM not found in database!");
+            }
+            int programIndex = indexElement.getAsInt();
+
+            JsonElement programElement = programDatabase.get(programIndex);
+            if (programElement == null) {
+                throw new IllegalStateException("Program entry for loaded ROM not found in database!");
+            }
+            this.programObject = programElement.getAsJsonObject();
 
             // Get the specific rom object corresponding to the rom hash within the program object
-            JsonObject programRoms = this.programObject.get("roms").getAsJsonObject();
+            JsonElement programRomsElement = this.programObject.get("roms");
+            if (programRomsElement == null) {
+                throw new IllegalStateException("\"roms\" object for loaded ROM not found within program object in database!");
+            }
+            JsonObject programRoms = programRomsElement.getAsJsonObject();
+
+
+            JsonElement romElement = programRoms.get(sha1);
+            if (romElement == null) {
+                throw new IllegalStateException("ROM entry for loaded ROM not found within program object in database!");
+            }
             this.romObject = programRoms.get(sha1).getAsJsonObject();
 
-
-            JsonObject quirksObject = null;
-
             // First, use the quirks established by the platform obtained via the "platforms" array in the rom object
+            JsonObject quirksObject = null;
             if (this.romObject != null && this.romObject.has("platforms")) {
                 JsonArray romPlatforms = this.romObject.get("platforms").getAsJsonArray();
                 if (!romPlatforms.isEmpty()) {
@@ -153,8 +168,8 @@ public class EmulatorConfig {
                     }
                 }
             }
+            // Populate emulator settings with values from the database if the console variant wasn't specified in the cli args or if the corresponding settings weren't provided frokm the cli
             if (this.cliConsoleVariant.isEmpty()) {
-                // Populate emulator configs with values from the database if corresponding cli args weren't provided or if the console variant wasn't specified in the cli args
                 if (this.platformObject != null) {
                     consoleVariant = ConsoleVariant.getVariantForDatabaseId(this.platformObject.get("id").getAsString());
                 }
@@ -184,79 +199,53 @@ public class EmulatorConfig {
             System.err.println("Error loading values from database. Emulator will use default or cli provided values: " + e);
         }
 
-
-
         // CLI provided settings take priority over database ones.
         // If neither CLI args were provided and values weren't found from the database,
         // use hardcoded default values.
         if (this.cliConsoleVariant.isPresent()) {
             this.consoleVariant = this.cliConsoleVariant.get();
-        } else if (consoleVariant == null) {
-            this.consoleVariant = ConsoleVariant.CHIP_8;
         } else {
-            this.consoleVariant = consoleVariant;
+            this.consoleVariant = Objects.requireNonNullElse(consoleVariant, ConsoleVariant.CHIP_8);
         }
-
         if (this.cliDoVFReset.isPresent()) {
             this.doVfReset = this.cliDoVFReset.get();
-        } else if (doVfReset == null) {
-            this.doVfReset = this.consoleVariant == ConsoleVariant.CHIP_8;
         } else {
-            this.doVfReset = doVfReset;
+            this.doVfReset = Objects.requireNonNullElse(doVfReset, this.consoleVariant == ConsoleVariant.CHIP_8);
         }
-
         if (this.cliDoIncrementIndex.isPresent()) {
             this.doIncrementIndex = this.cliDoIncrementIndex.get();
-        } else if (doIncrementIndex == null) {
-            this.doIncrementIndex = this.consoleVariant == ConsoleVariant.CHIP_8 || this.consoleVariant == ConsoleVariant.XO_CHIP;
         } else {
-            this.doIncrementIndex = doIncrementIndex;
+            this.doIncrementIndex = Objects.requireNonNullElse(doIncrementIndex, this.consoleVariant == ConsoleVariant.CHIP_8 || this.consoleVariant == ConsoleVariant.XO_CHIP);
         }
-
         if (this.cliDoDisplayWait.isPresent()) {
             this.doDisplayWait = this.cliDoDisplayWait.get();
-        } else if (doDisplayWait == null) {
-            this.doDisplayWait = this.consoleVariant == ConsoleVariant.CHIP_8 || this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY;
         } else {
-            this.doDisplayWait = doDisplayWait;
+            this.doDisplayWait = Objects.requireNonNullElse(doDisplayWait, this.consoleVariant == ConsoleVariant.CHIP_8 || this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY);
         }
-
         if (this.cliDoClipping.isPresent()) {
             this.doClipping = this.cliDoClipping.get();
-        } else if (doClipping == null) {
-            this.doClipping = this.consoleVariant != ConsoleVariant.XO_CHIP;
         } else {
-            this.doClipping = doClipping;
+            this.doClipping = Objects.requireNonNullElse(doClipping, this.consoleVariant != ConsoleVariant.XO_CHIP);
         }
-
         if (this.cliDoShiftVXInPlace.isPresent()) {
             this.doShiftVXInPlace = this.cliDoShiftVXInPlace.get();
-        } else if (doShiftVXInPlace == null) {
-            this.doShiftVXInPlace = this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || this.consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN;
         } else {
-            this.doShiftVXInPlace = doShiftVXInPlace;
+            this.doShiftVXInPlace = Objects.requireNonNullElse(doShiftVXInPlace,this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || this.consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN);
         }
-
         if (this.cliDoJumpWithVX.isPresent()) {
             this.doJumpWithVX = this.cliDoJumpWithVX.get();
-        } else if (doJumpWithVX == null) {
-            this.doJumpWithVX = this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || this.consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN;
         } else {
-            this.doJumpWithVX = doJumpWithVX;
+            this.doJumpWithVX = Objects.requireNonNullElse(doJumpWithVX,this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || this.consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN);
         }
-
         if (this.cliInstructionsPerFrame.isPresent()) {
             this.instructionsPerFrame = this.cliInstructionsPerFrame.get();
-        } else if (instructionsPerFrame == null) {
-            this.instructionsPerFrame = this.consoleVariant.getDefaultInstructionsPerFrame(this.doDisplayWait());
         } else {
-            this.instructionsPerFrame = instructionsPerFrame;
+            this.instructionsPerFrame = Objects.requireNonNullElse(instructionsPerFrame, this.consoleVariant.getDefaultInstructionsPerFrame(this.doDisplayWait()));
         }
-
     }
 
     public int[] getRom() {
-        return this.rom;
+        return Arrays.copyOf(this.rom, this.rom.length);
     }
 
     public String getProgramTitle() {

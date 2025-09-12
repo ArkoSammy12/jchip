@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.base;
 
-import io.github.arkosammy12.jchip.util.CharacterFont;
+import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -11,7 +11,7 @@ public interface Display extends Closeable {
 
     int getHeight();
 
-    CharacterFont getCharacterFont();
+    CharacterSpriteFont getCharacterFont();
 
     boolean togglePixel(int bitPlaneIndex, int column, int row);
 
@@ -23,15 +23,19 @@ public interface Display extends Closeable {
 
     boolean isExtendedMode();
 
-    void scrollUp(int scrollAmount, int selectedBitPlanes);
+    void setSelectedBitPlanes(int selectedBitPlanes);
 
-    void scrollDown(int scrollAmount, int selectedBitPlanes);
+    int getSelectedBitPlanes();
 
-    void scrollRight(int selectedBitPlanes);
+    void scrollUp(int scrollAmount);
 
-    void scrollLeft(int selectedBitPlanes);
+    void scrollDown(int scrollAmount);
 
-    void clear(int selectedBitPlanes);
+    void scrollRight();
+
+    void scrollLeft();
+
+    void clear();
 
     void flush(int currentInstructionsPerFrame) throws IOException;
 

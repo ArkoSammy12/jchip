@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.util;
 
-public class CharacterFont {
+public class CharacterSpriteFont {
 
     public static int SMALL_FONT_BEGIN_OFFSET = 0x50;
     public static int BIG_FONT_BEGIN_OFFSET = 0xA0;
@@ -78,7 +78,7 @@ public class CharacterFont {
     private final int[][] smallFont;
     private final int[][] bigFont;
 
-    public CharacterFont(ConsoleVariant consoleVariant) {
+    public CharacterSpriteFont(ConsoleVariant consoleVariant) {
 
         switch (consoleVariant) {
             case CHIP_8 -> {

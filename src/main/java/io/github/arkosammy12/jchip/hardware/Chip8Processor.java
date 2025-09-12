@@ -21,7 +21,6 @@ public class Chip8Processor implements Processor {
     private int indexRegister;
     private int delayTimer;
     private int soundTimer;
-    private int selectedBitPlanes = 1;
     private Random random;
     protected boolean shouldTerminate;
 
@@ -80,14 +79,6 @@ public class Chip8Processor implements Processor {
 
     protected void setCarry(boolean value) {
         this.setRegister(0xF, value ? 1 : 0);
-    }
-    protected void setSelectedBitPlanes(int selectedBitPlanes) {
-        this.selectedBitPlanes = selectedBitPlanes;
-    }
-
-    @Override
-    public int getSelectedBitPlanes() {
-        return this.selectedBitPlanes;
     }
 
     protected int getRegister(int register) {
@@ -183,7 +174,7 @@ public class Chip8Processor implements Processor {
             case 0xE -> {
                 switch (fourthNibble) {
                     case 0x0 -> { // 00E0: Clear screen
-                        this.emulator.getDisplay().clear(this.getSelectedBitPlanes());
+                        this.emulator.getDisplay().clear();
                     }
                     case 0xE -> { // 00EE: Return from subroutine
                         int returnAddress = this.pop();
@@ -213,10 +204,9 @@ public class Chip8Processor implements Processor {
 
     // 3XNN
     protected boolean executeSkipIfEqualsImmediate(int secondNibble, int secondByte) {
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
-        int vX = this.getRegister(secondNibble);
+       int vX = this.getRegister(secondNibble);
         if (secondByte == vX) {
-            if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
+            if (this.emulator.getConsoleVariant() == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                 this.incrementProgramCounter();
             }
             this.incrementProgramCounter();
@@ -226,10 +216,9 @@ public class Chip8Processor implements Processor {
 
     // 4XNN
     protected boolean executeSkipIfNotEqualsImmediate(int secondNibble, int secondByte) {
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         if (secondByte != vX) {
-            if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
+            if (this.emulator.getConsoleVariant() == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                 this.incrementProgramCounter();
             }
             this.incrementProgramCounter();
@@ -237,14 +226,13 @@ public class Chip8Processor implements Processor {
         return true;
     }
     protected boolean executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         int vY = this.getRegister(thirdNibble);
         boolean opcodeHandled = true;
         switch (fourthNibble) {
             case 0x0 -> { // 5XY0: Skip if registers equal
                 if (vX == vY) {
-                    if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
+                    if (this.emulator.getConsoleVariant() == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                         this.incrementProgramCounter();
                     }
                     this.incrementProgramCounter();
@@ -338,11 +326,10 @@ public class Chip8Processor implements Processor {
 
     // 9XY0
     protected boolean executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble) {
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         int vX = this.getRegister(secondNibble);
         int vY = this.getRegister(thirdNibble);
         if (vX != vY) {
-            if (consoleVariant == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
+            if (this.emulator.getConsoleVariant() == ConsoleVariant.XO_CHIP && this.nextOpcodeIsF000()) {
                 this.incrementProgramCounter();
             }
             this.incrementProgramCounter();
@@ -397,6 +384,12 @@ public class Chip8Processor implements Processor {
 
         // Previous implementation just checked for either schip variant and spriteHeight >= 16
         boolean draw16WideSprite = (consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN || (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode)) && spriteHeight >= 16;
+        boolean addBottomClippedRows = consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode;
+        boolean drawSinglePixel = extendedMode || consoleVariant == ConsoleVariant.CHIP_8;
+        int sliceLength = 8;
+        if (draw16WideSprite) {
+            sliceLength = 16;
+        }
 
         int collisionCounter = 0;
         this.setCarry(false);
@@ -404,7 +397,7 @@ public class Chip8Processor implements Processor {
             int sliceY = spriteY + i;
             if (sliceY >= screenHeight) {
                 if (config.doClipping()) {
-                    if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY && extendedMode) {
+                    if (addBottomClippedRows) {
                         collisionCounter++;
                         continue;
                     }
@@ -414,15 +407,12 @@ public class Chip8Processor implements Processor {
                 }
             }
             int slice;
-            int sliceLength;
             if (draw16WideSprite) {
                 int firstSliceByte = memory.readByte(currentIndexRegister + i * 2);
                 int secondSliceByte = memory.readByte(currentIndexRegister + (i * 2) + 1);
                 slice = (firstSliceByte << 8) | secondSliceByte;
-                sliceLength = 16;
             } else {
                 slice = memory.readByte(currentIndexRegister + i);
-                sliceLength = 8;
             }
             boolean rowCollided = false;
             for (int j = 0; j < sliceLength; j++) {
@@ -438,7 +428,7 @@ public class Chip8Processor implements Processor {
                 if ((slice & mask) <= 0) {
                     continue;
                 }
-                if (extendedMode || consoleVariant == ConsoleVariant.CHIP_8) {
+                if (drawSinglePixel) {
                     rowCollided |= display.togglePixel(0, sliceX, sliceY);
                 } else {
                     rowCollided |= display.togglePixel(0, sliceX * 2, sliceY * 2);

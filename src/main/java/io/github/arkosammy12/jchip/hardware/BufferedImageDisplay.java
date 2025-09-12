@@ -10,20 +10,19 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
-public class Graphics2DDisplay extends AbstractDisplay {
+public class BufferedImageDisplay extends AbstractDisplay {
 
     private final DisplayCanvas displayCanvas;
     private final JFrame frame;
     private long lastTitleUpdate = 0;
     private final int pixelScale;
 
-    // New fields for FPS calculation
     private long lastFrameTime = System.nanoTime();
     private int framesSinceLastUpdate = 0;
     private double lastFPS = 0;
     private double lastFrameDurationMs = 0;
 
-    public Graphics2DDisplay(String title, ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) {
+    public BufferedImageDisplay(String title, ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) {
         super(title, consoleVariant, colorPalette);
         int pixelScale = 20;
         if (consoleVariant != ConsoleVariant.CHIP_8) {
@@ -45,6 +44,8 @@ public class Graphics2DDisplay extends AbstractDisplay {
         this.frame.getContentPane().setMinimumSize(windowSize);
         this.frame.getContentPane().setMaximumSize(windowSize);
         this.frame.pack();
+        this.frame.setAutoRequestFocus(true);
+        this.frame.setLocation(30, 20);
         this.frame.setResizable(false);
         this.frame.setVisible(true);
     }
@@ -84,7 +85,7 @@ public class Graphics2DDisplay extends AbstractDisplay {
 
         private DisplayCanvas() {
             backBuffer = new BufferedImage(screenWidth * pixelScale, screenHeight * pixelScale, BufferedImage.TYPE_INT_RGB);
-            int defaultColor = colorPalette.getRGB(0);
+            int defaultColor = colorPalette.getRawColor(0);
             int[] pixels = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
             Arrays.fill(pixels, defaultColor);
         }
@@ -99,7 +100,10 @@ public class Graphics2DDisplay extends AbstractDisplay {
                     if (current == previous) {
                         continue;
                     }
-                    int color = colorPalette.getRGB(current);
+                    // y * screenWidth + x
+                    // (y * pixelScale) * (screenWidth * pixelScale) + (x * pixelScale)
+                    // ((y * pixelScale) + pixelOffset) * (screenWidth * pixelScale) + (x * pixelScale)
+                    int color = colorPalette.getRawColor(current);
                     int verticalRowOffset = y * pixelScale;
                     for (int verticalPixelOffset = 0; verticalPixelOffset < pixelScale; verticalPixelOffset++) {
                         int rowOffset = (verticalRowOffset + verticalPixelOffset) * scaledWidth;

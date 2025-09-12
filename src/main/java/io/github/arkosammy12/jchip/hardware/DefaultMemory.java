@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.hardware;
 
 import io.github.arkosammy12.jchip.base.Memory;
-import io.github.arkosammy12.jchip.util.CharacterFont;
+import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 
 public class DefaultMemory implements Memory {
@@ -9,9 +9,9 @@ public class DefaultMemory implements Memory {
     private final int[] bytes;
     private final int memorySize;
 
-    public DefaultMemory(int[] program, ConsoleVariant consoleVariant, CharacterFont characterFont) {
-        int[][] smallFont = characterFont.getSmallFont();
-        int[][] bigFont = characterFont.getBigFont();
+    public DefaultMemory(int[] program, ConsoleVariant consoleVariant, CharacterSpriteFont characterSpriteFont) {
+        int[][] smallFont = characterSpriteFont.getSmallFont();
+        int[][] bigFont = characterSpriteFont.getBigFont();
         if (consoleVariant == ConsoleVariant.XO_CHIP) {
             this.memorySize = 65536;
         } else {

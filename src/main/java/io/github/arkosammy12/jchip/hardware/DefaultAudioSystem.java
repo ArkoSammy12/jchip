@@ -38,7 +38,7 @@ public class DefaultAudioSystem implements AudioSystem {
             audioLine.open(format);
             audioLine.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Unable to start audio line: " + e);
         }
     }
 
@@ -53,6 +53,9 @@ public class DefaultAudioSystem implements AudioSystem {
     }
 
     public void pushSamples(int soundTimer) {
+        if (this.audioLine == null || !this.audioLine.isOpen()) {
+            return;
+        }
         byte[] data = new byte[SAMPLES_PER_FRAME];
         if (soundTimer <= 0) {
             this.phase = 0;

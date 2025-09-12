@@ -76,12 +76,7 @@ public enum ConsoleVariant {
 
         @Override
         public ConsoleVariant convert(String value) {
-            for (ConsoleVariant variant : ConsoleVariant.values()) {
-                if (variant.identifier.equals(value)) {
-                    return variant;
-                }
-            }
-            throw new IllegalArgumentException("Unknown chip-8 variant: " + value);
+            return getVariantForIdentifier(value);
         }
 
     }

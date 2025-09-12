@@ -10,8 +10,6 @@ public interface Processor {
 
     int getSoundTimer();
 
-    int getSelectedBitPlanes();
-
     boolean cycle(boolean sixtiethOfASecond) throws InvalidInstructionException;
 
     boolean shouldTerminate();

@@ -94,6 +94,29 @@ public class KeyState extends KeyAdapter {
         };
     }
 
+    public static int getIntegerForCharacterDvorak(char c) {
+        return switch (c) {
+            case 'x' -> 0x0;  // 0
+            case '1' -> 0x1;  // 1
+            case '2' -> 0x2;  // 2
+            case '3' -> 0x3;  // 3
+            case '\'' -> 0x4; // 4
+            case ',' -> 0x5;  // 5
+            case '.' -> 0x6;  // 6
+            case 'a' -> 0x7;  // 7
+            case 'o' -> 0x8;  // 8
+            case 'e' -> 0x9;  // 9
+            case ';' -> 0xA;  // A
+            case 'q' -> 0xB;  // B
+            case '4' -> 0xC;  // C
+            case 'p' -> 0xD;  // D
+            case 'u' -> 0xE;  // E
+            case 'k' -> 0xF;  // F
+            default -> -1;
+        };
+    }
+
+
     public static int getIntegerForCharacterAZERTY(char c) {
         return switch (c) {
             case 'x' -> 0x0;

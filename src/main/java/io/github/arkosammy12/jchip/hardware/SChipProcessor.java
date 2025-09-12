@@ -24,15 +24,15 @@ public class SChipProcessor extends Chip8Processor {
                 if (fourthNibble <= 0 && consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
                     return false;
                 }
-                display.scrollDown(fourthNibble, this.getSelectedBitPlanes());
+                display.scrollDown(fourthNibble);
             }
             case 0xF -> {
                 switch (fourthNibble) {
                     case 0xB -> { // 00FB: Scroll screen right
-                        display.scrollRight(this.getSelectedBitPlanes());
+                        display.scrollRight();
                     }
                     case 0xC -> { // 00FC: Scroll screen left
-                        display.scrollLeft(this.getSelectedBitPlanes());
+                        display.scrollLeft();
                     }
                     case 0xD -> { // 00FD: Exit interpreter
                         this.shouldTerminate = true;
@@ -40,13 +40,13 @@ public class SChipProcessor extends Chip8Processor {
                     case 0xE -> { // 00FE: Set lores mode
                         display.setExtendedMode(false);
                         if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
-                            display.clear(this.getSelectedBitPlanes());
+                            display.clear();
                         }
                     }
                     case 0xF -> { // 00FF: Set hires mode
                         display.setExtendedMode(true);
                         if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
-                            display.clear(this.getSelectedBitPlanes());
+                            display.clear();
                         }
                     }
                     default -> opcodeHandled = false;

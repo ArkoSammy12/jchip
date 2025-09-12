@@ -1,14 +1,14 @@
 package io.github.arkosammy12.jchip.hardware;
 
 import io.github.arkosammy12.jchip.base.Display;
-import io.github.arkosammy12.jchip.util.CharacterFont;
+import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
 import io.github.arkosammy12.jchip.util.ColorPalette;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 
 
 public abstract class AbstractDisplay implements Display {
 
-    private final CharacterFont characterFont;
+    private final CharacterSpriteFont characterSpriteFont;
     protected final ConsoleVariant consoleVariant;
     protected final ColorPalette colorPalette;
     protected final int[][] frameBuffer = new int[128][64];
@@ -17,6 +17,7 @@ public abstract class AbstractDisplay implements Display {
     protected final int screenWidth;
     protected final int screenHeight;
     private boolean extendedMode = false;
+    private int selectedBitPlanes = 1;
 
     protected final String title;
 
@@ -31,10 +32,7 @@ public abstract class AbstractDisplay implements Display {
         }
         this.colorPalette = colorPalette;
         this.consoleVariant = consoleVariant;
-        this.characterFont = new CharacterFont(consoleVariant);
-        for (int i = 0; i < 4; i++) {
-            this.clear(i);
-        }
+        this.characterSpriteFont = new CharacterSpriteFont(consoleVariant);
     }
 
 
@@ -48,17 +46,29 @@ public abstract class AbstractDisplay implements Display {
         return this.screenHeight;
     }
 
+    @Override
     public void setExtendedMode(boolean extendedMode) {
         this.extendedMode = extendedMode;
     }
 
+    @Override
     public boolean isExtendedMode() {
         return this.extendedMode;
     }
 
     @Override
-    public CharacterFont getCharacterFont() {
-        return this.characterFont;
+    public void setSelectedBitPlanes(int selectedBitPlanes) {
+        this.selectedBitPlanes = selectedBitPlanes;
+    }
+
+    @Override
+    public int getSelectedBitPlanes() {
+        return this.selectedBitPlanes;
+    }
+
+    @Override
+    public CharacterSpriteFont getCharacterFont() {
+        return this.characterSpriteFont;
     }
 
     @Override
@@ -95,7 +105,7 @@ public abstract class AbstractDisplay implements Display {
     }
 
     @Override
-    public void scrollUp(int scrollAmount, int selectedBitPlanes) {
+    public void scrollUp(int scrollAmount) {
         int trueScrollAmount;
         if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
             trueScrollAmount = scrollAmount;
@@ -133,7 +143,7 @@ public abstract class AbstractDisplay implements Display {
     }
 
     @Override
-    public void scrollDown(int scrollAmount, int selectedBitPlanes) {
+    public void scrollDown(int scrollAmount) {
         int trueScrollAmount;
         if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
             trueScrollAmount = scrollAmount;
@@ -169,7 +179,7 @@ public abstract class AbstractDisplay implements Display {
     }
 
     @Override
-    public void scrollRight(int selectedBitPlanes) {
+    public void scrollRight() {
         int scrollAmount;
         if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
             scrollAmount = 4;
@@ -204,7 +214,7 @@ public abstract class AbstractDisplay implements Display {
     }
 
     @Override
-    public void scrollLeft(int selectedBitPlanes) {
+    public void scrollLeft() {
         int scrollAmount;
         if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
             scrollAmount = 4;
@@ -241,7 +251,7 @@ public abstract class AbstractDisplay implements Display {
     }
 
     @Override
-    public void clear(int selectedBitPlanes) {
+    public void clear() {
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
             int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
