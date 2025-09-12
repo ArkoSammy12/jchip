@@ -20,7 +20,12 @@ import java.nio.charset.Charset;
 public class LanternaDisplay extends AbstractDisplay {
 
     private final TerminalScreen terminalScreen;
+
     private long lastTitleUpdate = 0;
+    private long lastFrameTime = System.nanoTime();
+    private int framesSinceLastUpdate = 0;
+    private double lastFPS = 0;
+    private double lastFrameDurationMs = 0;
 
     public LanternaDisplay(String title, ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
         super(title, consoleVariant, colorPalette);
@@ -72,16 +77,24 @@ public class LanternaDisplay extends AbstractDisplay {
                 this.previousFrameBuffer[i][j] = currentPixel;
             }
         }
-        long now = System.currentTimeMillis();
-        if (now - lastTitleUpdate >= 1000) {
+        long now = System.nanoTime();
+        lastFrameDurationMs = (now - lastFrameTime) / 1_000_000.0;
+        lastFrameTime = now;
+        framesSinceLastUpdate++;
+        long deltaTime = System.currentTimeMillis() - lastTitleUpdate;
+        if (deltaTime >= 1000) {
+            lastFPS = framesSinceLastUpdate / ((deltaTime) / 1000.0);
+            framesSinceLastUpdate = 0;
             double mips = (double) (currentInstructionsPerFrame * 60) / 1_000_000;
             ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(
-                    String.format("%s %s| IPF: %d | Mips: %f",
+                    String.format("%s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
                             this.consoleVariant.getDisplayName(),
                             this.title != null ? "| " + title + " " : "",
                             currentInstructionsPerFrame,
-                            mips));
-            lastTitleUpdate = now;
+                            mips,
+                            lastFrameDurationMs,
+                            lastFPS));
+            lastTitleUpdate = System.currentTimeMillis();
         }
         this.terminalScreen.refresh();
     }

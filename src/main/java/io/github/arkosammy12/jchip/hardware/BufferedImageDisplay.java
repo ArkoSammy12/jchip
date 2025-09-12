@@ -14,9 +14,9 @@ public class BufferedImageDisplay extends AbstractDisplay {
 
     private final DisplayCanvas displayCanvas;
     private final JFrame frame;
-    private long lastTitleUpdate = 0;
     private final int pixelScale;
 
+    private long lastTitleUpdate = 0;
     private long lastFrameTime = System.nanoTime();
     private int framesSinceLastUpdate = 0;
     private double lastFPS = 0;
