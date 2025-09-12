@@ -7,22 +7,21 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.KeyState;
 
-import java.io.Console;
 import java.util.List;
 import java.util.Random;
 
 public class Chip8Processor implements Processor {
 
     protected final Emulator emulator;
+    private final int[] registers = new int[16];
+    private final int[] flagsStorage = new int[16];
+    private final int[] stack = new int[16];
     private int programCounter = 512;
     private int stackPointer = 0;
     private int indexRegister;
     private int delayTimer;
     private int soundTimer;
     private int selectedBitPlanes = 1;
-    private final int[] registers = new int[16];
-    private final int[] flagsStorage = new int[16];
-    private final int[] stack = new int[16];
     private Random random;
     protected boolean shouldTerminate;
 
@@ -131,8 +130,7 @@ public class Chip8Processor implements Processor {
         int firstByte = memory.readByte(this.programCounter);
         int secondByte = memory.readByte(this.programCounter + 1);
         this.incrementProgramCounter();
-        boolean shouldWaitForNextFrame = this.execute(firstByte, secondByte);
-        return shouldWaitForNextFrame;
+        return this.execute(firstByte, secondByte);
     }
 
     private void decrementTimers() {

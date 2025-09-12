@@ -98,11 +98,11 @@ public class ColorPalette {
 
     }
 
-    public TextCharacter getPixel(int colorIndex) {
+    public TextCharacter getTextCharacter(int colorIndex) {
         return this.textCharacterColors[colorIndex];
     }
 
-    public Color getColor(int colorIndex) {
+    public Color getAwtColor(int colorIndex) {
         return this.colorMap[colorIndex];
     }
 

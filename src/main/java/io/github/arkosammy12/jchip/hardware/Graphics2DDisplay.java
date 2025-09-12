@@ -39,6 +39,7 @@ public class Graphics2DDisplay extends AbstractDisplay {
         this.frame.getContentPane().setMinimumSize(windowSize);
         this.frame.getContentPane().setMaximumSize(windowSize);
         this.frame.pack();
+        this.frame.setResizable(false);
         this.frame.setVisible(true);
     }
 
@@ -112,6 +113,5 @@ public class Graphics2DDisplay extends AbstractDisplay {
             paint(g);
         }
     }
-
 
 }

@@ -51,7 +51,7 @@ public class LanternaDisplay extends AbstractDisplay {
         this.terminalScreen.setCursorPosition(null);
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
-                this.terminalScreen.setCharacter(i, j, this.colorPalette.getPixel(0));
+                this.terminalScreen.setCharacter(i, j, this.colorPalette.getTextCharacter(0));
             }
         }
         this.terminalScreen.doResizeIfNecessary();
@@ -67,7 +67,7 @@ public class LanternaDisplay extends AbstractDisplay {
                 if ((currentPixel ^ previousPixel) == 0) {
                     continue;
                 }
-                TextCharacter character = this.colorPalette.getPixel(currentPixel);
+                TextCharacter character = this.colorPalette.getTextCharacter(currentPixel);
                 this.terminalScreen.setCharacter(i, j, character);
                 this.previousFrameBuffer[i][j] = currentPixel;
             }
