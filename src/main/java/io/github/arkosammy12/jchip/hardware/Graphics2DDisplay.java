@@ -17,6 +17,12 @@ public class Graphics2DDisplay extends AbstractDisplay {
     private long lastTitleUpdate = 0;
     private final int pixelScale;
 
+    // New fields for FPS calculation
+    private long lastFrameTime = System.nanoTime();
+    private int framesSinceLastUpdate = 0;
+    private double lastFPS = 0;
+    private double lastFrameDurationMs = 0;
+
     public Graphics2DDisplay(String title, ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) {
         super(title, consoleVariant, colorPalette);
         int pixelScale = 20;
@@ -46,16 +52,24 @@ public class Graphics2DDisplay extends AbstractDisplay {
     @Override
     public void flush(int currentInstructionsPerFrame) {
         this.displayCanvas.render();
-        long now = System.currentTimeMillis();
-        if (now - lastTitleUpdate >= 1000) {
+        long now = System.nanoTime();
+        lastFrameDurationMs = (now - lastFrameTime) / 1_000_000.0;
+        lastFrameTime = now;
+        framesSinceLastUpdate++;
+        long deltaTime = System.currentTimeMillis() - lastTitleUpdate;
+        if (deltaTime >= 1000) {
+            lastFPS = framesSinceLastUpdate / ((deltaTime) / 1000.0);
+            framesSinceLastUpdate = 0;
             double mips = (double) (currentInstructionsPerFrame * 60) / 1_000_000;
-                this.frame.setTitle(
-                        String.format("%s %s| IPF: %d | Mips: %f",
-                                this.consoleVariant.getDisplayName(),
-                                this.title != null ? "| " + title + " " : "",
-                                currentInstructionsPerFrame,
-                                mips));
-            lastTitleUpdate = now;
+            this.frame.setTitle(
+                    String.format("%s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
+                            this.consoleVariant.getDisplayName(),
+                            this.title != null ? "| " + title + " " : "",
+                            currentInstructionsPerFrame,
+                            mips,
+                            lastFrameDurationMs,
+                            lastFPS));
+            lastTitleUpdate = System.currentTimeMillis();
         }
     }
 
@@ -85,11 +99,6 @@ public class Graphics2DDisplay extends AbstractDisplay {
                     if (current == previous) {
                         continue;
                     }
-                    // index = (y * screenWidth) + x
-                    // index = (y * screenWidth) + (x * pixelScale)
-                    // index = ((y * pixelScale) * screenWidth) + (x * pixelScale)
-                    // index = ((y * pixelScale) * (screenWidth * pixelScale)) + (x * pixelScale)
-                    // index = ((y * pixelScale + pixelOffset) * (screenWidth * pixelScale)) + (x * pixelScale)
                     int color = colorPalette.getRGB(current);
                     int verticalRowOffset = y * pixelScale;
                     for (int verticalPixelOffset = 0; verticalPixelOffset < pixelScale; verticalPixelOffset++) {
@@ -113,5 +122,4 @@ public class Graphics2DDisplay extends AbstractDisplay {
             paint(g);
         }
     }
-
 }
