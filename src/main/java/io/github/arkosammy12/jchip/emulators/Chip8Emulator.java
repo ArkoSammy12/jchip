@@ -21,7 +21,7 @@ public class Chip8Emulator implements Emulator {
     protected final boolean displayWaitEnabled;
     private boolean isTerminated = false;
 
-    public Chip8Emulator(EmulatorConfig emulatorConfig) {
+    public Chip8Emulator(EmulatorConfig emulatorConfig) throws IOException {
         this.config = emulatorConfig;
         this.consoleVariant = emulatorConfig.getConsoleVariant();
         this.displayWaitEnabled = emulatorConfig.doDisplayWait();

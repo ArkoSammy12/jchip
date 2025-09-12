@@ -69,7 +69,7 @@ public class LanternaDisplay extends AbstractDisplay {
             for (int j = 0; j < this.screenHeight; j++) {
                 int currentPixel = this.frameBuffer[i][j] & 0xF;
                 int previousPixel = this.previousFrameBuffer[i][j] & 0xF;
-                if ((currentPixel ^ previousPixel) == 0) {
+                if (currentPixel == previousPixel) {
                     continue;
                 }
                 TextCharacter character = this.colorPalette.getTextCharacterColor(currentPixel);
