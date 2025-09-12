@@ -80,7 +80,7 @@ public class EmulatorConfig {
         Boolean doShiftVXInPlace = null;
         Boolean doJumpWithVX = null;
 
-        /*
+
         try {
             JsonObject hashesDatabase = loadJsonFromResources("/database/sha1-hashes.json").getAsJsonObject();
             JsonArray programDatabase = loadJsonFromResources("/database/programs.json").getAsJsonArray();
@@ -153,37 +153,38 @@ public class EmulatorConfig {
                     }
                 }
             }
-
-            // Populate emulator configs with values from the database if corresponding cli args weren't provided
-            if (this.platformObject != null) {
-                consoleVariant = ConsoleVariant.getVariantForDatabaseId(this.platformObject.get("id").getAsString());
-            }
-            if (this.romObject != null && this.romObject.has("tickrate")) {
-                instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
-            }
-            if (quirksObject != null && quirksObject.has("logic")) {
-                doVfReset = quirksObject.get("logic").getAsBoolean();
-            }
-            if (quirksObject != null && quirksObject.has("memoryLeaveIUnchanged")) {
-                doIncrementIndex = !quirksObject.get("memoryLeaveIUnchanged").getAsBoolean();
-            }
-            if (quirksObject != null && quirksObject.has("vblank")) {
-                doDisplayWait = quirksObject.get("vblank").getAsBoolean();
-            }
-            if (quirksObject != null && quirksObject.has("wrap")) {
-                doClipping = !quirksObject.get("wrap").getAsBoolean();
-            }
-            if (quirksObject != null && quirksObject.has("shift")) {
-                doShiftVXInPlace = quirksObject.get("shift").getAsBoolean();
-            }
-            if (quirksObject != null && quirksObject.has("jump")) {
-                doJumpWithVX = quirksObject.get("jump").getAsBoolean();
+            if (this.cliConsoleVariant.isEmpty()) {
+                // Populate emulator configs with values from the database if corresponding cli args weren't provided or if the console variant wasn't specified in the cli args
+                if (this.platformObject != null) {
+                    consoleVariant = ConsoleVariant.getVariantForDatabaseId(this.platformObject.get("id").getAsString());
+                }
+                if (this.romObject != null && this.romObject.has("tickrate")) {
+                    instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
+                }
+                if (quirksObject != null && quirksObject.has("logic")) {
+                    doVfReset = quirksObject.get("logic").getAsBoolean();
+                }
+                if (quirksObject != null && quirksObject.has("memoryLeaveIUnchanged")) {
+                    doIncrementIndex = !quirksObject.get("memoryLeaveIUnchanged").getAsBoolean();
+                }
+                if (quirksObject != null && quirksObject.has("vblank")) {
+                    doDisplayWait = quirksObject.get("vblank").getAsBoolean();
+                }
+                if (quirksObject != null && quirksObject.has("wrap")) {
+                    doClipping = !quirksObject.get("wrap").getAsBoolean();
+                }
+                if (quirksObject != null && quirksObject.has("shift")) {
+                    doShiftVXInPlace = quirksObject.get("shift").getAsBoolean();
+                }
+                if (quirksObject != null && quirksObject.has("jump")) {
+                    doJumpWithVX = quirksObject.get("jump").getAsBoolean();
+                }
             }
         } catch (Exception e) {
             System.err.println("Error loading values from database. Emulator will use default or cli provided values: " + e);
         }
 
-         */
+
 
         // CLI provided settings take priority over database ones.
         // If neither CLI args were provided and values weren't found from the database,
