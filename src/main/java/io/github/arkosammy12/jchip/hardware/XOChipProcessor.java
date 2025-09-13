@@ -120,7 +120,8 @@ public class XOChipProcessor extends SChipProcessor {
                 int sliceY = spriteY + i;
                 if (sliceY >= screenHeight) {
                     if (config.doClipping()) {
-                        break;
+                        planeIterator++;
+                        continue;
                     } else {
                         sliceY %= screenHeight;
                     }
