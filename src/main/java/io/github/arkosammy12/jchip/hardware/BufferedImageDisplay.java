@@ -97,6 +97,7 @@ public class BufferedImageDisplay extends AbstractDisplay {
         private void render() {
             int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
             for (int y = 0; y < screenHeight; y++) {
+                 int base = y * screenWidth;
                 for (int x = 0; x < screenWidth; x++) {
                     int current = frameBuffer[x][y] & 0xF;
                     int previous = previousFrameBuffer[x][y] & 0xF;
@@ -104,7 +105,7 @@ public class BufferedImageDisplay extends AbstractDisplay {
                         continue;
                     }
                     int color = colorPalette.getRawColor(current);
-                    buffer[y * screenWidth + x] = color;
+                    buffer[base + x] = color;
                     previousFrameBuffer[x][y] = current;
                 }
             }
