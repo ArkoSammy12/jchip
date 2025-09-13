@@ -33,7 +33,7 @@ public class LanternaDisplay extends AbstractDisplay {
         if (consoleVariant == ConsoleVariant.CHIP_8) {
             fontSize = 16;
         }
-        Font terminalFont = new Font("Monospaced", Font.PLAIN, fontSize);
+        Font terminalFont = new Font(getFontNameForOs(), Font.PLAIN, fontSize);
         AffineTransform horizontalStretchTransform = new AffineTransform();
         horizontalStretchTransform.scale(2, 1.0);
         Font actualFont = terminalFont.deriveFont(horizontalStretchTransform);
@@ -101,6 +101,19 @@ public class LanternaDisplay extends AbstractDisplay {
 
     public void close() throws IOException {
         this.terminalScreen.close();
+    }
+
+    private static String getFontNameForOs() {
+        String osName = System.getProperty("os.name", "").toLowerCase();
+        if (osName.contains("win")) {
+            return "Courier New";
+        } else if (osName.contains("mac")) {
+            return "Menlo";
+        } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix") || osName.contains("linux")) {
+            return "Ubuntu Mono";
+        } else {
+            return "Monospaced";
+        }
     }
 
 }
