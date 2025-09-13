@@ -9,7 +9,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.Arrays;
 
 public class BufferedImageDisplay extends AbstractDisplay {
 
@@ -64,7 +63,7 @@ public class BufferedImageDisplay extends AbstractDisplay {
             framesSinceLastUpdate = 0;
             double mips = (double) (currentInstructionsPerFrame * 60) / 1_000_000;
             this.frame.setTitle(
-                    String.format("%s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
+                    String.format("jchip | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
                             this.consoleVariant.getDisplayName(),
                             this.title != null ? "| " + title + " " : "",
                             currentInstructionsPerFrame,

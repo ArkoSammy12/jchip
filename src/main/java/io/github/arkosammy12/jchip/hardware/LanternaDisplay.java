@@ -88,7 +88,7 @@ public class LanternaDisplay extends AbstractDisplay {
             framesSinceLastUpdate = 0;
             double mips = (double) (currentInstructionsPerFrame * 60) / 1_000_000;
             ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(
-                    String.format("%s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
+                    String.format("jchip | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
                             this.consoleVariant.getDisplayName(),
                             this.title != null ? "| " + title + " " : "",
                             currentInstructionsPerFrame,
