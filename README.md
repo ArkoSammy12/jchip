@@ -40,15 +40,15 @@ The built JAR will be located in `build/libs`.
 The emulator is operated entirely through command-line arguments:
 
 ```bash
-java -jar jchip-x.y.jar <args>
+java -jar jchip-x.y.z.jar <args>
 ```
 
-Where `x.y` is the numeric version embedded in the JAR file’s name.
+Where `x.y.z` is the numeric version embedded in the JAR file’s name.
 
 - Example:
 
 ```bash
-java -jar jchip-1.0.jar -r roms/PONG.ch8 -v chip-8 -c pico8
+java -jar jchip-1.0.1.jar -r roms/PONG.ch8 -v chip-8 -c pico8
 ```
 
 ### Command-line Arguments

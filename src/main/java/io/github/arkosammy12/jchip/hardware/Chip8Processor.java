@@ -441,8 +441,8 @@ public class Chip8Processor implements Processor {
                     int x1 = (spriteX * 2) & 0x70;
                     int x2 = Math.min(x1 + 32, screenWidth * 2);
                     for (int j = x1; j < x2; j++) {
-                        boolean pixel = display.getPixel(0, j, spriteY * 2);
-                        display.setPixel(0, j, (spriteY * 2) + 1, pixel);
+                        boolean pixel = display.getPixel(0, j, sliceY * 2);
+                        display.setPixel(0, j, (sliceY * 2) + 1, pixel);
                     }
                     if (rowCollided) {
                         collisionCounter = 1;

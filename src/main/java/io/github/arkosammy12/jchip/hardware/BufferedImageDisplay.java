@@ -6,6 +6,7 @@ import io.github.arkosammy12.jchip.util.ConsoleVariant;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
@@ -80,50 +81,34 @@ public class BufferedImageDisplay extends AbstractDisplay {
     }
 
     private class DisplayCanvas extends Canvas {
-
         private final BufferedImage backBuffer;
 
         private DisplayCanvas() {
-            backBuffer = new BufferedImage(screenWidth * pixelScale, screenHeight * pixelScale, BufferedImage.TYPE_INT_RGB);
-            int defaultColor = colorPalette.getRawColor(0);
-            int[] pixels = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
-            Arrays.fill(pixels, defaultColor);
+            backBuffer = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
         }
 
         private void render() {
-            int scaledWidth = screenWidth * pixelScale;
             int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
             for (int y = 0; y < screenHeight; y++) {
                 for (int x = 0; x < screenWidth; x++) {
-                    int current = frameBuffer[x][y] & 0xF;
-                    int previous = previousFrameBuffer[x][y] & 0xF;
-                    if (current == previous) {
-                        continue;
-                    }
-                    // y * screenWidth + x
-                    // (y * pixelScale) * (screenWidth * pixelScale) + (x * pixelScale)
-                    // ((y * pixelScale) + pixelOffset) * (screenWidth * pixelScale) + (x * pixelScale)
-                    int color = colorPalette.getRawColor(current);
-                    int verticalRowOffset = y * pixelScale;
-                    for (int verticalPixelOffset = 0; verticalPixelOffset < pixelScale; verticalPixelOffset++) {
-                        int rowOffset = (verticalRowOffset + verticalPixelOffset) * scaledWidth;
-                        int offset = rowOffset + x * pixelScale;
-                        Arrays.fill(buffer, offset, offset + pixelScale, color);
-                    }
-                    previousFrameBuffer[x][y] = current;
+                    int pixel = frameBuffer[x][y] & 0xF;
+                    int color = colorPalette.getRawColor(pixel);
+                    buffer[y * screenWidth + x] = color;
+                    previousFrameBuffer[x][y] = pixel;
                 }
             }
-            repaint();
-        }
-
-        @Override
-        public void paint(Graphics g) {
-            g.drawImage(this.backBuffer, 0, 0, null);
-        }
-
-        @Override
-        public void update(Graphics g) {
-            paint(g);
+            BufferStrategy bufferStrategy = getBufferStrategy();
+            if (bufferStrategy == null) {
+                createBufferStrategy(3);
+                return;
+            }
+            Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g.drawImage(backBuffer, 0, 0, screenWidth * pixelScale, screenHeight * pixelScale, null);
+            g.dispose();
+            bufferStrategy.show();
+            Toolkit.getDefaultToolkit().sync();
         }
     }
+
 }
