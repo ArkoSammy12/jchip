@@ -20,6 +20,7 @@ import java.nio.charset.Charset;
 public class LanternaDisplay extends AbstractDisplay {
 
     private final TerminalScreen terminalScreen;
+    private final int[][] previousFrameBuffer = new int[128][64];
 
     private long lastTitleUpdate = 0;
     private long lastFrameTime = System.nanoTime();

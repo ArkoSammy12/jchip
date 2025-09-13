@@ -12,7 +12,6 @@ public abstract class AbstractDisplay implements Display {
     protected final ConsoleVariant consoleVariant;
     protected final ColorPalette colorPalette;
     protected final int[][] frameBuffer = new int[128][64];
-    protected final int[][] previousFrameBuffer = new int[128][64];
 
     protected final int screenWidth;
     protected final int screenHeight;
@@ -100,8 +99,7 @@ public abstract class AbstractDisplay implements Display {
 
     @Override
     public boolean getPixel(int bitPlaneIndex, int column, int row) {
-        int bit = (this.frameBuffer[column][row] >> bitPlaneIndex) & 1;
-        return bit == 1;
+        return ((frameBuffer[column][row] >> bitPlaneIndex) & 1) != 0;
     }
 
     @Override
