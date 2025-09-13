@@ -86,7 +86,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Lanterna](https://github.com/mabe02/lanterna) – Terminal-based display (unused for now)
 - [gson](https://github.com/google/gson) – JSON parsing
 
-## Resources
+## Resources and general links
 
 - [Tobias Langhoff – High Level CHIP-8 Emulator Guide](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/)
 - [CHIP-8 Research Facility](https://chip-8.github.io/)
@@ -96,6 +96,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Janitor Raus – Legacy SuperCHIP Display Spec](https://github.com/janitor-raus/CubeChip/blob/master/guides/Legacy%20(Original)%20SuperCHIP%20Display%20Specification.md)
 - [Gulrak – Opcode & Quirks Table](https://chip8.gulrak.net/)
 - [Gulrak – Cadmium Emulator](https://github.com/gulrak/cadmium)
+- [Gulrak - CHIP‑8 1dcell.ch8 Emulator Benchmarks](https://chip8.gulrak.net/1dcell).
 - [Cadmium Web Version](https://games.gulrak.net/cadmium-wip/)
 - [John Earnest – Octo IDE](https://github.com/JohnEarnest/Octo)
 - [XO-CHIP Specifications](https://johnearnest.github.io/Octo/docs/XO-ChipSpecification.html)
