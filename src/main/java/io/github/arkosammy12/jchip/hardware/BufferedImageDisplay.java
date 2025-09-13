@@ -36,6 +36,8 @@ public class BufferedImageDisplay extends AbstractDisplay {
         this.displayCanvas.setMinimumSize(windowSize);
         this.displayCanvas.setMaximumSize(windowSize);
         this.displayCanvas.addKeyListener(keyAdapter);
+        this.displayCanvas.setFocusable(true);
+        this.displayCanvas.requestFocus();
         this.displayCanvas.setVisible(true);
 
         this.frame = new JFrame();
