@@ -430,19 +430,22 @@ public class Chip8Processor implements Processor {
                 if (drawSinglePixel) {
                     rowCollided |= display.togglePixel(0, sliceX, sliceY);
                 } else {
-                    rowCollided |= display.togglePixel(0, sliceX * 2, sliceY * 2);
-                    rowCollided |= display.togglePixel(0, (sliceX * 2) + 1, sliceY * 2);
-                    display.togglePixel(0, sliceX * 2, (sliceY * 2) + 1);
-                    display.togglePixel(0, (sliceX * 2) + 1, (sliceY * 2) + 1);
+                    int scaledSliceX = sliceX * 2;
+                    int scaledSliceY = sliceY * 2;
+                    rowCollided |= display.togglePixel(0, scaledSliceX, scaledSliceY);
+                    rowCollided |= display.togglePixel(0, scaledSliceX + 1, scaledSliceY);
+                    display.togglePixel(0, scaledSliceX, scaledSliceY + 1);
+                    display.togglePixel(0, scaledSliceX + 1, scaledSliceY + 1);
                 }
             }
             if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
                 if (!extendedMode) {
                     int x1 = (spriteX * 2) & 0x70;
                     int x2 = Math.min(x1 + 32, screenWidth * 2);
+                    int scaledSliceY = sliceY * 2;
                     for (int j = x1; j < x2; j++) {
-                        boolean pixel = display.getPixel(0, j, sliceY * 2);
-                        display.setPixel(0, j, (sliceY * 2) + 1, pixel);
+                        boolean pixel = display.getPixel(0, j, scaledSliceY);
+                        display.setPixel(0, j, scaledSliceY + 1, pixel);
                     }
                     if (rowCollided) {
                         collisionCounter = 1;

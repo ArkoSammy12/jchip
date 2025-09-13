@@ -150,10 +150,12 @@ public class XOChipProcessor extends SChipProcessor {
                     if (extendedMode) {
                         collided |= display.togglePixel(bitPlane, sliceX, sliceY);
                     } else {
-                        collided |= display.togglePixel(bitPlane, sliceX * 2, sliceY * 2);
-                        collided |= display.togglePixel(bitPlane, (sliceX * 2) + 1, sliceY * 2);
-                        display.togglePixel(bitPlane, sliceX * 2, (sliceY * 2) + 1);
-                        display.togglePixel(bitPlane, (sliceX * 2) + 1, (sliceY * 2) + 1);
+                        int scaledSliceX = sliceX * 2;
+                        int scaledSliceY = sliceY * 2;
+                        collided |= display.togglePixel(bitPlane, scaledSliceX, scaledSliceY);
+                        collided |= display.togglePixel(bitPlane, scaledSliceX + 1, scaledSliceY);
+                        display.togglePixel(bitPlane, scaledSliceX, scaledSliceY + 1);
+                        display.togglePixel(bitPlane, scaledSliceX + 1, scaledSliceY + 1);
                     }
                 }
                 planeIterator++;
