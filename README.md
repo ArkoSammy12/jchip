@@ -104,6 +104,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [CHIP-8 Metadata Database](https://github.com/chip-8/chip-8-database)
 - [Timendus – Silicon8 Emulator](https://github.com/Timendus/silicon8)
 - [Timendus – CHIP-8 Test Suite](https://github.com/Timendus/chip8-test-suite)
+- [GamingMadster - Chip-8 All-In-One Tests](https://github.com/GamingMadster/Chip-8_All-In-One)
 - [Emulator Development Discord](https://discord.gg/dkmJAes)
 
 ## Credits
