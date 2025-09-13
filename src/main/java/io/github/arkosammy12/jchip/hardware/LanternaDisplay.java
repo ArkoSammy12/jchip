@@ -8,6 +8,7 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
+import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.util.ColorPalette;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 
@@ -88,7 +89,8 @@ public class LanternaDisplay extends AbstractDisplay {
             framesSinceLastUpdate = 0;
             double mips = (double) (currentInstructionsPerFrame * 60) / 1_000_000;
             ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(
-                    String.format("jchip | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
+                    String.format("jchip %s | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
+                            Main.VERSION_STRING,
                             this.consoleVariant.getDisplayName(),
                             this.title != null ? "| " + title + " " : "",
                             currentInstructionsPerFrame,

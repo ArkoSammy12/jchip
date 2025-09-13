@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.hardware;
 
+import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.util.ColorPalette;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 
@@ -63,7 +64,8 @@ public class BufferedImageDisplay extends AbstractDisplay {
             framesSinceLastUpdate = 0;
             double mips = (double) (currentInstructionsPerFrame * 60) / 1_000_000;
             this.frame.setTitle(
-                    String.format("jchip | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
+                    String.format("jchip %s | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
+                            Main.VERSION_STRING,
                             this.consoleVariant.getDisplayName(),
                             this.title != null ? "| " + title + " " : "",
                             currentInstructionsPerFrame,
