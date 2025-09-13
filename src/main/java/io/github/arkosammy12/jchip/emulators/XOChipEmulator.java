@@ -22,7 +22,7 @@ public class XOChipEmulator extends Chip8Emulator {
     protected void runInstructionLoop() throws InvalidInstructionException {
         for (int i = 0; i < this.targetInstructionsPerFrame; i++) {
             boolean shouldWaitForNextFrame = this.processor.cycle(i < 1);
-            if (this.config.doDisplayWait() && shouldWaitForNextFrame && !this.getDisplay().isExtendedMode()) {
+            if (this.config.doDisplayWait() && shouldWaitForNextFrame) {
                 break;
             }
             if (this.processor.shouldTerminate()) {

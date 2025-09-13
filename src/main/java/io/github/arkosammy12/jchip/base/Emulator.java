@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.base;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
-import io.github.arkosammy12.jchip.util.KeyState;
+import io.github.arkosammy12.jchip.hardware.KeyState;
 
 import java.io.IOException;
 

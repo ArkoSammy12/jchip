@@ -5,7 +5,6 @@ import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.util.ConsoleVariant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
-import io.github.arkosammy12.jchip.util.KeyState;
 
 import java.util.List;
 import java.util.Random;

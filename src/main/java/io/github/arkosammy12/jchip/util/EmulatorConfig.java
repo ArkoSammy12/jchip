@@ -27,6 +27,9 @@ public class EmulatorConfig {
     @CommandLine.Option(names = {"--color-palette", "-c"}, defaultValue = "cadmium")
     private String colorPalette;
 
+    @CommandLine.Option(names = {"--keyboard-layout", "-k"}, defaultValue = "qwerty", converter = KeyboardLayout.Converter.class)
+    private KeyboardLayout keyboardLayout;
+
     @CommandLine.Option(names = "--vf-reset", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
     private Optional<Boolean> cliDoVFReset;
 
@@ -262,6 +265,10 @@ public class EmulatorConfig {
 
     public ColorPalette getColorPalette() {
         return new ColorPalette(colorPalette);
+    }
+
+    public KeyboardLayout getKeyboardLayout() {
+        return this.keyboardLayout;
     }
 
     public ConsoleVariant getConsoleVariant() {

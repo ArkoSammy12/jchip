@@ -12,7 +12,7 @@ public class Chip8Emulator implements Emulator {
     protected final Processor processor;
     private final Memory memory;
     private final Display display;
-    private final KeyState keyState = new KeyState();
+    private final KeyState keyState;
     private final AudioSystem audioSystem;
     private final ConsoleVariant consoleVariant;
     protected final EmulatorConfig config;
@@ -29,6 +29,7 @@ public class Chip8Emulator implements Emulator {
         this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
         int[] rom = this.config.getRom();
         this.currentInstructionsPerFrame = targetInstructionsPerFrame;
+        this.keyState = new KeyState(this.config.getKeyboardLayout());
         this.audioSystem = new DefaultAudioSystem(this.consoleVariant);
         this.display = new BufferedImageDisplay(config.getProgramTitle(), this.consoleVariant, this.keyState, colorPalette);
         this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
