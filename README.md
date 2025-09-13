@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://imgur.com/Us2Ah3l.png" alt="jchip emulator screenshot" width="600"/>
+  <img src="https://i.imgur.com/RIo36Hv.png" alt="jchip emulator screenshot" width="600"/>
 </p>
 
 # jchip
