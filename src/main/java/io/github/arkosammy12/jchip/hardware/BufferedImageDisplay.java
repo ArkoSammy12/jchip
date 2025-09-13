@@ -85,16 +85,27 @@ public class BufferedImageDisplay extends AbstractDisplay {
 
         private DisplayCanvas() {
             backBuffer = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
+            int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
+            int defaultColor = colorPalette.getRawColor(0);
+            for (int y = 0; y < screenHeight; y++) {
+                for (int x = 0; x < screenWidth; x++) {
+                    buffer[y * screenWidth + x] = defaultColor;
+                }
+            }
         }
 
         private void render() {
             int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
             for (int y = 0; y < screenHeight; y++) {
                 for (int x = 0; x < screenWidth; x++) {
-                    int pixel = frameBuffer[x][y] & 0xF;
-                    int color = colorPalette.getRawColor(pixel);
+                    int current = frameBuffer[x][y] & 0xF;
+                    int previous = previousFrameBuffer[x][y] & 0xF;
+                    if (current == previous) {
+                        continue;
+                    }
+                    int color = colorPalette.getRawColor(current);
                     buffer[y * screenWidth + x] = color;
-                    previousFrameBuffer[x][y] = pixel;
+                    previousFrameBuffer[x][y] = current;
                 }
             }
             BufferStrategy bufferStrategy = getBufferStrategy();
