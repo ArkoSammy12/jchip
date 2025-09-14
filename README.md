@@ -96,7 +96,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Janitor Raus – Legacy SuperCHIP Display Spec](https://github.com/janitor-raus/CubeChip/blob/master/guides/Legacy%20(Original)%20SuperCHIP%20Display%20Specification.md)
 - [Gulrak – Opcode & Quirks Table](https://chip8.gulrak.net/)
 - [Gulrak – Cadmium Emulator](https://github.com/gulrak/cadmium)
-- [Gulrak - CHIP‑8 1dcell.ch8 Emulator Benchmarks](https://chip8.gulrak.net/1dcell).
+- [Gulrak - CHIP‑8 1dcell.ch8 Emulator Benchmarks](https://chip8.gulrak.net/1dcell)
 - [Cadmium Web Version](https://games.gulrak.net/cadmium-wip/)
 - [John Earnest – Octo IDE](https://github.com/JohnEarnest/Octo)
 - [XO-CHIP Specifications](https://johnearnest.github.io/Octo/docs/XO-ChipSpecification.html)
