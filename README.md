@@ -58,6 +58,8 @@ Where `x.y.z` is the numeric version embedded in the JAR file’s name.
 java -jar jchip-1.0.1.jar -r roms/PONG.ch8 -v chip-8 -c pico8
 ```
 
+Press the Escape key in order to close the emulator.
+
 ### Command-line Arguments
 
 | Argument                                                                                   | Description                                                           | Default                     |
