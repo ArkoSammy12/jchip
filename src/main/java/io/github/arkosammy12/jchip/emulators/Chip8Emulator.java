@@ -104,9 +104,11 @@ public class Chip8Emulator implements Emulator {
             }
             if (this.processor.shouldTerminate()) {
                 this.terminate();
+                break;
             }
             if (this.getKeyState().shouldTerminate()) {
                 this.terminate();
+                break;
             }
         }
     }
