@@ -23,7 +23,7 @@ public interface Emulator extends AutoCloseable {
 
     EmulatorConfig getEmulatorConfig();
 
-    void tick(long startOfFrame) throws IOException, InvalidInstructionException;
+    void tick() throws IOException, InvalidInstructionException;
 
     void terminate();
 

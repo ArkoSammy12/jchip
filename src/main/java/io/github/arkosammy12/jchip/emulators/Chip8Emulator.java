@@ -6,6 +6,7 @@ import io.github.arkosammy12.jchip.hardware.*;
 import io.github.arkosammy12.jchip.util.*;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class Chip8Emulator implements Emulator {
 
@@ -84,16 +85,16 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public void tick(long startOfFrame) throws IOException, InvalidInstructionException {
+    public void tick() throws IOException, InvalidInstructionException {
+        long startOfFrame = System.nanoTime();
         this.runInstructionLoop();
         this.getDisplay().flush(this.currentInstructionsPerFrame);
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
         long deltaTime = endOfFrame - startOfFrame;
-        if (deltaTime != Main.FRAME_INTERVAL) {
-            long adjust = (deltaTime - Main.FRAME_INTERVAL) / 10000;
-            this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
-        }
+        long adjust = (deltaTime - Main.FRAME_INTERVAL) / 100;
+        this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
+
     }
 
     protected void runInstructionLoop() throws InvalidInstructionException {
