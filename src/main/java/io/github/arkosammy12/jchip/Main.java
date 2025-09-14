@@ -22,7 +22,8 @@ public class Main {
                 }
             }
         } catch (Exception e) {
-            System.err.println("jchip has crashed! Stacktrace: " + e);
+            System.err.println("jchip has crashed!");
+            e.printStackTrace();
         }
     }
 }
