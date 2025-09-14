@@ -91,8 +91,8 @@ public class Chip8Emulator implements Emulator {
         this.getDisplay().flush(this.currentInstructionsPerFrame);
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
-        long deltaTime = endOfFrame - startOfFrame;
-        long adjust = (deltaTime - Main.FRAME_INTERVAL) / 100;
+        long frameTime = endOfFrame - startOfFrame;
+        long adjust = (frameTime - Main.FRAME_INTERVAL) / 100;
         this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
     }
 
