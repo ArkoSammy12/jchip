@@ -94,7 +94,6 @@ public class Chip8Emulator implements Emulator {
         long deltaTime = endOfFrame - startOfFrame;
         long adjust = (deltaTime - Main.FRAME_INTERVAL) / 100;
         this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
-
     }
 
     protected void runInstructionLoop() throws InvalidInstructionException {
