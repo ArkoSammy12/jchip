@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.hardware;
 
 import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.base.Emulator;
-import io.github.arkosammy12.jchip.util.ConsoleVariant;
+import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 
 public class SChipProcessor extends Chip8Processor {
@@ -16,12 +16,12 @@ public class SChipProcessor extends Chip8Processor {
         if (super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte)) {
             return true;
         }
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
+        Chip8Variant chip8Variant = this.emulator.getChip8Variant();
         Display display = this.emulator.getDisplay();
         boolean opcodeHandled = true;
         switch (thirdNibble) {
             case 0xC -> { // 00CN: Scroll screen down
-                if (fourthNibble <= 0 && consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+                if (fourthNibble <= 0 && chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY) {
                     return false;
                 }
                 display.scrollDown(fourthNibble);
@@ -39,13 +39,13 @@ public class SChipProcessor extends Chip8Processor {
                     }
                     case 0xE -> { // 00FE: Set lores mode
                         display.setExtendedMode(false);
-                        if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
+                        if (chip8Variant != Chip8Variant.SUPER_CHIP_LEGACY) {
                             display.clear();
                         }
                     }
                     case 0xF -> { // 00FF: Set hires mode
                         display.setExtendedMode(true);
-                        if (consoleVariant != ConsoleVariant.SUPER_CHIP_LEGACY) {
+                        if (chip8Variant != Chip8Variant.SUPER_CHIP_LEGACY) {
                             display.clear();
                         }
                     }
@@ -78,10 +78,9 @@ public class SChipProcessor extends Chip8Processor {
         boolean opcodeHanded = true;
         switch (secondByte) {
             case 0x30 -> { // FX30: Set index register to big font character location
-                Display display = this.emulator.getDisplay();
                 int character = vX & 0xF;
-                int memoryOffset = display.getCharacterFont().getBigFontCharacterOffset(character);
-                this.setIndexRegister(memoryOffset);
+                int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getBigFontCharacterSpriteOffset(character);
+                this.setIndexRegister(spriteOffset);
             }
             case 0x75 -> { // FX75: Store registers to flags storage
                 this.saveRegistersToFlags(secondNibble);

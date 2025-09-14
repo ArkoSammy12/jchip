@@ -1,22 +1,23 @@
 package io.github.arkosammy12.jchip.hardware;
 
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.base.AudioSystem;
-import io.github.arkosammy12.jchip.util.ConsoleVariant;
+import io.github.arkosammy12.jchip.base.SoundSystem;
+import io.github.arkosammy12.jchip.util.Chip8Variant;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
 import java.util.Arrays;
 
-public class DefaultAudioSystem implements AudioSystem {
+public class Chip8SoundSystem implements SoundSystem {
 
     private static final int SAMPLE_RATE = 44100;
     private static final int SAMPLES_PER_FRAME = SAMPLE_RATE / Main.FRAMES_PER_SECOND;
+
     private final int[] patternBuffer = new int[16];
     private double playbackRate = 4000;
-
-    private SourceDataLine audioLine;
     private double phase = 0.0;
+    private SourceDataLine audioLine;
 
     private static final int[] DEFAULT_PATTERN_1 = {
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0, 0, 0, 0, 0
@@ -26,15 +27,15 @@ public class DefaultAudioSystem implements AudioSystem {
             0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0
     };
 
-    public DefaultAudioSystem(ConsoleVariant consoleVariant) {
+    public Chip8SoundSystem(Chip8Variant chip8Variant) {
         Arrays.fill(this.patternBuffer, 0);
-        if (consoleVariant != ConsoleVariant.XO_CHIP) {
+        if (chip8Variant != Chip8Variant.XO_CHIP) {
             System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
             this.setPlaybackRate(175);
         }
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
-            audioLine = javax.sound.sampled.AudioSystem.getSourceDataLine(format);
+            audioLine = AudioSystem.getSourceDataLine(format);
             audioLine.open(format);
             audioLine.start();
         } catch (Exception e) {

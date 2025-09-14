@@ -8,9 +8,8 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
-import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.util.ColorPalette;
-import io.github.arkosammy12.jchip.util.ConsoleVariant;
+import io.github.arkosammy12.jchip.util.Chip8Variant;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -23,16 +22,10 @@ public class LanternaDisplay extends AbstractDisplay {
     private final TerminalScreen terminalScreen;
     private final int[][] previousFrameBuffer = new int[128][64];
 
-    private long lastTitleUpdate = 0;
-    private long lastFrameTime = System.nanoTime();
-    private int framesSinceLastUpdate = 0;
-    private double lastFPS = 0;
-    private double lastFrameDurationMs = 0;
-
-    public LanternaDisplay(String title, ConsoleVariant consoleVariant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
-        super(title, consoleVariant, colorPalette);
+    public LanternaDisplay(String romTitle, Chip8Variant chip8Variant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
+        super(romTitle, chip8Variant, colorPalette);
         int fontSize = 9;
-        if (consoleVariant == ConsoleVariant.CHIP_8) {
+        if (chip8Variant == Chip8Variant.CHIP_8) {
             fontSize = 16;
         }
         Font terminalFont = new Font(getFontNameForOs(), Font.PLAIN, fontSize);
@@ -43,7 +36,7 @@ public class LanternaDisplay extends AbstractDisplay {
                 .setInitialTerminalSize(new TerminalSize(this.screenWidth, this.screenHeight))
                 .setTerminalEmulatorFontConfiguration(SwingTerminalFontConfiguration.newInstance(actualFont))
                 .setTerminalEmulatorFrameAutoCloseTrigger(TerminalEmulatorAutoCloseTrigger.CloseOnEscape)
-                .setTerminalEmulatorTitle(consoleVariant.getDisplayName())
+                .setTerminalEmulatorTitle(chip8Variant.getDisplayName())
                 .createSwingTerminal();
         Component[] components = terminal.getContentPane().getComponents();
         for (Component component : components) {
@@ -66,6 +59,7 @@ public class LanternaDisplay extends AbstractDisplay {
     }
 
     @Override
+    @SuppressWarnings("DuplicatedCode")
     public void flush(int currentInstructionsPerFrame) throws IOException {
         for (int i = 0; i < this.screenWidth; i++) {
             for (int j = 0; j < this.screenHeight; j++) {
@@ -79,25 +73,9 @@ public class LanternaDisplay extends AbstractDisplay {
                 this.previousFrameBuffer[i][j] = currentPixel;
             }
         }
-        long now = System.nanoTime();
-        lastFrameDurationMs = (now - lastFrameTime) / 1_000_000.0;
-        lastFrameTime = now;
-        framesSinceLastUpdate++;
-        long deltaTime = System.currentTimeMillis() - lastTitleUpdate;
-        if (deltaTime >= 1000) {
-            lastFPS = framesSinceLastUpdate / ((deltaTime) / 1000.0);
-            framesSinceLastUpdate = 0;
-            double mips = (double) (currentInstructionsPerFrame * 60) / 1_000_000;
-            ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(
-                    String.format("jchip %s | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
-                            Main.VERSION_STRING,
-                            this.consoleVariant.getDisplayName(),
-                            this.title != null ? "| " + title + " " : "",
-                            currentInstructionsPerFrame,
-                            mips,
-                            lastFrameDurationMs,
-                            lastFPS));
-            lastTitleUpdate = System.currentTimeMillis();
+        String title = this.getWindowTitle(currentInstructionsPerFrame);
+        if (title != null) {
+            ((SwingTerminalFrame) this.terminalScreen.getTerminal()).setTitle(title);
         }
         this.terminalScreen.refresh();
     }

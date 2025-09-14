@@ -41,12 +41,12 @@ public class KeyState extends KeyAdapter {
         this.setKeyUnpressed(keyCode);
     }
 
-    public boolean isKeyPressed(int keyCode) {
-        return this.keyState[keyCode];
+    public boolean isKeyPressed(int hex) {
+        return this.keyState[hex];
     }
 
-    public void setWaitingKey(int key) {
-        this.waitingKey = key;
+    public void setWaitingKey(int hex) {
+        this.waitingKey = hex;
     }
 
     public int getWaitingKey() {

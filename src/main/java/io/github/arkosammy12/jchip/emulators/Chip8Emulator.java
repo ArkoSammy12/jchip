@@ -13,8 +13,8 @@ public class Chip8Emulator implements Emulator {
     private final Memory memory;
     private final Display display;
     private final KeyState keyState;
-    private final AudioSystem audioSystem;
-    private final ConsoleVariant consoleVariant;
+    private final SoundSystem soundSystem;
+    private final Chip8Variant chip8Variant;
     protected final EmulatorConfig config;
     protected final int targetInstructionsPerFrame;
     protected int currentInstructionsPerFrame;
@@ -23,16 +23,14 @@ public class Chip8Emulator implements Emulator {
 
     public Chip8Emulator(EmulatorConfig emulatorConfig) throws IOException {
         this.config = emulatorConfig;
-        this.consoleVariant = emulatorConfig.getConsoleVariant();
+        this.chip8Variant = emulatorConfig.getConsoleVariant();
         this.displayWaitEnabled = emulatorConfig.doDisplayWait();
-        ColorPalette colorPalette = emulatorConfig.getColorPalette();
         this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
-        int[] rom = this.config.getRom();
         this.currentInstructionsPerFrame = targetInstructionsPerFrame;
         this.keyState = new KeyState(this.config.getKeyboardLayout());
-        this.audioSystem = new DefaultAudioSystem(this.consoleVariant);
-        this.display = new BufferedImageDisplay(config.getProgramTitle(), this.consoleVariant, this.keyState, colorPalette);
-        this.memory = new DefaultMemory(rom, this.consoleVariant, this.display.getCharacterFont());
+        this.soundSystem = new Chip8SoundSystem(this.chip8Variant);
+        this.display = new CanvasDisplay(config.getProgramTitle(), this.chip8Variant, this.keyState, emulatorConfig.getColorPalette());
+        this.memory = new Chip8Memory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
         this.processor = this.createProcessor();
     }
 
@@ -61,13 +59,13 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public AudioSystem getAudioSystem() {
-        return this.audioSystem;
+    public SoundSystem getSoundSystem() {
+        return this.soundSystem;
     }
 
     @Override
-    public ConsoleVariant getConsoleVariant() {
-        return this.consoleVariant;
+    public Chip8Variant getChip8Variant() {
+        return this.chip8Variant;
     }
 
     @Override
@@ -89,7 +87,7 @@ public class Chip8Emulator implements Emulator {
     public void tick(long startOfFrame) throws IOException, InvalidInstructionException {
         this.runInstructionLoop();
         this.getDisplay().flush(this.currentInstructionsPerFrame);
-        this.getAudioSystem().pushSamples(this.getProcessor().getSoundTimer());
+        this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
         long deltaTime = endOfFrame - startOfFrame;
         if (deltaTime != Main.FRAME_INTERVAL) {
@@ -116,7 +114,7 @@ public class Chip8Emulator implements Emulator {
     @Override
     public void close() throws Exception {
         this.display.close();
-        this.audioSystem.close();
+        this.soundSystem.close();
     }
 
 }

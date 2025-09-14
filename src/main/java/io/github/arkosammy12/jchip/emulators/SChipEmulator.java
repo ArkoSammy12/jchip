@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.base.Processor;
 import io.github.arkosammy12.jchip.hardware.SChipProcessor;
-import io.github.arkosammy12.jchip.util.ConsoleVariant;
+import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
@@ -14,7 +14,7 @@ public class SChipEmulator extends Chip8Emulator {
 
     public SChipEmulator(EmulatorConfig emulatorConfig) throws IOException {
         super(emulatorConfig);
-        this.isModern = this.getConsoleVariant() == ConsoleVariant.SUPER_CHIP_MODERN;
+        this.isModern = this.getChip8Variant() == Chip8Variant.SUPER_CHIP_MODERN;
     }
 
     @Override

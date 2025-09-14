@@ -78,9 +78,9 @@ public class CharacterSpriteFont {
     private final int[][] smallFont;
     private final int[][] bigFont;
 
-    public CharacterSpriteFont(ConsoleVariant consoleVariant) {
+    public CharacterSpriteFont(Chip8Variant chip8Variant) {
 
-        switch (consoleVariant) {
+        switch (chip8Variant) {
             case CHIP_8 -> {
                 this.smallFont = CHIP_8;
                 this.bigFont = null;
@@ -105,12 +105,12 @@ public class CharacterSpriteFont {
         return this.bigFont;
     }
 
-    public int getSmallCharacterOffset(int charCode) {
-        return SMALL_FONT_BEGIN_OFFSET + (5 * charCode);
+    public int getSmallFontCharacterSpriteOffset(int hex) {
+        return SMALL_FONT_BEGIN_OFFSET + (5 * hex);
     }
 
-    public int getBigFontCharacterOffset(int charCode) {
-        return BIG_FONT_BEGIN_OFFSET + (10 * charCode);
+    public int getBigFontCharacterSpriteOffset(int hex) {
+        return BIG_FONT_BEGIN_OFFSET + (10 * hex);
     }
 
 }

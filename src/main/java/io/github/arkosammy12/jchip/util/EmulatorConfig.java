@@ -18,8 +18,8 @@ public class EmulatorConfig {
     @CommandLine.Option(names = {"--rom", "-r"})
     private Path romPath;
 
-    @CommandLine.Option(names = {"--variant", "-v"}, converter = ConsoleVariant.Converter.class, defaultValue = CommandLine.Option.NULL_VALUE)
-    private Optional<ConsoleVariant> cliConsoleVariant;
+    @CommandLine.Option(names = {"--variant", "-v"}, converter = Chip8Variant.Converter.class, defaultValue = CommandLine.Option.NULL_VALUE)
+    private Optional<Chip8Variant> cliConsoleVariant;
 
     @CommandLine.Option(names = {"--instructions-per-frame", "-i"}, fallbackValue = CommandLine.Option.NULL_VALUE)
     private Optional<Integer> cliInstructionsPerFrame;
@@ -54,7 +54,7 @@ public class EmulatorConfig {
     private JsonObject platformObject;
     private JsonObject romObject;
 
-    private final ConsoleVariant consoleVariant;
+    private final Chip8Variant chip8Variant;
     private final int instructionsPerFrame;
     private final boolean doVfReset;
     private final boolean doIncrementIndex;
@@ -72,7 +72,7 @@ public class EmulatorConfig {
             this.rom[i] = rawRom[i] & 0xFF;
         }
 
-        ConsoleVariant consoleVariant = null;
+        Chip8Variant chip8Variant = null;
         Integer instructionsPerFrame = null;
         Boolean doVfReset = null;
         Boolean doIncrementIndex = null;
@@ -80,7 +80,6 @@ public class EmulatorConfig {
         Boolean doClipping = null;
         Boolean doShiftVXInPlace = null;
         Boolean doJumpWithVX = null;
-
 
         try {
             JsonObject hashesDatabase = loadJsonFromResources("/database/sha1-hashes.json").getAsJsonObject();
@@ -174,7 +173,7 @@ public class EmulatorConfig {
             // Populate emulator settings with values from the database if the console variant wasn't specified in the cli args or if the corresponding settings weren't provided frokm the cli
             if (this.cliConsoleVariant.isEmpty()) {
                 if (this.platformObject != null) {
-                    consoleVariant = ConsoleVariant.getVariantForDatabaseId(this.platformObject.get("id").getAsString());
+                    chip8Variant = Chip8Variant.getVariantForDatabaseId(this.platformObject.get("id").getAsString());
                 }
                 if (this.romObject != null && this.romObject.has("tickrate")) {
                     instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
@@ -206,44 +205,44 @@ public class EmulatorConfig {
         // If neither CLI args were provided and values weren't found from the database,
         // use hardcoded default values.
         if (this.cliConsoleVariant.isPresent()) {
-            this.consoleVariant = this.cliConsoleVariant.get();
+            this.chip8Variant = this.cliConsoleVariant.get();
         } else {
-            this.consoleVariant = Objects.requireNonNullElse(consoleVariant, ConsoleVariant.CHIP_8);
+            this.chip8Variant = Objects.requireNonNullElse(chip8Variant, Chip8Variant.CHIP_8);
         }
         if (this.cliDoVFReset.isPresent()) {
             this.doVfReset = this.cliDoVFReset.get();
         } else {
-            this.doVfReset = Objects.requireNonNullElse(doVfReset, this.consoleVariant == ConsoleVariant.CHIP_8);
+            this.doVfReset = Objects.requireNonNullElse(doVfReset, this.chip8Variant == Chip8Variant.CHIP_8);
         }
         if (this.cliDoIncrementIndex.isPresent()) {
             this.doIncrementIndex = this.cliDoIncrementIndex.get();
         } else {
-            this.doIncrementIndex = Objects.requireNonNullElse(doIncrementIndex, this.consoleVariant == ConsoleVariant.CHIP_8 || this.consoleVariant == ConsoleVariant.XO_CHIP);
+            this.doIncrementIndex = Objects.requireNonNullElse(doIncrementIndex, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.XO_CHIP);
         }
         if (this.cliDoDisplayWait.isPresent()) {
             this.doDisplayWait = this.cliDoDisplayWait.get();
         } else {
-            this.doDisplayWait = Objects.requireNonNullElse(doDisplayWait, this.consoleVariant == ConsoleVariant.CHIP_8 || this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY);
+            this.doDisplayWait = Objects.requireNonNullElse(doDisplayWait, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY);
         }
         if (this.cliDoClipping.isPresent()) {
             this.doClipping = this.cliDoClipping.get();
         } else {
-            this.doClipping = Objects.requireNonNullElse(doClipping, this.consoleVariant != ConsoleVariant.XO_CHIP);
+            this.doClipping = Objects.requireNonNullElse(doClipping, this.chip8Variant != Chip8Variant.XO_CHIP);
         }
         if (this.cliDoShiftVXInPlace.isPresent()) {
             this.doShiftVXInPlace = this.cliDoShiftVXInPlace.get();
         } else {
-            this.doShiftVXInPlace = Objects.requireNonNullElse(doShiftVXInPlace,this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || this.consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN);
+            this.doShiftVXInPlace = Objects.requireNonNullElse(doShiftVXInPlace,this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY || this.chip8Variant == Chip8Variant.SUPER_CHIP_MODERN);
         }
         if (this.cliDoJumpWithVX.isPresent()) {
             this.doJumpWithVX = this.cliDoJumpWithVX.get();
         } else {
-            this.doJumpWithVX = Objects.requireNonNullElse(doJumpWithVX,this.consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY || this.consoleVariant == ConsoleVariant.SUPER_CHIP_MODERN);
+            this.doJumpWithVX = Objects.requireNonNullElse(doJumpWithVX,this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY || this.chip8Variant == Chip8Variant.SUPER_CHIP_MODERN);
         }
         if (this.cliInstructionsPerFrame.isPresent()) {
             this.instructionsPerFrame = this.cliInstructionsPerFrame.get();
         } else {
-            this.instructionsPerFrame = Objects.requireNonNullElse(instructionsPerFrame, this.consoleVariant.getDefaultInstructionsPerFrame(this.doDisplayWait()));
+            this.instructionsPerFrame = Objects.requireNonNullElse(instructionsPerFrame, this.chip8Variant.getDefaultInstructionsPerFrame(this.doDisplayWait()));
         }
     }
 
@@ -271,8 +270,8 @@ public class EmulatorConfig {
         return this.keyboardLayout;
     }
 
-    public ConsoleVariant getConsoleVariant() {
-        return this.consoleVariant;
+    public Chip8Variant getConsoleVariant() {
+        return this.chip8Variant;
     }
 
     public boolean doVFReset() {
@@ -312,7 +311,9 @@ public class EmulatorConfig {
     }
 
     private Path convertToAbsolutePathIfNeeded(Path path) {
-        if (path == null) return null;
+        if (path == null) {
+            return null;
+        }
         return path.isAbsolute() ? path : path.toAbsolutePath();
     }
 

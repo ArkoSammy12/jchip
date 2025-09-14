@@ -8,7 +8,7 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 
-public enum ConsoleVariant {
+public enum Chip8Variant {
     CHIP_8("chip-8", "CHIP-8", 15),
     SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", 30),
     SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", 30),
@@ -18,14 +18,14 @@ public enum ConsoleVariant {
     private final String displayName;
     private final int defaultInstructionsPerFrame;
 
-    ConsoleVariant(String identifier, String displayName, int defaultInstructionsPerFrame) {
+    Chip8Variant(String identifier, String displayName, int defaultInstructionsPerFrame) {
         this.identifier = identifier;
         this.displayName = displayName;
         this.defaultInstructionsPerFrame = defaultInstructionsPerFrame;
     }
 
-    public static ConsoleVariant getVariantForIdentifier(String identifier) {
-        for (ConsoleVariant variant : ConsoleVariant.values()) {
+    public static Chip8Variant getVariantForIdentifier(String identifier) {
+        for (Chip8Variant variant : Chip8Variant.values()) {
             if (variant.identifier.equals(identifier)) {
                 return variant;
             }
@@ -33,18 +33,18 @@ public enum ConsoleVariant {
         throw new IllegalArgumentException("Unknown chip-8 variant: " + identifier);
     }
 
-    public static ConsoleVariant getVariantForDatabaseId(String id) {
+    public static Chip8Variant getVariantForDatabaseId(String id) {
         return switch (id) {
-            case "originalChip8", "modernChip8", "chip48" -> ConsoleVariant.CHIP_8;
-            case "superchip1", "superchip" -> ConsoleVariant.SUPER_CHIP_LEGACY;
-            case "xochip" -> ConsoleVariant.XO_CHIP;
+            case "originalChip8", "modernChip8", "chip48" -> Chip8Variant.CHIP_8;
+            case "superchip1", "superchip" -> Chip8Variant.SUPER_CHIP_LEGACY;
+            case "xochip" -> Chip8Variant.XO_CHIP;
             default -> throw new IllegalArgumentException("Unsupported chip-8 variant: " + id);
         };
     }
 
     public static Emulator getEmulatorForVariant(EmulatorConfig emulatorConfig) throws IOException {
-        ConsoleVariant consoleVariant = emulatorConfig.getConsoleVariant();
-        return switch (consoleVariant) {
+        Chip8Variant chip8Variant = emulatorConfig.getConsoleVariant();
+        return switch (chip8Variant) {
             case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator(emulatorConfig);
             case XO_CHIP -> new XOChipEmulator(emulatorConfig);
             default -> new Chip8Emulator(emulatorConfig);
@@ -55,27 +55,22 @@ public enum ConsoleVariant {
         return this.displayName;
     }
 
-
     public int getDefaultInstructionsPerFrame(boolean displayWaitEnabled) {
-        int ipf = this.defaultInstructionsPerFrame;
-        if (this == ConsoleVariant.CHIP_8 && !displayWaitEnabled) {
-            ipf = 11;
+        int defaultIpf = this.defaultInstructionsPerFrame;
+        if (this == Chip8Variant.CHIP_8 && !displayWaitEnabled) {
+            defaultIpf = 11;
         }
-        return ipf;
+        return defaultIpf;
     }
 
     public boolean isSChip() {
-        return this == ConsoleVariant.SUPER_CHIP_LEGACY || this == ConsoleVariant.SUPER_CHIP_MODERN;
+        return this == Chip8Variant.SUPER_CHIP_LEGACY || this == Chip8Variant.SUPER_CHIP_MODERN;
     }
 
-    public boolean isSChipOrXOChip() {
-        return this.isSChip() || this == ConsoleVariant.XO_CHIP;
-    }
-
-    public static class Converter implements CommandLine.ITypeConverter<ConsoleVariant> {
+    public static class Converter implements CommandLine.ITypeConverter<Chip8Variant> {
 
         @Override
-        public ConsoleVariant convert(String value) {
+        public Chip8Variant convert(String value) {
             return getVariantForIdentifier(value);
         }
 

@@ -1,10 +1,9 @@
 package io.github.arkosammy12.jchip.hardware;
 
-import io.github.arkosammy12.jchip.base.AudioSystem;
+import io.github.arkosammy12.jchip.base.SoundSystem;
 import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.base.Memory;
-import io.github.arkosammy12.jchip.util.ConsoleVariant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 
@@ -19,14 +18,10 @@ public class XOChipProcessor extends SChipProcessor {
         if (super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte)) {
             return true;
         }
-        ConsoleVariant consoleVariant = this.emulator.getConsoleVariant();
         Display display = this.emulator.getDisplay();
         boolean opcodeHandled = true;
         switch (thirdNibble) {
             case 0xD -> { // OODN: Scroll screen up
-                if (consoleVariant != ConsoleVariant.XO_CHIP) {
-                    throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, consoleVariant);
-                }
                 display.scrollUp(fourthNibble);
             }
             default -> opcodeHandled = false;
@@ -40,11 +35,11 @@ public class XOChipProcessor extends SChipProcessor {
             return true;
         }
         Memory memory = this.emulator.getMemory();
+        int currentIndexRegister = this.getIndexRegister();
+        boolean iterateInReverse = secondNibble > thirdNibble;
         boolean opcodeHandled = true;
         switch (fourthNibble) {
             case 0x2 -> { // 5XY2: Write vX to vY to memory
-                int currentIndexRegister = this.getIndexRegister();
-                boolean iterateInReverse = secondNibble > thirdNibble;
                 if (iterateInReverse) {
                     for (int i = secondNibble, j = 0; i >= thirdNibble; i--) {
                         int registerValue = this.getRegister(i);
@@ -60,8 +55,6 @@ public class XOChipProcessor extends SChipProcessor {
                 }
             }
             case 0x3 -> { // 5XY3: Read values vX to vY from memory
-                int currentIndexRegister = this.getIndexRegister();
-                boolean iterateInReverse = secondNibble > thirdNibble;
                 if (iterateInReverse) {
                     for (int i = secondNibble, j = 0; i >= thirdNibble; i--) {
                         int memoryValue = memory.readByte(currentIndexRegister + j);
@@ -82,35 +75,41 @@ public class XOChipProcessor extends SChipProcessor {
     }
 
     @Override
+    @SuppressWarnings("DuplicatedCode")
     protected boolean executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
         Display display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
-        int selectedBitPlanes = display.getSelectedBitPlanes();
         boolean extendedMode = display.isExtendedMode();
+        int currentIndexRegister = this.getIndexRegister();
+        int selectedBitPlanes = display.getSelectedBitPlanes();
+
         int spriteHeight = fourthNibble;
         if (spriteHeight < 1) {
             spriteHeight = 16;
         }
-        int screenWidth = display.getWidth();
-        int screenHeight = display.getHeight();
+
+        int logicalScreenWidth = display.getFrameBufferWidth();
+        int logicalScreenHeight = display.getFrameBufferHeight();
         if (!extendedMode) {
-            screenWidth /= 2;
-            screenHeight /= 2;
+            logicalScreenWidth /= 2;
+            logicalScreenHeight /= 2;
         }
-        int spriteX = this.getRegister(secondNibble) % screenWidth;
-        int spriteY = this.getRegister(thirdNibble) % screenHeight;
-        int currentIndexRegister = this.getIndexRegister();
+
+        int spriteX = this.getRegister(secondNibble) % logicalScreenWidth;
+        int spriteY = this.getRegister(thirdNibble) % logicalScreenHeight;
 
         boolean draw16WideSprite = spriteHeight >= 16;
+
         int sliceLength = 8;
         if (draw16WideSprite) {
             sliceLength = 16;
         }
 
         boolean collided = false;
-        this.setCarry(false);
         int planeIterator = 0;
+        this.setVF(false);
+
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
             int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
@@ -118,12 +117,12 @@ public class XOChipProcessor extends SChipProcessor {
             }
             for (int i = 0; i < spriteHeight; i++) {
                 int sliceY = spriteY + i;
-                if (sliceY >= screenHeight) {
+                if (sliceY >= logicalScreenHeight) {
                     if (config.doClipping()) {
                         planeIterator++;
                         continue;
                     } else {
-                        sliceY %= screenHeight;
+                        sliceY %= logicalScreenHeight;
                     }
                 }
                 int slice;
@@ -136,11 +135,11 @@ public class XOChipProcessor extends SChipProcessor {
                 }
                 for (int j = 0; j < sliceLength; j++) {
                     int sliceX = spriteX + j;
-                    if (sliceX >= screenWidth) {
+                    if (sliceX >= logicalScreenWidth) {
                         if (config.doClipping()) {
                             break;
                         } else {
-                            sliceX %= screenWidth;
+                            sliceX %= logicalScreenWidth;
                         }
                     }
                     int mask = 1 << ((sliceLength - 1) - j);
@@ -161,7 +160,7 @@ public class XOChipProcessor extends SChipProcessor {
                 planeIterator++;
             }
         }
-        this.setCarry(collided);
+        this.setVF(collided);
         return true;
     }
 
@@ -193,15 +192,15 @@ public class XOChipProcessor extends SChipProcessor {
                     return false;
                 }
                 Memory memory = this.emulator.getMemory();
-                AudioSystem audioSystem = this.emulator.getAudioSystem();
+                SoundSystem soundSystem = this.emulator.getSoundSystem();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i < 16; i++) {
                     int audioByte = memory.readByte(currentIndexRegister + i);
-                    audioSystem.loadPatternByte(i, audioByte);
+                    soundSystem.loadPatternByte(i, audioByte);
                 }
             }
             case 0x3A -> { // FX33: Set audio pattern pitch
-                this.emulator.getAudioSystem().setPlaybackRate(vX);
+                this.emulator.getSoundSystem().setPlaybackRate(vX);
             }
             default -> opcodeHanded = false;
         }

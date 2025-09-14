@@ -66,8 +66,7 @@ public class ColorPalette {
 
     private final TextCharacter[] textCharacterColors = new TextCharacter[16];
     private final Color[] awtColors = new Color[16];
-    private final int[][] colors = new int[16][3];
-    private final int[] rawColors = new int[16];
+    private final int[] intColors = new int[16];
 
     public ColorPalette(String colorPalette) {
         int[] chosenPalette = switch (colorPalette) {
@@ -87,12 +86,8 @@ public class ColorPalette {
             int g = (color >> 16) & 0xFF;
             int b = (color >> 8) & 0xFF;
 
-            this.colors[i][0] = r;
-            this.colors[i][1] = g;
-            this.colors[i][2] = b;
-
             this.awtColors[i] = new Color(r, g, b);
-            this.rawColors[i] = (r << 16) | (g << 8) | b;
+            this.intColors[i] = (r << 16) | (g << 8) | b;
             this.textCharacterColors[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
         }
 
@@ -106,8 +101,8 @@ public class ColorPalette {
         return this.awtColors[colorIndex];
     }
 
-    public int getRawColor(int colorIndex) {
-        return this.rawColors[colorIndex];
+    public int getIntColor(int colorIndex) {
+        return this.intColors[colorIndex];
     }
 
 }

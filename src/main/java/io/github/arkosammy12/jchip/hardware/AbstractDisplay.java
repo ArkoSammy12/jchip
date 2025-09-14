@@ -1,15 +1,15 @@
 package io.github.arkosammy12.jchip.hardware;
 
+import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
 import io.github.arkosammy12.jchip.util.ColorPalette;
-import io.github.arkosammy12.jchip.util.ConsoleVariant;
-
+import io.github.arkosammy12.jchip.util.Chip8Variant;
 
 public abstract class AbstractDisplay implements Display {
 
     private final CharacterSpriteFont characterSpriteFont;
-    protected final ConsoleVariant consoleVariant;
+    protected final Chip8Variant chip8Variant;
     protected final ColorPalette colorPalette;
     protected final int[][] frameBuffer = new int[128][64];
 
@@ -18,11 +18,20 @@ public abstract class AbstractDisplay implements Display {
     private boolean extendedMode = false;
     private int selectedBitPlanes = 1;
 
-    protected final String title;
+    private final String romTitle;
+    private long lastWindowTitleUpdate = 0;
+    private long lastFrameTime = System.nanoTime();
+    private int framesSinceLastUpdate = 0;
+    private long totalIpfSinceLastUpdate = 0;
+    private double totalFrameTimeSinceLastUpdate = 0;
 
-    public AbstractDisplay(String title, ConsoleVariant consoleVariant, ColorPalette colorPalette) {
-        this.title = title;
-        if (consoleVariant == ConsoleVariant.CHIP_8) {
+    public AbstractDisplay(String romTitle, Chip8Variant chip8Variant, ColorPalette colorPalette) {
+        if (romTitle == null) {
+            this.romTitle = "";
+        } else {
+            this.romTitle = "| " + romTitle + " ";
+        }
+        if (chip8Variant == Chip8Variant.CHIP_8) {
             this.screenWidth = 64;
             this.screenHeight = 32;
         } else {
@@ -30,18 +39,22 @@ public abstract class AbstractDisplay implements Display {
             this.screenHeight = 64;
         }
         this.colorPalette = colorPalette;
-        this.consoleVariant = consoleVariant;
-        this.characterSpriteFont = new CharacterSpriteFont(consoleVariant);
+        this.chip8Variant = chip8Variant;
+        this.characterSpriteFont = new CharacterSpriteFont(chip8Variant);
     }
 
+    @Override
+    public CharacterSpriteFont getCharacterSpriteFont() {
+        return this.characterSpriteFont;
+    }
 
     @Override
-    public int getWidth() {
+    public int getFrameBufferWidth() {
         return this.screenWidth;
     }
 
     @Override
-    public int getHeight() {
+    public int getFrameBufferHeight() {
         return this.screenHeight;
     }
 
@@ -63,11 +76,6 @@ public abstract class AbstractDisplay implements Display {
     @Override
     public int getSelectedBitPlanes() {
         return this.selectedBitPlanes;
-    }
-
-    @Override
-    public CharacterSpriteFont getCharacterFont() {
-        return this.characterSpriteFont;
     }
 
     @Override
@@ -103,9 +111,10 @@ public abstract class AbstractDisplay implements Display {
     }
 
     @Override
+    @SuppressWarnings("DuplicatedCode")
     public void scrollUp(int scrollAmount) {
         int trueScrollAmount;
-        if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+        if (chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY) {
             trueScrollAmount = scrollAmount;
         } else {
             if (this.extendedMode) {
@@ -143,7 +152,7 @@ public abstract class AbstractDisplay implements Display {
     @Override
     public void scrollDown(int scrollAmount) {
         int trueScrollAmount;
-        if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+        if (chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY) {
             trueScrollAmount = scrollAmount;
         } else {
             if (this.extendedMode) {
@@ -152,7 +161,6 @@ public abstract class AbstractDisplay implements Display {
                 trueScrollAmount = scrollAmount * 2;
             }
         }
-
         for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
             int bitPlaneMask = 1 << bitPlane;
             if ((bitPlaneMask & selectedBitPlanes) <= 0) {
@@ -179,7 +187,7 @@ public abstract class AbstractDisplay implements Display {
     @Override
     public void scrollRight() {
         int scrollAmount;
-        if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+        if (chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY) {
             scrollAmount = 4;
         } else {
             if (this.extendedMode) {
@@ -212,9 +220,10 @@ public abstract class AbstractDisplay implements Display {
     }
 
     @Override
+    @SuppressWarnings("DuplicatedCode")
     public void scrollLeft() {
         int scrollAmount;
-        if (consoleVariant == ConsoleVariant.SUPER_CHIP_LEGACY) {
+        if (chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY) {
             scrollAmount = 4;
         } else {
             if (this.extendedMode) {
@@ -261,6 +270,35 @@ public abstract class AbstractDisplay implements Display {
                 }
             }
         }
+    }
+
+    protected String getWindowTitle(int currentInstructionsPerFrame) {
+        long now = System.nanoTime();
+        double lastFrameDuration = now - this.lastFrameTime;
+        this.lastFrameTime = now;
+        this.totalFrameTimeSinceLastUpdate += lastFrameDuration;
+        this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
+        this.framesSinceLastUpdate++;
+        long deltaTime = now - lastWindowTitleUpdate;
+        if (deltaTime < 1_000_000_000L) {
+            return null;
+        }
+        double lastFps = this.framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
+        long averageInstructionsPerFrame = this.totalIpfSinceLastUpdate / this.framesSinceLastUpdate;
+        double averageFrameTimeMs = (this.totalFrameTimeSinceLastUpdate / this.framesSinceLastUpdate) / 1_000_000.0;
+        double mips = (averageInstructionsPerFrame * lastFps) / 1_000_000;
+        this.framesSinceLastUpdate = 0;
+        this.totalFrameTimeSinceLastUpdate = 0;
+        this.totalIpfSinceLastUpdate = 0;
+        this.lastWindowTitleUpdate = now;
+        return String.format("jchip %s | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
+                Main.VERSION_STRING,
+                this.chip8Variant.getDisplayName(),
+                this.romTitle,
+                averageInstructionsPerFrame,
+                mips,
+                averageFrameTimeMs,
+                lastFps);
     }
 
 }

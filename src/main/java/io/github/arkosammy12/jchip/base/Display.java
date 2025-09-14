@@ -7,17 +7,11 @@ import java.io.IOException;
 
 public interface Display extends Closeable {
 
-    int getWidth();
+    CharacterSpriteFont getCharacterSpriteFont();
 
-    int getHeight();
+    int getFrameBufferWidth();
 
-    CharacterSpriteFont getCharacterFont();
-
-    boolean togglePixel(int bitPlaneIndex, int column, int row);
-
-    void setPixel(int bitPlaneIndex, int column, int row, boolean value);
-
-    boolean getPixel(int bitPlaneIndex, int column, int row);
+    int getFrameBufferHeight();
 
     void setExtendedMode(boolean extendedMode);
 
@@ -26,6 +20,12 @@ public interface Display extends Closeable {
     void setSelectedBitPlanes(int selectedBitPlanes);
 
     int getSelectedBitPlanes();
+
+    boolean togglePixel(int bitPlaneIndex, int column, int row);
+
+    void setPixel(int bitPlaneIndex, int column, int row, boolean value);
+
+    boolean getPixel(int bitPlaneIndex, int column, int row);
 
     void scrollUp(int scrollAmount);
 

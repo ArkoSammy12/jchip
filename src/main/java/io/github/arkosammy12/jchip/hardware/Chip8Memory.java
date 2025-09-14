@@ -2,17 +2,17 @@ package io.github.arkosammy12.jchip.hardware;
 
 import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
-import io.github.arkosammy12.jchip.util.ConsoleVariant;
+import io.github.arkosammy12.jchip.util.Chip8Variant;
 
-public class DefaultMemory implements Memory {
+public class Chip8Memory implements Memory {
 
     private final int[] bytes;
     private final int memorySize;
 
-    public DefaultMemory(int[] program, ConsoleVariant consoleVariant, CharacterSpriteFont characterSpriteFont) {
+    public Chip8Memory(int[] program, Chip8Variant chip8Variant, CharacterSpriteFont characterSpriteFont) {
         int[][] smallFont = characterSpriteFont.getSmallFont();
         int[][] bigFont = characterSpriteFont.getBigFont();
-        if (consoleVariant == ConsoleVariant.XO_CHIP) {
+        if (chip8Variant == Chip8Variant.XO_CHIP) {
             this.memorySize = 65536;
         } else {
             this.memorySize = 4096;
