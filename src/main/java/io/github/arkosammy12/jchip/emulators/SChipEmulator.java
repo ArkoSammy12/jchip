@@ -12,7 +12,7 @@ public class SChipEmulator extends Chip8Emulator {
 
     private final boolean isModern;
 
-    public SChipEmulator(EmulatorConfig emulatorConfig) throws IOException {
+    public SChipEmulator(EmulatorConfig emulatorConfig) throws Exception {
         super(emulatorConfig);
         this.isModern = this.getChip8Variant() == Chip8Variant.SUPER_CHIP_MODERN;
     }

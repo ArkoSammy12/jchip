@@ -42,7 +42,7 @@ public enum Chip8Variant {
         };
     }
 
-    public static Emulator getEmulatorForVariant(EmulatorConfig emulatorConfig) throws IOException {
+    public static Emulator getEmulatorForVariant(EmulatorConfig emulatorConfig) throws Exception {
         Chip8Variant chip8Variant = emulatorConfig.getConsoleVariant();
         return switch (chip8Variant) {
             case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator(emulatorConfig);

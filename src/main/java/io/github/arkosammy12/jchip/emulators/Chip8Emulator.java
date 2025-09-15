@@ -22,17 +22,22 @@ public class Chip8Emulator implements Emulator {
     protected final boolean displayWaitEnabled;
     private boolean isTerminated = false;
 
-    public Chip8Emulator(EmulatorConfig emulatorConfig) throws IOException {
-        this.config = emulatorConfig;
-        this.chip8Variant = emulatorConfig.getConsoleVariant();
-        this.displayWaitEnabled = emulatorConfig.doDisplayWait();
-        this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
-        this.currentInstructionsPerFrame = targetInstructionsPerFrame;
-        this.keyState = new KeyState(this.config.getKeyboardLayout());
-        this.soundSystem = new Chip8SoundSystem(this.chip8Variant);
-        this.display = new CanvasDisplay(config.getProgramTitle(), this.chip8Variant, this.keyState, emulatorConfig.getColorPalette());
-        this.memory = new Chip8Memory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
-        this.processor = this.createProcessor();
+    public Chip8Emulator(EmulatorConfig emulatorConfig) throws Exception {
+        try {
+            this.config = emulatorConfig;
+            this.chip8Variant = emulatorConfig.getConsoleVariant();
+            this.displayWaitEnabled = emulatorConfig.doDisplayWait();
+            this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
+            this.currentInstructionsPerFrame = targetInstructionsPerFrame;
+            this.keyState = new KeyState(this.config.getKeyboardLayout());
+            this.soundSystem = new Chip8SoundSystem(this.chip8Variant);
+            this.display = new CanvasDisplay(config.getProgramTitle(), this.chip8Variant, this.keyState, emulatorConfig.getColorPalette());
+            this.memory = new Chip8Memory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
+            this.processor = this.createProcessor();
+        } catch (Exception e) {
+            this.close();
+            throw new RuntimeException(e);
+        }
     }
 
     protected Processor createProcessor() {
@@ -115,8 +120,12 @@ public class Chip8Emulator implements Emulator {
 
     @Override
     public void close() throws Exception {
-        this.display.close();
-        this.soundSystem.close();
+        if (this.display != null) {
+            this.display.close();
+        }
+        if (this.soundSystem != null) {
+            this.soundSystem.close();
+        }
     }
 
 }

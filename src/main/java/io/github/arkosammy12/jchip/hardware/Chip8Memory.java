@@ -10,31 +10,35 @@ public class Chip8Memory implements Memory {
     private final int memorySize;
 
     public Chip8Memory(int[] program, Chip8Variant chip8Variant, CharacterSpriteFont characterSpriteFont) {
-        int[][] smallFont = characterSpriteFont.getSmallFont();
-        int[][] bigFont = characterSpriteFont.getBigFont();
-        if (chip8Variant == Chip8Variant.XO_CHIP) {
-            this.memorySize = 65536;
-        } else {
-            this.memorySize = 4096;
+        try {
+            int[][] smallFont = characterSpriteFont.getSmallFont();
+            int[][] bigFont = characterSpriteFont.getBigFont();
+            if (chip8Variant == Chip8Variant.XO_CHIP) {
+                this.memorySize = 65536;
+            } else {
+                this.memorySize = 4096;
+            }
+            this.bytes = new int[this.memorySize];
+            for (int i = 0; i < smallFont.length; i++) {
+                int[] slice = smallFont[i];
+                int sliceLength = slice.length;
+                int offset = 0x50 + (sliceLength * i);
+                System.arraycopy(slice, 0, this.bytes, offset, sliceLength);
+            }
+            if (bigFont == null) {
+                System.arraycopy(program, 0, bytes, 0x200, program.length);
+                return;
+            }
+            for (int i = 0; i < bigFont.length; i++) {
+                int[] slice = bigFont[i];
+                int sliceLength = slice.length;
+                int offset = 0xA0 + (sliceLength * i);
+                System.arraycopy(slice, 0, this.bytes, offset, sliceLength);
+            }
+            System.arraycopy(program, 0, this.bytes, 0x200, program.length);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("ROM size too big for CHIP-8 variant " + chip8Variant.getDisplayName() + "!");
         }
-        this.bytes = new int[this.memorySize];
-        for (int i = 0; i < smallFont.length; i++) {
-            int[] slice = smallFont[i];
-            int sliceLength = slice.length;
-            int offset = 0x50 + (sliceLength * i);
-            System.arraycopy(slice, 0, this.bytes, offset, sliceLength);
-        }
-        if (bigFont == null) {
-            System.arraycopy(program, 0, bytes, 0x200, program.length);
-            return;
-        }
-        for (int i = 0; i < bigFont.length; i++) {
-            int[] slice = bigFont[i];
-            int sliceLength = slice.length;
-            int offset = 0xA0 + (sliceLength * i);
-            System.arraycopy(slice, 0, this.bytes, offset, sliceLength);
-        }
-        System.arraycopy(program, 0, this.bytes, 0x200, program.length);
     }
 
     @Override

@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class XOChipEmulator extends Chip8Emulator {
 
-    public XOChipEmulator(EmulatorConfig emulatorConfig) throws IOException {
+    public XOChipEmulator(EmulatorConfig emulatorConfig) throws Exception {
         super(emulatorConfig);
     }
 
