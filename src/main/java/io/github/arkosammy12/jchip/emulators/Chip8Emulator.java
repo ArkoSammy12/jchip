@@ -6,7 +6,6 @@ import io.github.arkosammy12.jchip.hardware.*;
 import io.github.arkosammy12.jchip.util.*;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 public class Chip8Emulator implements Emulator {
 
@@ -31,7 +30,7 @@ public class Chip8Emulator implements Emulator {
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keyState = new KeyState(this.config.getKeyboardLayout());
             this.soundSystem = new Chip8SoundSystem(this.chip8Variant);
-            this.display = new CanvasDisplay(config.getProgramTitle(), this.chip8Variant, this.keyState, emulatorConfig.getColorPalette());
+            this.display = new CanvasDisplay(config, this.keyState);
             this.memory = new Chip8Memory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
             this.processor = this.createProcessor();
         } catch (Exception e) {
@@ -103,8 +102,8 @@ public class Chip8Emulator implements Emulator {
 
     protected void runInstructionLoop() throws InvalidInstructionException {
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-            boolean shouldWaitForNextFrame = this.processor.cycle(i < 1);
-            if (this.config.doDisplayWait() && shouldWaitForNextFrame) {
+            int flags = this.processor.cycle(i < 1);
+            if (this.waitForVBlank(flags)) {
                 break;
             }
             if (this.processor.shouldTerminate()) {
@@ -116,6 +115,10 @@ public class Chip8Emulator implements Emulator {
                 break;
             }
         }
+    }
+
+    protected boolean waitForVBlank(int flags) {
+        return this.config.doDisplayWait() && (flags & Chip8Processor.DRAW_EXECUTED) != 0;
     }
 
     @Override

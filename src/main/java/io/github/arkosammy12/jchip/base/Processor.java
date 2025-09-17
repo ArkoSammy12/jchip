@@ -10,7 +10,7 @@ public interface Processor {
 
     int getSoundTimer();
 
-    boolean cycle(boolean sixtiethOfASecond) throws InvalidInstructionException;
+    int cycle(boolean sixtiethOfASecond) throws InvalidInstructionException;
 
     boolean shouldTerminate();
 

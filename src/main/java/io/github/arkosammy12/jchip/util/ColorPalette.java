@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.util;
 
 import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
+import picocli.CommandLine;
 
 import java.awt.*;
 
@@ -93,6 +94,24 @@ public class ColorPalette {
 
     }
 
+    public ColorPalette(String colorPalette, int[][] customPixelColors) {
+        this(colorPalette);
+        if (customPixelColors == null) {
+            return;
+        }
+        for (int i = 0; i < customPixelColors.length; i++) {
+            if (i > 15) {
+                break;
+            }
+            int r = customPixelColors[i][0];
+            int g = customPixelColors[i][1];
+            int b = customPixelColors[i][2];
+            this.awtColors[i] = new Color(r, g, b);
+            this.intColors[i] = (r << 16) | (g << 8) | b;
+            this.textCharacterColors[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
+        }
+    }
+
     public TextCharacter getTextCharacterColor(int colorIndex) {
         return this.textCharacterColors[colorIndex];
     }
@@ -103,6 +122,17 @@ public class ColorPalette {
 
     public int getIntColor(int colorIndex) {
         return this.intColors[colorIndex];
+    }
+
+    public static class Converter implements CommandLine.ITypeConverter<ColorPalette> {
+
+        @Override
+        public ColorPalette convert(String value) {
+            if (value == null) {
+                return null;
+            }
+            return new ColorPalette(value);
+        }
     }
 
 }

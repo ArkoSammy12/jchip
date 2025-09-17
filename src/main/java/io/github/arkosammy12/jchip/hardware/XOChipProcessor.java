@@ -11,33 +11,48 @@ public class XOChipProcessor extends SChipProcessor {
 
     public XOChipProcessor(Emulator emulator) {
         super(emulator);
+        this.isModern = true;
     }
 
     @Override
-    protected boolean executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        if (super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte)) {
-            return true;
+    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+            return flagsSuper;
         }
+        int flags = Chip8Processor.HANDLED;
         Display display = this.emulator.getDisplay();
-        boolean opcodeHandled = true;
-        switch (thirdNibble) {
-            case 0xD -> { // OODN: Scroll screen up
-                display.scrollUp(fourthNibble);
-            }
-            default -> opcodeHandled = false;
+        if (thirdNibble == 0xD) {// OODN: Scroll screen up
+            display.scrollUp(fourthNibble);
+        } else {
+            flags &= ~Chip8Processor.HANDLED;
         }
-        return opcodeHandled;
+        return flags;
     }
 
     @Override
-    protected boolean executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        if (super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte)) {
-            return true;
+    protected int executeSkipIfEqualsImmediate(int secondNibble, int secondByte) {
+        return handleDoubleSkipIfNecessary(super.executeSkipIfEqualsImmediate(secondNibble, secondByte));
+    }
+
+    @Override
+    protected int executeSkipIfNotEqualsImmediate(int secondNibble, int secondByte) {
+        return handleDoubleSkipIfNecessary(super.executeSkipIfNotEqualsImmediate(secondNibble, secondByte));
+    }
+
+    @Override
+    protected int executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+        int flagsSuper = super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+            if ((flagsSuper & Chip8Processor.SKIP_TAKEN) != 0 && this.previousOpcodeWasF000()) {
+                this.incrementProgramCounter();
+            }
+            return flagsSuper;
         }
+        int flags = HANDLED;
         Memory memory = this.emulator.getMemory();
         int currentIndexRegister = this.getIndexRegister();
         boolean iterateInReverse = secondNibble > thirdNibble;
-        boolean opcodeHandled = true;
         switch (fourthNibble) {
             case 0x2 -> { // 5XY2: Write vX to vY to memory
                 if (iterateInReverse) {
@@ -69,14 +84,19 @@ public class XOChipProcessor extends SChipProcessor {
                     }
                 }
             }
-            default -> opcodeHandled = false;
+            default -> flags &= ~Chip8Processor.HANDLED;
         }
-        return opcodeHandled;
+        return flags;
+    }
+
+    @Override
+    protected int executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble) {
+        return handleDoubleSkipIfNecessary(super.executeSkipIfRegistersNotEqual(secondNibble, thirdNibble));
     }
 
     @Override
     @SuppressWarnings("DuplicatedCode")
-    protected boolean executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
+    protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
         Display display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
@@ -161,20 +181,26 @@ public class XOChipProcessor extends SChipProcessor {
             }
         }
         this.setVF(collided);
-        return true;
+        return Chip8Processor.HANDLED | Chip8Processor.DRAW_EXECUTED;
     }
 
     @Override
-    protected boolean executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
-        if (super.executeFXOpcode(firstNibble, secondNibble, secondByte)) {
-            return true;
+    protected int executeSkipIfKey(int secondNibble, int secondByte) {
+        return handleDoubleSkipIfNecessary(super.executeSkipIfKey(secondNibble, secondByte));
+    }
+
+    @Override
+    protected int executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
+        int flagsSuper = super.executeFXOpcode(firstNibble, secondNibble, secondByte);
+        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+            return flagsSuper;
         }
+        int flags = Chip8Processor.HANDLED;
         int vX = this.getRegister(secondNibble);
-        boolean opcodeHanded = true;
         switch (secondByte) {
             case 0x00 -> { // F000 NNNN: Set index register to 16-bit address
                 if (secondNibble != 0) {
-                    return false;
+                    return 0;
                 }
                 Memory memory = this.emulator.getMemory();
                 int currentProgramCounter = this.getProgramCounter();
@@ -189,7 +215,7 @@ public class XOChipProcessor extends SChipProcessor {
             }
             case 0x02 -> { // F002: Load audio pattern
                 if (secondNibble != 0) {
-                    return false;
+                    return 0;
                 }
                 Memory memory = this.emulator.getMemory();
                 SoundSystem soundSystem = this.emulator.getSoundSystem();
@@ -202,9 +228,25 @@ public class XOChipProcessor extends SChipProcessor {
             case 0x3A -> { // FX33: Set audio pattern pitch
                 this.emulator.getSoundSystem().setPlaybackRate(vX);
             }
-            default -> opcodeHanded = false;
+            default -> flags &= ~Chip8Processor.HANDLED;
         }
-        return opcodeHanded;
+        return flags;
+    }
+
+    private int handleDoubleSkipIfNecessary(int flags) {
+        if ((flags & Chip8Processor.HANDLED) != 0 && (flags & Chip8Processor.SKIP_TAKEN) != 0 && this.previousOpcodeWasF000()) {
+            this.incrementProgramCounter();
+        }
+        return flags;
+    }
+
+    private boolean previousOpcodeWasF000() {
+        Memory memory = this.emulator.getMemory();
+        int currentProgramCounter = this.getProgramCounter();
+        int firstByte = memory.readByte(currentProgramCounter - 2);
+        int secondByte = memory.readByte(currentProgramCounter - 1);
+        int opcode = (firstByte << 8) | secondByte;
+        return opcode == 0xF000;
     }
 
 }

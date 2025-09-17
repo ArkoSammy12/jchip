@@ -24,11 +24,14 @@ public class EmulatorConfig {
     @CommandLine.Option(names = {"--instructions-per-frame", "-i"}, fallbackValue = CommandLine.Option.NULL_VALUE)
     private Optional<Integer> cliInstructionsPerFrame;
 
-    @CommandLine.Option(names = {"--color-palette", "-c"}, defaultValue = "cadmium")
-    private String colorPalette;
+    @CommandLine.Option(names = {"--color-palette", "-c"}, converter = ColorPalette.Converter.class,fallbackValue = CommandLine.Option.NULL_VALUE)
+    private ColorPalette colorPalette;
 
     @CommandLine.Option(names = {"--keyboard-layout", "-k"}, defaultValue = "qwerty", converter = KeyboardLayout.Converter.class)
     private KeyboardLayout keyboardLayout;
+
+    @CommandLine.Option(names = {"-a", "--angle"}, defaultValue = "0", converter = DisplayAngle.Converter.class)
+    private DisplayAngle displayAngle;
 
     @CommandLine.Option(names = "--vf-reset", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
     private Optional<Boolean> cliDoVFReset;
@@ -63,7 +66,7 @@ public class EmulatorConfig {
     private final boolean doShiftVXInPlace;
     private final boolean doJumpWithVX;
 
-    public EmulatorConfig(String[] args) throws Exception {
+    public  EmulatorConfig(String[] args) throws Exception {
         CommandLine.populateCommand(this, args);
         Path romPath = this.getRomPath();
         byte[] rawRom = Files.readAllBytes(romPath);
@@ -107,12 +110,26 @@ public class EmulatorConfig {
             }
             JsonObject programRoms = programRomsElement.getAsJsonObject();
 
-
             JsonElement romElement = programRoms.get(sha1);
             if (romElement == null) {
                 throw new IllegalStateException("ROM entry for loaded ROM not found within program object in database!");
             }
             this.romObject = programRoms.get(sha1).getAsJsonObject();
+
+            JsonElement colorsElement = this.romObject.get("colors");
+            if (this.colorPalette == null && colorsElement instanceof JsonObject colorsObject && colorsObject.has("pixels")) {
+                JsonArray pixels = colorsObject.get("pixels").getAsJsonArray();
+                if (!pixels.isEmpty()) {
+                    int[][] customPixelColors = new int[pixels.size()][3];
+                    for (int i = 0; i < pixels.size(); i++) {
+                        String hex = pixels.get(i).getAsString();
+                        customPixelColors[i][0] = Integer.parseInt(hex.substring(1, 3), 16);
+                        customPixelColors[i][1] = Integer.parseInt(hex.substring(3, 5), 16);
+                        customPixelColors[i][2] = Integer.parseInt(hex.substring(5, 7), 16);
+                    }
+                    this.colorPalette = new ColorPalette("cadmium", customPixelColors);
+                }
+            }
 
             // First, use the quirks established by the platform obtained via the "platforms" array in the rom object
             JsonObject quirksObject = null;
@@ -201,6 +218,10 @@ public class EmulatorConfig {
             System.err.println("Error loading values from database. Emulator will use default or cli provided values: " + e);
         }
 
+        if (this.colorPalette == null) {
+            this.colorPalette = new ColorPalette("cadmium");
+        }
+
         // CLI provided settings take priority over database ones.
         // If neither CLI args were provided and values weren't found from the database,
         // use hardcoded default values.
@@ -263,11 +284,15 @@ public class EmulatorConfig {
     }
 
     public ColorPalette getColorPalette() {
-        return new ColorPalette(colorPalette);
+        return this.colorPalette;
     }
 
     public KeyboardLayout getKeyboardLayout() {
         return this.keyboardLayout;
+    }
+
+    public DisplayAngle getDisplayAngle() {
+        return this.displayAngle;
     }
 
     public Chip8Variant getConsoleVariant() {
@@ -301,6 +326,7 @@ public class EmulatorConfig {
     private Path getRomPath() {
         return convertToAbsolutePathIfNeeded(romPath);
     }
+
 
     private JsonElement loadJsonFromResources(String resourcePath) throws Exception {
         try (InputStream in = getClass().getResourceAsStream(resourcePath)) {

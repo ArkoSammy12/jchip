@@ -6,8 +6,6 @@ import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import picocli.CommandLine;
 
-import java.io.IOException;
-
 public enum Chip8Variant {
     CHIP_8("chip-8", "CHIP-8", 15),
     SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", 30),
@@ -61,10 +59,6 @@ public enum Chip8Variant {
             defaultIpf = 11;
         }
         return defaultIpf;
-    }
-
-    public boolean isSChip() {
-        return this == Chip8Variant.SUPER_CHIP_LEGACY || this == Chip8Variant.SUPER_CHIP_MODERN;
     }
 
     public static class Converter implements CommandLine.ITypeConverter<Chip8Variant> {

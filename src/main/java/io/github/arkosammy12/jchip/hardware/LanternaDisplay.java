@@ -8,8 +8,8 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.googlecode.lanterna.terminal.swing.TerminalEmulatorAutoCloseTrigger;
-import io.github.arkosammy12.jchip.util.ColorPalette;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -22,8 +22,8 @@ public class LanternaDisplay extends AbstractDisplay {
     private final TerminalScreen terminalScreen;
     private final int[][] previousFrameBuffer = new int[128][64];
 
-    public LanternaDisplay(String romTitle, Chip8Variant chip8Variant, KeyAdapter keyAdapter, ColorPalette colorPalette) throws IOException {
-        super(romTitle, chip8Variant, colorPalette);
+    public LanternaDisplay(EmulatorConfig config, KeyAdapter keyAdapter) throws IOException {
+        super(config);
         int fontSize = 9;
         if (chip8Variant == Chip8Variant.CHIP_8) {
             fontSize = 16;

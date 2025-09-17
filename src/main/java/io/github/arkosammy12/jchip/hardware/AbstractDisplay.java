@@ -5,6 +5,7 @@ import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
 import io.github.arkosammy12.jchip.util.ColorPalette;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 public abstract class AbstractDisplay implements Display {
 
@@ -25,7 +26,11 @@ public abstract class AbstractDisplay implements Display {
     private long totalIpfSinceLastUpdate = 0;
     private double totalFrameTimeSinceLastUpdate = 0;
 
-    public AbstractDisplay(String romTitle, Chip8Variant chip8Variant, ColorPalette colorPalette) {
+    public AbstractDisplay(EmulatorConfig config) {
+        String romTitle = config.getProgramTitle();
+        Chip8Variant chip8Variant = config.getConsoleVariant();
+        ColorPalette colorPalette = config.getColorPalette();
+
         if (romTitle == null) {
             this.romTitle = "";
         } else {
