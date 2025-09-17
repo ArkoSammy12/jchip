@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.imgur.com/RIo36Hv.png" alt="jchip emulator screenshot" width="600"/>
+  <img src="https://i.imgur.com/iSEXSzK.png" alt="jchip emulator screenshot" width="600"/>
 </p>
 
 # jchip
@@ -62,19 +62,20 @@ Press the Escape key in order to close the emulator.
 
 ### Command-line Arguments
 
-| Argument                                                                                   | Description                                                           | Default                     |
-|--------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|-----------------------------|
-| `-r, --rom <path>`                                                                         | **Required.** Path to the ROM file (absolute or relative to the JAR). | –                           |
-| `-v, --variant <chip-8\|schip-legacy\|schip-modern\|xo-chip>`                              | Select the CHIP-8 variant.                                            | Auto-detected from database |
-| `-i, --instructions-per-frame <int>`                                                       | Number of instructions executed per frame (60 fps).                   | Variant default             |
-| `-c, --color-palette <cadmium\|silicon8\|pico8\|octoclassic\|lcd\|c64\|intellivison\|cga>` | Select a built-in color palette.                                      | `cadmium`                   |
-| `-k, --keyboard-layout <qwerty\|dvorak\|azerty\|colemak>`                                  | Select keyboard layout for keypad mapping.                            | `qwerty`                    |
-| `--[no-]vf-reset`                                                                          | Toggle VF reset quirk (`8XY1`, `8XY2`, `8XY3` reset VF to 0).         | Variant default             |
-| `--[no-]increment-i`                                                                       | Toggle increment-`I` quirk (`FX55`, `FX65` increment `I`).            | Variant default             |
-| `--[no-]display-wait`                                                                      | Toggle display wait quirk (waits a frame after `DXYN`).               | Variant default             |
-| `--[no-]clipping`                                                                          | Toggle sprite clipping vs wrapping at screen edges.                   | Variant default             |
-| `--[no-]shift-vx-in-place`                                                                 | Toggle shifting quirk (`8XY6`, `8XYE` shift `VX` vs `VY`).            | Variant default             |
-| `--[no-]jump-with-vx`                                                                      | Toggle jump quirk (`BNNN` as `BXNN`).                                 | Variant default             |
+| Argument                                                                                   | Description                                                           | Default                                                 |
+|--------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------|
+| `-r, --rom <path>`                                                                         | **Required.** Path to the ROM file (absolute or relative to the JAR). | –                                                       |
+| `-v, --variant <chip-8\|schip-legacy\|schip-modern\|xo-chip>`                              | Select the CHIP-8 variant.                                            | Auto-detected from database. `chip-8` otherwise.        |
+| `-i, --instructions-per-frame <int>`                                                       | Number of instructions executed per frame (60 fps).                   | Auto-detected from database. Variant default otherwise. |
+| `-c, --color-palette <cadmium\|silicon8\|pico8\|octoclassic\|lcd\|c64\|intellivison\|cga>` | Select a built-in color palette.                                      | Auto-detected from database. `cadmium` otherwise.       |
+| `-k, --keyboard-layout <qwerty\|dvorak\|azerty\|colemak>`                                  | Select keyboard layout for keypad mapping.                            | `qwerty`                                                |
+| `-a, --angle <0\|90\|180\|270>`                                                            | Select the screen rotation value when displaying this rom.            | Auto-detected from database. `0` otherwise.             |
+| `--[no-]vf-reset`                                                                          | Toggle VF reset quirk (`8XY1`, `8XY2`, `8XY3` reset VF to 0).         | Auto-detected from database. Variant default otherwise. |
+| `--[no-]increment-i`                                                                       | Toggle increment-`I` quirk (`FX55`, `FX65` increment `I`).            | Auto-detected from database. Variant default otherwise. |
+| `--[no-]display-wait`                                                                      | Toggle display wait quirk (waits a frame after `DXYN`).               | Auto-detected from database. Variant default otherwise. |
+| `--[no-]clipping`                                                                          | Toggle sprite clipping vs wrapping at screen edges.                   | Auto-detected from database. Variant default otherwise. |
+| `--[no-]shift-vx-in-place`                                                                 | Toggle shifting quirk (`8XY6`, `8XYE` shift `VX` vs `VY`).            | Auto-detected from database. Variant default otherwise  |
+| `--[no-]jump-with-vx`                                                                      | Toggle jump quirk (`BNNN` as `BXNN`).                                 | Auto-detected from database. Variant default otherwise  | 
 
 ## Automatic Database Configuration
 
