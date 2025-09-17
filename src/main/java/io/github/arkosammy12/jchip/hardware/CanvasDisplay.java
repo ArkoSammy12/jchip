@@ -21,26 +21,23 @@ public class CanvasDisplay extends AbstractDisplay {
 
     public CanvasDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
         super(config);
-        int pixelScale = 20;
-        if (chip8Variant != Chip8Variant.CHIP_8) {
-            pixelScale = 10;
-        }
         this.displayAngle = config.getDisplayAngle();
-
-        int windowWidth = pixelScale;
-        int windowHeight = pixelScale;
-        switch (displayAngle) {
+        int windowWidth;
+        int windowHeight;
+        this.pixelScale = switch (displayAngle) {
             case DEG_90, DEG_270 -> {
-                windowWidth *= (int) ((double) this.screenHeight / 1.7);
-                windowHeight *= (int) ((double) this.screenWidth / 1.7);
-                pixelScale /= 1.8;
+                int scale = chip8Variant == Chip8Variant.CHIP_8 ? 11 : 6;
+                windowWidth = this.screenHeight * scale;
+                windowHeight = this.screenWidth * scale;
+                yield scale;
             }
             default -> {
-                windowWidth *= this.screenWidth;
-                windowHeight *= this.screenHeight;
+                int scale = chip8Variant == Chip8Variant.CHIP_8 ? 20 : 10;
+                windowWidth = this.screenWidth * scale;
+                windowHeight = this.screenHeight * scale;
+                yield scale;
             }
-        }
-        this.pixelScale = pixelScale;
+        };
         Dimension windowSize = new Dimension(windowWidth, windowHeight);
         this.renderer = new Renderer();
         this.renderer.setPreferredSize(windowSize);

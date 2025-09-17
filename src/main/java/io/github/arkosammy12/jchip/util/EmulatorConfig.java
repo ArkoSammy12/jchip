@@ -1,9 +1,6 @@
 package io.github.arkosammy12.jchip.util;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import picocli.CommandLine;
 
 import java.io.InputStream;
@@ -30,7 +27,7 @@ public class EmulatorConfig {
     @CommandLine.Option(names = {"--keyboard-layout", "-k"}, defaultValue = "qwerty", converter = KeyboardLayout.Converter.class)
     private KeyboardLayout keyboardLayout;
 
-    @CommandLine.Option(names = {"-a", "--angle"}, defaultValue = "0", converter = DisplayAngle.Converter.class)
+    @CommandLine.Option(names = {"-a", "--angle"}, fallbackValue = CommandLine.Option.NULL_VALUE, converter = DisplayAngle.Converter.class)
     private DisplayAngle displayAngle;
 
     @CommandLine.Option(names = "--vf-reset", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
@@ -131,6 +128,16 @@ public class EmulatorConfig {
                 }
             }
 
+            JsonElement screenRotationElement = this.romObject.get("screenRotation");
+            if (this.displayAngle == null && (screenRotationElement instanceof JsonPrimitive screenRotationPrimitive)) {
+                this.displayAngle = switch (screenRotationPrimitive.getAsInt()) {
+                    case 90 -> DisplayAngle.DEG_90;
+                    case 180 -> DisplayAngle.DEG_180;
+                    case 270 -> DisplayAngle.DEG_270;
+                    default -> DisplayAngle.DEG_0;
+                };
+            }
+
             // First, use the quirks established by the platform obtained via the "platforms" array in the rom object
             JsonObject quirksObject = null;
             if (this.romObject != null && this.romObject.has("platforms")) {
@@ -220,6 +227,10 @@ public class EmulatorConfig {
 
         if (this.colorPalette == null) {
             this.colorPalette = new ColorPalette("cadmium");
+        }
+
+        if (this.displayAngle == null) {
+            this.displayAngle = DisplayAngle.DEG_0;
         }
 
         // CLI provided settings take priority over database ones.
