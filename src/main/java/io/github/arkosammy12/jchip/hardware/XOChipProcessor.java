@@ -122,8 +122,10 @@ public class XOChipProcessor extends SChipProcessor {
         boolean draw16WideSprite = spriteHeight >= 16;
 
         int sliceLength = 8;
+        int baseMask = Chip8Processor.BASE_SLICE_MASK_8;
         if (draw16WideSprite) {
             sliceLength = 16;
+            baseMask = SChipProcessor.BASE_SLICE_MASK_16;
         }
 
         boolean collided = false;
@@ -153,7 +155,7 @@ public class XOChipProcessor extends SChipProcessor {
                 } else {
                     slice = memory.readByte(currentIndexRegister + planeIterator);
                 }
-                for (int j = 0; j < sliceLength; j++) {
+                for (int j = 0, mask = baseMask; j < sliceLength; j++, mask >>>= 1) {
                     int sliceX = spriteX + j;
                     if (sliceX >= logicalScreenWidth) {
                         if (config.doClipping()) {
@@ -162,7 +164,6 @@ public class XOChipProcessor extends SChipProcessor {
                             sliceX %= logicalScreenWidth;
                         }
                     }
-                    int mask = 1 << ((sliceLength - 1) - j);
                     if ((slice & mask) <= 0) {
                         continue;
                     }

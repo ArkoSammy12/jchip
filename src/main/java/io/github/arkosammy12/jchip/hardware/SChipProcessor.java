@@ -9,6 +9,8 @@ import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 
 public class SChipProcessor extends Chip8Processor {
 
+    public static final int BASE_SLICE_MASK_16 = 1 << 15;
+
     protected boolean isModern;
 
     public SChipProcessor(Emulator emulator) {
@@ -104,8 +106,10 @@ public class SChipProcessor extends Chip8Processor {
         boolean addBottomClippedRows = !isModern && extendedMode;
 
         int sliceLength = 8;
+        int baseMask = Chip8Processor.BASE_SLICE_MASK_8;
         if (draw16WideSprite) {
             sliceLength = 16;
+            baseMask = BASE_SLICE_MASK_16;
         }
 
         int collisionCounter = 0;
@@ -133,7 +137,7 @@ public class SChipProcessor extends Chip8Processor {
                 slice = memory.readByte(currentIndexRegister + i);
             }
             boolean rowCollided = false;
-            for (int j = 0; j < sliceLength; j++) {
+            for (int j = 0, mask = baseMask; j < sliceLength; j++, mask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= logicalScreenWidth) {
                     if (config.doClipping()) {
@@ -142,7 +146,6 @@ public class SChipProcessor extends Chip8Processor {
                         sliceX %= logicalScreenWidth;
                     }
                 }
-                int mask = 1 << ((sliceLength - 1) - j);
                 if ((slice & mask) <= 0) {
                     continue;
                 }

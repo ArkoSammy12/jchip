@@ -15,6 +15,8 @@ public class Chip8Processor implements Processor {
     public static final int DRAW_EXECUTED = 1 << 2;
     public static final int LONG_DRAW_EXECUTED = 1 << 3;
 
+    public static final int BASE_SLICE_MASK_8 = 1 << 7;
+
     protected final Emulator emulator;
     private final int[] registers = new int[16];
     private final int[] flagsStorage = new int[16];
@@ -378,7 +380,7 @@ public class Chip8Processor implements Processor {
                 }
             }
             int slice = memory.readByte(currentIndexRegister + i);
-            for (int j = 0; j < 8; j++) {
+            for (int j = 0, mask = BASE_SLICE_MASK_8; j < 8; j++, mask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= logicalScreenWidth) {
                     if (config.doClipping()) {
@@ -387,7 +389,6 @@ public class Chip8Processor implements Processor {
                         sliceX %= logicalScreenWidth;
                     }
                 }
-                int mask = 1 << (7 - j);
                 if ((slice & mask) <= 0) {
                     continue;
                 }
