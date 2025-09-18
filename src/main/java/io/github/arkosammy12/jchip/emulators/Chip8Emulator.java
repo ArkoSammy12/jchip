@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class Chip8Emulator implements Emulator {
 
-    private static final int IPF_THROTTLE_THRESHOLD = 100000;
+    private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
     protected final Processor processor;
     private final Memory memory;
