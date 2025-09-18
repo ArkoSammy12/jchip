@@ -9,7 +9,7 @@ public class Main {
 
     public static final int FRAMES_PER_SECOND = 60;
     public static final long FRAME_INTERVAL = 1_000_000_000L / FRAMES_PER_SECOND;
-    public static final String VERSION_STRING = "v1.1.0";
+    public static final String VERSION_STRING = "v1.1.1";
 
     public static void main(String[] args) {
         try (Emulator emulator = Chip8Variant.getEmulatorForVariant(new EmulatorConfig(args))) {
