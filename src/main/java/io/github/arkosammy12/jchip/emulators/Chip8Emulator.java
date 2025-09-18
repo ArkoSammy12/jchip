@@ -9,6 +9,8 @@ import java.io.IOException;
 
 public class Chip8Emulator implements Emulator {
 
+    private static final int IPF_THROTTLE_THRESHOLD = 100000;
+
     protected final Processor processor;
     private final Memory memory;
     private final Display display;
@@ -20,6 +22,8 @@ public class Chip8Emulator implements Emulator {
     protected int currentInstructionsPerFrame;
     protected final boolean displayWaitEnabled;
     private boolean isTerminated = false;
+
+    private int waitFrames = 0;
 
     public Chip8Emulator(EmulatorConfig emulatorConfig) throws Exception {
         try {
@@ -96,13 +100,20 @@ public class Chip8Emulator implements Emulator {
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
         long frameTime = endOfFrame - startOfFrame;
-        long adjust = (frameTime - Main.FRAME_INTERVAL) / 100;
-        this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
+        if (this.targetInstructionsPerFrame >= IPF_THROTTLE_THRESHOLD) {
+            long adjust = (frameTime - Main.FRAME_INTERVAL) / 100;
+            this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
+        }
     }
 
     protected void runInstructionLoop() throws InvalidInstructionException {
+        this.processor.decrementTimers();
+        if (this.waitFrames > 0) {
+            this.waitFrames--;
+            return;
+        }
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-            int flags = this.processor.cycle(i < 1);
+            int flags = this.processor.cycle();
             if (this.waitForVBlank(flags)) {
                 break;
             }
@@ -118,7 +129,15 @@ public class Chip8Emulator implements Emulator {
     }
 
     protected boolean waitForVBlank(int flags) {
-        return this.config.doDisplayWait() && (flags & Chip8Processor.DRAW_EXECUTED) != 0;
+        if (this.config.doDisplayWait()) {
+            if ((flags & Chip8Processor.DRAW_EXECUTED) != 0) {
+                return true;
+            } else if ((flags & Chip8Processor.LONG_DRAW_EXECUTED) != 0) {
+                this.waitFrames = 1;
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

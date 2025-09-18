@@ -6,11 +6,13 @@ public interface Processor {
 
     int getProgramCounter();
 
+    void decrementTimers();
+
     int getDelayTimer();
 
     int getSoundTimer();
 
-    int cycle(boolean sixtiethOfASecond) throws InvalidInstructionException;
+    int cycle() throws InvalidInstructionException;
 
     boolean shouldTerminate();
 

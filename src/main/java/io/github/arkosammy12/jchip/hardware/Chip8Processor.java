@@ -13,6 +13,7 @@ public class Chip8Processor implements Processor {
     public static final int HANDLED = 1;
     public static final int SKIP_TAKEN = 1 << 1;
     public static final int DRAW_EXECUTED = 1 << 2;
+    public static final int LONG_DRAW_EXECUTED = 1 << 3;
 
     protected final Emulator emulator;
     private final int[] registers = new int[16];
@@ -116,10 +117,7 @@ public class Chip8Processor implements Processor {
     }
 
     @Override
-    public int cycle(boolean sixtiethOfASecond) throws InvalidInstructionException {
-        if (sixtiethOfASecond) {
-            this.decrementTimers();
-        }
+    public int cycle() throws InvalidInstructionException {
         Memory memory = this.emulator.getMemory();
         int programCounter = this.getProgramCounter();
         int firstByte = memory.readByte(programCounter);
@@ -128,7 +126,8 @@ public class Chip8Processor implements Processor {
         return this.execute(firstByte, secondByte);
     }
 
-    private void decrementTimers() {
+    @Override
+    public void decrementTimers() {
         if (this.getDelayTimer() > 0) {
             this.delayTimer -= 1;
         }
@@ -344,6 +343,7 @@ public class Chip8Processor implements Processor {
     // DXYN
     @SuppressWarnings("DuplicatedCode")
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
+        int flags = HANDLED;
         Display display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
@@ -354,6 +354,16 @@ public class Chip8Processor implements Processor {
 
         int spriteX = this.getRegister(secondNibble) % logicalScreenWidth;
         int spriteY = this.getRegister(thirdNibble) % logicalScreenHeight;
+
+        // On the COSMAC VIP CHIP-8, DXYN can take a different amount of frames.
+        // The following is a heuristic for a simplified way of determining whether this draw should take
+        // 1 or 2 frames if the display wait quirk is enabled.
+        // Courtesy of Steffen Schümann (@gulrak)
+        if (fourthNibble > 4 && (fourthNibble + (spriteX & 7) > 9)) {
+            flags |= LONG_DRAW_EXECUTED;
+        } else {
+            flags |= DRAW_EXECUTED;
+        }
 
         boolean collided = false;
         this.setVF(false);
@@ -385,7 +395,7 @@ public class Chip8Processor implements Processor {
             }
         }
         this.setVF(collided);
-        return HANDLED | DRAW_EXECUTED;
+        return flags;
     }
 
     protected int executeSkipIfKey(int secondNibble, int secondByte) {
