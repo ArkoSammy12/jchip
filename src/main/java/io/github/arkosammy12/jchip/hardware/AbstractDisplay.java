@@ -26,6 +26,8 @@ public abstract class AbstractDisplay implements Display {
     private long totalIpfSinceLastUpdate = 0;
     private double totalFrameTimeSinceLastUpdate = 0;
 
+    private final StringBuilder stringBuilder = new StringBuilder(128);
+
     public AbstractDisplay(EmulatorConfig config) {
         String romTitle = config.getProgramTitle();
         Chip8Variant chip8Variant = config.getConsoleVariant();
@@ -34,7 +36,7 @@ public abstract class AbstractDisplay implements Display {
         if (romTitle == null) {
             this.romTitle = "";
         } else {
-            this.romTitle = "| " + romTitle + " ";
+            this.romTitle = " | " + romTitle;
         }
         if (chip8Variant == Chip8Variant.CHIP_8) {
             this.screenWidth = 64;
@@ -88,26 +90,17 @@ public abstract class AbstractDisplay implements Display {
         if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
             return false;
         }
-        boolean pixelSet = this.getPixel(bitPlaneIndex, column, row);
-        boolean newPixel = true;
-        boolean collided = false;
-        if (pixelSet) {
-            newPixel = false;
-            collided = true;
-        }
-        this.setPixel(bitPlaneIndex, column, row, newPixel);
-        return collided;
+        boolean currentPixel = this.getPixel(bitPlaneIndex, column, row);
+        this.setPixel(bitPlaneIndex, column, row, !currentPixel);
+        return currentPixel;
     }
 
     public void setPixel(int bitPlaneIndex, int column, int row, boolean value) {
-        int mask = 1 << bitPlaneIndex;
-        int newPixel = frameBuffer[column][row];
         if (value) {
-            newPixel |= mask;
+            frameBuffer[column][row] |= 1 << bitPlaneIndex;
         } else {
-            newPixel &= ~mask;
+            frameBuffer[column][row] &= ~(1 << bitPlaneIndex);
         }
-        frameBuffer[column][row] = newPixel;
     }
 
     @Override
@@ -296,14 +289,19 @@ public abstract class AbstractDisplay implements Display {
         this.totalFrameTimeSinceLastUpdate = 0;
         this.totalIpfSinceLastUpdate = 0;
         this.lastWindowTitleUpdate = now;
-        return String.format("jchip %s | %s %s| IPF: %d | MIPS: %.2f | Frame Time: %.2f ms | FPS: %.2f",
-                Main.VERSION_STRING,
-                this.chip8Variant.getDisplayName(),
-                this.romTitle,
-                averageInstructionsPerFrame,
-                mips,
-                averageFrameTimeMs,
-                lastFps);
+
+        stringBuilder.append("jchip ").append(Main.VERSION_STRING)
+                .append(" | ").append(chip8Variant.getDisplayName())
+                .append(romTitle)
+                .append(" | IPF: ").append(averageInstructionsPerFrame)
+                .append(" | MIPS: ").append((long)(mips * 100) / 100.0)  // round to 2 decimals
+                .append(" | Frame Time: ").append((long)(averageFrameTimeMs * 100) / 100.0)
+                .append(" ms | FPS: ").append((long)(lastFps * 100) / 100.0);
+
+        String titleString = stringBuilder.toString();
+        stringBuilder.setLength(0);
+        return titleString;
+
     }
 
 }
