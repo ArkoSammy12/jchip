@@ -58,7 +58,7 @@ public class Chip8Display extends AbstractDisplay {
         for (int y = 0; y < screenHeight; y++) {
             int base = y * screenWidth;
             for (int x = 0; x < screenWidth; x++) {
-                buffer[base + x] = colorPalette.getIntColor(frameBuffer[x][y] & 0xF);
+                buffer[base + x] = colorPalette.getColorARGB(frameBuffer[x][y] & 0xF);
             }
         }
     }

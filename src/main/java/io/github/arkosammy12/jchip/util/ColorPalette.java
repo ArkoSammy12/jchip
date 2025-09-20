@@ -1,10 +1,6 @@
 package io.github.arkosammy12.jchip.util;
 
-import com.googlecode.lanterna.TextCharacter;
-import com.googlecode.lanterna.TextColor;
 import picocli.CommandLine;
-
-import java.awt.*;
 
 public class ColorPalette {
 
@@ -65,9 +61,8 @@ public class ColorPalette {
             0xff55ffff, 0x55ffffff, 0xaa00aaff, 0x00aaaaff
     };
 
-    private final TextCharacter[] textCharacterColors = new TextCharacter[16];
-    private final Color[] awtColors = new Color[16];
-    private final int[] intColors = new int[16];
+    private final int[] argbColors = new int[16];
+    private final int[] rgbaColors = new int[16];
 
     public ColorPalette(String colorPalette) {
         int[] chosenPalette = switch (colorPalette) {
@@ -83,15 +78,15 @@ public class ColorPalette {
         };
         for (int i = 0; i < chosenPalette.length; i++) {
             int color = chosenPalette[i];
+
             int r = (color >> 24) & 0xFF;
             int g = (color >> 16) & 0xFF;
             int b = (color >> 8) & 0xFF;
+            int a = color & 0xFF;
 
-            this.awtColors[i] = new Color(r, g, b);
-            this.intColors[i] = (r << 16) | (g << 8) | b;
-            this.textCharacterColors[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
+            this.argbColors[i] = (a << 24) | (r << 16) | (g << 8) | b;
+            this.rgbaColors[i] = color;
         }
-
     }
 
     public ColorPalette(String colorPalette, int[][] customPixelColors) {
@@ -99,29 +94,24 @@ public class ColorPalette {
         if (customPixelColors == null) {
             return;
         }
-        for (int i = 0; i < customPixelColors.length; i++) {
-            if (i > 15) {
-                break;
-            }
+        for (int i = 0; i < customPixelColors.length && i < 16; i++) {
             int r = customPixelColors[i][0];
             int g = customPixelColors[i][1];
             int b = customPixelColors[i][2];
-            this.awtColors[i] = new Color(r, g, b);
-            this.intColors[i] = (r << 16) | (g << 8) | b;
-            this.textCharacterColors[i] = TextCharacter.fromCharacter('█')[0].withForegroundColor(new TextColor.RGB(r, g, b));
+            int a = 0xFF;
+
+            this.argbColors[i] = (a << 24) | (r << 16) | (g << 8) | b;
+            this.rgbaColors[i] = (r << 24) | (g << 16) | (b << 8) | a;
         }
     }
 
-    public TextCharacter getTextCharacterColor(int colorIndex) {
-        return this.textCharacterColors[colorIndex];
+
+    public int getColorARGB(int colorIndex) {
+        return this.argbColors[colorIndex];
     }
 
-    public Color getAwtColor(int colorIndex) {
-        return this.awtColors[colorIndex];
-    }
-
-    public int getIntColor(int colorIndex) {
-        return this.intColors[colorIndex];
+    public int getColorRGBA(int colorIndex) {
+        return this.rgbaColors[colorIndex];
     }
 
     public static class Converter implements CommandLine.ITypeConverter<ColorPalette> {

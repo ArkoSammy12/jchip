@@ -149,7 +149,7 @@ public abstract class AbstractDisplay implements Display {
         private final AffineTransform imageTransform;
 
         private Renderer() {
-            backBuffer = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
+            backBuffer = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
             imageTransform = new AffineTransform();
             int scaledWidth = screenWidth * pixelScale;
             int scaledHeight = screenHeight * pixelScale;
