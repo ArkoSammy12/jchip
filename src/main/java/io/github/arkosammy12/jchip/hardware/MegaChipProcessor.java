@@ -53,7 +53,7 @@ public class MegaChipProcessor extends SChipProcessor {
             case 0x5 -> { // 05NN: Set screen alpha to NN
 
             }
-            case 0x6 -> { // 06NZ: Play digitized sound at I. On the Mega8, play audio once if N = 1, and loop if N = 0. On MEGA-CHIP8, ignore N.
+            case 0x6 -> { // 06NU: Play digitized sound at I. On the Mega8, play audio once if N = 1, and loop if N = 0. On MEGA-CHIP8, ignore N.
 
             }
             case 0x7 -> { // 0700: Stop digitized sound
