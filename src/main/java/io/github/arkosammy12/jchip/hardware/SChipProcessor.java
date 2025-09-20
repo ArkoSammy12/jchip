@@ -1,11 +1,11 @@
 package io.github.arkosammy12.jchip.hardware;
 
-import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
+import io.github.arkosammy12.jchip.video.SChipDisplay;
 
 public class SChipProcessor extends Chip8Processor {
 
@@ -20,6 +20,10 @@ public class SChipProcessor extends Chip8Processor {
         }
     }
 
+    private SChipEmulator getEmulator() {
+        return ((SChipEmulator) this.emulator);
+    }
+
     @Override
     protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
         int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
@@ -27,7 +31,7 @@ public class SChipProcessor extends Chip8Processor {
             return flagsSuper;
         }
         int flags = HANDLED;
-        Display display = this.emulator.getDisplay();
+        SChipDisplay display = this.getEmulator().getDisplay();
         switch (thirdNibble) {
             case 0xC -> { // 00CN: Scroll screen down
                 if (fourthNibble <= 0 && !isModern) {
@@ -81,7 +85,7 @@ public class SChipProcessor extends Chip8Processor {
     // DXYN
     @SuppressWarnings("DuplicatedCode")
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
-        Display display = this.emulator.getDisplay();
+        SChipDisplay display = this.getEmulator().getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         boolean extendedMode = display.isExtendedMode();
@@ -92,8 +96,8 @@ public class SChipProcessor extends Chip8Processor {
             spriteHeight = 16;
         }
 
-        int logicalScreenWidth = display.getFrameBufferWidth();
-        int logicalScreenHeight = display.getFrameBufferHeight();
+        int logicalScreenWidth = display.getWidth();
+        int logicalScreenHeight = display.getHeight();
         if (!extendedMode) {
             logicalScreenWidth /= 2;
             logicalScreenHeight /= 2;
@@ -137,7 +141,7 @@ public class SChipProcessor extends Chip8Processor {
                 slice = memory.readByte(currentIndexRegister + i);
             }
             boolean rowCollided = false;
-            for (int j = 0, mask = baseMask; j < sliceLength; j++, mask >>>= 1) {
+            for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= logicalScreenWidth) {
                     if (config.doClipping()) {
@@ -146,18 +150,18 @@ public class SChipProcessor extends Chip8Processor {
                         sliceX %= logicalScreenWidth;
                     }
                 }
-                if ((slice & mask) <= 0) {
+                if ((slice & sliceMask) <= 0) {
                     continue;
                 }
                 if (extendedMode) {
-                    rowCollided |= display.togglePixel(0, sliceX, sliceY);
+                    rowCollided |= display.togglePixel(sliceX, sliceY);
                 } else {
                     int scaledSliceX = sliceX * 2;
                     int scaledSliceY = sliceY * 2;
-                    rowCollided |= display.togglePixel(0, scaledSliceX, scaledSliceY);
-                    rowCollided |= display.togglePixel(0, scaledSliceX + 1, scaledSliceY);
-                    display.togglePixel(0, scaledSliceX, scaledSliceY + 1);
-                    display.togglePixel(0, scaledSliceX + 1, scaledSliceY + 1);
+                    rowCollided |= display.togglePixel(scaledSliceX, scaledSliceY);
+                    rowCollided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
+                    display.togglePixel(scaledSliceX, scaledSliceY + 1);
+                    display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
                 }
             }
             if (!isModern) {
@@ -166,8 +170,8 @@ public class SChipProcessor extends Chip8Processor {
                     int x2 = Math.min(x1 + 32, logicalScreenWidth * 2);
                     int scaledSliceY = sliceY * 2;
                     for (int j = x1; j < x2; j++) {
-                        boolean pixel = display.getPixel(0, j, scaledSliceY);
-                        display.setPixel(0, j, scaledSliceY + 1, pixel);
+                        int pixel = display.getPixel(j, scaledSliceY);
+                        display.setPixel(j, scaledSliceY + 1, pixel);
                     }
                     if (rowCollided) {
                         collisionCounter = 1;
@@ -207,5 +211,6 @@ public class SChipProcessor extends Chip8Processor {
         }
         return flags;
     }
+
 
 }

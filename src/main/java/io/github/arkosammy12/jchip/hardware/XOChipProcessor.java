@@ -1,17 +1,22 @@
 package io.github.arkosammy12.jchip.hardware;
 
 import io.github.arkosammy12.jchip.base.SoundSystem;
-import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.base.Memory;
+import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
+import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
 public class XOChipProcessor extends SChipProcessor {
 
     public XOChipProcessor(Emulator emulator) {
         super(emulator);
         this.isModern = true;
+    }
+
+    private XOChipEmulator getEmulator() {
+        return ((XOChipEmulator) this.emulator);
     }
 
     @Override
@@ -21,9 +26,8 @@ public class XOChipProcessor extends SChipProcessor {
             return flagsSuper;
         }
         int flags = Chip8Processor.HANDLED;
-        Display display = this.emulator.getDisplay();
         if (thirdNibble == 0xD) {// OODN: Scroll screen up
-            display.scrollUp(fourthNibble);
+            this.getEmulator().getDisplay().scrollUp(fourthNibble);
         } else {
             flags &= ~Chip8Processor.HANDLED;
         }
@@ -97,7 +101,7 @@ public class XOChipProcessor extends SChipProcessor {
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
-        Display display = this.emulator.getDisplay();
+        XOChipDisplay display = this.getEmulator().getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         boolean extendedMode = display.isExtendedMode();
@@ -109,8 +113,8 @@ public class XOChipProcessor extends SChipProcessor {
             spriteHeight = 16;
         }
 
-        int logicalScreenWidth = display.getFrameBufferWidth();
-        int logicalScreenHeight = display.getFrameBufferHeight();
+        int logicalScreenWidth = display.getWidth();
+        int logicalScreenHeight = display.getHeight();
         if (!extendedMode) {
             logicalScreenWidth /= 2;
             logicalScreenHeight /= 2;
@@ -132,9 +136,8 @@ public class XOChipProcessor extends SChipProcessor {
         int planeIterator = 0;
         this.setVF(false);
 
-        for (int bitPlane = 0; bitPlane < 4; bitPlane++) {
-            int bitPlaneMask = 1 << bitPlane;
-            if ((bitPlaneMask & selectedBitPlanes) <= 0) {
+        for (int bitPlaneMask = 1; bitPlaneMask <= XOChipDisplay.BITPLANE_BASE_MASK; bitPlaneMask <<= 1) {
+            if ((bitPlaneMask & selectedBitPlanes) == 0) {
                 continue;
             }
             for (int i = 0; i < spriteHeight; i++) {
@@ -155,7 +158,7 @@ public class XOChipProcessor extends SChipProcessor {
                 } else {
                     slice = memory.readByte(currentIndexRegister + planeIterator);
                 }
-                for (int j = 0, mask = baseMask; j < sliceLength; j++, mask >>>= 1) {
+                for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                     int sliceX = spriteX + j;
                     if (sliceX >= logicalScreenWidth) {
                         if (config.doClipping()) {
@@ -164,18 +167,18 @@ public class XOChipProcessor extends SChipProcessor {
                             sliceX %= logicalScreenWidth;
                         }
                     }
-                    if ((slice & mask) <= 0) {
+                    if ((slice & sliceMask) <= 0) {
                         continue;
                     }
                     if (extendedMode) {
-                        collided |= display.togglePixel(bitPlane, sliceX, sliceY);
+                        collided |= display.togglePixelAtBitPlanes(bitPlaneMask, sliceX, sliceY);
                     } else {
                         int scaledSliceX = sliceX * 2;
                         int scaledSliceY = sliceY * 2;
-                        collided |= display.togglePixel(bitPlane, scaledSliceX, scaledSliceY);
-                        collided |= display.togglePixel(bitPlane, scaledSliceX + 1, scaledSliceY);
-                        display.togglePixel(bitPlane, scaledSliceX, scaledSliceY + 1);
-                        display.togglePixel(bitPlane, scaledSliceX + 1, scaledSliceY + 1);
+                        collided |= display.togglePixelAtBitPlanes(bitPlaneMask, scaledSliceX, scaledSliceY);
+                        collided |= display.togglePixelAtBitPlanes(bitPlaneMask, scaledSliceX + 1, scaledSliceY);
+                        display.togglePixelAtBitPlanes(bitPlaneMask, scaledSliceX, scaledSliceY + 1);
+                        display.togglePixelAtBitPlanes(bitPlaneMask, scaledSliceX + 1, scaledSliceY + 1);
                     }
                 }
                 planeIterator++;
@@ -212,7 +215,7 @@ public class XOChipProcessor extends SChipProcessor {
                 this.incrementProgramCounter();
             }
             case 0x01 -> { // FX01: Set selected bit planes
-                this.emulator.getDisplay().setSelectedBitPlanes(secondNibble);
+                this.getEmulator().getDisplay().setSelectedBitPlanes(secondNibble);
             }
             case 0x02 -> { // F002: Load audio pattern
                 if (secondNibble != 0) {

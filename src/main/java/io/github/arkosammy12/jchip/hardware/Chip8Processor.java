@@ -2,8 +2,10 @@ package io.github.arkosammy12.jchip.hardware;
 
 import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.base.Memory;
+import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
+import io.github.arkosammy12.jchip.video.Chip8Display;
 
 import java.util.List;
 import java.util.Random;
@@ -17,7 +19,7 @@ public class Chip8Processor implements Processor {
 
     public static final int BASE_SLICE_MASK_8 = 1 << 7;
 
-    protected final Emulator emulator;
+    protected final Chip8Emulator emulator;
     private final int[] registers = new int[16];
     private final int[] flagsStorage = new int[16];
     private final int[] stack = new int[16];
@@ -30,7 +32,7 @@ public class Chip8Processor implements Processor {
     protected boolean shouldTerminate;
 
     public Chip8Processor(Emulator emulator) {
-        this.emulator = emulator;
+        this.emulator = (Chip8Emulator) emulator;
     }
 
     protected void setProgramCounter(int programCounter) {
@@ -346,13 +348,13 @@ public class Chip8Processor implements Processor {
     @SuppressWarnings("DuplicatedCode")
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
         int flags = HANDLED;
-        Display display = this.emulator.getDisplay();
+        Chip8Display display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         int currentIndexRegister = this.getIndexRegister();
 
-        int logicalScreenWidth = display.getFrameBufferWidth();
-        int logicalScreenHeight = display.getFrameBufferHeight();
+        int logicalScreenWidth = display.getWidth();
+        int logicalScreenHeight = display.getHeight();
 
         int spriteX = this.getRegister(secondNibble) % logicalScreenWidth;
         int spriteY = this.getRegister(thirdNibble) % logicalScreenHeight;
@@ -380,7 +382,7 @@ public class Chip8Processor implements Processor {
                 }
             }
             int slice = memory.readByte(currentIndexRegister + i);
-            for (int j = 0, mask = BASE_SLICE_MASK_8; j < 8; j++, mask >>>= 1) {
+            for (int j = 0, sliceMask = BASE_SLICE_MASK_8; j < 8; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= logicalScreenWidth) {
                     if (config.doClipping()) {
@@ -389,10 +391,10 @@ public class Chip8Processor implements Processor {
                         sliceX %= logicalScreenWidth;
                     }
                 }
-                if ((slice & mask) <= 0) {
+                if ((slice & sliceMask) <= 0) {
                     continue;
                 }
-                collided |= display.togglePixel(0, sliceX, sliceY);
+                collided |= display.togglePixel(sliceX, sliceY);
             }
         }
         this.setVF(collided);

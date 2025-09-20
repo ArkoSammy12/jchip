@@ -4,8 +4,10 @@ import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.hardware.*;
 import io.github.arkosammy12.jchip.util.*;
+import io.github.arkosammy12.jchip.video.Chip8Display;
+import io.github.arkosammy12.jchip.video.Display;
 
-import java.io.IOException;
+import java.awt.event.KeyAdapter;
 
 public class Chip8Emulator implements Emulator {
 
@@ -13,7 +15,7 @@ public class Chip8Emulator implements Emulator {
 
     protected final Processor processor;
     private final Memory memory;
-    private final Display display;
+    protected final Display display;
     private final KeyState keyState;
     private final SoundSystem soundSystem;
     private final Chip8Variant chip8Variant;
@@ -34,7 +36,7 @@ public class Chip8Emulator implements Emulator {
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keyState = new KeyState(this.config.getKeyboardLayout());
             this.soundSystem = new Chip8SoundSystem(this.chip8Variant);
-            this.display = new CanvasDisplay(config, this.keyState);
+            this.display = this.createDisplay(config, keyState);
             this.memory = new Chip8Memory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
             this.processor = this.createProcessor();
         } catch (Exception e) {
@@ -58,8 +60,12 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public Display getDisplay() {
-        return this.display;
+    public Chip8Display getDisplay() {
+        return ((Chip8Display) this.display);
+    }
+
+    protected Display createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
+        return new Chip8Display(emulatorConfig, keyAdapter);
     }
 
     @Override
@@ -93,7 +99,7 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public void tick() throws IOException, InvalidInstructionException {
+    public void tick() throws InvalidInstructionException {
         long startOfFrame = System.nanoTime();
         this.runInstructionLoop();
         this.getDisplay().flush(this.currentInstructionsPerFrame);

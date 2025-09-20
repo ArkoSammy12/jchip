@@ -1,5 +1,7 @@
-package io.github.arkosammy12.jchip.hardware;
+package io.github.arkosammy12.jchip.video;
 
+import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
@@ -12,32 +14,56 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-public class CanvasDisplay extends AbstractDisplay {
+public abstract class AbstractDisplay implements Display {
+
+    private final CharacterSpriteFont characterSpriteFont;
+    protected final Chip8Variant chip8Variant;
+
+    protected final int screenWidth;
+    protected final int screenHeight;
+    private final int pixelScale;
 
     private final Renderer renderer;
     private final JFrame frame;
     private final DisplayAngle displayAngle;
-    private final int pixelScale;
 
-    public CanvasDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
-        super(config);
+    private final String romTitle;
+    private long lastWindowTitleUpdate = 0;
+    private long lastFrameTime = System.nanoTime();
+    private int framesSinceLastUpdate = 0;
+    private long totalIpfSinceLastUpdate = 0;
+    private double totalFrameTimeSinceLastUpdate = 0;
+
+    private final StringBuilder stringBuilder = new StringBuilder(128);
+
+    public AbstractDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
+
+        String romTitle = config.getProgramTitle();
+        Chip8Variant chip8Variant = config.getConsoleVariant();
+
+        if (romTitle == null) {
+            this.romTitle = "";
+        } else {
+            this.romTitle = " | " + romTitle;
+        }
+        this.screenWidth = this.getWidth();
+        this.screenHeight = this.getHeight();
+        this.chip8Variant = chip8Variant;
+        this.characterSpriteFont = new CharacterSpriteFont(chip8Variant);
         this.displayAngle = config.getDisplayAngle();
+        this.pixelScale = getPixelScale(this.displayAngle);
         int windowWidth;
         int windowHeight;
-        this.pixelScale = switch (displayAngle) {
+        switch (displayAngle) {
             case DEG_90, DEG_270 -> {
-                int scale = chip8Variant == Chip8Variant.CHIP_8 ? 11 : 6;
-                windowWidth = this.screenHeight * scale;
-                windowHeight = this.screenWidth * scale;
-                yield scale;
+                windowWidth = this.screenHeight * this.pixelScale;
+                windowHeight = this.screenWidth * this.pixelScale;
             }
             default -> {
-                int scale = chip8Variant == Chip8Variant.CHIP_8 ? 20 : 10;
-                windowWidth = this.screenWidth * scale;
-                windowHeight = this.screenHeight * scale;
-                yield scale;
+                windowWidth = this.screenWidth * this.pixelScale;
+                windowHeight = this.screenHeight * this.pixelScale;
             }
-        };
+        }
         Dimension windowSize = new Dimension(windowWidth, windowHeight);
         this.renderer = new Renderer();
         this.renderer.setPreferredSize(windowSize);
@@ -62,12 +88,54 @@ public class CanvasDisplay extends AbstractDisplay {
     }
 
     @Override
+    public CharacterSpriteFont getCharacterSpriteFont() {
+        return this.characterSpriteFont;
+    }
+
+    protected abstract int getPixelScale(DisplayAngle displayAngle);
+
+    protected abstract void populateDataBuffer(int[] buffer);
+
+    @Override
     public void flush(int currentInstructionsPerFrame) {
         this.renderer.render();
         String title = this.getWindowTitle(currentInstructionsPerFrame);
         if (title != null) {
             this.frame.setTitle(title);
         }
+    }
+
+    private String getWindowTitle(int currentInstructionsPerFrame) {
+        long now = System.nanoTime();
+        double lastFrameDuration = now - this.lastFrameTime;
+        this.lastFrameTime = now;
+        this.totalFrameTimeSinceLastUpdate += lastFrameDuration;
+        this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
+        this.framesSinceLastUpdate++;
+        long deltaTime = now - lastWindowTitleUpdate;
+        if (deltaTime < 1_000_000_000L) {
+            return null;
+        }
+        double lastFps = this.framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
+        long averageInstructionsPerFrame = this.totalIpfSinceLastUpdate / this.framesSinceLastUpdate;
+        double averageFrameTimeMs = (this.totalFrameTimeSinceLastUpdate / this.framesSinceLastUpdate) / 1_000_000.0;
+        double mips = (averageInstructionsPerFrame * lastFps) / 1_000_000;
+        this.framesSinceLastUpdate = 0;
+        this.totalFrameTimeSinceLastUpdate = 0;
+        this.totalIpfSinceLastUpdate = 0;
+        this.lastWindowTitleUpdate = now;
+
+        stringBuilder.append("jchip ").append(Main.VERSION_STRING)
+                .append(" | ").append(chip8Variant.getDisplayName())
+                .append(romTitle)
+                .append(" | IPF: ").append(averageInstructionsPerFrame)
+                .append(" | MIPS: ").append((long)(mips * 100) / 100.0)  // round to 2 decimals
+                .append(" | Frame Time: ").append((long)(averageFrameTimeMs * 100) / 100.0)
+                .append(" ms | FPS: ").append((long)(lastFps * 100) / 100.0);
+
+        String titleString = stringBuilder.toString();
+        stringBuilder.setLength(0);
+        return titleString;
     }
 
     @Override
@@ -99,25 +167,12 @@ public class CanvasDisplay extends AbstractDisplay {
                     imageTransform.rotate(Math.toRadians(270));
                 }
             }
-
             imageTransform.scale(pixelScale, pixelScale);
-            int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
-            int defaultColor = colorPalette.getIntColor(0);
-            for (int y = 0; y < screenHeight; y++) {
-                for (int x = 0; x < screenWidth; x++) {
-                    buffer[y * screenWidth + x] = defaultColor;
-                }
-            }
         }
 
         private void render() {
             int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
-            for (int y = 0; y < screenHeight; y++) {
-                int base = y * screenWidth;
-                for (int x = 0; x < screenWidth; x++) {
-                    buffer[base + x] = colorPalette.getIntColor(frameBuffer[x][y] & 0xF);
-                }
-            }
+            populateDataBuffer(buffer);
             BufferStrategy bufferStrategy = getBufferStrategy();
             if (bufferStrategy == null) {
                 createBufferStrategy(3);

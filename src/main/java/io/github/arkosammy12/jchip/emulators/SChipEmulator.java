@@ -5,10 +5,14 @@ import io.github.arkosammy12.jchip.hardware.Chip8Processor;
 import io.github.arkosammy12.jchip.hardware.SChipProcessor;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.video.Display;
+import io.github.arkosammy12.jchip.video.SChipDisplay;
+
+import java.awt.event.KeyAdapter;
 
 public class SChipEmulator extends Chip8Emulator {
 
-    private final boolean isModern;
+    protected boolean isModern;
 
     public SChipEmulator(EmulatorConfig emulatorConfig) throws Exception {
         super(emulatorConfig);
@@ -22,6 +26,16 @@ public class SChipEmulator extends Chip8Emulator {
 
     public boolean isModern() {
         return this.isModern;
+    }
+
+    @Override
+    public SChipDisplay getDisplay() {
+        return ((SChipDisplay) this.display);
+    }
+
+    @Override
+    public Display createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
+        return new SChipDisplay(emulatorConfig, keyAdapter);
     }
 
     @Override
