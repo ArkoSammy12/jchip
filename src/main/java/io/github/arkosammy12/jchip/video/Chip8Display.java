@@ -30,9 +30,6 @@ public class Chip8Display extends AbstractDisplay {
     }
 
     public boolean togglePixel(int column, int row) {
-        if (column >= this.screenWidth || column < 0 || row >= this.screenHeight || row < 0) {
-            return false;
-        }
         int current = this.frameBuffer[column][row];
         this.frameBuffer[column][row] ^= 1;
         return current != 0;
