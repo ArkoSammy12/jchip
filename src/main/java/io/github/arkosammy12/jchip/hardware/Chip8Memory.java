@@ -13,7 +13,9 @@ public class Chip8Memory implements Memory {
         try {
             int[][] smallFont = characterSpriteFont.getSmallFont();
             int[][] bigFont = characterSpriteFont.getBigFont();
-            if (chip8Variant == Chip8Variant.XO_CHIP) {
+            if (chip8Variant == Chip8Variant.MEGA_CHIP) {
+                this.memorySize = 16777216;
+            } else if (chip8Variant == Chip8Variant.XO_CHIP) {
                 this.memorySize = 65536;
             } else {
                 this.memorySize = 4096;

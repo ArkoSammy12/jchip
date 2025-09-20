@@ -264,7 +264,7 @@ public class EmulatorConfig {
         if (this.cliDoShiftVXInPlace.isPresent()) {
             this.doShiftVXInPlace = this.cliDoShiftVXInPlace.get();
         } else {
-            this.doShiftVXInPlace = Objects.requireNonNullElse(doShiftVXInPlace,this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY || this.chip8Variant == Chip8Variant.SUPER_CHIP_MODERN);
+            this.doShiftVXInPlace = Objects.requireNonNullElse(doShiftVXInPlace,this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY || this.chip8Variant == Chip8Variant.SUPER_CHIP_MODERN || this.chip8Variant == Chip8Variant.MEGA_CHIP);
         }
         if (this.cliDoJumpWithVX.isPresent()) {
             this.doJumpWithVX = this.cliDoJumpWithVX.get();

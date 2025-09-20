@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.util;
 
 import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import picocli.CommandLine;
@@ -10,7 +11,8 @@ public enum Chip8Variant {
     CHIP_8("chip-8", "CHIP-8", 15),
     SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", 30),
     SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", 30),
-    XO_CHIP("xo-chip", "XO-CHIP", 1000);
+    XO_CHIP("xo-chip", "XO-CHIP", 1000),
+    MEGA_CHIP("mega-chip", "MEGA-CHIP", 1000);
 
     private final String identifier;
     private final String displayName;
@@ -36,6 +38,7 @@ public enum Chip8Variant {
             case "originalChip8", "modernChip8", "chip48" -> Chip8Variant.CHIP_8;
             case "superchip1", "superchip" -> Chip8Variant.SUPER_CHIP_LEGACY;
             case "xochip" -> Chip8Variant.XO_CHIP;
+            case "megachip8" -> Chip8Variant.MEGA_CHIP;
             default -> throw new IllegalArgumentException("Unsupported chip-8 variant: " + id);
         };
     }
@@ -45,6 +48,7 @@ public enum Chip8Variant {
         return switch (chip8Variant) {
             case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator(emulatorConfig);
             case XO_CHIP -> new XOChipEmulator(emulatorConfig);
+            case MEGA_CHIP -> new MegaChipEmulator(emulatorConfig);
             default -> new Chip8Emulator(emulatorConfig);
         };
     }
