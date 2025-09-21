@@ -6,6 +6,7 @@ import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.hardware.KeyState;
 import io.github.arkosammy12.jchip.video.Display;
 
+import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
 
 public interface Emulator extends AutoCloseable {
@@ -24,7 +25,7 @@ public interface Emulator extends AutoCloseable {
 
     EmulatorConfig getEmulatorConfig();
 
-    void tick() throws IOException, InvalidInstructionException;
+    void tick() throws IOException, InvalidInstructionException, LineUnavailableException;
 
     void terminate();
 

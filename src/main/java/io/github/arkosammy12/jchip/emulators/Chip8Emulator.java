@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 import io.github.arkosammy12.jchip.video.Display;
 
+import javax.sound.sampled.LineUnavailableException;
 import java.awt.event.KeyAdapter;
 
 public class Chip8Emulator implements Emulator {
@@ -99,7 +100,7 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public void tick() throws InvalidInstructionException {
+    public void tick() throws InvalidInstructionException, LineUnavailableException {
         long startOfFrame = System.nanoTime();
         this.runInstructionLoop();
         this.getDisplay().flush(this.currentInstructionsPerFrame);
@@ -112,7 +113,7 @@ public class Chip8Emulator implements Emulator {
         }
     }
 
-    protected void runInstructionLoop() throws InvalidInstructionException {
+    protected void runInstructionLoop() throws InvalidInstructionException, LineUnavailableException {
         this.processor.decrementTimers();
         if (this.waitFrames > 0) {
             this.waitFrames--;
@@ -153,6 +154,9 @@ public class Chip8Emulator implements Emulator {
         }
         if (this.soundSystem != null) {
             this.soundSystem.close();
+        }
+        if (this.processor != null) {
+            this.processor.close();
         }
     }
 

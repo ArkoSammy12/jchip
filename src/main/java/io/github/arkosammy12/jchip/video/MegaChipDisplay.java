@@ -23,7 +23,7 @@ public class MegaChipDisplay extends SChipDisplay {
     public MegaChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
         super(config, keyAdapter);
         this.colorPalette[0] = 0x00000000;
-        this.colorPalette[255] = 0x00FFFFFF;
+        this.colorPalette[255] = 0xFFFFFFFF;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     public void loadPaletteEntry(int index, int argb) {
-        if (index < 1 || index > 254) {
+        if (index < 1) {
             return;
         }
         this.colorPalette[index] = argb ;
@@ -105,24 +105,20 @@ public class MegaChipDisplay extends SChipDisplay {
 
     @Override
     public void setPixel(int column, int row, int val) {
-
         if (!isMegaChipModeEnabled()) {
             super.setPixel(column, row, val);
             return;
         }
-
-        int src = this.colorPalette[val];       // New pixel color
-        int dst = this.backBuffer[column][row]; // Existing pixel color
-
+        int src = this.colorPalette[val];
+        int dst = this.backBuffer[column][row];
         int result = switch (this.blendMode) {
-            case BLEND_NORMAL -> src; // Overwrite
-            case BLEND_25 -> blendAlpha(src, dst, 64); // 25% src
-            case BLEND_50 -> blendAlpha(src, dst, 128); // 50% src
-            case BLEND_75 -> blendAlpha(src, dst, 192); // 75% src
+            case BLEND_NORMAL -> src;
+            case BLEND_25 -> blendAlpha(src, dst, 64);
+            case BLEND_50 -> blendAlpha(src, dst, 128);
+            case BLEND_75 -> blendAlpha(src, dst, 192);
             case BLEND_ADD -> addColors(src, dst);
             case BLEND_MULTIPLY -> multiplyColors(src, dst);
         };
-
         this.backBuffer[column][row] = result;
         this.indexBuffer[column][row] = val;
     }

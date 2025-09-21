@@ -200,7 +200,7 @@ public class SChipProcessor extends Chip8Processor {
                 int character = vX & 0xF;
                 int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getBigFontCharacterSpriteOffset(character);
                 this.setIndexRegister(spriteOffset);
-                flags |= Chip8Processor.CHAR_SPRITE_INS_EXECUTED;
+                flags |= Chip8Processor.MEGA_DRAW_FONT_EXPECTED;
             }
             case 0x75 -> { // FX75: Store registers to flags storage
                 this.saveRegistersToFlags(secondNibble);

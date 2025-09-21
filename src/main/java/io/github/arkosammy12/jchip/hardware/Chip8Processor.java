@@ -17,7 +17,7 @@ public class Chip8Processor implements Processor {
     public static final int DRAW_EXECUTED = 1 << 2;
     public static final int LONG_DRAW_EXECUTED = 1 << 3;
     public static final int GET_KEY_EXECUTED = 1 << 4;
-    public static final int CHAR_SPRITE_INS_EXECUTED = 1 << 5;
+    public static final int MEGA_DRAW_FONT_EXPECTED = 1 << 5;
     public static final int CLS_EXECUTED = 1 << 6;
 
     public static final int BASE_SLICE_MASK_8 = 1 << 7;
@@ -474,7 +474,7 @@ public class Chip8Processor implements Processor {
                 int character = vX & 0xF;
                 int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontCharacterSpriteOffset(character);
                 this.setIndexRegister(spriteOffset);
-                flags |= CHAR_SPRITE_INS_EXECUTED;
+                flags |= MEGA_DRAW_FONT_EXPECTED;
             }
             case 0x33 -> { // FX33: Store BCD representation of VX at I, I+1, I+2
                 Memory memory = this.emulator.getMemory();

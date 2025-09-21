@@ -7,9 +7,14 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
 public class MegaChipProcessor extends SChipProcessor {
 
     private int cachedCharacterFontIndex = 0;
+    private Clip audioClip;
 
     public MegaChipProcessor(Emulator emulator) {
         super(emulator);
@@ -22,7 +27,6 @@ public class MegaChipProcessor extends SChipProcessor {
     @Override
     protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
         MegaChipDisplay display = this.getEmulator().getDisplay();
-
         int flags = 0;
         if (secondNibble == 0 && thirdNibble == 1) {
             switch (fourthNibble) {
@@ -129,13 +133,42 @@ public class MegaChipProcessor extends SChipProcessor {
                 display.setScreenAlpha(secondByte);
             }
             case 0x6 -> { // 06NU: Play digitized sound at I. On the Mega8, play audio once if N = 1, and loop if N = 0. On MEGA-CHIP8, ignore N.
-                // TODO: Implement
+                try {
+                    Memory memory = this.getEmulator().getMemory();
+                    int currentIndexRegister = this.getIndexRegister();
+                    int sampleRate = (memory.readByte(currentIndexRegister) << 8) | memory.readByte(currentIndexRegister + 1);
+                    int size = (memory.readByte(currentIndexRegister + 2) << 16) | (memory.readByte(currentIndexRegister + 3) << 8) | memory.readByte(currentIndexRegister + 4);
+                    if (size <= 0) {
+                        return 0;
+                    }
+                    AudioFormat format = new AudioFormat(sampleRate, 8, 1, false, true);
+                    if (this.audioClip != null && this.audioClip.isOpen()) {
+                        this.audioClip.stop();
+                        this.audioClip.close();
+                    }
+                    this.audioClip = AudioSystem.getClip();
+                    byte[] buff = new byte[size];
+                    for (int i = 0; i < size; i++) {
+                        buff[i] = (byte) memory.readByte(currentIndexRegister + i + 6);
+                    }
+                    this.audioClip.open(format, buff, 0, buff.length);
+                    this.audioClip.start();
+                    if (fourthNibble == 0) {
+                        this.audioClip.loop(Clip.LOOP_CONTINUOUSLY);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error when attempting to play digitized sound: " + e);
+                }
             }
             case 0x7 -> { // 0700: Stop digitized sound
                 if (secondByte != 0x00) {
                     return 0;
                 }
-                // TODO: Implement
+                if (audioClip != null) {
+                    audioClip.stop();
+                    audioClip.close();
+                    audioClip = null;
+                }
             }
             case 0x8 -> { // 080N: Set sprite blend mode (0 = normal, 1 = 25%, 2 = 50%, 3 = 75%, 4 = additive, 5 = multiply)
                 if (thirdNibble != 0) {
@@ -304,7 +337,7 @@ public class MegaChipProcessor extends SChipProcessor {
             MegaChipDisplay display = this.getEmulator().getDisplay();
             display.flushBackBuffer();
             display.clearIndexBuffer();
-        } else if ((flagsSuper & Chip8Processor.CHAR_SPRITE_INS_EXECUTED) != 0) {
+        } else if ((flagsSuper & Chip8Processor.MEGA_DRAW_FONT_EXPECTED) != 0) {
             this.cachedCharacterFontIndex = this.getIndexRegister();
         }
         return flagsSuper;
@@ -322,6 +355,14 @@ public class MegaChipProcessor extends SChipProcessor {
         int currentProgramCounter = this.getProgramCounter();
         int opcode = memory.readByte(currentProgramCounter - 2);
         return opcode == 0x01;
+    }
+
+    @Override
+    public void close() {
+        if (this.audioClip != null) {
+            this.audioClip.stop();
+            this.audioClip.close();
+        }
     }
 
 }

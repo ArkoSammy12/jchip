@@ -16,4 +16,6 @@ public interface Processor {
 
     boolean shouldTerminate();
 
+    default void close() {}
+
 }
