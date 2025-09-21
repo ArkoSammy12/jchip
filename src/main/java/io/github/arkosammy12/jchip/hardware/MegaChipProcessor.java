@@ -284,6 +284,9 @@ public class MegaChipProcessor extends SChipProcessor {
     @Override
     protected int executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
         int flagsSuper = super.executeFXOpcode(firstNibble, secondNibble, secondByte);
+        if (!this.getEmulator().getDisplay().isMegaChipModeEnabled()) {
+            return flagsSuper;
+        }
         if ((flagsSuper & Chip8Processor.GET_KEY_EXECUTED) != 0) {
             MegaChipDisplay display = this.getEmulator().getDisplay();
             display.flushBackBuffer();
