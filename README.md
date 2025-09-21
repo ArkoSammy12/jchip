@@ -101,6 +101,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Tobias Langhoff – High Level CHIP-8 Emulator Guide](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/)
 - [CHIP-8 Research Facility](https://chip-8.github.io/)
 - [mattmikolay – *Mastering CHIP-8*](https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908)
+- [mattmikolay - Viper Magazines](https://github.com/mattmikolay/viper/tree/master)
 - [Laurence Scotford – COSMAC VIP Sprite Drawing](https://www.laurencescotford.net/2020/07/19/chip-8-on-the-cosmac-vip-drawing-sprites/)
 - [John Earnest’s chip8archive](https://johnearnest.github.io/chip8Archive/)
 - [Janitor Raus – Legacy SuperCHIP Display Spec](https://github.com/janitor-raus/CubeChip/blob/master/guides/Legacy%20(Original)%20SuperCHIP%20Display%20Specification.md)
@@ -116,6 +117,8 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Timendus – Silicon8 Emulator](https://github.com/Timendus/silicon8)
 - [Timendus – CHIP-8 Test Suite](https://github.com/Timendus/chip8-test-suite)
 - [GamingMadster - Chip-8 All-In-One Tests](https://github.com/GamingMadster/Chip-8_All-In-One)
+- [NinjaWeedle - Oxiti8's MegaChip docs](https://github.com/NinjaWeedle/MegaChip8/blob/main/docs/Oxiti8's%20MegaChip%20docs.txt)
+- [Ready4Next - Mega8](https://github.com/Ready4Next/Mega8)
 - [Emulator Development Discord](https://discord.gg/dkmJAes)
 
 ## Credits
