@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.base.Processor;
+import io.github.arkosammy12.jchip.hardware.Chip8Processor;
 import io.github.arkosammy12.jchip.hardware.MegaChipProcessor;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.Display;
@@ -27,6 +28,14 @@ public class MegaChipEmulator extends SChipEmulator {
     @Override
     public Display createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
         return new MegaChipDisplay(emulatorConfig, keyAdapter);
+    }
+
+    @Override
+    protected boolean waitForVBlank(int flags) {
+        if (!this.getDisplay().isMegaChipModeEnabled()) {
+            return super.waitForVBlank(flags);
+        }
+        return (flags & Chip8Processor.HANDLED) != 0 && (flags & Chip8Processor.CLS_EXECUTED) != 0;
     }
 
 }

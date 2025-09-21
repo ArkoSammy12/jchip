@@ -85,7 +85,7 @@ public class CharacterSpriteFont {
                 this.smallFont = CHIP_8;
                 this.bigFont = null;
             }
-            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> {
+            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN, MEGA_CHIP -> {
                 this.smallFont = CHIP_48;
                 this.bigFont = SCHIP_BIG;
             }
