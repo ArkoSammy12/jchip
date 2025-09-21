@@ -104,6 +104,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Laurence Scotford – COSMAC VIP Sprite Drawing](https://www.laurencescotford.net/2020/07/19/chip-8-on-the-cosmac-vip-drawing-sprites/)
 - [John Earnest’s chip8archive](https://johnearnest.github.io/chip8Archive/)
 - [Janitor Raus – Legacy SuperCHIP Display Spec](https://github.com/janitor-raus/CubeChip/blob/master/guides/Legacy%20(Original)%20SuperCHIP%20Display%20Specification.md)
+- [Janitor Raus - CubeChip](https://github.com/janitor-raus/CubeChip)
 - [Gulrak – Opcode & Quirks Table](https://chip8.gulrak.net/)
 - [Gulrak – Cadmium Emulator](https://github.com/gulrak/cadmium)
 - [Gulrak - CHIP‑8 1dcell.ch8 Emulator Benchmarks](https://chip8.gulrak.net/1dcell)
