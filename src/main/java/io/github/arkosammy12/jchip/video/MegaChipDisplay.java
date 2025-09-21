@@ -39,7 +39,7 @@ public class MegaChipDisplay extends SChipDisplay {
     @Override
     protected int getPixelScale(DisplayAngle displayAngle) {
         return switch (displayAngle) {
-            case DEG_90, DEG_270 -> 1;
+            case DEG_90, DEG_270 -> 3;
             default -> 4;
         };
     }
