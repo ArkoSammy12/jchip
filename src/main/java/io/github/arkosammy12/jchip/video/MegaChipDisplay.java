@@ -4,7 +4,6 @@ import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 import java.awt.event.KeyAdapter;
-import java.util.Arrays;
 
 public class MegaChipDisplay extends SChipDisplay {
 
@@ -19,15 +18,12 @@ public class MegaChipDisplay extends SChipDisplay {
     private int collisionIndex = 0;
     private BlendMode blendMode = BlendMode.BLEND_NORMAL;
     private boolean megaChipModeEnabled = false;
+    private boolean scrollTriggered = false;
 
     public MegaChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
         super(config, keyAdapter);
-        this.colorPalette[0] = 0xFF000000;
+        this.colorPalette[0] = 0x00000000;
         this.colorPalette[255] = 0x00FFFFFF;
-        this.isModern = false;
-        for (int[] ints : this.backBuffer) {
-            Arrays.fill(ints, this.colorPalette[0]);
-        }
     }
 
     @Override
@@ -103,6 +99,10 @@ public class MegaChipDisplay extends SChipDisplay {
         return this.megaChipModeEnabled;
     }
 
+    public void setUpdateScrollTriggered() {
+        this.scrollTriggered = true;
+    }
+
     @Override
     public void setPixel(int column, int row, int val) {
 
@@ -139,8 +139,7 @@ public class MegaChipDisplay extends SChipDisplay {
                 continue;
             }
             for (int j = 0; j < this.screenWidth; j++) {
-                this.backBuffer[j][shiftedVerticalPosition] = this.backBuffer[j][i];
-                this.indexBuffer[j][shiftedVerticalPosition] = this.indexBuffer[j][i];
+                this.frontBuffer[j][shiftedVerticalPosition] = this.frontBuffer[j][i];
             }
         }
         // Clear the bottom scrollOffset rows
@@ -149,8 +148,7 @@ public class MegaChipDisplay extends SChipDisplay {
                 continue;
             }
             for (int x = 0; x < this.screenWidth; x++) {
-                this.backBuffer[x][y] = colorPalette[0];
-                this.indexBuffer[x][y] = 0;
+                this.frontBuffer[x][y] = 0x000000;
             }
         }
     }
@@ -167,15 +165,13 @@ public class MegaChipDisplay extends SChipDisplay {
                 continue;
             }
             for (int j = 0; j < this.screenWidth; j++) {
-                this.backBuffer[j][shiftedVerticalPosition] = this.backBuffer[j][i];
-                this.indexBuffer[j][shiftedVerticalPosition] = this.indexBuffer[j][i];
+                this.frontBuffer[j][shiftedVerticalPosition] = this.frontBuffer[j][i];
             }
         }
         // Clear the top scrollOffset rows
         for (int y = 0; y < scrollAmount && y < this.screenHeight; y++) {
             for (int x = 0; x < this.screenWidth; x++) {
-                this.backBuffer[x][y] = colorPalette[0];
-                this.indexBuffer[x][y] = 0;
+                this.frontBuffer[x][y] = 0x00000000;
             }
         }
 
@@ -193,15 +189,13 @@ public class MegaChipDisplay extends SChipDisplay {
                 continue;
             }
             for (int j = 0; j < this.screenHeight; j++) {
-                this.backBuffer[shiftedHorizontalPosition][j] = this.backBuffer[i][j];
-                this.indexBuffer[shiftedHorizontalPosition][j] = this.indexBuffer[i][j];
+                this.frontBuffer[shiftedHorizontalPosition][j] = this.frontBuffer[i][j];
             }
         }
         // Clear the leftmost 4 columns
         for (int x = 0; x < 4 && x < this.screenWidth; x++) {
             for (int y = 0; y < this.screenHeight; y++) {
-                this.backBuffer[x][y] = colorPalette[0];
-                this.indexBuffer[x][y] = 0;
+                this.frontBuffer[x][y] = 0x00000000;
             }
         }
 
@@ -220,8 +214,7 @@ public class MegaChipDisplay extends SChipDisplay {
                 continue;
             }
             for (int j = 0; j < this.screenHeight; j++) {
-                this.backBuffer[shiftedHorizontalPosition][j] = this.backBuffer[i][j];
-                this.indexBuffer[shiftedHorizontalPosition][j] = this.indexBuffer[i][j];
+                this.frontBuffer[shiftedHorizontalPosition][j] = this.frontBuffer[i][j];
             }
         }
         for (int x = this.screenWidth - 4; x < this.screenWidth; x++) {
@@ -229,8 +222,7 @@ public class MegaChipDisplay extends SChipDisplay {
                 continue;
             }
             for (int y = 0; y < this.screenHeight; y++) {
-                this.backBuffer[x][y] = colorPalette[0];
-                this.indexBuffer[x][y] = 0;
+                this.frontBuffer[x][y] = 0x00000000;
             }
         }
 
@@ -270,25 +262,35 @@ public class MegaChipDisplay extends SChipDisplay {
         for (int y = 0; y < screenHeight; y++) {
             int base = y * screenWidth;
             for (int x = 0; x < screenWidth; x++) {
-                /*
-                int argb = this.frontBuffer[x][y];
-                if ((argb & 0xFF000000) == 0) {
-                    // If alpha is 0, force fully opaque black
-                    argb = 0xFF000000;
+                buffer[base + x] = 0xFF000000;
+            }
+        }
+        for (int y = 0; y < screenHeight; y++) {
+            int base = y * screenWidth;
+            for (int x = 0; x < screenWidth; x++) {
+                if (scrollTriggered) {
+                    int back = this.backBuffer[x][y];
+                    if ((back & 0xFF000000) != 0) {
+                        buffer[base + x] = back;
+                    }
                 }
-                 */
-                buffer[base + x] = this.frontBuffer[x][y];
+                int front = this.frontBuffer[x][y];
+                if ((front & 0xFF000000) != 0) {
+                    buffer[base + x] = front;
+                }
             }
         }
     }
 
     public void flushBackBuffer() {
+        this.scrollTriggered = false;
         for (int i = 0; i < this.backBuffer.length; i++) {
             for (int j = 0; j < this.backBuffer[i].length; j++) {
                 this.frontBuffer[i][j] = this.backBuffer[i][j];
             }
         }
     }
+
 
     @Override
     public void clear() {

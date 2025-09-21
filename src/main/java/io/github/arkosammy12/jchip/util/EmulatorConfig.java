@@ -259,7 +259,7 @@ public class EmulatorConfig {
         if (this.cliDoClipping.isPresent()) {
             this.doClipping = this.cliDoClipping.get();
         } else {
-            this.doClipping = Objects.requireNonNullElse(doClipping, this.chip8Variant != Chip8Variant.XO_CHIP);
+            this.doClipping = Objects.requireNonNullElse(doClipping, this.chip8Variant != Chip8Variant.XO_CHIP && this.chip8Variant != Chip8Variant.MEGA_CHIP);
         }
         if (this.cliDoShiftVXInPlace.isPresent()) {
             this.doShiftVXInPlace = this.cliDoShiftVXInPlace.get();

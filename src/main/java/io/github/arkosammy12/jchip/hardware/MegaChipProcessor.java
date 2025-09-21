@@ -52,12 +52,14 @@ public class MegaChipProcessor extends SChipProcessor {
                 switch (thirdNibble) {
                     case 0xB -> { // 00BN: Scroll display N lines up (same implementation as XO-CHIP'S, but without bitplanes)
                         display.scrollUp(fourthNibble);
+                        display.setUpdateScrollTriggered();
                     }
                     case 0xC -> { // 00CN: Scroll screen down N pixels
                         if (fourthNibble <= 0) {
                             return 0;
                         }
                         display.scrollDown(fourthNibble);
+                        display.setUpdateScrollTriggered();
                     }
                     case 0xE -> {
                         switch (fourthNibble) {
@@ -76,9 +78,11 @@ public class MegaChipProcessor extends SChipProcessor {
                         switch (fourthNibble) {
                             case 0xB -> { // 00FB: Scroll screen right 4 pixels
                                 display.scrollRight();
+                                display.setUpdateScrollTriggered();
                             }
                             case 0xC -> { // 00FC: Scroll screen left 4 pixels
                                 display.scrollLeft();
+                                display.setUpdateScrollTriggered();
                             }
                             case 0xD -> { // 00FD: Exit interpreter
                                 this.shouldTerminate = true;
