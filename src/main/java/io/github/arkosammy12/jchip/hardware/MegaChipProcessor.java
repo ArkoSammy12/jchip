@@ -136,9 +136,9 @@ public class MegaChipProcessor extends SChipProcessor {
                 try {
                     Memory memory = this.getEmulator().getMemory();
                     int currentIndexRegister = this.getIndexRegister();
-                    int sampleRate = (memory.readByte(currentIndexRegister) << 8) | memory.readByte(currentIndexRegister + 1);
-                    int size = (memory.readByte(currentIndexRegister + 2) << 16) | (memory.readByte(currentIndexRegister + 3) << 8) | memory.readByte(currentIndexRegister + 4);
-                    if (size <= 0) {
+                    int sampleRate = ((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF;
+                    int size = ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF);
+                    if (size == 0) {
                         return 0;
                     }
                     AudioFormat format = new AudioFormat(sampleRate, 8, 1, false, true);

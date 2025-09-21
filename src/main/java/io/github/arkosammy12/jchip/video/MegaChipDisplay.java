@@ -230,7 +230,7 @@ public class MegaChipDisplay extends SChipDisplay {
             for (int y = 0; y < screenHeight; y++) {
                 int base = y * screenWidth;
                 for (int x = 0; x < screenWidth; x++) {
-                    buffer[base + x] = this.colorPalette[0];
+                    buffer[base + x] = 0xFF000000;
                 }
             }
             int superWidth = super.getWidth();
