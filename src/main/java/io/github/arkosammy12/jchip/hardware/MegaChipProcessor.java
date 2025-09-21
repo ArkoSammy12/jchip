@@ -174,6 +174,15 @@ public class MegaChipProcessor extends SChipProcessor {
     }
 
     @Override
+    protected int executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+        int flagsSuper = super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+        if ((flagsSuper & Chip8Processor.HANDLED) != 0 && (flagsSuper & Chip8Processor.SKIP_TAKEN) != 0 && this.previousOpcodeWas01()) {
+            this.incrementProgramCounter();
+        }
+        return flagsSuper;
+    }
+
+    @Override
     protected int executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble) {
         return handleDoubleSkipIfNecessary(super.executeSkipIfRegistersNotEqual(secondNibble, thirdNibble));
     }
