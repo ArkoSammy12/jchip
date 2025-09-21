@@ -110,6 +110,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Gulrak – Cadmium Emulator](https://github.com/gulrak/cadmium)
 - [Gulrak - CHIP‑8 1dcell.ch8 Emulator Benchmarks](https://chip8.gulrak.net/1dcell)
 - [Cadmium Web Version](https://games.gulrak.net/cadmium-wip/)
+- [LordZorgath - MOSES](https://github.com/LordZorgath/MOSES)
 - [John Earnest – Octo IDE](https://github.com/JohnEarnest/Octo)
 - [XO-CHIP Specifications](https://johnearnest.github.io/Octo/docs/XO-ChipSpecification.html)
 - [CHIP-8 Games Archive](https://archive.org/details/chip-8-games)

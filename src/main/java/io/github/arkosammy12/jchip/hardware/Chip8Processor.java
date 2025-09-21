@@ -159,7 +159,7 @@ public class Chip8Processor implements Processor {
             case 0x6 -> executeSetRegisterImmediate(secondNibble, secondByte);
             case 0x7 -> executeAddRegisterImmediate(secondNibble, secondByte);
             case 0x8 -> executeALUInstruction(secondNibble, thirdNibble, fourthNibble);
-            case 0x9 -> executeSkipIfRegistersNotEqual(secondNibble, thirdNibble);
+            case 0x9 -> executeSkipIfRegistersNotEqual(secondNibble, thirdNibble, fourthNibble);
             case 0xA -> executeSetIndexRegister(memoryAddress);
             case 0xB -> executeJumpWithOffset(secondNibble, memoryAddress);
             case 0xC -> executeGetRandomNumber(secondNibble, secondByte);
@@ -176,7 +176,7 @@ public class Chip8Processor implements Processor {
 
     protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
         int flags = HANDLED;
-        if (thirdNibble == 0xE) {
+        if (secondNibble == 0x0 && thirdNibble == 0xE) {
             switch (fourthNibble) {
                 case 0x0 -> { // 00E0: Clear screen
                     this.emulator.getDisplay().clear();
@@ -316,7 +316,10 @@ public class Chip8Processor implements Processor {
     }
 
     // 9XY0
-    protected int executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble) {
+    protected int executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble, int fourthNibble) {
+        if (fourthNibble != 0x0) {
+            return 0;
+        }
         int flags = HANDLED;
         int vX = this.getRegister(secondNibble);
         int vY = this.getRegister(thirdNibble);

@@ -94,8 +94,8 @@ public class XOChipProcessor extends SChipProcessor {
     }
 
     @Override
-    protected int executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble) {
-        return handleDoubleSkipIfNecessary(super.executeSkipIfRegistersNotEqual(secondNibble, thirdNibble));
+    protected int executeSkipIfRegistersNotEqual(int secondNibble, int thirdNibble, int fourthNibble) {
+        return handleDoubleSkipIfNecessary(super.executeSkipIfRegistersNotEqual(secondNibble, thirdNibble, fourthNibble));
     }
 
     @Override
