@@ -13,7 +13,7 @@ import javax.sound.sampled.Clip;
 
 public class MegaChipProcessor extends SChipProcessor {
 
-    private int cachedCharacterFontIndex = 0;
+    private int cachedCharacterFontIndex;
     private Clip audioClip;
 
     public MegaChipProcessor(Emulator emulator) {

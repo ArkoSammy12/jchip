@@ -93,7 +93,6 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 ## Libraries Used
 
 - [picocli](https://github.com/remkop/picocli) – CLI argument parsing
-- [Lanterna](https://github.com/mabe02/lanterna) – Terminal-based display (unused for now)
 - [gson](https://github.com/google/gson) – JSON parsing
 
 ## Resources and general links

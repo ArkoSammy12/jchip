@@ -4,7 +4,6 @@ import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.hardware.KeyState;
-import io.github.arkosammy12.jchip.video.Display;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;

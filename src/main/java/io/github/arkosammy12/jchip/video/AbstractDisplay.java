@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -52,6 +53,7 @@ public abstract class AbstractDisplay implements Display {
         this.characterSpriteFont = new CharacterSpriteFont(chip8Variant);
         this.displayAngle = config.getDisplayAngle();
         this.pixelScale = getPixelScale(this.displayAngle);
+
         int windowWidth;
         int windowHeight;
         switch (displayAngle) {
@@ -64,6 +66,7 @@ public abstract class AbstractDisplay implements Display {
                 windowHeight = this.screenHeight * this.pixelScale;
             }
         }
+
         Dimension windowSize = new Dimension(windowWidth, windowHeight);
         this.renderer = new Renderer();
         this.renderer.setPreferredSize(windowSize);

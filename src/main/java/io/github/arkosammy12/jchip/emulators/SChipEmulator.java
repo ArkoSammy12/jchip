@@ -5,7 +5,7 @@ import io.github.arkosammy12.jchip.hardware.Chip8Processor;
 import io.github.arkosammy12.jchip.hardware.SChipProcessor;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
-import io.github.arkosammy12.jchip.video.Display;
+import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
 import java.awt.event.KeyAdapter;

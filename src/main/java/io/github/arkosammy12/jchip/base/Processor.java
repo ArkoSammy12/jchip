@@ -2,7 +2,9 @@ package io.github.arkosammy12.jchip.base;
 
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 
-public interface Processor {
+import java.io.Closeable;
+
+public interface Processor extends Closeable {
 
     int getProgramCounter();
 

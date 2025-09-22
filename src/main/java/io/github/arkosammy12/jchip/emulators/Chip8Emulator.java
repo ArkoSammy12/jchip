@@ -5,7 +5,7 @@ import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.hardware.*;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
-import io.github.arkosammy12.jchip.video.Display;
+import io.github.arkosammy12.jchip.base.Display;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.awt.event.KeyAdapter;

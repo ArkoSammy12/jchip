@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.base.Processor;
 import io.github.arkosammy12.jchip.hardware.Chip8Processor;
 import io.github.arkosammy12.jchip.hardware.MegaChipProcessor;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
-import io.github.arkosammy12.jchip.video.Display;
+import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import java.awt.event.KeyAdapter;

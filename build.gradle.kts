@@ -24,7 +24,6 @@ repositories {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    implementation("com.googlecode.lanterna:lanterna:${property("lanterna_version")}")
     implementation("info.picocli:picocli:${property("picocli_version")}")
     implementation("com.google.code.gson:gson:${property("gson_version")}")
 }
