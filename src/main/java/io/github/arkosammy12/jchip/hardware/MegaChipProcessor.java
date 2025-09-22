@@ -32,12 +32,11 @@ public class MegaChipProcessor extends SChipProcessor {
             switch (fourthNibble) {
                 case 0x0 -> { // 0010: Disable megachip mode
                     display.setMegaChipMode(false);
-                    display.clear();
+                    // Do not clear the frame buffer of the display we are switching into as per original Mega8 behavior
                     flags |= HANDLED;
                 }
                 case 0x1 -> { // 0011: Enable megachip mode
                     display.setMegaChipMode(true);
-                    display.clear();
                     flags |= HANDLED;
                 }
             }
