@@ -29,6 +29,7 @@ public enum DisplayAngle {
         public DisplayAngle convert(String value) {
             return getDisplayAngleForIdentifier(value);
         }
+
     }
 
 }

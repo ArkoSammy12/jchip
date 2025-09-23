@@ -24,8 +24,8 @@ public class XOChipDisplay extends SChipDisplay {
     }
 
     public boolean togglePixelAtBitPlanes(int bitPlaneMask, int column, int row) {
-        boolean collision = (this.frameBuffer[column][row] & bitPlaneMask) != 0;
-        this.frameBuffer[column][row] ^= bitPlaneMask;
+        boolean collision = (this.bitplaneBuffer[column][row] & bitPlaneMask) != 0;
+        this.bitplaneBuffer[column][row] ^= bitPlaneMask;
         return collision;
     }
 
@@ -48,21 +48,20 @@ public class XOChipDisplay extends SChipDisplay {
                     continue;
                 }
                 for (int j = 0; j < this.screenWidth; j++) {
-                    int val = this.frameBuffer[j][i] & mask;
+                    int val = this.bitplaneBuffer[j][i] & mask;
                     if (val != 0) {
-                        this.frameBuffer[j][shiftedVerticalPosition] |= mask;
+                        this.bitplaneBuffer[j][shiftedVerticalPosition] |= mask;
                     } else {
-                        this.frameBuffer[j][shiftedVerticalPosition] &= ~mask;
+                        this.bitplaneBuffer[j][shiftedVerticalPosition] &= ~mask;
                     }
                 }
             }
-            // Clear the bottom scrollOffset rows
             for (int y = this.screenHeight - trueScrollAmount; y < this.screenHeight; y++) {
                 if (y < 0) {
                     continue;
                 }
                 for (int x = 0; x < this.screenWidth; x++) {
-                    this.frameBuffer[x][y] &= ~mask;
+                    this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }
 
@@ -90,18 +89,17 @@ public class XOChipDisplay extends SChipDisplay {
                     continue;
                 }
                 for (int j = 0; j < this.screenWidth; j++) {
-                    int val = this.frameBuffer[j][i] & mask;
+                    int val = this.bitplaneBuffer[j][i] & mask;
                     if (val != 0) {
-                        this.frameBuffer[j][shiftedVerticalPosition] |= mask;
+                        this.bitplaneBuffer[j][shiftedVerticalPosition] |= mask;
                     } else {
-                        this.frameBuffer[j][shiftedVerticalPosition] &= ~mask;
+                        this.bitplaneBuffer[j][shiftedVerticalPosition] &= ~mask;
                     }
                 }
             }
-            // Clear the top scrollOffset rows
             for (int y = 0; y < trueScrollAmount && y < this.screenHeight; y++) {
                 for (int x = 0; x < this.screenWidth; x++) {
-                    this.frameBuffer[x][y] &= ~mask;
+                    this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }
         }
@@ -127,18 +125,17 @@ public class XOChipDisplay extends SChipDisplay {
                     continue;
                 }
                 for (int j = 0; j < this.screenHeight; j++) {
-                    int val = this.frameBuffer[i][j] & mask;
+                    int val = this.bitplaneBuffer[i][j] & mask;
                     if (val != 0) {
-                        this.frameBuffer[shiftedHorizontalPosition][j] |= mask;
+                        this.bitplaneBuffer[shiftedHorizontalPosition][j] |= mask;
                     } else {
-                        this.frameBuffer[shiftedHorizontalPosition][j] &= ~mask;
+                        this.bitplaneBuffer[shiftedHorizontalPosition][j] &= ~mask;
                     }
                 }
             }
-            // Clear the leftmost 4 columns
             for (int x = 0; x < scrollAmount && x < this.screenWidth; x++) {
                 for (int y = 0; y < this.screenHeight; y++) {
-                    this.frameBuffer[x][y] &= ~mask;
+                    this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }
         }
@@ -164,11 +161,11 @@ public class XOChipDisplay extends SChipDisplay {
                     continue;
                 }
                 for (int j = 0; j < this.screenHeight; j++) {
-                    int val = this.frameBuffer[i][j] & mask;
+                    int val = this.bitplaneBuffer[i][j] & mask;
                     if (val != 0) {
-                        this.frameBuffer[shiftedHorizontalPosition][j] |= mask;
+                        this.bitplaneBuffer[shiftedHorizontalPosition][j] |= mask;
                     } else {
-                        this.frameBuffer[shiftedHorizontalPosition][j] &= ~mask;
+                        this.bitplaneBuffer[shiftedHorizontalPosition][j] &= ~mask;
                     }
                 }
             }
@@ -177,7 +174,7 @@ public class XOChipDisplay extends SChipDisplay {
                     continue;
                 }
                 for (int y = 0; y < this.screenHeight; y++) {
-                    this.frameBuffer[x][y] &= ~mask;
+                    this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }
         }
@@ -189,9 +186,9 @@ public class XOChipDisplay extends SChipDisplay {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
             }
-            for (int i = 0; i < this.frameBuffer.length; i++) {
-                for (int j = 0; j < this.frameBuffer[i].length; j++) {
-                    this.frameBuffer[i][j] &= ~mask;
+            for (int i = 0; i < this.bitplaneBuffer.length; i++) {
+                for (int j = 0; j < this.bitplaneBuffer[i].length; j++) {
+                    this.bitplaneBuffer[i][j] &= ~mask;
                 }
             }
         }

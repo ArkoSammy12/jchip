@@ -1,6 +1,5 @@
-package io.github.arkosammy12.jchip.hardware;
+package io.github.arkosammy12.jchip.sound;
 
-import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.SoundSystem;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 
@@ -11,13 +10,11 @@ import java.util.Arrays;
 
 public class Chip8SoundSystem implements SoundSystem {
 
-    private static final int SAMPLE_RATE = 44100;
-    private static final int SAMPLES_PER_FRAME = SAMPLE_RATE / Main.FRAMES_PER_SECOND;
+    private SourceDataLine audioLine;
 
     private final int[] patternBuffer = new int[16];
     private double playbackRate = 4000;
     private double phase = 0.0;
-    private SourceDataLine audioLine;
 
     private static final int[] DEFAULT_PATTERN_1 = {
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0, 0, 0, 0, 0
@@ -39,16 +36,14 @@ public class Chip8SoundSystem implements SoundSystem {
             audioLine.open(format);
             audioLine.start();
         } catch (Exception e) {
-            System.err.println("Unable to start audio line: " + e);
+            System.err.println("Error starting audio line: " + e);
         }
     }
 
-    @Override
     public void loadPatternByte(int index, int value) {
         this.patternBuffer[index] = value & 0xFF;
     }
 
-    @Override
     public void setPlaybackRate(int pitch) {
         this.playbackRate = 4000 * Math.pow(2.0, (pitch - 64) / 48.0);
     }
@@ -80,7 +75,9 @@ public class Chip8SoundSystem implements SoundSystem {
 
     @Override
     public void close() {
-        this.audioLine.close();
+        if (this.audioLine != null) {
+            this.audioLine.close();
+        }
     }
 
 }

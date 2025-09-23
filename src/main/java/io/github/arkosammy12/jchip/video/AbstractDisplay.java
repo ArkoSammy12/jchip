@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.Display;
-import io.github.arkosammy12.jchip.util.CharacterSpriteFont;
+import io.github.arkosammy12.jchip.util.SpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
@@ -14,10 +14,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.lang.reflect.InvocationTargetException;
 
 public abstract class AbstractDisplay implements Display {
 
-    private final CharacterSpriteFont characterSpriteFont;
+    private final SpriteFont spriteFont;
     protected final Chip8Variant chip8Variant;
 
     protected final int screenWidth;
@@ -38,7 +39,6 @@ public abstract class AbstractDisplay implements Display {
     private final StringBuilder stringBuilder = new StringBuilder(128);
 
     public AbstractDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
-
         String romTitle = config.getProgramTitle();
         Chip8Variant chip8Variant = config.getConsoleVariant();
 
@@ -47,10 +47,11 @@ public abstract class AbstractDisplay implements Display {
         } else {
             this.romTitle = " | " + romTitle;
         }
+
         this.screenWidth = this.getWidth();
         this.screenHeight = this.getHeight();
         this.chip8Variant = chip8Variant;
-        this.characterSpriteFont = new CharacterSpriteFont(chip8Variant);
+        this.spriteFont = new SpriteFont(chip8Variant);
         this.displayAngle = config.getDisplayAngle();
         this.pixelScale = getPixelScale(this.displayAngle);
 
@@ -69,30 +70,39 @@ public abstract class AbstractDisplay implements Display {
 
         Dimension windowSize = new Dimension(windowWidth, windowHeight);
         this.renderer = new Renderer();
-        this.renderer.setPreferredSize(windowSize);
-        this.renderer.setMinimumSize(windowSize);
-        this.renderer.setMaximumSize(windowSize);
-        this.renderer.addKeyListener(keyAdapter);
-        this.renderer.setFocusable(true);
-        this.renderer.requestFocus();
-        this.renderer.setVisible(true);
+        JFrame tempFrame = new JFrame();
 
-        this.frame = new JFrame();
-        this.frame.add(this.renderer);
-        this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.frame.getContentPane().setPreferredSize(windowSize);
-        this.frame.getContentPane().setMinimumSize(windowSize);
-        this.frame.getContentPane().setMaximumSize(windowSize);
-        this.frame.pack();
-        this.frame.setAutoRequestFocus(true);
-        this.frame.setLocation(30, 20);
-        this.frame.setResizable(false);
-        this.frame.setVisible(true);
+        try {
+            SwingUtilities.invokeAndWait(() -> {
+
+                renderer.setPreferredSize(windowSize);
+                renderer.setMinimumSize(windowSize);
+                renderer.setMaximumSize(windowSize);
+                renderer.addKeyListener(keyAdapter);
+                renderer.setFocusable(true);
+                renderer.requestFocus();
+                renderer.setVisible(true);
+
+                tempFrame.add(renderer);
+                tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                tempFrame.getContentPane().setPreferredSize(windowSize);
+                tempFrame.getContentPane().setMinimumSize(windowSize);
+                tempFrame.getContentPane().setMaximumSize(windowSize);
+                tempFrame.pack();
+                tempFrame.setAutoRequestFocus(true);
+                tempFrame.setLocation(30, 20);
+                tempFrame.setResizable(false);
+                tempFrame.setVisible(true);
+            });
+        } catch (InterruptedException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to initialize display", e);
+        }
+        this.frame = tempFrame;
     }
 
     @Override
-    public CharacterSpriteFont getCharacterSpriteFont() {
-        return this.characterSpriteFont;
+    public SpriteFont getCharacterSpriteFont() {
+        return this.spriteFont;
     }
 
     protected abstract int getPixelScale(DisplayAngle displayAngle);
@@ -104,7 +114,7 @@ public abstract class AbstractDisplay implements Display {
         this.renderer.render();
         String title = this.getWindowTitle(currentInstructionsPerFrame);
         if (title != null) {
-            this.frame.setTitle(title);
+            SwingUtilities.invokeLater(() -> this.frame.setTitle(title));
         }
     }
 
@@ -143,7 +153,7 @@ public abstract class AbstractDisplay implements Display {
 
     @Override
     public void close() {
-        this.frame.dispose();
+        SwingUtilities.invokeLater(this.frame::dispose);
     }
 
     private class Renderer extends Canvas {

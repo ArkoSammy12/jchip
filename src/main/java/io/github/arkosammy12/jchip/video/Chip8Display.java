@@ -11,11 +11,11 @@ public class Chip8Display extends AbstractDisplay {
 
     protected final ColorPalette colorPalette;
 
-    protected final int[][] frameBuffer;
+    protected final int[][] bitplaneBuffer;
 
     public Chip8Display(EmulatorConfig config, KeyAdapter keyAdapter) {
         super(config, keyAdapter);
-        this.frameBuffer = new int[getWidth()][getHeight()];
+        this.bitplaneBuffer = new int[this.getWidth()][this.getHeight()];
         this.colorPalette = config.getColorPalette();
     }
 
@@ -30,14 +30,14 @@ public class Chip8Display extends AbstractDisplay {
     }
 
     public boolean togglePixel(int column, int row) {
-        int current = this.frameBuffer[column][row];
-        this.frameBuffer[column][row] ^= 1;
+        int current = this.bitplaneBuffer[column][row];
+        this.bitplaneBuffer[column][row] ^= 1;
         return current != 0;
     }
 
     @Override
     public void clear() {
-        for (int[] ints : this.frameBuffer) {
+        for (int[] ints : this.bitplaneBuffer) {
             Arrays.fill(ints, 0);
         }
     }
@@ -55,7 +55,7 @@ public class Chip8Display extends AbstractDisplay {
         for (int y = 0; y < screenHeight; y++) {
             int base = y * screenWidth;
             for (int x = 0; x < screenWidth; x++) {
-                buffer[base + x] = colorPalette.getColorARGB(frameBuffer[x][y] & 0xF);
+                buffer[base + x] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
             }
         }
     }

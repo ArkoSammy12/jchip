@@ -1,22 +1,17 @@
-package io.github.arkosammy12.jchip.hardware;
+package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.base.SoundSystem;
-import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
+import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
-public class XOChipProcessor extends SChipProcessor {
+public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDisplay, S extends Chip8SoundSystem> extends SChipProcessor<E, D, S> {
 
-    public XOChipProcessor(Emulator emulator) {
+    public XOChipProcessor(E emulator) {
         super(emulator);
         this.isModern = true;
-    }
-
-    private XOChipEmulator getEmulator() {
-        return ((XOChipEmulator) this.emulator);
     }
 
     @Override
@@ -26,8 +21,8 @@ public class XOChipProcessor extends SChipProcessor {
             return flagsSuper;
         }
         int flags = Chip8Processor.HANDLED;
-        if (thirdNibble == 0xD) {// OODN: Scroll screen up
-            this.getEmulator().getDisplay().scrollUp(fourthNibble);
+        if (secondNibble == 0x0 && thirdNibble == 0xD) {// OODN: Scroll screen N rows up
+            this.emulator.getDisplay().scrollUp(fourthNibble);
         } else {
             flags &= ~Chip8Processor.HANDLED;
         }
@@ -73,7 +68,7 @@ public class XOChipProcessor extends SChipProcessor {
                     }
                 }
             }
-            case 0x3 -> { // 5XY3: Read values vX to vY from memory
+            case 0x3 -> { // 5XY3: Read values into vX to vY from memory
                 if (iterateInReverse) {
                     for (int i = secondNibble, j = 0; i >= thirdNibble; i--) {
                         int memoryValue = memory.readByte(currentIndexRegister + j);
@@ -101,7 +96,7 @@ public class XOChipProcessor extends SChipProcessor {
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
-        XOChipDisplay display = this.getEmulator().getDisplay();
+        XOChipDisplay display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         boolean extendedMode = display.isExtendedMode();
@@ -215,21 +210,21 @@ public class XOChipProcessor extends SChipProcessor {
                 this.incrementProgramCounter();
             }
             case 0x01 -> { // FX01: Set selected bit planes
-                this.getEmulator().getDisplay().setSelectedBitPlanes(secondNibble);
+                this.emulator.getDisplay().setSelectedBitPlanes(secondNibble);
             }
             case 0x02 -> { // F002: Load audio pattern
                 if (secondNibble != 0) {
                     return 0;
                 }
                 Memory memory = this.emulator.getMemory();
-                SoundSystem soundSystem = this.emulator.getSoundSystem();
+                Chip8SoundSystem soundSystem = this.emulator.getSoundSystem();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i < 16; i++) {
                     int audioByte = memory.readByte(currentIndexRegister + i);
                     soundSystem.loadPatternByte(i, audioByte);
                 }
             }
-            case 0x3A -> { // FX33: Set audio pattern pitch
+            case 0x3A -> { // FX3A: Set audio pattern pitch
                 this.emulator.getSoundSystem().setPlaybackRate(vX);
             }
             default -> flags &= ~Chip8Processor.HANDLED;

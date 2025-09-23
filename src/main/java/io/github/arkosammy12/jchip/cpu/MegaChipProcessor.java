@@ -1,32 +1,23 @@
-package io.github.arkosammy12.jchip.hardware;
+package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
+import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-
-public class MegaChipProcessor extends SChipProcessor {
+public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaChipDisplay, S extends MegaChipSoundSystem> extends SChipProcessor<E, D, S> {
 
     private int cachedCharacterFontIndex;
-    private Clip audioClip;
 
-    public MegaChipProcessor(Emulator emulator) {
+    public MegaChipProcessor(E emulator) {
         super(emulator);
-    }
-
-    private MegaChipEmulator getEmulator() {
-        return ((MegaChipEmulator) this.emulator);
     }
 
     @Override
     protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        MegaChipDisplay display = this.getEmulator().getDisplay();
+        MegaChipDisplay display = this.emulator.getDisplay();
         int flags = 0;
         if (secondNibble == 0 && thirdNibble == 1) {
             switch (fourthNibble) {
@@ -37,6 +28,7 @@ public class MegaChipProcessor extends SChipProcessor {
                 }
                 case 0x1 -> { // 0011: Enable megachip mode
                     display.setMegaChipMode(true);
+                    // Do not clear the frame buffer of the display we are switching into as per original Mega8 behavior
                     flags |= HANDLED;
                 }
             }
@@ -53,11 +45,11 @@ public class MegaChipProcessor extends SChipProcessor {
         switch (secondNibble) {
             case 0x0 -> {
                 switch (thirdNibble) {
-                    case 0xB -> { // 00BN: Scroll display N lines up (same implementation as XO-CHIP'S, but without bitplanes)
+                    case 0xB -> { // 00BN: Scroll screen N rows up
                         display.scrollUp(fourthNibble);
                         display.setUpdateScrollTriggered();
                     }
-                    case 0xC -> { // 00CN: Scroll screen down N pixels
+                    case 0xC -> { // 00CN: Scroll screen N rows down
                         if (fourthNibble <= 0) {
                             return 0;
                         }
@@ -79,11 +71,11 @@ public class MegaChipProcessor extends SChipProcessor {
                     }
                     case 0xF -> {
                         switch (fourthNibble) {
-                            case 0xB -> { // 00FB: Scroll screen right 4 pixels
+                            case 0xB -> { // 00FB: Scroll screen 4 columns right
                                 display.scrollRight();
                                 display.setUpdateScrollTriggered();
                             }
-                            case 0xC -> { // 00FC: Scroll screen left 4 pixels
+                            case 0xC -> { // 00FC: Scroll screen 4 columns left
                                 display.scrollLeft();
                                 display.setUpdateScrollTriggered();
                             }
@@ -91,10 +83,10 @@ public class MegaChipProcessor extends SChipProcessor {
                                 this.shouldTerminate = true;
                             }
                             case 0xE -> { // 00FE: Switch to lores mode
-                                display.setExtendedMode(false);
+                                // Doesn't work in MegaChip mode as per the NinjaWeedle
                             }
                             case 0xF -> { // 00FF: Switch to hires mode
-                                display.setExtendedMode(true);
+                                // Doesn't work in MegaChip mode as per the NinjaWeedle
                             }
                             default -> flags &= ~Chip8Processor.HANDLED;
                         }
@@ -132,41 +124,23 @@ public class MegaChipProcessor extends SChipProcessor {
                 display.setScreenAlpha(secondByte);
             }
             case 0x6 -> { // 06NU: Play digitized sound at I. On the Mega8, play audio once if N = 1, and loop if N = 0. On MEGA-CHIP8, ignore N.
-                try {
-                    Memory memory = this.getEmulator().getMemory();
+                if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
+                    Memory memory = this.emulator.getMemory();
                     int currentIndexRegister = this.getIndexRegister();
                     int sampleRate = ((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF;
                     int size = ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF);
                     if (size == 0) {
                         return 0;
                     }
-                    AudioFormat format = new AudioFormat(sampleRate, 8, 1, false, true);
-                    if (this.audioClip != null && this.audioClip.isOpen()) {
-                        this.audioClip.stop();
-                        this.audioClip.close();
-                    }
-                    this.audioClip = AudioSystem.getClip();
-                    byte[] buff = new byte[size];
-                    for (int i = 0; i < size; i++) {
-                        buff[i] = (byte) memory.readByte(currentIndexRegister + i + 6);
-                    }
-                    this.audioClip.open(format, buff, 0, buff.length);
-                    this.audioClip.start();
-                    if (fourthNibble == 0) {
-                        this.audioClip.loop(Clip.LOOP_CONTINUOUSLY);
-                    }
-                } catch (Exception e) {
-                    System.err.println("Error when attempting to play digitized sound: " + e);
+                    megaChipSoundSystem.playTrack(sampleRate, size, fourthNibble == 0, currentIndexRegister + 6);
                 }
             }
             case 0x7 -> { // 0700: Stop digitized sound
                 if (secondByte != 0x00) {
                     return 0;
                 }
-                if (audioClip != null) {
-                    audioClip.stop();
-                    audioClip.close();
-                    audioClip = null;
+                if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
+                    megaChipSoundSystem.stopTrack();
                 }
             }
             case 0x8 -> { // 080N: Set sprite blend mode (0 = normal, 1 = 25%, 2 = 50%, 3 = 75%, 4 = additive, 5 = multiply)
@@ -187,7 +161,7 @@ public class MegaChipProcessor extends SChipProcessor {
                 }
                 display.setBlendMode(blendMode);
             }
-            case 0x9 -> { // 09NN: Set collision color to index NN
+            case 0x9 -> { // 09NN: Set collision color to color palette entry NN
                 display.setCollisionIndex(secondByte);
             }
             default -> flags &= ~Chip8Processor.HANDLED;
@@ -207,11 +181,7 @@ public class MegaChipProcessor extends SChipProcessor {
 
     @Override
     protected int executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        int flagsSuper = super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
-        if ((flagsSuper & Chip8Processor.HANDLED) != 0 && (flagsSuper & Chip8Processor.SKIP_TAKEN) != 0 && this.previousOpcodeWas01()) {
-            this.incrementProgramCounter();
-        }
-        return flagsSuper;
+        return handleDoubleSkipIfNecessary(super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte));
     }
 
     @Override
@@ -222,7 +192,7 @@ public class MegaChipProcessor extends SChipProcessor {
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
-        MegaChipDisplay display = this.getEmulator().getDisplay();
+        MegaChipDisplay display = this.emulator.getDisplay();
 
         if (!display.isMegaChipModeEnabled()) {
             return super.executeDraw(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
@@ -329,14 +299,13 @@ public class MegaChipProcessor extends SChipProcessor {
     @Override
     protected int executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
         int flagsSuper = super.executeFXOpcode(firstNibble, secondNibble, secondByte);
-        if (!this.getEmulator().getDisplay().isMegaChipModeEnabled()) {
+        if (!this.emulator.getDisplay().isMegaChipModeEnabled()) {
             return flagsSuper;
         }
         if ((flagsSuper & Chip8Processor.GET_KEY_EXECUTED) != 0) {
-            MegaChipDisplay display = this.getEmulator().getDisplay();
+            MegaChipDisplay display = this.emulator.getDisplay();
             display.flushBackBuffer();
-            display.clearIndexBuffer();
-        } else if ((flagsSuper & Chip8Processor.MEGA_DRAW_FONT_EXPECTED) != 0) {
+        } else if ((flagsSuper & Chip8Processor.FONT_SPRITE_POINTER) != 0) {
             this.cachedCharacterFontIndex = this.getIndexRegister();
         }
         return flagsSuper;
@@ -354,14 +323,6 @@ public class MegaChipProcessor extends SChipProcessor {
         int currentProgramCounter = this.getProgramCounter();
         int opcode = memory.readByte(currentProgramCounter - 2);
         return opcode == 0x01;
-    }
-
-    @Override
-    public void close() {
-        if (this.audioClip != null) {
-            this.audioClip.stop();
-            this.audioClip.close();
-        }
     }
 
 }

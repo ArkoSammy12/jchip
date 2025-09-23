@@ -3,10 +3,7 @@ package io.github.arkosammy12.jchip.base;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
-import io.github.arkosammy12.jchip.hardware.KeyState;
-
-import javax.sound.sampled.LineUnavailableException;
-import java.io.IOException;
+import io.github.arkosammy12.jchip.util.Keypad;
 
 public interface Emulator extends AutoCloseable {
 
@@ -16,7 +13,7 @@ public interface Emulator extends AutoCloseable {
 
     Display getDisplay();
 
-    KeyState getKeyState();
+    Keypad getKeyState();
 
     SoundSystem getSoundSystem();
 
@@ -24,7 +21,7 @@ public interface Emulator extends AutoCloseable {
 
     EmulatorConfig getEmulatorConfig();
 
-    void tick() throws IOException, InvalidInstructionException, LineUnavailableException;
+    void tick() throws InvalidInstructionException;
 
     void terminate();
 

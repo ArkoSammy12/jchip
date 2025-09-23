@@ -1,27 +1,23 @@
-package io.github.arkosammy12.jchip.hardware;
+package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.base.Memory;
+import io.github.arkosammy12.jchip.base.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
-public class SChipProcessor extends Chip8Processor {
+public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDisplay, S extends SoundSystem> extends Chip8Processor<E, D, S> {
 
     public static final int BASE_SLICE_MASK_16 = 1 << 15;
 
     protected boolean isModern;
 
-    public SChipProcessor(Emulator emulator) {
+    public SChipProcessor(E emulator) {
         super(emulator);
-        if (emulator instanceof SChipEmulator sChipEmulator && sChipEmulator.isModern()) {
+        if (emulator instanceof SChipEmulator<?, ?> sChipEmulator && sChipEmulator.isModern()) {
             this.isModern = true;
         }
-    }
-
-    private SChipEmulator getEmulator() {
-        return ((SChipEmulator) this.emulator);
     }
 
     @Override
@@ -31,41 +27,45 @@ public class SChipProcessor extends Chip8Processor {
             return flagsSuper;
         }
         int flags = HANDLED;
-        SChipDisplay display = this.getEmulator().getDisplay();
-        switch (thirdNibble) {
-            case 0xC -> { // 00CN: Scroll screen down
-                if (fourthNibble <= 0 && !isModern) {
-                    return 0;
+        SChipDisplay display = this.emulator.getDisplay();
+        if (secondNibble == 0x0) {
+            switch (thirdNibble) {
+                case 0xC -> { // 00CN: Scroll screen N rows down
+                    if (fourthNibble <= 0 && !isModern) {
+                        return 0;
+                    }
+                    display.scrollDown(fourthNibble);
                 }
-                display.scrollDown(fourthNibble);
-            }
-            case 0xF -> {
-                switch (fourthNibble) {
-                    case 0xB -> { // 00FB: Scroll screen right
-                        display.scrollRight();
-                    }
-                    case 0xC -> { // 00FC: Scroll screen left
-                        display.scrollLeft();
-                    }
-                    case 0xD -> { // 00FD: Exit interpreter
-                        this.shouldTerminate = true;
-                    }
-                    case 0xE -> { // 00FE: Set lores mode
-                        display.setExtendedMode(false);
-                        if (isModern) {
-                            display.clear();
+                case 0xF -> {
+                    switch (fourthNibble) {
+                        case 0xB -> { // 00FB: Scroll screen 4 columns right
+                            display.scrollRight();
                         }
-                    }
-                    case 0xF -> { // 00FF: Set hires mode
-                        display.setExtendedMode(true);
-                        if (isModern) {
-                            display.clear();
+                        case 0xC -> { // 00FC: Scroll screen 4 columns left
+                            display.scrollLeft();
                         }
+                        case 0xD -> { // 00FD: Exit interpreter
+                            this.shouldTerminate = true;
+                        }
+                        case 0xE -> { // 00FE: Set lores mode
+                            display.setExtendedMode(false);
+                            if (isModern) {
+                                display.clear();
+                            }
+                        }
+                        case 0xF -> { // 00FF: Set hires mode
+                            display.setExtendedMode(true);
+                            if (isModern) {
+                                display.clear();
+                            }
+                        }
+                        default -> flags &= ~Chip8Processor.HANDLED;
                     }
-                    default -> flags &= ~Chip8Processor.HANDLED;
                 }
+                default -> flags &= ~Chip8Processor.HANDLED;
             }
-            default -> flags &= ~Chip8Processor.HANDLED;
+        } else {
+            flags &= ~Chip8Processor.HANDLED;
         }
         return flags;
     }
@@ -85,7 +85,7 @@ public class SChipProcessor extends Chip8Processor {
     // DXYN
     @SuppressWarnings("DuplicatedCode")
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
-        SChipDisplay display = this.getEmulator().getDisplay();
+        SChipDisplay display = this.emulator.getDisplay();
         Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         boolean extendedMode = display.isExtendedMode();
@@ -196,11 +196,11 @@ public class SChipProcessor extends Chip8Processor {
         int flags = HANDLED;
         int vX = this.getRegister(secondNibble);
         switch (secondByte) {
-            case 0x30 -> { // FX30: Set index register to big font character location
+            case 0x30 -> { // FX30: Set index register to big font sprite offset
                 int character = vX & 0xF;
-                int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getBigFontCharacterSpriteOffset(character);
+                int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getBigFontSpriteOffset(character);
                 this.setIndexRegister(spriteOffset);
-                flags |= Chip8Processor.MEGA_DRAW_FONT_EXPECTED;
+                flags |= Chip8Processor.FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: Store registers to flags storage
                 this.saveRegistersToFlags(secondNibble);

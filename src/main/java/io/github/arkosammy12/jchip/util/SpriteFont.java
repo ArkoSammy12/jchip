@@ -1,6 +1,8 @@
 package io.github.arkosammy12.jchip.util;
 
-public class CharacterSpriteFont {
+import java.util.Optional;
+
+public class SpriteFont {
 
     public static int SMALL_FONT_BEGIN_OFFSET = 0x50;
     public static int BIG_FONT_BEGIN_OFFSET = 0xA0;
@@ -78,7 +80,7 @@ public class CharacterSpriteFont {
     private final int[][] smallFont;
     private final int[][] bigFont;
 
-    public CharacterSpriteFont(Chip8Variant chip8Variant) {
+    public SpriteFont(Chip8Variant chip8Variant) {
 
         switch (chip8Variant) {
             case CHIP_8 -> {
@@ -101,15 +103,15 @@ public class CharacterSpriteFont {
         return this.smallFont;
     }
 
-    public int[][] getBigFont() {
-        return this.bigFont;
+    public Optional<int[][]> getBigFont() {
+        return Optional.ofNullable(this.bigFont);
     }
 
-    public int getSmallFontCharacterSpriteOffset(int hex) {
+    public int getSmallFontSpriteOffset(int hex) {
         return SMALL_FONT_BEGIN_OFFSET + (5 * hex);
     }
 
-    public int getBigFontCharacterSpriteOffset(int hex) {
+    public int getBigFontSpriteOffset(int hex) {
         return BIG_FONT_BEGIN_OFFSET + (10 * hex);
     }
 

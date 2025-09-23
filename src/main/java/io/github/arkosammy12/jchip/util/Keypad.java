@@ -1,20 +1,18 @@
-package io.github.arkosammy12.jchip.hardware;
-
-import io.github.arkosammy12.jchip.util.KeyboardLayout;
+package io.github.arkosammy12.jchip.util;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class KeyState extends KeyAdapter {
+public class Keypad extends KeyAdapter {
 
-    private final boolean[] keyState = new boolean[16];
+    private final boolean[] keys = new boolean[16];
     private int waitingKey = -1;
     private boolean terminateEmulator = false;
     private final KeyboardLayout keyboardLayout;
 
-    public KeyState(KeyboardLayout keyboardLayout) {
+    public Keypad(KeyboardLayout keyboardLayout) {
         this.keyboardLayout = keyboardLayout;
     }
 
@@ -41,8 +39,8 @@ public class KeyState extends KeyAdapter {
         this.setKeyUnpressed(keyCode);
     }
 
-    public boolean isKeyPressed(int hex) {
-        return this.keyState[hex];
+    public synchronized boolean isKeyPressed(int hex) {
+        return this.keys[hex];
     }
 
     public void setWaitingKey(int hex) {
@@ -64,7 +62,7 @@ public class KeyState extends KeyAdapter {
     public List<Integer> getPressedKeys() {
         List<Integer> pressedKeys = new ArrayList<>(16);
         for (int i = 0; i < 16; i++) {
-            if (this.keyState[i]) {
+            if (this.keys[i]) {
                 pressedKeys.add(i);
             }
         }
@@ -72,11 +70,11 @@ public class KeyState extends KeyAdapter {
     }
 
     private synchronized void setKeyPressed(int keyCode) {
-        this.keyState[keyCode] = true;
+        this.keys[keyCode] = true;
     }
 
     private synchronized void setKeyUnpressed(int keyCode) {
-        this.keyState[keyCode] = false;
+        this.keys[keyCode] = false;
     }
 
 }

@@ -1,39 +1,49 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.base.Processor;
-import io.github.arkosammy12.jchip.hardware.Chip8Processor;
-import io.github.arkosammy12.jchip.hardware.MegaChipProcessor;
+import io.github.arkosammy12.jchip.cpu.Chip8Processor;
+import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
+import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
-import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import java.awt.event.KeyAdapter;
 
-public class MegaChipEmulator extends SChipEmulator {
+public class MegaChipEmulator<D extends MegaChipDisplay, S extends MegaChipSoundSystem> extends SChipEmulator<D, S> {
 
-    public MegaChipEmulator(EmulatorConfig emulatorConfig) throws Exception {
+    private final MegaChipSoundSystem megaChipSoundSystem;
+
+    public MegaChipEmulator(EmulatorConfig emulatorConfig) {
         super(emulatorConfig);
+        this.megaChipSoundSystem = new MegaChipSoundSystem(this.getMemory());
     }
 
     @Override
     protected Processor createProcessor() {
-        return new MegaChipProcessor(this);
+        return new MegaChipProcessor<>(this);
     }
 
     @Override
-    public MegaChipDisplay getDisplay() {
-        return ((MegaChipDisplay) this.display);
+    @SuppressWarnings("unchecked")
+    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
+        return (D) new MegaChipDisplay(emulatorConfig, keyAdapter);
+    }
+
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public S getSoundSystem() {
+        if (this.getDisplay().isMegaChipModeEnabled()) {
+            return (S) this.megaChipSoundSystem;
+        } else {
+            return this.soundSystem;
+        }
     }
 
     @Override
-    public Display createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return new MegaChipDisplay(emulatorConfig, keyAdapter);
-    }
-
-    @Override
-    protected boolean waitForVBlank(int flags) {
+    protected boolean waitFrameEnd(int flags) {
         if (!this.getDisplay().isMegaChipModeEnabled()) {
-            return super.waitForVBlank(flags);
+            return super.waitFrameEnd(flags);
         }
         return (flags & Chip8Processor.HANDLED) != 0 && (flags & Chip8Processor.CLS_EXECUTED) != 0;
     }

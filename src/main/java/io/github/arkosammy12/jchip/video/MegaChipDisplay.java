@@ -124,6 +124,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     public void drawFontPixel(int column, int row) {
+        // Use hardcoded opaque white for drawing font pixels, and set the index buffer to 255
         this.backBuffer[column][row] = 0xFFFFFFFF;
         this.indexBuffer[column][row] = 255;
     }
@@ -138,7 +139,6 @@ public class MegaChipDisplay extends SChipDisplay {
                 this.frontBuffer[j][shiftedVerticalPosition] = this.frontBuffer[j][i];
             }
         }
-        // Clear the bottom scrollOffset rows
         for (int y = this.screenHeight - scrollAmount; y < this.screenHeight; y++) {
             if (y < 0) {
                 continue;
@@ -164,7 +164,6 @@ public class MegaChipDisplay extends SChipDisplay {
                 this.frontBuffer[j][shiftedVerticalPosition] = this.frontBuffer[j][i];
             }
         }
-        // Clear the top scrollOffset rows
         for (int y = 0; y < scrollAmount && y < this.screenHeight; y++) {
             for (int x = 0; x < this.screenWidth; x++) {
                 this.frontBuffer[x][y] = 0x00000000;
@@ -184,17 +183,15 @@ public class MegaChipDisplay extends SChipDisplay {
             if (shiftedHorizontalPosition >= this.screenWidth) {
                 continue;
             }
-            for (int j = 0; j < this.screenHeight; j++) {
-                this.frontBuffer[shiftedHorizontalPosition][j] = this.frontBuffer[i][j];
+            if (this.screenHeight >= 0) {
+                System.arraycopy(this.frontBuffer[i], 0, this.frontBuffer[shiftedHorizontalPosition], 0, this.screenHeight);
             }
         }
-        // Clear the leftmost 4 columns
         for (int x = 0; x < 4 && x < this.screenWidth; x++) {
             for (int y = 0; y < this.screenHeight; y++) {
                 this.frontBuffer[x][y] = 0x00000000;
             }
         }
-
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -209,8 +206,8 @@ public class MegaChipDisplay extends SChipDisplay {
             if (shiftedHorizontalPosition < 0) {
                 continue;
             }
-            for (int j = 0; j < this.screenHeight; j++) {
-                this.frontBuffer[shiftedHorizontalPosition][j] = this.frontBuffer[i][j];
+            if (this.screenHeight >= 0) {
+                System.arraycopy(this.frontBuffer[i], 0, this.frontBuffer[shiftedHorizontalPosition], 0, this.screenHeight);
             }
         }
         for (int x = this.screenWidth - 4; x < this.screenWidth; x++) {
@@ -240,7 +237,7 @@ public class MegaChipDisplay extends SChipDisplay {
             int yOffset = (screenHeight - superHeight * yScale) / 2;
             for (int sy = 0; sy < superHeight; sy++) {
                 for (int sx = 0; sx < superWidth; sx++) {
-                    int color = super.colorPalette.getColorARGB(this.frameBuffer[sx][sy] & 0xF);
+                    int color = super.colorPalette.getColorARGB(this.bitplaneBuffer[sx][sy] & 0xF);
                     int baseY = yOffset + sy * yScale;
                     int baseX = sx * xScale;
                     for (int dy = 0; dy < yScale; dy++) {
@@ -281,9 +278,7 @@ public class MegaChipDisplay extends SChipDisplay {
     public void flushBackBuffer() {
         this.scrollTriggered = false;
         for (int i = 0; i < this.backBuffer.length; i++) {
-            for (int j = 0; j < this.backBuffer[i].length; j++) {
-                this.frontBuffer[i][j] = this.backBuffer[i][j];
-            }
+            System.arraycopy(this.backBuffer[i], 0, this.frontBuffer[i], 0, this.backBuffer[i].length);
         }
     }
 
@@ -302,15 +297,8 @@ public class MegaChipDisplay extends SChipDisplay {
         }
     }
 
-    public void clearIndexBuffer() {
-        for (int i = 0; i < this.backBuffer.length; i++) {
-            for (int j = 0; j < this.backBuffer[i].length; j++) {
-                this.indexBuffer[i][j] = 0;
-            }
-        }
-    }
-
-    private int blendAlpha(int src, int dst, int alpha) {
+    @SuppressWarnings("DuplicatedCode")
+    private static int blendAlpha(int src, int dst, int alpha) {
         int invAlpha = 255 - alpha;
 
         int sr = (src >> 16) & 0xFF;
@@ -328,7 +316,8 @@ public class MegaChipDisplay extends SChipDisplay {
         return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 
-    private int addColors(int src, int dst) {
+    @SuppressWarnings("DuplicatedCode")
+    private static int addColors(int src, int dst) {
         int sr = (src >> 16) & 0xFF;
         int sg = (src >> 8) & 0xFF;
         int sb = src & 0xFF;
@@ -344,7 +333,8 @@ public class MegaChipDisplay extends SChipDisplay {
         return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 
-    private int multiplyColors(int src, int dst) {
+    @SuppressWarnings("DuplicatedCode")
+    private static int multiplyColors(int src, int dst) {
         int sr = (src >> 16) & 0xFF;
         int sg = (src >> 8) & 0xFF;
         int sb = src & 0xFF;
@@ -359,8 +349,6 @@ public class MegaChipDisplay extends SChipDisplay {
 
         return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
-
-
 
     public enum BlendMode {
         BLEND_NORMAL,

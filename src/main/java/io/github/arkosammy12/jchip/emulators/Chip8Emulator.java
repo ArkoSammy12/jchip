@@ -2,23 +2,22 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.*;
-import io.github.arkosammy12.jchip.hardware.*;
+import io.github.arkosammy12.jchip.cpu.*;
+import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
-import io.github.arkosammy12.jchip.base.Display;
 
-import javax.sound.sampled.LineUnavailableException;
 import java.awt.event.KeyAdapter;
 
-public class Chip8Emulator implements Emulator {
+public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implements Emulator {
 
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
     protected final Processor processor;
     private final Memory memory;
-    protected final Display display;
-    private final KeyState keyState;
-    private final SoundSystem soundSystem;
+    protected final D display;
+    private final Keypad keyState;
+    protected final S soundSystem;
     private final Chip8Variant chip8Variant;
     protected final EmulatorConfig config;
     protected final int targetInstructionsPerFrame;
@@ -28,15 +27,15 @@ public class Chip8Emulator implements Emulator {
 
     private int waitFrames = 0;
 
-    public Chip8Emulator(EmulatorConfig emulatorConfig) throws Exception {
+    public Chip8Emulator(EmulatorConfig emulatorConfig) {
         try {
             this.config = emulatorConfig;
             this.chip8Variant = emulatorConfig.getConsoleVariant();
             this.displayWaitEnabled = emulatorConfig.doDisplayWait();
             this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
-            this.keyState = new KeyState(this.config.getKeyboardLayout());
-            this.soundSystem = new Chip8SoundSystem(this.chip8Variant);
+            this.keyState = new Keypad(this.config.getKeyboardLayout());
+            this.soundSystem = this.createSoundSystem(this.chip8Variant);
             this.display = this.createDisplay(config, keyState);
             this.memory = new Chip8Memory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
             this.processor = this.createProcessor();
@@ -47,7 +46,7 @@ public class Chip8Emulator implements Emulator {
     }
 
     protected Processor createProcessor() {
-        return new Chip8Processor(this);
+        return new Chip8Processor<>(this);
     }
 
     @Override
@@ -61,22 +60,28 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public Chip8Display getDisplay() {
-        return ((Chip8Display) this.display);
+    public D getDisplay() {
+        return this.display;
     }
 
-    protected Display createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return new Chip8Display(emulatorConfig, keyAdapter);
+    @SuppressWarnings("unchecked")
+    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
+        return (D) new Chip8Display(emulatorConfig, keyAdapter);
     }
 
     @Override
-    public KeyState getKeyState() {
+    public Keypad getKeyState() {
         return this.keyState;
     }
 
     @Override
-    public SoundSystem getSoundSystem() {
+    public S getSoundSystem() {
         return this.soundSystem;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected S createSoundSystem(Chip8Variant chip8Variant) {
+        return (S) new Chip8SoundSystem(chip8Variant);
     }
 
     @Override
@@ -100,7 +105,7 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public void tick() throws InvalidInstructionException, LineUnavailableException {
+    public void tick() throws InvalidInstructionException {
         long startOfFrame = System.nanoTime();
         this.runInstructionLoop();
         this.getDisplay().flush(this.currentInstructionsPerFrame);
@@ -113,7 +118,7 @@ public class Chip8Emulator implements Emulator {
         }
     }
 
-    protected void runInstructionLoop() throws InvalidInstructionException, LineUnavailableException {
+    protected void runInstructionLoop() throws InvalidInstructionException {
         this.processor.decrementTimers();
         if (this.waitFrames > 0) {
             this.waitFrames--;
@@ -121,7 +126,7 @@ public class Chip8Emulator implements Emulator {
         }
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
             int flags = this.processor.cycle();
-            if (this.waitForVBlank(flags)) {
+            if (this.waitFrameEnd(flags)) {
                 break;
             }
             if (this.processor.shouldTerminate()) {
@@ -135,7 +140,7 @@ public class Chip8Emulator implements Emulator {
         }
     }
 
-    protected boolean waitForVBlank(int flags) {
+    protected boolean waitFrameEnd(int flags) {
         if (this.config.doDisplayWait()) {
             if ((flags & Chip8Processor.DRAW_EXECUTED) != 0) {
                 return true;
@@ -148,15 +153,20 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public void close() throws Exception {
-        if (this.display != null) {
-            this.display.close();
+    public void close() {
+        try {
+            if (this.display != null) {
+                this.display.close();
+            }
+        } catch (Exception e) {
+            System.err.println("Error releasing emulator display resources: " + e);
         }
-        if (this.soundSystem != null) {
-            this.soundSystem.close();
-        }
-        if (this.processor != null) {
-            this.processor.close();
+        try {
+            if (this.soundSystem != null) {
+                this.soundSystem.close();
+            }
+        } catch (Exception e) {
+            System.err.println("Error releasing emulator sound system resources: " + e);
         }
     }
 

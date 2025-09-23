@@ -43,13 +43,13 @@ public enum Chip8Variant {
         };
     }
 
-    public static Emulator getEmulatorForVariant(EmulatorConfig emulatorConfig) throws Exception {
+    public static Emulator getEmulatorForVariant(EmulatorConfig emulatorConfig) {
         Chip8Variant chip8Variant = emulatorConfig.getConsoleVariant();
         return switch (chip8Variant) {
-            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator(emulatorConfig);
-            case XO_CHIP -> new XOChipEmulator(emulatorConfig);
-            case MEGA_CHIP -> new MegaChipEmulator(emulatorConfig);
-            default -> new Chip8Emulator(emulatorConfig);
+            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator<>(emulatorConfig);
+            case XO_CHIP -> new XOChipEmulator<>(emulatorConfig);
+            case MEGA_CHIP -> new MegaChipEmulator<>(emulatorConfig);
+            default -> new Chip8Emulator<>(emulatorConfig);
         };
     }
 

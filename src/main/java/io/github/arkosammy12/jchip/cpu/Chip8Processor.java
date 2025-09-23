@@ -1,28 +1,32 @@
-package io.github.arkosammy12.jchip.hardware;
+package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
+import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 
 import java.util.List;
 import java.util.Random;
 
-public class Chip8Processor implements Processor {
+public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Display, S extends SoundSystem> implements Processor {
 
     public static final int HANDLED = 1;
     public static final int SKIP_TAKEN = 1 << 1;
     public static final int DRAW_EXECUTED = 1 << 2;
     public static final int LONG_DRAW_EXECUTED = 1 << 3;
     public static final int GET_KEY_EXECUTED = 1 << 4;
-    public static final int MEGA_DRAW_FONT_EXPECTED = 1 << 5;
+    public static final int FONT_SPRITE_POINTER = 1 << 5;
     public static final int CLS_EXECUTED = 1 << 6;
 
     public static final int BASE_SLICE_MASK_8 = 1 << 7;
 
-    protected final Chip8Emulator emulator;
+    protected final E emulator;
+    protected boolean shouldTerminate;
+    private Random random;
+
     private final int[] registers = new int[16];
     private final int[] flagsStorage = new int[16];
     private final int[] stack = new int[16];
@@ -31,11 +35,9 @@ public class Chip8Processor implements Processor {
     private int stackPointer;
     private int delayTimer;
     private int soundTimer;
-    private Random random;
-    protected boolean shouldTerminate;
 
-    public Chip8Processor(Emulator emulator) {
-        this.emulator = (Chip8Emulator) emulator;
+    public Chip8Processor(E emulator) {
+        this.emulator = emulator;
     }
 
     protected void setProgramCounter(int programCounter) {
@@ -263,19 +265,19 @@ public class Chip8Processor implements Processor {
             case 0x0 -> { // 8XY0: Copy to register
                 this.setRegister(secondNibble, vY);
             }
-            case 0x1 -> { // 8XY1: Or and register
+            case 0x1 -> { // 8XY1: OR registers
                 this.setRegister(secondNibble, vX | vY);
                 if (this.emulator.getEmulatorConfig().doVFReset()) {
                     this.setVF(false);
                 }
             }
-            case 0x2 -> { // 8XY2: AND and register
+            case 0x2 -> { // 8XY2: AND registers
                 this.setRegister(secondNibble, vX & vY);
                 if (this.emulator.getEmulatorConfig().doVFReset()) {
                     this.setVF(false);
                 }
             }
-            case 0x3 -> { // 8XY3: XOR and register
+            case 0x3 -> { // 8XY3: XOR registers
                 this.setRegister(secondNibble, vX ^ vY);
                 if (this.emulator.getEmulatorConfig().doVFReset()) {
                     this.setVF(false);
@@ -292,7 +294,7 @@ public class Chip8Processor implements Processor {
                 this.setRegister(secondNibble, vX - vY);
                 this.setVF(noBorrow);
             }
-            case 0x6 -> { // 8XY6: Shift right and register
+            case 0x6 -> { // 8XY6: Shift right register
                 int operand = this.emulator.getEmulatorConfig().doShiftVXInPlace() ? vX : vY;
                 boolean shiftedOut = (operand & 1) != 0;
                 this.setRegister(secondNibble, operand >>> 1);
@@ -304,7 +306,7 @@ public class Chip8Processor implements Processor {
                 this.setRegister(secondNibble, value);
                 this.setVF(noBorrow);
             }
-            case 0xE -> { // 8XYE: Shift left and register
+            case 0xE -> { // 8XYE: Shift left register
                 int operand = this.emulator.getEmulatorConfig().doShiftVXInPlace() ? vX : vY;
                 boolean shiftedOut = (operand & 128) != 0;
                 this.setRegister(secondNibble, operand << 1);
@@ -409,7 +411,7 @@ public class Chip8Processor implements Processor {
 
     protected int executeSkipIfKey(int secondNibble, int secondByte) {
         int flags = HANDLED;
-        KeyState keyState = this.emulator.getKeyState();
+        Keypad keyState = this.emulator.getKeyState();
         int vX = this.getRegister(secondNibble);
         int hexKey = vX & 0xF;
         switch (secondByte) {
@@ -434,12 +436,12 @@ public class Chip8Processor implements Processor {
         int flags = HANDLED;
         int vX = this.getRegister(secondNibble);
         switch (secondByte) {
-            case 0x07 -> { // FX07: Set VX to current delay timer
+            case 0x07 -> { // FX07: Set VX to delay timer
                 int delayTimer = this.getDelayTimer();
                 this.setRegister(secondNibble, delayTimer);
             }
             case 0x0A -> { // FX0A: Get key
-                KeyState keyState = this.emulator.getKeyState();
+                Keypad keyState = this.emulator.getKeyState();
                 List<Integer> pressedKeys = keyState.getPressedKeys();
                 flags |= GET_KEY_EXECUTED;
                 int waitingKey = keyState.getWaitingKey();
@@ -470,14 +472,14 @@ public class Chip8Processor implements Processor {
             case 0x18 -> { // FX18: Set sound timer to VX
                 this.setSoundTimer(vX);
             }
-            case 0x1E -> { // FX1E: Add to index immediate
+            case 0x1E -> { // FX1E: Add to index register immediate
                 this.setIndexRegister(vX + this.getIndexRegister());
             }
-            case 0x29 -> { // FX29: Set index register to small font character location
+            case 0x29 -> { // FX29: Set index register to small font sprite offset
                 int character = vX & 0xF;
-                int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontCharacterSpriteOffset(character);
+                int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontSpriteOffset(character);
                 this.setIndexRegister(spriteOffset);
-                flags |= MEGA_DRAW_FONT_EXPECTED;
+                flags |= FONT_SPRITE_POINTER;
             }
             case 0x33 -> { // FX33: Store BCD representation of VX at I, I+1, I+2
                 Memory memory = this.emulator.getMemory();
@@ -496,7 +498,7 @@ public class Chip8Processor implements Processor {
                 memory.writeByte(currentIndexPointer + 1, (int) tens);
                 memory.writeByte(currentIndexPointer + 2, (int) ones);
             }
-            case 0x55 -> { // FX55: Write to memory v0 - vX
+            case 0x55 -> { // FX55: Write v0 to vX to memory
                 Memory memory = this.emulator.getMemory();
                 int currentIndexPointer = this.getIndexRegister();
                 for (int i = 0; i <= secondNibble; i++) {
@@ -507,7 +509,7 @@ public class Chip8Processor implements Processor {
                     this.setIndexRegister(currentIndexPointer + secondNibble + 1);
                 }
             }
-            case 0x65 -> { // FX65: Read from memory v0 - vX
+            case 0x65 -> { // FX65: Read into v0 to vX from memory
                 Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i <= secondNibble; i++) {

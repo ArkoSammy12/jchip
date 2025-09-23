@@ -1,12 +1,13 @@
 package io.github.arkosammy12.jchip.base;
 
+import io.github.arkosammy12.jchip.Main;
+
 import java.io.Closeable;
 
 public interface SoundSystem extends Closeable {
 
-    void loadPatternByte(int index, int value);
-
-    void setPlaybackRate(int pitch);
+    int SAMPLE_RATE = 44100;
+    int SAMPLES_PER_FRAME = SAMPLE_RATE / Main.FRAMES_PER_SECOND;
 
     void pushSamples(int soundTimer);
 
