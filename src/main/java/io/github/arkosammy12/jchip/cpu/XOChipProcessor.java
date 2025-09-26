@@ -15,8 +15,8 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
     }
 
     @Override
-    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) throws InvalidInstructionException {
+        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
         if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
             return flagsSuper;
         }

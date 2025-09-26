@@ -83,7 +83,7 @@ public class SpriteFont {
     public SpriteFont(Chip8Variant chip8Variant) {
 
         switch (chip8Variant) {
-            case CHIP_8 -> {
+            case CHIP_8, CHIP_8X -> {
                 this.smallFont = CHIP_8;
                 this.bigFont = null;
             }

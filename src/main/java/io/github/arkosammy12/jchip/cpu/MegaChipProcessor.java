@@ -16,7 +16,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
     }
 
     @Override
-    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) throws InvalidInstructionException {
         MegaChipDisplay display = this.emulator.getDisplay();
         int flags = 0;
         if (secondNibble == 0 && thirdNibble == 1) {
@@ -38,7 +38,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
             return flags;
         }
         if (!display.isMegaChipModeEnabled()) {
-            return super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+            return super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
         }
 
         flags = Chip8Processor.HANDLED;

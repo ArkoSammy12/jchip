@@ -32,7 +32,11 @@ public class Chip8Memory implements Memory {
                     System.arraycopy(slice, 0, this.bytes, offset, sliceLength);
                 }
             });
-            System.arraycopy(program, 0, this.bytes, 0x200, program.length);
+            int programStartOffset = 0x200;
+            if (chip8Variant == Chip8Variant.CHIP_8X) {
+                programStartOffset = 0x300;
+            }
+            System.arraycopy(program, 0, this.bytes, programStartOffset, program.length);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("ROM size too big for CHIP-8 variant " + chip8Variant.getDisplayName() + "!");
         }

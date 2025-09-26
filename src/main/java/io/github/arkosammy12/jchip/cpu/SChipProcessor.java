@@ -21,8 +21,8 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
     }
 
     @Override
-    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) throws InvalidInstructionException {
+        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
         if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
             return flagsSuper;
         }
@@ -72,9 +72,9 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
 
     // BXNN
     @Override
-    protected int executeJumpWithOffset(int secondNibble, int memoryAddress) {
+    protected int executeJumpWithOffset(int secondNibble, int thirdNibble, int fourthNibble, int memoryAddress) {
         if (!this.emulator.getEmulatorConfig().doJumpWithVX()) {
-            return super.executeJumpWithOffset(secondNibble, memoryAddress);
+            return super.executeJumpWithOffset(secondNibble, thirdNibble, fourthNibble, memoryAddress);
         }
         int offset = this.getRegister(secondNibble);
         int jumpAddress = memoryAddress + offset;

@@ -1,14 +1,12 @@
 package io.github.arkosammy12.jchip.util;
 
 import io.github.arkosammy12.jchip.base.Emulator;
-import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
-import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
-import io.github.arkosammy12.jchip.emulators.SChipEmulator;
-import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
+import io.github.arkosammy12.jchip.emulators.*;
 import picocli.CommandLine;
 
 public enum Chip8Variant {
     CHIP_8("chip-8", "CHIP-8", 15),
+    CHIP_8X("chip-8x", "CHIP-8X", 15),
     SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", 30),
     SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", 30),
     XO_CHIP("xo-chip", "XO-CHIP", 1000),
@@ -36,6 +34,7 @@ public enum Chip8Variant {
     public static Chip8Variant getVariantForDatabaseId(String id) {
         return switch (id) {
             case "originalChip8", "modernChip8", "chip48" -> Chip8Variant.CHIP_8;
+            case "chip8x" -> Chip8Variant.CHIP_8X;
             case "superchip1", "superchip" -> Chip8Variant.SUPER_CHIP_LEGACY;
             case "xochip" -> Chip8Variant.XO_CHIP;
             case "megachip8" -> Chip8Variant.MEGA_CHIP;
@@ -46,6 +45,7 @@ public enum Chip8Variant {
     public static Emulator getEmulatorForVariant(EmulatorConfig emulatorConfig) {
         Chip8Variant chip8Variant = emulatorConfig.getConsoleVariant();
         return switch (chip8Variant) {
+            case CHIP_8X -> new Chip8XEmulator<>(emulatorConfig);
             case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator<>(emulatorConfig);
             case XO_CHIP -> new XOChipEmulator<>(emulatorConfig);
             case MEGA_CHIP -> new MegaChipEmulator<>(emulatorConfig);
@@ -59,7 +59,7 @@ public enum Chip8Variant {
 
     public int getDefaultInstructionsPerFrame(boolean displayWaitEnabled) {
         int defaultIpf = this.defaultInstructionsPerFrame;
-        if (this == Chip8Variant.CHIP_8 && !displayWaitEnabled) {
+        if ((this == Chip8Variant.CHIP_8 || this == Chip8Variant.CHIP_8X) && !displayWaitEnabled) {
             defaultIpf = 11;
         }
         return defaultIpf;

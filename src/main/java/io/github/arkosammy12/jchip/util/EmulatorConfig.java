@@ -244,17 +244,17 @@ public class EmulatorConfig {
         if (this.cliDoVFReset.isPresent()) {
             this.doVfReset = this.cliDoVFReset.get();
         } else {
-            this.doVfReset = Objects.requireNonNullElse(doVfReset, this.chip8Variant == Chip8Variant.CHIP_8);
+            this.doVfReset = Objects.requireNonNullElse(doVfReset, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.CHIP_8X);
         }
         if (this.cliDoIncrementIndex.isPresent()) {
             this.doIncrementIndex = this.cliDoIncrementIndex.get();
         } else {
-            this.doIncrementIndex = Objects.requireNonNullElse(doIncrementIndex, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.XO_CHIP);
+            this.doIncrementIndex = Objects.requireNonNullElse(doIncrementIndex, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.CHIP_8X || this.chip8Variant == Chip8Variant.XO_CHIP);
         }
         if (this.cliDoDisplayWait.isPresent()) {
             this.doDisplayWait = this.cliDoDisplayWait.get();
         } else {
-            this.doDisplayWait = Objects.requireNonNullElse(doDisplayWait, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY);
+            this.doDisplayWait = Objects.requireNonNullElse(doDisplayWait, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.CHIP_8X || this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY);
         }
         if (this.cliDoClipping.isPresent()) {
             this.doClipping = this.cliDoClipping.get();

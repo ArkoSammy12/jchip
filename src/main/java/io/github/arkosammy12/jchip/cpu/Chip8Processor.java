@@ -152,7 +152,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         int fourthNibble = (secondByte & 0x0F);
         int memoryAddress = ((firstByte << 8) | secondByte) & 0x0FFF;
         int flags = switch (firstNibble) {
-            case 0x0 -> executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+            case 0x0 -> executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
             case 0x1 -> executeJump(memoryAddress);
             case 0x2 -> executeCall(memoryAddress);
             case 0x3 -> executeSkipIfEqualsImmediate(secondNibble, secondByte);
@@ -163,7 +163,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
             case 0x8 -> executeALUInstruction(secondNibble, thirdNibble, fourthNibble);
             case 0x9 -> executeSkipIfRegistersNotEqual(secondNibble, thirdNibble, fourthNibble);
             case 0xA -> executeSetIndexRegister(memoryAddress);
-            case 0xB -> executeJumpWithOffset(secondNibble, memoryAddress);
+            case 0xB -> executeJumpWithOffset(secondNibble, thirdNibble, fourthNibble, memoryAddress);
             case 0xC -> executeGetRandomNumber(secondNibble, secondByte);
             case 0xD -> executeDraw(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
             case 0xE -> executeSkipIfKey(secondNibble, secondByte);
@@ -176,7 +176,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return flags;
     }
 
-    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) throws InvalidInstructionException {
         int flags = HANDLED;
         if (secondNibble == 0x0 && thirdNibble == 0xE) {
             switch (fourthNibble) {
@@ -339,7 +339,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     }
 
     // BNNN
-    protected int executeJumpWithOffset(int secondNibble, int memoryAddress) {
+    protected int executeJumpWithOffset(int secondNibble, int thirdNibble, int fourthNibble, int memoryAddress) {
         int offset = this.getRegister(0x0);
         this.setProgramCounter(memoryAddress + offset);
         return HANDLED;
