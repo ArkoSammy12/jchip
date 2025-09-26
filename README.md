@@ -16,7 +16,7 @@ A CHIP-8, SUPER-CHIP, and XO-CHIP interpreter written in Java.
     * [Command-line arguments](#command-line-arguments)
 * [Automatic Database Configuration](#automatic-database-configuration)
 * [Libraries used](#libraries-used)
-* [Resources and general links](#resources)
+* [Resources and general links](#resources-and-general-links)
 * [Credits](#credits)
 * [License](#license)
 
@@ -65,7 +65,7 @@ Press the Escape key in order to close the emulator.
 | Argument                                                                                   | Description                                                           | Default                                                 |
 |--------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------|
 | `-r, --rom <path>`                                                                         | **Required.** Path to the ROM file (absolute or relative to the JAR). | –                                                       |
-| `-v, --variant <chip-8\|schip-legacy\|schip-modern\|xo-chip\|mega-chip>`                   | Select the CHIP-8 variant.                                            | Auto-detected from database. `chip-8` otherwise.        |
+| `-v, --variant <chip-8\|chip-8x\|schip-legacy\|schip-modern\|xo-chip\|mega-chip>`          | Select the CHIP-8 variant.                                            | Auto-detected from database. `chip-8` otherwise.        |
 | `-i, --instructions-per-frame <int>`                                                       | Number of instructions executed per frame (60 fps).                   | Auto-detected from database. Variant default otherwise. |
 | `-c, --color-palette <cadmium\|silicon8\|pico8\|octoclassic\|lcd\|c64\|intellivison\|cga>` | Select a built-in color palette.                                      | Auto-detected from database. `cadmium` otherwise.       |
 | `-k, --keyboard-layout <qwerty\|dvorak\|azerty\|colemak>`                                  | Select keyboard layout for keypad mapping.                            | `qwerty`                                                |

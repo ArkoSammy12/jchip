@@ -37,7 +37,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             this.keyState = new Keypad(this.config.getKeyboardLayout());
             this.soundSystem = this.createSoundSystem(this.chip8Variant);
             this.display = this.createDisplay(config, keyState);
-            this.memory = new Chip8Memory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
+            this.memory = this.createMemory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
             this.processor = this.createProcessor();
         } catch (Exception e) {
             this.close();
@@ -47,6 +47,15 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     protected Processor createProcessor() {
         return new Chip8Processor<>(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
+        return (D) new Chip8Display(emulatorConfig, keyAdapter);
+    }
+
+    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
+        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFF + 1);
     }
 
     @Override
@@ -62,11 +71,6 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     @Override
     public D getDisplay() {
         return this.display;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new Chip8Display(emulatorConfig, keyAdapter);
     }
 
     @Override

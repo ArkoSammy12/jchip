@@ -4,7 +4,10 @@ import io.github.arkosammy12.jchip.base.Processor;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
+import io.github.arkosammy12.jchip.util.Chip8Memory;
+import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.util.SpriteFont;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import java.awt.event.KeyAdapter;
@@ -29,6 +32,10 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends MegaChipSound
         return (D) new MegaChipDisplay(emulatorConfig, keyAdapter);
     }
 
+    @Override
+    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
+        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFFFFF + 1);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
