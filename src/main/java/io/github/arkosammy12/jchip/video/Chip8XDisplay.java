@@ -24,11 +24,17 @@ public class Chip8XDisplay extends Chip8Display {
             0xFFFFFFFF
     };
 
-    private int backgroundColorIndex = 0;
     private final int[][] foregroundColorIndexes = new int[64][32];
+    private int backgroundColorIndex = 0;
+    private boolean extendedColorDraw = false;
 
     public Chip8XDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
         super(config, keyAdapter);
+
+        // CHIP-8X self color test on startup
+        for (int i = 0; i < 8; i++) {
+            this.foregroundColorIndexes[i][0] = 2;
+        }
     }
 
     public void cycleBackgroundColor() {
@@ -36,18 +42,37 @@ public class Chip8XDisplay extends Chip8Display {
     }
 
     public void setForegroundColor(int column, int row, int colorIndex) {
-        if (colorIndex >= 8) {
-            int a = 1;
-        }
         this.foregroundColorIndexes[column][row] = colorIndex;
+    }
+
+    public void setExtendedColorDraw(boolean extendedColorDraw) {
+        this.extendedColorDraw = extendedColorDraw;
     }
 
     @Override
     protected void populateDataBuffer(int[] buffer) {
-        for (int y = 0; y < screenHeight; y++) {
-            int base = y * screenWidth;
-            for (int x = 0; x < screenWidth; x++) {
-                buffer[base + x] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
+        if (this.extendedColorDraw) {
+            for (int y = 0; y < screenHeight; y++) {
+                int base = y * screenWidth;
+                for (int x = 0; x < screenWidth; x++) {
+                    buffer[base + x] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
+                }
+            }
+        } else {
+            for (int i = 0; i < 8; i++) {
+                int zoneY = i * 4;
+                for (int j = 0; j < 8; j++) {
+                    int zoneX = j * 8;
+                    int zoneColorIndex = this.foregroundColorIndexes[zoneX][zoneY];
+                    for (int dy = 0; dy < 4; dy++) {
+                        int y = zoneY + dy;
+                        int base = y * screenWidth;
+                        for (int dx = 0; dx < 8; dx++) {
+                            int x = zoneX + dx;
+                            buffer[base + x] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[zoneColorIndex] : BACKGROUND_COLORS[this.backgroundColorIndex];
+                        }
+                    }
+                }
             }
         }
     }

@@ -1,13 +1,12 @@
 package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.base.Display;
-import io.github.arkosammy12.jchip.base.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
-public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisplay, S extends SoundSystem> extends Chip8Processor<E, D, S> {
+public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Processor<E, D, S> {
 
     public Chip8XProcessor(E emulator) {
         super(emulator);
@@ -46,47 +45,41 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
         return flags;
     }
 
+    // BXYN/BXY0: Set foreground colors
     @Override
     protected int executeJumpWithOffset(int secondNibble, int thirdNibble, int fourthNibble, int memoryAddress) {
         Chip8XDisplay display = this.emulator.getDisplay();
         int vX = this.getRegister(secondNibble);
         int vX1 = this.getRegister((secondNibble + 1) % 16);
         int colorIndex = this.getRegister(thirdNibble) & 0x7;
-
         int logicalScreenWidth = display.getWidth();
         int logicalScreenHeight = display.getHeight();
-
         if (fourthNibble > 0) {
-            int horizontalOffset = vX & 0x38;
+            display.setExtendedColorDraw(true);
+            int zoneX = vX & 0x38;
             for (int i = 0; i < fourthNibble; i++) {
-                int row = vX1 + i;
-                if (row >= logicalScreenHeight) {
-                    break;
-                }
+                int colorY = (vX1 + i) % logicalScreenHeight;
                 for (int j = 0; j < 8; j++) {
-                    int column = j + horizontalOffset;
-                    if (column >= logicalScreenWidth) {
-                        break;
-                    }
-                    display.setForegroundColor(column, row, colorIndex);
+                    int colorX = (j + zoneX) % logicalScreenWidth;
+                    display.setForegroundColor(colorX, colorY, colorIndex);
                 }
             }
-
         } else {
-            int zoneWidth = ((vX & 0xF0) >> 4) + 1;
-            int zoneHorizontalOffset = vX & 0xF;
-            int zoneHeight = ((vX1 & 0xF0) >> 4) + 1;
-            int zoneVerticalOffset = vX1 & 0xF;
-            for (int i = 0; i < zoneHeight; i++) {
-                int baseY = (zoneVerticalOffset + i) * 4;
-                for (int j = 0; j < zoneWidth; j++) {
-                    int baseX = (zoneHorizontalOffset + j) * 8;
-                    for (int dy = 0; dy < 4; dy++) {
-                        for (int dx = 0; dx < 8; dx++) {
-                            display.setForegroundColor(dx + baseX, dy + baseY, colorIndex);
-                        }
+            display.setExtendedColorDraw(false);
+            int horizontalZoneFill = ((vX & 0xF0) >> 4) + 1;
+            int zoneFillStartHorizontalOffset = vX & 0xF;
+            int verticalZoneFill = ((vX1 & 0xF0) >> 4) + 1;
+            int zoneFillStartVerticalOffset = vX1 & 0xF;
+            for (int i = 0; i < verticalZoneFill; i++) {
+                int zoneY = ((zoneFillStartVerticalOffset + i) * 4) % logicalScreenHeight;
+                for (int j = 0; j < horizontalZoneFill; j++) {
+                    int zoneX = ((zoneFillStartHorizontalOffset + j) * 8) % logicalScreenWidth;
+                    for (int dx = 0; dx < 8; dx++) {
+                        int colorX = (zoneX + dx) % logicalScreenWidth;
+                        display.setForegroundColor(colorX, zoneY, colorIndex);
                     }
                 }
+
             }
         }
         return HANDLED;
@@ -105,22 +98,10 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
         int hexKey = vX & 0xF;
         switch (secondByte) {
             case 0xF2 -> { // EXF2: Skip if key on keypad 2 is pressed
-                /*
-                if (keyState.isKeyPressed(hexKey)) {
-                    flags |= SKIP_TAKEN;
-                    this.incrementProgramCounter();
-                }
-
-                 */
+                // Stub
             }
             case 0xF5 -> { // EXF5: Skip if key on keypad 2 is not pressed
-                /*
-                if (!keyState.isKeyPressed(hexKey)) {
-                    flags |= SKIP_TAKEN;
-                    this.incrementProgramCounter();
-                }
-
-                 */
+                // Stub
             }
             default -> flags &= ~HANDLED;
         }
@@ -137,10 +118,10 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
         int vX = this.getRegister(secondNibble);
         switch (secondByte) {
             case 0xF8 -> { // FXF8: Output vX to IO port
-
+                this.emulator.getSoundSystem().setPlaybackRate(vX);
             }
             case 0xFB -> { // FXFB: Wait for input from IO port and load it into vX
-
+                // Stub
             }
             default -> flags &= ~Chip8Processor.HANDLED;
         }
