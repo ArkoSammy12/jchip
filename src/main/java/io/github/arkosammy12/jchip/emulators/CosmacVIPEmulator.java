@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
 import io.github.arkosammy12.jchip.util.*;
@@ -59,7 +60,10 @@ public class CosmacVIPEmulator implements Emulator {
 
     @Override
     public void tick() throws InvalidInstructionException {
-
+        long startOfFrame = System.nanoTime();
+        //this.runInstructionLoop();
+        this.getDisplay().flush(CYCLES_PER_FRAME);
+        this.getSoundSystem().pushSamples(0);
     }
 
     @Override

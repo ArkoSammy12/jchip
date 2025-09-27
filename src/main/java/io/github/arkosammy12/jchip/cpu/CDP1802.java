@@ -374,7 +374,7 @@ public class CDP1802 implements Processor {
                     }
                 }
             }
-            case 0x5 -> {
+            case 0x5 -> { // STR: STORE VIA N
                 this.emulator.getMemory().writeByte(this.getRegister(operand), this.getAccumulator());
             }
             case 0x3 -> {
