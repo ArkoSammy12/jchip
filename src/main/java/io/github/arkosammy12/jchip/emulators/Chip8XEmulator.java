@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.base.Processor;
+import io.github.arkosammy12.jchip.base.Chip8VariantProcessor;
 import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.util.Chip8Memory;
@@ -18,7 +18,7 @@ public class Chip8XEmulator<D extends Chip8XDisplay, S extends Chip8SoundSystem>
     }
 
     @Override
-    protected Processor createProcessor() {
+    protected Chip8VariantProcessor createProcessor() {
         return new Chip8XProcessor<>(this);
     }
 

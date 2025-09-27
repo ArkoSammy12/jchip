@@ -100,7 +100,6 @@ public abstract class AbstractDisplay implements Display {
         this.frame = tempFrame;
     }
 
-    @Override
     public SpriteFont getCharacterSpriteFont() {
         return this.spriteFont;
     }

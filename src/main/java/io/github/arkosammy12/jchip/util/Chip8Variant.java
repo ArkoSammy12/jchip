@@ -10,7 +10,8 @@ public enum Chip8Variant {
     SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", 30),
     SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", 30),
     XO_CHIP("xo-chip", "XO-CHIP", 1000),
-    MEGA_CHIP("mega-chip", "MEGA-CHIP", 1000);
+    MEGA_CHIP("mega-chip", "MEGA-CHIP", 1000),
+    COSMAC_VIP("cosmac-vip", "COSMAC-VIP", 3668);
 
     private final String identifier;
     private final String displayName;

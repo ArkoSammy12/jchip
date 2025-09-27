@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.base.Chip8VariantProcessor;
 import io.github.arkosammy12.jchip.base.Processor;
 import io.github.arkosammy12.jchip.base.SoundSystem;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
@@ -20,7 +21,7 @@ public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extend
     }
 
     @Override
-    protected Processor createProcessor() {
+    protected Chip8VariantProcessor createProcessor() {
         return new SChipProcessor<>(this);
     }
 

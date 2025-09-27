@@ -13,7 +13,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
-    protected final Processor processor;
+    protected final Chip8VariantProcessor processor;
     private final Memory memory;
     protected final D display;
     private final Keypad keyState;
@@ -45,7 +45,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         }
     }
 
-    protected Processor createProcessor() {
+    protected Chip8VariantProcessor createProcessor() {
         return new Chip8Processor<>(this);
     }
 
@@ -59,7 +59,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     }
 
     @Override
-    public Processor getProcessor() {
+    public Chip8VariantProcessor getProcessor() {
         return this.processor;
     }
 

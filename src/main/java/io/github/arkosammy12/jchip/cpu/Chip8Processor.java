@@ -11,7 +11,7 @@ import io.github.arkosammy12.jchip.video.Chip8Display;
 import java.util.List;
 import java.util.Random;
 
-public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Display, S extends SoundSystem> implements Processor {
+public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Display, S extends SoundSystem> implements Chip8VariantProcessor {
 
     public static final int HANDLED = 1;
     public static final int SKIP_TAKEN = 1 << 1;
@@ -52,7 +52,6 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         this.setProgramCounter(this.getProgramCounter() - 2);
     }
 
-    @Override
     public int getProgramCounter() {
         return this.programCounter;
     }
@@ -79,7 +78,6 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         this.delayTimer = timer;
     }
 
-    @Override
     public int getDelayTimer() {
         return this.delayTimer;
     }
@@ -88,7 +86,6 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         this.soundTimer = timer;
     }
 
-    @Override
     public int getSoundTimer() {
         return this.soundTimer;
     }
@@ -135,7 +132,6 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return this.execute(firstByte, secondByte);
     }
 
-    @Override
     public void decrementTimers() {
         if (this.getDelayTimer() > 0) {
             this.delayTimer -= 1;

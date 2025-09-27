@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.base.Chip8VariantProcessor;
 import io.github.arkosammy12.jchip.base.Processor;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
@@ -22,7 +23,7 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends MegaChipSound
     }
 
     @Override
-    protected Processor createProcessor() {
+    protected Chip8VariantProcessor createProcessor() {
         return new MegaChipProcessor<>(this);
     }
 
