@@ -12,8 +12,8 @@ public class CDP1802 implements Processor {
     private final boolean[] externalFlagInputs = new boolean[4];
     private int accumulator;
     private int xRegister;
-    private int opcode;
-    private int operand;
+    private int type;
+    private int n;
     private boolean dataFlag;
     private boolean outputLine;
     private boolean interruptEnable;
@@ -112,29 +112,29 @@ public class CDP1802 implements Processor {
     public int cycle() throws InvalidInstructionException {
         int opcode = this.emulator.getMemory().readByte(this.getRegister(this.programCounterRegisterIndex));
         this.incrementCurrentProgramCounterRegister();
-        this.opcode = (opcode & 0xF0) >> 4;
-        this.operand = opcode & 0xF;
+        this.type = (opcode & 0xF0) >> 4;
+        this.n = opcode & 0xF;
 
-        switch (this.opcode) {
+        switch (type) {
             case 0x1 -> { // INC: INCREMENT REG N
-                this.incrementRegister(operand);
+                this.incrementRegister(n);
             }
             case 0x2 -> { // DEC: DECREMENT REG N
-                this.decrementRegister(operand);
+                this.decrementRegister(n);
             }
             case 0x6 -> {
-                switch (this.operand) {
+                switch (this.n) {
                     case 0x0 -> { // IRX: INCREMENT REG X
                         this.incrementRegister(this.xRegister);
                     }
                     default -> {
-                        if (operand <= 7) { // OUT: OUTPUT
+                        if (n <= 7) { // OUT: OUTPUT
                             // TODO: HANDLE OUTPUT
                             // M(R(X)) -> BUS
                             // send lower order 3 bits of N from CPU to I/O system
                             // The three N lines are low at all times except when an Input/Output instruction is being executed (I = 6)
                             this.incrementRegister(this.xRegister);
-                        } else if (operand >= 0x9) { // INP: INPUT
+                        } else if (n >= 0x9) { // INP: INPUT
                             // TODO: HANDLE INPUT
                             // The three bits of N are simultaneously sent from the CPU to the I/O system during execution
                             // BUS -> M(R(X)); BUS -> D
@@ -143,31 +143,31 @@ public class CDP1802 implements Processor {
                 }
             }
             case 0x8 -> { // GLO: GET LOW REG N
-                this.setAccumulator(this.getRegisterLowOrder(operand));
+                this.setAccumulator(this.getRegisterLowOrder(n));
             }
             case 0xA -> { // PLO: PUT LOW REG N
-                this.setRegisterLowOrder(operand, this.getAccumulator());
+                this.setRegisterLowOrder(n, this.getAccumulator());
             }
             case 0x9 -> { // GHI: GET HIGH REG N
-                this.setAccumulator(this.getRegisterHighOrder(operand));
+                this.setAccumulator(this.getRegisterHighOrder(n));
             }
             case 0xB -> { // PHI: PUT HIGH REG N
-                this.setRegisterHighOrder(operand, this.getAccumulator());
+                this.setRegisterHighOrder(n, this.getAccumulator());
             }
             case 0x0 -> {
-                if (this.operand != 0) { // LDN: LOAD VIA N
-                    this.setAccumulator(this.emulator.getMemory().readByte(this.getRegister(operand)));
+                if (this.n != 0) { // LDN: LOAD VIA N
+                    this.setAccumulator(this.emulator.getMemory().readByte(this.getRegister(n)));
                 } else { // IDL: IDLE (WAIT FOR DMA OR INTERRUPT M(R(0)) -> BUS)
                     // TODO: HANDLE THIS APPROPRIATELY
                     //this.decrementRegister(this.programCounterRegisterIndex);
                 }
             }
             case 0x4 -> { // LDA: LOAD ADVANCE
-                this.setAccumulator(this.emulator.getMemory().readByte(this.getRegister(operand)));
-                this.incrementRegister(operand);
+                this.setAccumulator(this.emulator.getMemory().readByte(this.getRegister(n)));
+                this.incrementRegister(n);
             }
             case 0xF -> {
-                switch (operand) {
+                switch (n) {
                     case 0x0 -> { // LDX: LOAD VIA X
                         this.setAccumulator(this.emulator.getMemory().readByte(this.getRegister(this.xRegister)));
                     }
@@ -262,7 +262,7 @@ public class CDP1802 implements Processor {
                 }
             }
             case 0x7 -> {
-                switch (operand) {
+                switch (n) {
                     case 0x2 -> { // LDXA: LOAD VIA X AND ADVANCE
                         this.setAccumulator(this.emulator.getMemory().readByte(this.getRegister(this.xRegister)));
                         this.incrementRegister(this.xRegister);
@@ -375,10 +375,10 @@ public class CDP1802 implements Processor {
                 }
             }
             case 0x5 -> { // STR: STORE VIA N
-                this.emulator.getMemory().writeByte(this.getRegister(operand), this.getAccumulator());
+                this.emulator.getMemory().writeByte(this.getRegister(n), this.getAccumulator());
             }
             case 0x3 -> {
-                switch (operand) {
+                switch (n) {
                     case 0x0 -> { // BR: UNCONDITIONAL SHORT BRANCH
                         this.setRegisterLowOrder(this.programCounterRegisterIndex, this.emulator.getMemory().readByte(this.getCurrentProgramCounterRegister()));
                     }
@@ -486,7 +486,7 @@ public class CDP1802 implements Processor {
                 }
             }
             case 0xC -> {
-                switch (operand) {
+                switch (n) {
                     case 0x0 -> { // LBR: LONG BRANCH
                         this.setRegisterHighOrder(this.programCounterRegisterIndex, this.emulator.getMemory().readByte(this.getCurrentProgramCounterRegister()));
                         this.setRegisterLowOrder(this.programCounterRegisterIndex, this.emulator.getMemory().readByte(this.getRegister(this.programCounterRegisterIndex + 1)));
@@ -597,10 +597,10 @@ public class CDP1802 implements Processor {
                 }
             }
             case 0xD -> { // SEP: SET P
-                this.programCounterRegisterIndex = operand & 0xF;
+                this.programCounterRegisterIndex = n & 0xF;
             }
             case 0xE -> { // SEX: SET X
-                this.xRegister = operand & 0xF;
+                this.xRegister = n & 0xF;
             }
         }
 
