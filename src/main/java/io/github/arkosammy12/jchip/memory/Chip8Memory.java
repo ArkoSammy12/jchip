@@ -1,8 +1,8 @@
-package io.github.arkosammy12.jchip.util;
+package io.github.arkosammy12.jchip.memory;
 
 import io.github.arkosammy12.jchip.base.Memory;
-
-import javax.swing.*;
+import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.SpriteFont;
 
 public class Chip8Memory implements Memory {
 

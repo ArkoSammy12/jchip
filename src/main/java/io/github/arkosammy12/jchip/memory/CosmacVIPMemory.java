@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.util;
+package io.github.arkosammy12.jchip.memory;
 
 import io.github.arkosammy12.jchip.base.Memory;
 

@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
+import io.github.arkosammy12.jchip.memory.CosmacVIPMemory;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.CosmacVIPDisplay;
 
