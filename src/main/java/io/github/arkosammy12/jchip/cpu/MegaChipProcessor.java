@@ -1,13 +1,14 @@
 package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.base.Memory;
+import io.github.arkosammy12.jchip.base.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
-public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaChipDisplay, S extends MegaChipSoundSystem> extends SChipProcessor<E, D, S> {
+public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaChipDisplay, S extends SoundSystem> extends SChipProcessor<E, D, S> {
 
     private int cachedCharacterFontIndex;
 

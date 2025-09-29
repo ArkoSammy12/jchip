@@ -16,7 +16,6 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
 
     public XOChipEmulator(EmulatorConfig emulatorConfig) {
         super(emulatorConfig);
-        this.isModern = true;
     }
 
     @Override
@@ -33,6 +32,11 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
     @Override
     protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
         return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFFF + 1);
+    }
+
+    @Override
+    public boolean isModern() {
+        return true;
     }
 
     @Override

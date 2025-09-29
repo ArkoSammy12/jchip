@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.base.Chip8VariantProcessor;
+import io.github.arkosammy12.jchip.base.SoundSystem;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
@@ -12,7 +13,7 @@ import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import java.awt.event.KeyAdapter;
 
-public class MegaChipEmulator<D extends MegaChipDisplay, S extends MegaChipSoundSystem> extends SChipEmulator<D, S> {
+public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> extends SChipEmulator<D, S> {
 
     private final MegaChipSoundSystem megaChipSoundSystem;
 
@@ -45,6 +46,11 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends MegaChipSound
         } else {
             return this.soundSystem;
         }
+    }
+
+    @Override
+    public boolean isModern() {
+        return false;
     }
 
     @Override

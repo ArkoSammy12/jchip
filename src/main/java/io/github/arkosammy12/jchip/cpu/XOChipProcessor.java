@@ -11,7 +11,6 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
 
     public XOChipProcessor(E emulator) {
         super(emulator);
-        this.isModern = true;
     }
 
     @Override

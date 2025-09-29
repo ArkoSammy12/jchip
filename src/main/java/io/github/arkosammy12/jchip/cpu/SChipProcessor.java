@@ -11,13 +11,8 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
 
     public static final int BASE_SLICE_MASK_16 = 1 << 15;
 
-    protected boolean isModern;
-
     public SChipProcessor(E emulator) {
         super(emulator);
-        if (emulator instanceof SChipEmulator<?, ?> sChipEmulator && sChipEmulator.isModern()) {
-            this.isModern = true;
-        }
     }
 
     @Override
@@ -31,7 +26,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         if (secondNibble == 0x0) {
             switch (thirdNibble) {
                 case 0xC -> { // 00CN: Scroll screen N rows down
-                    if (fourthNibble <= 0 && !isModern) {
+                    if (fourthNibble <= 0 && !this.emulator.isModern()) {
                         return 0;
                     }
                     display.scrollDown(fourthNibble);
@@ -49,13 +44,13 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                         }
                         case 0xE -> { // 00FE: Set lores mode
                             display.setExtendedMode(false);
-                            if (isModern) {
+                            if (this.emulator.isModern()) {
                                 display.clear();
                             }
                         }
                         case 0xF -> { // 00FF: Set hires mode
                             display.setExtendedMode(true);
-                            if (isModern) {
+                            if (this.emulator.isModern()) {
                                 display.clear();
                             }
                         }
@@ -106,6 +101,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         int spriteX = this.getRegister(secondNibble) % logicalScreenWidth;
         int spriteY = this.getRegister(thirdNibble) % logicalScreenHeight;
 
+        boolean isModern = this.emulator.isModern();
         boolean draw16WideSprite = (isModern || extendedMode) && spriteHeight >= 16;
         boolean addBottomClippedRows = !isModern && extendedMode;
 
