@@ -20,7 +20,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
     protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) throws InvalidInstructionException {
         MegaChipDisplay display = this.emulator.getDisplay();
         int flags = 0;
-        if (secondNibble == 0 && thirdNibble == 1) {
+        if (secondNibble == 0x0 && thirdNibble == 0x1) {
             switch (fourthNibble) {
                 case 0x0 -> { // 0010: Disable megachip mode
                     display.setMegaChipMode(false);
@@ -100,8 +100,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 int currentProgramCounter = this.getProgramCounter();
                 int secondAddressByte = memory.readByte(currentProgramCounter);
                 int thirdAddressByte = memory.readByte(currentProgramCounter + 1);
-                int address = (secondByte << 16) | (secondAddressByte << 8) | thirdAddressByte;
-                this.setIndexRegister(address);
+                this.setIndexRegister((secondByte << 16) | (secondAddressByte << 8) | thirdAddressByte);
                 this.incrementProgramCounter();
             }
             case 0x2 -> { // 02NN: Load NN colors from I into the palette, colors are in ARGB
@@ -306,7 +305,8 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         if ((flagsSuper & Chip8Processor.GET_KEY_EXECUTED) != 0) {
             MegaChipDisplay display = this.emulator.getDisplay();
             display.flushBackBuffer();
-        } else if ((flagsSuper & Chip8Processor.FONT_SPRITE_POINTER) != 0) {
+        }
+        if ((flagsSuper & Chip8Processor.FONT_SPRITE_POINTER) != 0) {
             this.cachedCharacterFontIndex = this.getIndexRegister();
         }
         return flagsSuper;
@@ -320,10 +320,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
     }
 
     private boolean previousOpcodeWas01() {
-        Memory memory = this.emulator.getMemory();
-        int currentProgramCounter = this.getProgramCounter();
-        int opcode = memory.readByte(currentProgramCounter - 2);
-        return opcode == 0x01;
+        return this.emulator.getMemory().readByte(this.getProgramCounter() - 2) == 0x01;
     }
 
 }

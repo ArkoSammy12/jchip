@@ -52,15 +52,17 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
         int vX = this.getRegister(secondNibble);
         int vX1 = this.getRegister((secondNibble + 1) % 16);
         int colorIndex = this.getRegister(thirdNibble) & 0x7;
-        int logicalScreenWidth = display.getWidth();
-        int logicalScreenHeight = display.getHeight();
+
+        int displayWidth = display.getWidth();
+        int displayHeight = display.getHeight();
+
         if (fourthNibble > 0) {
             display.setExtendedColorDraw(true);
             int zoneX = vX & 0x38;
             for (int i = 0; i < fourthNibble; i++) {
-                int colorY = (vX1 + i) % logicalScreenHeight;
+                int colorY = (vX1 + i) % displayHeight;
                 for (int j = 0; j < 8; j++) {
-                    int colorX = (j + zoneX) % logicalScreenWidth;
+                    int colorX = (j + zoneX) % displayWidth;
                     display.setForegroundColor(colorX, colorY, colorIndex);
                 }
             }
@@ -71,11 +73,11 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
             int verticalZoneFill = ((vX1 & 0xF0) >> 4) + 1;
             int zoneFillStartVerticalOffset = vX1 & 0xF;
             for (int i = 0; i < verticalZoneFill; i++) {
-                int zoneY = ((zoneFillStartVerticalOffset + i) * 4) % logicalScreenHeight;
+                int zoneY = ((zoneFillStartVerticalOffset + i) * 4) % displayHeight;
                 for (int j = 0; j < horizontalZoneFill; j++) {
-                    int zoneX = ((zoneFillStartHorizontalOffset + j) * 8) % logicalScreenWidth;
+                    int zoneX = ((zoneFillStartHorizontalOffset + j) * 8) % displayWidth;
                     for (int dx = 0; dx < 8; dx++) {
-                        int colorX = (zoneX + dx) % logicalScreenWidth;
+                        int colorX = (zoneX + dx) % displayWidth;
                         display.setForegroundColor(colorX, zoneY, colorIndex);
                     }
                 }

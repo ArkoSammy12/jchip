@@ -135,7 +135,6 @@ public class SChipDisplay extends Chip8Display {
                 this.bitplaneBuffer[x][y] = 0;
             }
         }
-
     }
 
 }

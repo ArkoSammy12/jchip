@@ -26,7 +26,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         if (secondNibble == 0x0) {
             switch (thirdNibble) {
                 case 0xC -> { // 00CN: Scroll screen N rows down
-                    if (fourthNibble <= 0 && !this.emulator.isModern()) {
+                    if (fourthNibble <= 0x0 && !this.emulator.isModern()) {
                         return 0;
                     }
                     display.scrollDown(fourthNibble);
@@ -71,9 +71,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         if (!this.emulator.getEmulatorConfig().doJumpWithVX()) {
             return super.executeJumpWithOffset(secondNibble, thirdNibble, fourthNibble, memoryAddress);
         }
-        int offset = this.getRegister(secondNibble);
-        int jumpAddress = memoryAddress + offset;
-        this.setProgramCounter(jumpAddress);
+        this.setProgramCounter(memoryAddress + this.getRegister(secondNibble));
         return Chip8Processor.HANDLED;
     }
 
@@ -91,15 +89,15 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
             spriteHeight = 16;
         }
 
-        int logicalScreenWidth = display.getWidth();
-        int logicalScreenHeight = display.getHeight();
+        int logicalDisplayWidth = display.getWidth();
+        int logicalDisplayHeight = display.getHeight();
         if (!extendedMode) {
-            logicalScreenWidth /= 2;
-            logicalScreenHeight /= 2;
+            logicalDisplayWidth /= 2;
+            logicalDisplayHeight /= 2;
         }
 
-        int spriteX = this.getRegister(secondNibble) % logicalScreenWidth;
-        int spriteY = this.getRegister(thirdNibble) % logicalScreenHeight;
+        int spriteX = this.getRegister(secondNibble) % logicalDisplayWidth;
+        int spriteY = this.getRegister(thirdNibble) % logicalDisplayHeight;
 
         boolean isModern = this.emulator.isModern();
         boolean draw16WideSprite = (isModern || extendedMode) && spriteHeight >= 16;
@@ -117,7 +115,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
 
         for (int i = 0; i < spriteHeight; i++) {
             int sliceY = spriteY + i;
-            if (sliceY >= logicalScreenHeight) {
+            if (sliceY >= logicalDisplayHeight) {
                 if (config.doClipping()) {
                     if (addBottomClippedRows) {
                         collisionCounter++;
@@ -125,7 +123,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                     }
                     break;
                 } else {
-                    sliceY %= logicalScreenHeight;
+                    sliceY %= logicalDisplayHeight;
                 }
             }
             int slice;
@@ -139,11 +137,11 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
             boolean rowCollided = false;
             for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
-                if (sliceX >= logicalScreenWidth) {
+                if (sliceX >= logicalDisplayWidth) {
                     if (config.doClipping()) {
                         break;
                     } else {
-                        sliceX %= logicalScreenWidth;
+                        sliceX %= logicalDisplayWidth;
                     }
                 }
                 if ((slice & sliceMask) <= 0) {
@@ -163,7 +161,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
             if (!isModern) {
                 if (!extendedMode) {
                     int x1 = (spriteX * 2) & 0x70;
-                    int x2 = Math.min(x1 + 32, logicalScreenWidth * 2);
+                    int x2 = Math.min(x1 + 32, logicalDisplayWidth * 2);
                     int scaledSliceY = sliceY * 2;
                     for (int j = x1; j < x2; j++) {
                         int pixel = display.getPixel(j, scaledSliceY);
@@ -193,9 +191,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         int vX = this.getRegister(secondNibble);
         switch (secondByte) {
             case 0x30 -> { // FX30: Set index register to big font sprite offset
-                int character = vX & 0xF;
-                int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getBigFontSpriteOffset(character);
-                this.setIndexRegister(spriteOffset);
+                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getBigFontSpriteOffset(vX & 0xF));
                 flags |= Chip8Processor.FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: Store registers to flags storage
@@ -208,6 +204,5 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         }
         return flags;
     }
-
 
 }

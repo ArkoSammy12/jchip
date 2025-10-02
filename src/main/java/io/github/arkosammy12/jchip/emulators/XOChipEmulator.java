@@ -24,14 +24,14 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new XOChipDisplay(emulatorConfig, keyAdapter);
+    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
+        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFFF + 1);
     }
 
     @Override
-    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
-        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFFF + 1);
+    @SuppressWarnings("unchecked")
+    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
+        return (D) new XOChipDisplay(emulatorConfig, keyAdapter);
     }
 
     @Override

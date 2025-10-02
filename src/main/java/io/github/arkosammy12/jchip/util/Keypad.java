@@ -21,8 +21,7 @@ public class Keypad extends KeyAdapter {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             terminateEmulator = true;
         }
-        char c = e.getKeyChar();
-        int keyCode = this.keyboardLayout.getKeypadHexForChar(c);
+        int keyCode = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
         if (keyCode < 0) {
             return;
         }
@@ -31,8 +30,7 @@ public class Keypad extends KeyAdapter {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        char c = e.getKeyChar();
-        int keyCode = this.keyboardLayout.getKeypadHexForChar(c);
+        int keyCode = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
         if (keyCode < 0) {
             return;
         }

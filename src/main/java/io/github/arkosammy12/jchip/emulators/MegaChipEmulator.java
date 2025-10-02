@@ -28,14 +28,14 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new MegaChipDisplay(emulatorConfig, keyAdapter);
+    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
+        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFFFFF + 1);
     }
 
     @Override
-    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
-        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFFFFF + 1);
+    @SuppressWarnings("unchecked")
+    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
+        return (D) new MegaChipDisplay(emulatorConfig, keyAdapter);
     }
 
     @Override

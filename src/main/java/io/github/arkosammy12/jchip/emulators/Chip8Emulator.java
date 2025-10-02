@@ -17,22 +17,20 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     protected final Chip8VariantProcessor processor;
     private final Memory memory;
     protected final D display;
-    private final Keypad keyState;
     protected final S soundSystem;
+    private final Keypad keyState;
     private final Chip8Variant chip8Variant;
     protected final EmulatorConfig config;
-    protected final int targetInstructionsPerFrame;
-    protected int currentInstructionsPerFrame;
-    protected final boolean displayWaitEnabled;
-    private boolean isTerminated = false;
 
+    private final int targetInstructionsPerFrame;
+    private int currentInstructionsPerFrame;
+    private boolean isTerminated = false;
     private int waitFrames = 0;
 
     public Chip8Emulator(EmulatorConfig emulatorConfig) {
         try {
             this.config = emulatorConfig;
             this.chip8Variant = emulatorConfig.getConsoleVariant();
-            this.displayWaitEnabled = emulatorConfig.doDisplayWait();
             this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keyState = new Keypad(this.config.getKeyboardLayout());
@@ -50,9 +48,9 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return new Chip8Processor<>(this);
     }
 
-    @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new Chip8Display(emulatorConfig, keyAdapter);
+    @Override
+    public Chip8VariantProcessor getProcessor() {
+        return this.processor;
     }
 
     protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
@@ -60,23 +58,18 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     }
 
     @Override
-    public Chip8VariantProcessor getProcessor() {
-        return this.processor;
-    }
-
-    @Override
     public Memory getMemory() {
         return this.memory;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
+        return (D) new Chip8Display(emulatorConfig, keyAdapter);
     }
 
     @Override
     public D getDisplay() {
         return this.display;
-    }
-
-    @Override
-    public Keypad getKeyState() {
-        return this.keyState;
     }
 
     @Override
@@ -87,6 +80,11 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     @SuppressWarnings("unchecked")
     protected S createSoundSystem(Chip8Variant chip8Variant) {
         return (S) new Chip8SoundSystem(chip8Variant);
+    }
+
+    @Override
+    public Keypad getKeyState() {
+        return this.keyState;
     }
 
     @Override

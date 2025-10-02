@@ -21,14 +21,14 @@ public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extend
         return new SChipProcessor<>(this);
     }
 
-    public boolean isModern() {
-        return this.getChip8Variant() == Chip8Variant.SUPER_CHIP_MODERN;
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
         return (D) new SChipDisplay(emulatorConfig, keyAdapter);
+    }
+
+    public boolean isModern() {
+        return this.getChip8Variant() == Chip8Variant.SUPER_CHIP_MODERN;
     }
 
     @Override

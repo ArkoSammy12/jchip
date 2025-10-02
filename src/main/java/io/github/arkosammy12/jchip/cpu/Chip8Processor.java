@@ -126,10 +126,8 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     public int cycle() throws InvalidInstructionException {
         Memory memory = this.emulator.getMemory();
         int programCounter = this.getProgramCounter();
-        int firstByte = memory.readByte(programCounter);
-        int secondByte = memory.readByte(programCounter + 1);
         this.incrementProgramCounter();
-        return this.execute(firstByte, secondByte);
+        return this.execute(memory.readByte(programCounter), memory.readByte(programCounter + 1));
     }
 
     public void decrementTimers() {
@@ -336,8 +334,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
 
     // BNNN
     protected int executeJumpWithOffset(int secondNibble, int thirdNibble, int fourthNibble, int memoryAddress) {
-        int offset = this.getRegister(0x0);
-        this.setProgramCounter(memoryAddress + offset);
+        this.setProgramCounter(memoryAddress + this.getRegister(0x0));
         return HANDLED;
     }
 
@@ -357,11 +354,11 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         int currentIndexRegister = this.getIndexRegister();
 
-        int logicalScreenWidth = display.getWidth();
-        int logicalScreenHeight = display.getHeight();
+        int displayWidth = display.getWidth();
+        int displayHeight = display.getHeight();
 
-        int spriteX = this.getRegister(secondNibble) % logicalScreenWidth;
-        int spriteY = this.getRegister(thirdNibble) % logicalScreenHeight;
+        int spriteX = this.getRegister(secondNibble) % displayWidth;
+        int spriteY = this.getRegister(thirdNibble) % displayHeight;
 
         // On the COSMAC VIP CHIP-8, DXYN can take a different amount of frames.
         // The following is a heuristic for a simplified way of determining whether this draw should take
@@ -375,24 +372,23 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
 
         boolean collided = false;
         this.setVF(false);
-
         for (int i = 0; i < fourthNibble; i++) {
             int sliceY = spriteY + i;
-            if (sliceY >= logicalScreenHeight) {
+            if (sliceY >= displayHeight) {
                 if (config.doClipping()) {
                     break;
                 } else {
-                    sliceY %= logicalScreenHeight;
+                    sliceY %= displayHeight;
                 }
             }
             int slice = memory.readByte(currentIndexRegister + i);
             for (int j = 0, sliceMask = BASE_SLICE_MASK_8; j < 8; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
-                if (sliceX >= logicalScreenWidth) {
+                if (sliceX >= displayWidth) {
                     if (config.doClipping()) {
                         break;
                     } else {
-                        sliceX %= logicalScreenWidth;
+                        sliceX %= displayWidth;
                     }
                 }
                 if ((slice & sliceMask) <= 0) {
@@ -433,8 +429,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         int vX = this.getRegister(secondNibble);
         switch (secondByte) {
             case 0x07 -> { // FX07: Set VX to delay timer
-                int delayTimer = this.getDelayTimer();
-                this.setRegister(secondNibble, delayTimer);
+                this.setRegister(secondNibble, this.getDelayTimer());
             }
             case 0x0A -> { // FX0A: Get key
                 Keypad keyState = this.emulator.getKeyState();
@@ -472,9 +467,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                 this.setIndexRegister(vX + this.getIndexRegister());
             }
             case 0x29 -> { // FX29: Set index register to small font sprite offset
-                int character = vX & 0xF;
-                int spriteOffset = this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontSpriteOffset(character);
-                this.setIndexRegister(spriteOffset);
+                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontSpriteOffset(vX & 0xF));
                 flags |= FONT_SPRITE_POINTER;
             }
             case 0x33 -> { // FX33: Store BCD representation of VX at I, I+1, I+2
@@ -498,8 +491,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                 Memory memory = this.emulator.getMemory();
                 int currentIndexPointer = this.getIndexRegister();
                 for (int i = 0; i <= secondNibble; i++) {
-                    int registerValue = this.getRegister(i);
-                    memory.writeByte(currentIndexPointer + i, registerValue);
+                    memory.writeByte(currentIndexPointer + i, this.getRegister(i));
                 }
                 if (this.emulator.getEmulatorConfig().doIncrementIndex()) {
                     this.setIndexRegister(currentIndexPointer + secondNibble + 1);
@@ -509,8 +501,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                 Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i <= secondNibble; i++) {
-                    int memoryValue = memory.readByte(currentIndexRegister + i);
-                    this.setRegister(i, memoryValue);
+                    this.setRegister(i, memory.readByte(currentIndexRegister + i));
                 }
                 if (this.emulator.getEmulatorConfig().doIncrementIndex()) {
                     this.setIndexRegister(currentIndexRegister + secondNibble + 1);
@@ -520,5 +511,5 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         }
         return flags;
     }
-
+    
 }

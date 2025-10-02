@@ -223,53 +223,47 @@ public class MegaChipDisplay extends SChipDisplay {
 
     @Override
     protected void populateDataBuffer(int[] buffer) {
-        if (!isMegaChipModeEnabled()) {
+        if (this.isMegaChipModeEnabled()) {
+            for (int y = 0; y < screenHeight; y++) {
+                int base = y * screenWidth;
+                for (int x = 0; x < screenWidth; x++) {
+                    int pixel = 0xFF000000;
+                    if (scrollTriggered) {
+                        int back = this.backBuffer[x][y];
+                        if ((back & 0xFF000000) != 0) {
+                            pixel = back;
+                        }
+                    }
+                    int front = this.frontBuffer[x][y];
+                    if ((front & 0xFF000000) != 0) {
+                        pixel = front;
+                    }
+                    buffer[base + x] = pixel;
+                }
+            }
+        } else {
             for (int y = 0; y < screenHeight; y++) {
                 int base = y * screenWidth;
                 for (int x = 0; x < screenWidth; x++) {
                     buffer[base + x] = 0xFF000000;
                 }
             }
-            int superWidth = super.getWidth();
-            int superHeight = super.getHeight();
+            int displayWidth = super.getWidth();
+            int displayHeight = super.getHeight();
             int xScale = 2;
             int yScale = 2;
-            int yOffset = (screenHeight - superHeight * yScale) / 2;
-            for (int sy = 0; sy < superHeight; sy++) {
-                for (int sx = 0; sx < superWidth; sx++) {
+            int yOffset = (screenHeight - displayHeight * yScale) / 2;
+            for (int sy = 0; sy < displayHeight; sy++) {
+                int baseY = yOffset + sy * yScale;
+                for (int sx = 0; sx < displayWidth; sx++) {
                     int color = super.colorPalette.getColorARGB(this.bitplaneBuffer[sx][sy] & 0xF);
-                    int baseY = yOffset + sy * yScale;
                     int baseX = sx * xScale;
                     for (int dy = 0; dy < yScale; dy++) {
-                        int y = baseY + dy;
-                        int rowBase = y * screenWidth;
+                        int rowBase = (baseY + dy) * screenWidth;
                         for (int dx = 0; dx < xScale; dx++) {
-                            int x = baseX + dx;
-                            buffer[rowBase + x] = color;
+                            buffer[rowBase + baseX + dx] = color;
                         }
                     }
-                }
-            }
-            return;
-        }
-        for (int y = 0; y < screenHeight; y++) {
-            int base = y * screenWidth;
-            for (int x = 0; x < screenWidth; x++) {
-                buffer[base + x] = 0xFF000000;
-            }
-        }
-        for (int y = 0; y < screenHeight; y++) {
-            int base = y * screenWidth;
-            for (int x = 0; x < screenWidth; x++) {
-                if (scrollTriggered) {
-                    int back = this.backBuffer[x][y];
-                    if ((back & 0xFF000000) != 0) {
-                        buffer[base + x] = back;
-                    }
-                }
-                int front = this.frontBuffer[x][y];
-                if ((front & 0xFF000000) != 0) {
-                    buffer[base + x] = front;
                 }
             }
         }
