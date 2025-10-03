@@ -21,8 +21,8 @@ public abstract class AbstractDisplay implements Display {
     private final SpriteFont spriteFont;
     protected final Chip8Variant chip8Variant;
 
-    protected final int screenWidth;
-    protected final int screenHeight;
+    protected final int displayWidth;
+    protected final int displayHeight;
     private final int pixelScale;
 
     private final Renderer renderer;
@@ -48,8 +48,8 @@ public abstract class AbstractDisplay implements Display {
             this.romTitle = " | " + romTitle;
         }
 
-        this.screenWidth = this.getWidth();
-        this.screenHeight = this.getHeight();
+        this.displayWidth = this.getDisplayWidth();
+        this.displayHeight = this.getDisplayHeight();
         this.chip8Variant = chip8Variant;
         this.spriteFont = new SpriteFont(chip8Variant);
         this.displayAngle = config.getDisplayAngle();
@@ -59,12 +59,12 @@ public abstract class AbstractDisplay implements Display {
         int windowHeight;
         switch (displayAngle) {
             case DEG_90, DEG_270 -> {
-                windowWidth = this.screenHeight * this.pixelScale;
-                windowHeight = this.screenWidth * this.pixelScale;
+                windowWidth = this.displayHeight * this.pixelScale;
+                windowHeight = this.displayWidth * this.pixelScale;
             }
             default -> {
-                windowWidth = this.screenWidth * this.pixelScale;
-                windowHeight = this.screenHeight * this.pixelScale;
+                windowWidth = this.displayWidth * this.pixelScale;
+                windowHeight = this.displayHeight * this.pixelScale;
             }
         }
 
@@ -103,6 +103,10 @@ public abstract class AbstractDisplay implements Display {
     public SpriteFont getCharacterSpriteFont() {
         return this.spriteFont;
     }
+
+    protected abstract int getDisplayWidth();
+
+    protected abstract int getDisplayHeight();
 
     protected abstract int getPixelScale(DisplayAngle displayAngle);
 
@@ -161,10 +165,10 @@ public abstract class AbstractDisplay implements Display {
         private final AffineTransform imageTransform;
 
         private Renderer() {
-            backBuffer = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
+            backBuffer = new BufferedImage(displayWidth, displayHeight, BufferedImage.TYPE_INT_ARGB);
             imageTransform = new AffineTransform();
-            int scaledWidth = screenWidth * pixelScale;
-            int scaledHeight = screenHeight * pixelScale;
+            int scaledWidth = displayWidth * pixelScale;
+            int scaledHeight = displayHeight * pixelScale;
             switch (displayAngle) {
                 case DEG_90 -> {
                     imageTransform.translate(scaledHeight, 0);

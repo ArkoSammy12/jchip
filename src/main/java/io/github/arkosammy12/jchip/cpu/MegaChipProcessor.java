@@ -202,8 +202,11 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         int currentIndexRegister = this.getIndexRegister();
 
-        int spriteX = this.getRegister(secondNibble) % 256;
-        int spriteY = this.getRegister(thirdNibble) % 256;
+        int displayWidth = display.getWidth();
+        int displayHeight = display.getHeight();
+
+        int spriteX = this.getRegister(secondNibble) % displayWidth;
+        int spriteY = this.getRegister(thirdNibble) % displayHeight;
 
         this.setVF(false);
 
@@ -223,11 +226,11 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
 
             for (int i = 0; i < spriteHeight; i++) {
                 int sliceY = spriteY + i;
-                if (sliceY >= 256) {
+                if (sliceY >= displayHeight) {
                     if (config.doClipping()) {
                         break;
                     } else {
-                        sliceY %= 256;
+                        sliceY %= displayHeight;
                     }
                 }
                 int slice;
@@ -240,11 +243,11 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 }
                 for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                     int sliceX = spriteX + j;
-                    if (sliceX >= 256) {
+                    if (sliceX >= displayWidth) {
                         if (config.doClipping()) {
                             break;
                         } else {
-                            sliceX %= 256;
+                            sliceX %= displayWidth;
                         }
                     }
                     if ((slice & sliceMask) <= 0) {
@@ -260,20 +263,20 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
 
             for (int i = 0; i < spriteHeight; i++) {
                 int pixelY = spriteY + i;
-                if (pixelY >= 256) {
+                if (pixelY >= displayHeight) {
                     if (config.doClipping()) {
                         break;
                     } else {
-                        pixelY %= 256;
+                        pixelY %= displayHeight;
                     }
                 }
                 for (int j = 0; j < spriteWidth; j++) {
                     int pixelX = spriteX + j;
-                    if (pixelX >= 256) {
+                    if (pixelX >= displayWidth) {
                         if (config.doClipping()) {
                             break;
                         } else {
-                            pixelX %= 256;
+                            pixelX %= displayWidth;
                         }
                     }
                     int pixel = memory.readByte(currentIndexRegister + (i * spriteWidth) + j) & 0xFF;

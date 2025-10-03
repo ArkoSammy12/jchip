@@ -103,15 +103,11 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
             spriteHeight = 16;
         }
 
-        int logicalDisplayWidth = display.getWidth();
-        int logicalDisplayHeight = display.getHeight();
-        if (!extendedMode) {
-            logicalDisplayWidth /= 2;
-            logicalDisplayHeight /= 2;
-        }
+        int displayWidth = display.getWidth();
+        int displayHeight = display.getHeight();
 
-        int spriteX = this.getRegister(secondNibble) % logicalDisplayWidth;
-        int spriteY = this.getRegister(thirdNibble) % logicalDisplayHeight;
+        int spriteX = this.getRegister(secondNibble) % displayWidth;
+        int spriteY = this.getRegister(thirdNibble) % displayHeight;
 
         boolean draw16WideSprite = spriteHeight >= 16;
 
@@ -131,12 +127,12 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
             }
             for (int i = 0; i < spriteHeight; i++) {
                 int sliceY = spriteY + i;
-                if (sliceY >= logicalDisplayHeight) {
+                if (sliceY >= displayHeight) {
                     if (config.doClipping()) {
                         planeIterator++;
                         continue;
                     } else {
-                        sliceY %= logicalDisplayHeight;
+                        sliceY %= displayHeight;
                     }
                 }
                 int slice;
@@ -149,11 +145,11 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
                 }
                 for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                     int sliceX = spriteX + j;
-                    if (sliceX >= logicalDisplayWidth) {
+                    if (sliceX >= displayWidth) {
                         if (config.doClipping()) {
                             break;
                         } else {
-                            sliceX %= logicalDisplayWidth;
+                            sliceX %= displayWidth;
                         }
                     }
                     if ((slice & sliceMask) <= 0) {

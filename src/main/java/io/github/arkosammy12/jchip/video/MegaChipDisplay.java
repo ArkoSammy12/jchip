@@ -28,11 +28,27 @@ public class MegaChipDisplay extends SChipDisplay {
 
     @Override
     public int getWidth() {
+        if (!this.isMegaChipModeEnabled()) {
+            return super.getWidth();
+        }
         return 256;
     }
 
     @Override
     public int getHeight() {
+        if (!this.isMegaChipModeEnabled()) {
+            return super.getWidth();
+        }
+        return 256;
+    }
+
+    @Override
+    protected int getDisplayWidth() {
+        return 256;
+    }
+
+    @Override
+    protected int getDisplayHeight() {
         return 192;
     }
 
@@ -105,7 +121,7 @@ public class MegaChipDisplay extends SChipDisplay {
 
     @Override
     public void setPixel(int column, int row, int val) {
-        if (!isMegaChipModeEnabled()) {
+        if (!this.isMegaChipModeEnabled()) {
             super.setPixel(column, row, val);
             return;
         }
@@ -130,20 +146,20 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     public void scrollUp(int scrollAmount) {
-        for (int i = 0; i < this.screenHeight; i++) {
+        for (int i = 0; i < this.displayHeight; i++) {
             int shiftedVerticalPosition = i - scrollAmount;
             if (shiftedVerticalPosition < 0) {
                 continue;
             }
-            for (int j = 0; j < this.screenWidth; j++) {
+            for (int j = 0; j < this.displayWidth; j++) {
                 this.frontBuffer[j][shiftedVerticalPosition] = this.frontBuffer[j][i];
             }
         }
-        for (int y = this.screenHeight - scrollAmount; y < this.screenHeight; y++) {
+        for (int y = this.displayHeight - scrollAmount; y < this.displayHeight; y++) {
             if (y < 0) {
                 continue;
             }
-            for (int x = 0; x < this.screenWidth; x++) {
+            for (int x = 0; x < this.displayWidth; x++) {
                 this.frontBuffer[x][y] = 0x000000;
             }
         }
@@ -155,17 +171,17 @@ public class MegaChipDisplay extends SChipDisplay {
             return;
         }
 
-        for (int i = this.screenHeight - 1; i >= 0; i--) {
+        for (int i = this.displayHeight - 1; i >= 0; i--) {
             int shiftedVerticalPosition = scrollAmount + i;
-            if (shiftedVerticalPosition >= this.screenHeight) {
+            if (shiftedVerticalPosition >= this.displayHeight) {
                 continue;
             }
-            for (int j = 0; j < this.screenWidth; j++) {
+            for (int j = 0; j < this.displayWidth; j++) {
                 this.frontBuffer[j][shiftedVerticalPosition] = this.frontBuffer[j][i];
             }
         }
-        for (int y = 0; y < scrollAmount && y < this.screenHeight; y++) {
-            for (int x = 0; x < this.screenWidth; x++) {
+        for (int y = 0; y < scrollAmount && y < this.displayHeight; y++) {
+            for (int x = 0; x < this.displayWidth; x++) {
                 this.frontBuffer[x][y] = 0x00000000;
             }
         }
@@ -178,17 +194,17 @@ public class MegaChipDisplay extends SChipDisplay {
             return;
         }
 
-        for (int i = this.screenWidth - 1; i >= 0; i--) {
+        for (int i = this.displayWidth - 1; i >= 0; i--) {
             int shiftedHorizontalPosition = i + 4;
-            if (shiftedHorizontalPosition >= this.screenWidth) {
+            if (shiftedHorizontalPosition >= this.displayWidth) {
                 continue;
             }
-            if (this.screenHeight >= 0) {
-                System.arraycopy(this.frontBuffer[i], 0, this.frontBuffer[shiftedHorizontalPosition], 0, this.screenHeight);
+            if (this.displayHeight >= 0) {
+                System.arraycopy(this.frontBuffer[i], 0, this.frontBuffer[shiftedHorizontalPosition], 0, this.displayHeight);
             }
         }
-        for (int x = 0; x < 4 && x < this.screenWidth; x++) {
-            for (int y = 0; y < this.screenHeight; y++) {
+        for (int x = 0; x < 4 && x < this.displayWidth; x++) {
+            for (int y = 0; y < this.displayHeight; y++) {
                 this.frontBuffer[x][y] = 0x00000000;
             }
         }
@@ -201,20 +217,20 @@ public class MegaChipDisplay extends SChipDisplay {
             return;
         }
 
-        for (int i = 0; i < this.screenWidth; i++) {
+        for (int i = 0; i < this.displayWidth; i++) {
             int shiftedHorizontalPosition = i - 4;
             if (shiftedHorizontalPosition < 0) {
                 continue;
             }
-            if (this.screenHeight >= 0) {
-                System.arraycopy(this.frontBuffer[i], 0, this.frontBuffer[shiftedHorizontalPosition], 0, this.screenHeight);
+            if (this.displayHeight >= 0) {
+                System.arraycopy(this.frontBuffer[i], 0, this.frontBuffer[shiftedHorizontalPosition], 0, this.displayHeight);
             }
         }
-        for (int x = this.screenWidth - 4; x < this.screenWidth; x++) {
+        for (int x = this.displayWidth - 4; x < this.displayWidth; x++) {
             if (x < 0) {
                 continue;
             }
-            for (int y = 0; y < this.screenHeight; y++) {
+            for (int y = 0; y < this.displayHeight; y++) {
                 this.frontBuffer[x][y] = 0x00000000;
             }
         }
@@ -224,9 +240,9 @@ public class MegaChipDisplay extends SChipDisplay {
     @Override
     protected void populateDataBuffer(int[] buffer) {
         if (this.isMegaChipModeEnabled()) {
-            for (int y = 0; y < screenHeight; y++) {
-                int base = y * screenWidth;
-                for (int x = 0; x < screenWidth; x++) {
+            for (int y = 0; y < displayHeight; y++) {
+                int base = y * displayWidth;
+                for (int x = 0; x < displayWidth; x++) {
                     int pixel = 0xFF000000;
                     if (scrollTriggered) {
                         int back = this.backBuffer[x][y];
@@ -242,24 +258,24 @@ public class MegaChipDisplay extends SChipDisplay {
                 }
             }
         } else {
-            for (int y = 0; y < screenHeight; y++) {
-                int base = y * screenWidth;
-                for (int x = 0; x < screenWidth; x++) {
+            for (int y = 0; y < displayHeight; y++) {
+                int base = y * displayWidth;
+                for (int x = 0; x < displayWidth; x++) {
                     buffer[base + x] = 0xFF000000;
                 }
             }
-            int displayWidth = super.getWidth();
-            int displayHeight = super.getHeight();
+            int displayWidth = super.getDisplayWidth();
+            int displayHeight = super.getDisplayHeight();
             int xScale = 2;
             int yScale = 2;
-            int yOffset = (screenHeight - displayHeight * yScale) / 2;
+            int yOffset = (this.displayHeight - displayHeight * yScale) / 2;
             for (int sy = 0; sy < displayHeight; sy++) {
                 int baseY = yOffset + sy * yScale;
                 for (int sx = 0; sx < displayWidth; sx++) {
                     int color = super.colorPalette.getColorARGB(this.bitplaneBuffer[sx][sy] & 0xF);
                     int baseX = sx * xScale;
                     for (int dy = 0; dy < yScale; dy++) {
-                        int rowBase = (baseY + dy) * screenWidth;
+                        int rowBase = (baseY + dy) * this.displayWidth;
                         for (int dx = 0; dx < xScale; dx++) {
                             buffer[rowBase + baseX + dx] = color;
                         }

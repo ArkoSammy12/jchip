@@ -15,7 +15,7 @@ public class Chip8Display extends AbstractDisplay {
 
     public Chip8Display(EmulatorConfig config, KeyAdapter keyAdapter) {
         super(config, keyAdapter);
-        this.bitplaneBuffer = new int[this.getWidth()][this.getHeight()];
+        this.bitplaneBuffer = new int[this.getDisplayWidth()][this.getDisplayHeight()];
         this.colorPalette = config.getColorPalette();
     }
 
@@ -26,6 +26,16 @@ public class Chip8Display extends AbstractDisplay {
 
     @Override
     public int getHeight() {
+        return 32;
+    }
+
+    @Override
+    protected int getDisplayWidth() {
+        return 64;
+    }
+
+    @Override
+    protected int getDisplayHeight() {
         return 32;
     }
 
@@ -52,9 +62,9 @@ public class Chip8Display extends AbstractDisplay {
 
     @Override
     protected void populateDataBuffer(int[] buffer) {
-        for (int y = 0; y < screenHeight; y++) {
-            int base = y * screenWidth;
-            for (int x = 0; x < screenWidth; x++) {
+        for (int y = 0; y < displayHeight; y++) {
+            int base = y * displayWidth;
+            for (int x = 0; x < displayWidth; x++) {
                 buffer[base + x] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
             }
         }

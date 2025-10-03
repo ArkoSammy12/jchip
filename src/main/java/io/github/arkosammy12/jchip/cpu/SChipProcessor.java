@@ -89,15 +89,11 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
             spriteHeight = 16;
         }
 
-        int logicalDisplayWidth = display.getWidth();
-        int logicalDisplayHeight = display.getHeight();
-        if (!extendedMode) {
-            logicalDisplayWidth /= 2;
-            logicalDisplayHeight /= 2;
-        }
+        int displayWidth = display.getWidth();
+        int displayHeight = display.getHeight();
 
-        int spriteX = this.getRegister(secondNibble) % logicalDisplayWidth;
-        int spriteY = this.getRegister(thirdNibble) % logicalDisplayHeight;
+        int spriteX = this.getRegister(secondNibble) % displayWidth;
+        int spriteY = this.getRegister(thirdNibble) % displayHeight;
 
         boolean isModern = this.emulator.isModern();
         boolean draw16WideSprite = (isModern || extendedMode) && spriteHeight >= 16;
@@ -115,7 +111,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
 
         for (int i = 0; i < spriteHeight; i++) {
             int sliceY = spriteY + i;
-            if (sliceY >= logicalDisplayHeight) {
+            if (sliceY >= displayHeight) {
                 if (config.doClipping()) {
                     if (addBottomClippedRows) {
                         collisionCounter++;
@@ -123,7 +119,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                     }
                     break;
                 } else {
-                    sliceY %= logicalDisplayHeight;
+                    sliceY %= displayHeight;
                 }
             }
             int slice;
@@ -137,11 +133,11 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
             boolean rowCollided = false;
             for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
-                if (sliceX >= logicalDisplayWidth) {
+                if (sliceX >= displayWidth) {
                     if (config.doClipping()) {
                         break;
                     } else {
-                        sliceX %= logicalDisplayWidth;
+                        sliceX %= displayWidth;
                     }
                 }
                 if ((slice & sliceMask) <= 0) {
@@ -161,7 +157,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
             if (!isModern) {
                 if (!extendedMode) {
                     int x1 = (spriteX * 2) & 0x70;
-                    int x2 = Math.min(x1 + 32, logicalDisplayWidth * 2);
+                    int x2 = Math.min(x1 + 32, displayWidth * 2);
                     int scaledSliceY = sliceY * 2;
                     for (int j = x1; j < x2; j++) {
                         int pixel = display.getPixel(j, scaledSliceY);

@@ -52,9 +52,9 @@ public class Chip8XDisplay extends Chip8Display {
     @Override
     protected void populateDataBuffer(int[] buffer) {
         if (this.extendedColorDraw) {
-            for (int y = 0; y < screenHeight; y++) {
-                int base = y * screenWidth;
-                for (int x = 0; x < screenWidth; x++) {
+            for (int y = 0; y < displayHeight; y++) {
+                int base = y * displayWidth;
+                for (int x = 0; x < displayWidth; x++) {
                     buffer[base + x] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
                 }
             }
@@ -66,7 +66,7 @@ public class Chip8XDisplay extends Chip8Display {
                     int zoneColorIndex = this.foregroundColorIndexes[zoneX][zoneY];
                     for (int dy = 0; dy < 4; dy++) {
                         int y = zoneY + dy;
-                        int base = y * screenWidth;
+                        int base = y * displayWidth;
                         for (int dx = 0; dx < 8; dx++) {
                             int x = zoneX + dx;
                             buffer[base + x] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[zoneColorIndex] : BACKGROUND_COLORS[this.backgroundColorIndex];

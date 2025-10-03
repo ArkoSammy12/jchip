@@ -32,6 +32,16 @@ public class CosmacVIPDisplay extends AbstractDisplay {
     }
 
     @Override
+    protected int getDisplayWidth() {
+        return 64;
+    }
+
+    @Override
+    protected int getDisplayHeight() {
+        return 128;
+    }
+
+    @Override
     public void clear() {
 
     }
