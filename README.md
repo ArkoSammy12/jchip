@@ -94,6 +94,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 
 - [picocli](https://github.com/remkop/picocli) – CLI argument parsing
 - [gson](https://github.com/google/gson) – JSON parsing
+- [tinylog](https://github.com/tinylog-org/tinylog) - Logging
 
 ## Resources and general links
 
