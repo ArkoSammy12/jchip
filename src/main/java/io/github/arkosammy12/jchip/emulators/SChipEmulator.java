@@ -1,23 +1,26 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.base.Chip8VariantProcessor;
-import io.github.arkosammy12.jchip.base.SoundSystem;
+import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.SChipProcessor;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
 import java.awt.event.KeyAdapter;
 
+import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+
 public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extends Chip8Emulator<D, S> {
 
-    public SChipEmulator(EmulatorConfig emulatorConfig) {
+    private final boolean isModern;
+
+    public SChipEmulator(EmulatorConfig emulatorConfig, boolean isModern) {
         super(emulatorConfig);
+        this.isModern = isModern;
     }
 
     @Override
-    protected Chip8VariantProcessor createProcessor() {
+    protected Chip8Processor<?, ?, ?> createProcessor() {
         return new SChipProcessor<>(this);
     }
 
@@ -28,12 +31,12 @@ public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extend
     }
 
     public boolean isModern() {
-        return this.getChip8Variant() == Chip8Variant.SUPER_CHIP_MODERN;
+        return this.isModern;
     }
 
     @Override
     protected boolean waitFrameEnd(int flags) {
-        return this.config.doDisplayWait() && ((flags & Chip8Processor.DRAW_EXECUTED) != 0) && !this.isModern() && !this.getDisplay().isExtendedMode();
+        return this.config.doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.isModern() && !this.getDisplay().isExtendedMode();
     }
 
 }

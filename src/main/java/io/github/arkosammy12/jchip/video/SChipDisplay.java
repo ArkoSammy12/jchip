@@ -27,17 +27,17 @@ public class SChipDisplay extends Chip8Display {
     }
 
     @Override
-    protected int getDisplayWidth() {
+    protected int getRenderWidth() {
         return 128;
     }
 
     @Override
-    protected int getDisplayHeight() {
+    protected int getRenderHeight() {
         return 64;
     }
 
     @Override
-    protected int getPixelScale(DisplayAngle displayAngle) {
+    protected int getPixelRenderScale(DisplayAngle displayAngle) {
         return switch (displayAngle) {
             case DEG_90, DEG_270 -> 6;
             default -> 10;

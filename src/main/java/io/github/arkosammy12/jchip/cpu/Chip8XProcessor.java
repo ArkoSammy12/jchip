@@ -10,20 +10,20 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
 
     public Chip8XProcessor(E emulator) {
         super(emulator);
-        this.setProgramCounter(768);
+        this.setProgramCounter(0x300);
     }
 
     @Override
-    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) throws InvalidInstructionException {
-        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
-        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+        if (isSet(flagsSuper, HANDLED)) {
             return flagsSuper;
         }
         int flags = HANDLED;
-        if (memoryAddress == 0x2A0) { // 02A0: Cycle background color (blue, black, green, red)
+        if (secondNibble == 0x2 && secondByte == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
             this.emulator.getDisplay().cycleBackgroundColor();
         } else {
-            flags &= ~Chip8Processor.HANDLED;
+            flags = clear(flags, HANDLED);
         }
         return flags;
     }
@@ -31,16 +31,14 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     @Override
     protected int executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
         int flagsSuper = super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
-        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+        if (isSet(flagsSuper, HANDLED)) {
             return flagsSuper;
         }
         int flags = HANDLED;
         if (fourthNibble == 0x1) { // 5XY1: Octal BCD
-            int vX = this.getRegister(secondNibble);
-            int vY = this.getRegister(thirdNibble);
-            this.setRegister(secondNibble, ((vX & 0x77) + (vY & 0x77)) & 0x77);
+            this.setRegister(secondNibble, ((this.getRegister(secondNibble) & 0x77) + (this.getRegister(thirdNibble) & 0x77)) & 0x77);
         } else {
-            flags &= ~Chip8Processor.HANDLED;
+            flags = clear(flags, HANDLED);
         }
         return flags;
     }
@@ -81,7 +79,6 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
                         display.setForegroundColor(colorX, zoneY, colorIndex);
                     }
                 }
-
             }
         }
         return HANDLED;
@@ -91,13 +88,12 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     @Override
     protected int executeSkipIfKey(int secondNibble, int secondByte) {
         int flagsSuper = super.executeSkipIfKey(secondNibble, secondByte);
-        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+        if (isSet(flagsSuper, HANDLED)) {
             return flagsSuper;
         }
         int flags = HANDLED;
-        Keypad keyState = this.emulator.getKeyState();
-        int vX = this.getRegister(secondNibble);
-        int hexKey = vX & 0xF;
+        //Keypad keyState = this.emulator.getKeyState();
+        //int hexKey = this.getRegister(secondNibble) & 0xF;
         switch (secondByte) {
             case 0xF2 -> { // EXF2: Skip if key on keypad 2 is pressed
                 // Stub
@@ -105,7 +101,7 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
             case 0xF5 -> { // EXF5: Skip if key on keypad 2 is not pressed
                 // Stub
             }
-            default -> flags &= ~HANDLED;
+            default -> flags = clear(flags, HANDLED);
         }
         return flags;
     }
@@ -113,19 +109,16 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     @Override
     protected int executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
         int flagsSuper = super.executeFXOpcode(firstNibble, secondNibble, secondByte);
-        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+        if (isSet(flagsSuper, HANDLED)) {
             return flagsSuper;
         }
         int flags = HANDLED;
-        int vX = this.getRegister(secondNibble);
         switch (secondByte) {
-            case 0xF8 -> { // FXF8: Output vX to IO port
-                this.emulator.getSoundSystem().setPlaybackRate(vX);
-            }
+            case 0xF8 -> this.emulator.getSoundSystem().setPlaybackRate(this.getRegister(secondNibble)); // FXF8: Output vX to IO port
             case 0xFB -> { // FXFB: Wait for input from IO port and load it into vX
                 // Stub
             }
-            default -> flags &= ~Chip8Processor.HANDLED;
+            default -> flags = clear(flags, HANDLED);
         }
         return flags;
     }

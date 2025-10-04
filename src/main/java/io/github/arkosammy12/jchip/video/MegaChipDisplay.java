@@ -43,17 +43,17 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @Override
-    protected int getDisplayWidth() {
+    protected int getRenderWidth() {
         return 256;
     }
 
     @Override
-    protected int getDisplayHeight() {
+    protected int getRenderHeight() {
         return 192;
     }
 
     @Override
-    protected int getPixelScale(DisplayAngle displayAngle) {
+    protected int getPixelRenderScale(DisplayAngle displayAngle) {
         return switch (displayAngle) {
             case DEG_90, DEG_270 -> 3;
             default -> 4;
@@ -238,7 +238,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @Override
-    protected void populateDataBuffer(int[] buffer) {
+    protected void fillRenderBuffer(int[] buffer) {
         if (this.isMegaChipModeEnabled()) {
             for (int y = 0; y < displayHeight; y++) {
                 int base = y * displayWidth;
@@ -264,8 +264,8 @@ public class MegaChipDisplay extends SChipDisplay {
                     buffer[base + x] = 0xFF000000;
                 }
             }
-            int displayWidth = super.getDisplayWidth();
-            int displayHeight = super.getDisplayHeight();
+            int displayWidth = super.getRenderWidth();
+            int displayHeight = super.getRenderHeight();
             int xScale = 2;
             int yScale = 2;
             int yOffset = (this.displayHeight - displayHeight * yScale) / 2;

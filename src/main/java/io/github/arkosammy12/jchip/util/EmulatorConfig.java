@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.util;
 
 import com.google.gson.*;
+import org.tinylog.Logger;
 import picocli.CommandLine;
 
 import java.io.InputStream;
@@ -16,37 +17,37 @@ public class EmulatorConfig {
     private Path romPath;
 
     @CommandLine.Option(names = {"--variant", "-v"}, converter = Chip8Variant.Converter.class, defaultValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Chip8Variant> cliConsoleVariant;
+    private Optional<Chip8Variant> consoleVariantArg;
 
     @CommandLine.Option(names = {"--instructions-per-frame", "-i"}, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Integer> cliInstructionsPerFrame;
+    private Optional<Integer> instructionsPerFrameArg;
 
     @CommandLine.Option(names = {"--color-palette", "-c"}, converter = ColorPalette.Converter.class,fallbackValue = CommandLine.Option.NULL_VALUE)
-    private ColorPalette colorPalette;
+    private ColorPalette colorPaletteArg;
 
     @CommandLine.Option(names = {"--keyboard-layout", "-k"}, defaultValue = "qwerty", converter = KeyboardLayout.Converter.class)
-    private KeyboardLayout keyboardLayout;
+    private KeyboardLayout keyboardLayoutArg;
 
     @CommandLine.Option(names = {"-a", "--angle"}, fallbackValue = CommandLine.Option.NULL_VALUE, converter = DisplayAngle.Converter.class)
-    private DisplayAngle displayAngle;
+    private DisplayAngle displayAngleArg;
 
     @CommandLine.Option(names = "--vf-reset", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> cliDoVFReset;
+    private Optional<Boolean> doVFResetArg;
 
     @CommandLine.Option(names = "--increment-i", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> cliDoIncrementIndex;
+    private Optional<Boolean> doIncrementIndexArg;
 
     @CommandLine.Option(names = "--display-wait", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> cliDoDisplayWait;
+    private Optional<Boolean> doDisplayWaitArg;
 
     @CommandLine.Option(names = "--clipping", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> cliDoClipping;
+    private Optional<Boolean> doClippingArg;
 
     @CommandLine.Option(names = "--shift-vx-in-place", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> cliDoShiftVXInPlace;
+    private Optional<Boolean> doShiftVXInPlaceArg;
 
     @CommandLine.Option(names = "--jump-with-vx", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
-    private Optional<Boolean> cliDoJumpWithVX;
+    private Optional<Boolean> jumpWithVXArg;
 
     private final int[] rom;
 
@@ -56,14 +57,14 @@ public class EmulatorConfig {
 
     private final Chip8Variant chip8Variant;
     private final int instructionsPerFrame;
-    private final boolean doVfReset;
+    private final boolean doVFReset;
     private final boolean doIncrementIndex;
     private final boolean doDisplayWait;
     private final boolean doClipping;
     private final boolean doShiftVXInPlace;
     private final boolean doJumpWithVX;
 
-    public  EmulatorConfig(String[] args) throws Exception {
+    public EmulatorConfig(String[] args) throws Exception {
         CommandLine.populateCommand(this, args);
         Path romPath = this.getRomPath();
         byte[] rawRom = Files.readAllBytes(romPath);
@@ -74,7 +75,7 @@ public class EmulatorConfig {
 
         Chip8Variant chip8Variant = null;
         Integer instructionsPerFrame = null;
-        Boolean doVfReset = null;
+        Boolean doVFReset = null;
         Boolean doIncrementIndex = null;
         Boolean doDisplayWait = null;
         Boolean doClipping = null;
@@ -114,7 +115,7 @@ public class EmulatorConfig {
             this.romObject = programRoms.get(sha1).getAsJsonObject();
 
             JsonElement colorsElement = this.romObject.get("colors");
-            if (this.colorPalette == null && colorsElement instanceof JsonObject colorsObject && colorsObject.has("pixels")) {
+            if (this.colorPaletteArg == null && colorsElement instanceof JsonObject colorsObject && colorsObject.has("pixels")) {
                 JsonArray pixels = colorsObject.get("pixels").getAsJsonArray();
                 if (!pixels.isEmpty()) {
                     int[][] customPixelColors = new int[pixels.size()][3];
@@ -124,13 +125,13 @@ public class EmulatorConfig {
                         customPixelColors[i][1] = Integer.parseInt(hex.substring(3, 5), 16);
                         customPixelColors[i][2] = Integer.parseInt(hex.substring(5, 7), 16);
                     }
-                    this.colorPalette = new ColorPalette("cadmium", customPixelColors);
+                    this.colorPaletteArg = new ColorPalette("cadmium", customPixelColors);
                 }
             }
 
             JsonElement screenRotationElement = this.romObject.get("screenRotation");
-            if (this.displayAngle == null && (screenRotationElement instanceof JsonPrimitive screenRotationPrimitive)) {
-                this.displayAngle = switch (screenRotationPrimitive.getAsInt()) {
+            if (this.displayAngleArg == null && (screenRotationElement instanceof JsonPrimitive screenRotationPrimitive)) {
+                this.displayAngleArg = switch (screenRotationPrimitive.getAsInt()) {
                     case 90 -> DisplayAngle.DEG_90;
                     case 180 -> DisplayAngle.DEG_180;
                     case 270 -> DisplayAngle.DEG_270;
@@ -195,15 +196,15 @@ public class EmulatorConfig {
                 }
             }
             // Populate emulator settings with values from the database if the console variant wasn't specified in the cli args or if the corresponding settings weren't provided frokm the cli
-            if (this.cliConsoleVariant.isEmpty()) {
+            if (this.consoleVariantArg.isEmpty()) {
                 if (this.platformObject != null) {
-                    chip8Variant = Chip8Variant.getVariantForDatabaseId(this.platformObject.get("id").getAsString());
+                    chip8Variant = Chip8Variant.getVariantForPlatformId(this.platformObject.get("id").getAsString());
                 }
                 if (this.romObject != null && this.romObject.has("tickrate")) {
                     instructionsPerFrame = this.romObject.get("tickrate").getAsInt();
                 }
                 if (quirksObject != null && quirksObject.has("logic")) {
-                    doVfReset = quirksObject.get("logic").getAsBoolean();
+                    doVFReset = quirksObject.get("logic").getAsBoolean();
                 }
                 if (quirksObject != null && quirksObject.has("memoryLeaveIUnchanged")) {
                     doIncrementIndex = !quirksObject.get("memoryLeaveIUnchanged").getAsBoolean();
@@ -222,60 +223,28 @@ public class EmulatorConfig {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error loading values from database. Emulator will use default or cli provided values: " + e);
+            Logger.warn("Error loading values from database. Emulator will use default or cli provided values: ", e);
         }
 
-        if (this.colorPalette == null) {
-            this.colorPalette = new ColorPalette("cadmium");
+        if (this.colorPaletteArg == null) {
+            this.colorPaletteArg = new ColorPalette("cadmium");
         }
 
-        if (this.displayAngle == null) {
-            this.displayAngle = DisplayAngle.DEG_0;
+        if (this.displayAngleArg == null) {
+            this.displayAngleArg = DisplayAngle.DEG_0;
         }
 
         // CLI provided settings take priority over database ones.
         // If neither CLI args were provided and values weren't found from the database,
         // use hardcoded default values.
-        if (this.cliConsoleVariant.isPresent()) {
-            this.chip8Variant = this.cliConsoleVariant.get();
-        } else {
-            this.chip8Variant = Objects.requireNonNullElse(chip8Variant, Chip8Variant.CHIP_8);
-        }
-        if (this.cliDoVFReset.isPresent()) {
-            this.doVfReset = this.cliDoVFReset.get();
-        } else {
-            this.doVfReset = Objects.requireNonNullElse(doVfReset, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.CHIP_8X);
-        }
-        if (this.cliDoIncrementIndex.isPresent()) {
-            this.doIncrementIndex = this.cliDoIncrementIndex.get();
-        } else {
-            this.doIncrementIndex = Objects.requireNonNullElse(doIncrementIndex, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.CHIP_8X || this.chip8Variant == Chip8Variant.XO_CHIP);
-        }
-        if (this.cliDoDisplayWait.isPresent()) {
-            this.doDisplayWait = this.cliDoDisplayWait.get();
-        } else {
-            this.doDisplayWait = Objects.requireNonNullElse(doDisplayWait, this.chip8Variant == Chip8Variant.CHIP_8 || this.chip8Variant == Chip8Variant.CHIP_8X || this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY);
-        }
-        if (this.cliDoClipping.isPresent()) {
-            this.doClipping = this.cliDoClipping.get();
-        } else {
-            this.doClipping = Objects.requireNonNullElse(doClipping, this.chip8Variant != Chip8Variant.XO_CHIP && this.chip8Variant != Chip8Variant.MEGA_CHIP);
-        }
-        if (this.cliDoShiftVXInPlace.isPresent()) {
-            this.doShiftVXInPlace = this.cliDoShiftVXInPlace.get();
-        } else {
-            this.doShiftVXInPlace = Objects.requireNonNullElse(doShiftVXInPlace,this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY || this.chip8Variant == Chip8Variant.SUPER_CHIP_MODERN || this.chip8Variant == Chip8Variant.MEGA_CHIP);
-        }
-        if (this.cliDoJumpWithVX.isPresent()) {
-            this.doJumpWithVX = this.cliDoJumpWithVX.get();
-        } else {
-            this.doJumpWithVX = Objects.requireNonNullElse(doJumpWithVX,this.chip8Variant == Chip8Variant.SUPER_CHIP_LEGACY || this.chip8Variant == Chip8Variant.SUPER_CHIP_MODERN);
-        }
-        if (this.cliInstructionsPerFrame.isPresent()) {
-            this.instructionsPerFrame = this.cliInstructionsPerFrame.get();
-        } else {
-            this.instructionsPerFrame = Objects.requireNonNullElse(instructionsPerFrame, this.chip8Variant.getDefaultInstructionsPerFrame(this.doDisplayWait()));
-        }
+        this.chip8Variant = this.consoleVariantArg.orElse(Objects.requireNonNullElse(chip8Variant, Chip8Variant.CHIP_8));
+        this.doVFReset = this.doVFResetArg.orElse(Objects.requireNonNullElse(doVFReset, this.chip8Variant.getDefaultQuirkset().doVFReset()));
+        this.doIncrementIndex = this.doIncrementIndexArg.orElse(Objects.requireNonNullElse(doIncrementIndex, this.chip8Variant.getDefaultQuirkset().doIncrementIndex()));
+        this.doDisplayWait = this.doDisplayWaitArg.orElse(Objects.requireNonNullElse(doDisplayWait, this.chip8Variant.getDefaultQuirkset().doDisplayWait()));
+        this.doClipping = this.doClippingArg.orElse(Objects.requireNonNullElse(doClipping, this.chip8Variant.getDefaultQuirkset().doClipping()));
+        this.doShiftVXInPlace = this.doShiftVXInPlaceArg.orElse(Objects.requireNonNullElse(doShiftVXInPlace,this.chip8Variant.getDefaultQuirkset().doShiftVXInPlace()));
+        this.doJumpWithVX = this.jumpWithVXArg.orElse(Objects.requireNonNullElse(doJumpWithVX,this.chip8Variant.getDefaultQuirkset().doJumpWithVX()));
+        this.instructionsPerFrame = this.instructionsPerFrameArg.orElse(Objects.requireNonNullElse(instructionsPerFrame, this.chip8Variant.getDefaultQuirkset().instructionsPerFrame().applyAsInt(this.doDisplayWait)));
     }
 
     public int[] getRom() {
@@ -295,15 +264,15 @@ public class EmulatorConfig {
     }
 
     public ColorPalette getColorPalette() {
-        return this.colorPalette;
+        return this.colorPaletteArg;
     }
 
     public KeyboardLayout getKeyboardLayout() {
-        return this.keyboardLayout;
+        return this.keyboardLayoutArg;
     }
 
     public DisplayAngle getDisplayAngle() {
-        return this.displayAngle;
+        return this.displayAngleArg;
     }
 
     public Chip8Variant getConsoleVariant() {
@@ -311,7 +280,7 @@ public class EmulatorConfig {
     }
 
     public boolean doVFReset() {
-        return this.doVfReset;
+        return this.doVFReset;
     }
 
     public boolean doIncrementIndex() {
@@ -338,6 +307,12 @@ public class EmulatorConfig {
         return convertToAbsolutePathIfNeeded(romPath);
     }
 
+    private static Path convertToAbsolutePathIfNeeded(Path path) {
+        if (path == null) {
+            return null;
+        }
+        return path.isAbsolute() ? path : path.toAbsolutePath();
+    }
 
     private JsonElement loadJsonFromResources(String resourcePath) throws Exception {
         try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
@@ -347,16 +322,10 @@ public class EmulatorConfig {
         }
     }
 
-    private Path convertToAbsolutePathIfNeeded(Path path) {
-        if (path == null) {
-            return null;
-        }
-        return path.isAbsolute() ? path : path.toAbsolutePath();
-    }
-
     private static String getSha1Hash(byte[] data) throws Exception {
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
         byte[] hashBytes = sha1.digest(data);
         return HexFormat.of().formatHex(hashBytes);
     }
+
 }

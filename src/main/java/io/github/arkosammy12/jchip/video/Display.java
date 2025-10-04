@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.base.Display;
 import io.github.arkosammy12.jchip.util.SpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -14,9 +13,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.Closeable;
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class AbstractDisplay implements Display {
+public abstract class Display implements Closeable {
 
     private final SpriteFont spriteFont;
     protected final Chip8Variant chip8Variant;
@@ -38,7 +38,7 @@ public abstract class AbstractDisplay implements Display {
 
     private final StringBuilder stringBuilder = new StringBuilder(128);
 
-    public AbstractDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
+    public Display(EmulatorConfig config, KeyAdapter keyAdapter) {
         String romTitle = config.getProgramTitle();
         Chip8Variant chip8Variant = config.getConsoleVariant();
 
@@ -48,12 +48,12 @@ public abstract class AbstractDisplay implements Display {
             this.romTitle = " | " + romTitle;
         }
 
-        this.displayWidth = this.getDisplayWidth();
-        this.displayHeight = this.getDisplayHeight();
+        this.displayWidth = this.getRenderWidth();
+        this.displayHeight = this.getRenderHeight();
         this.chip8Variant = chip8Variant;
         this.spriteFont = new SpriteFont(chip8Variant);
         this.displayAngle = config.getDisplayAngle();
-        this.pixelScale = getPixelScale(this.displayAngle);
+        this.pixelScale = getPixelRenderScale(this.displayAngle);
 
         int windowWidth;
         int windowHeight;
@@ -104,15 +104,20 @@ public abstract class AbstractDisplay implements Display {
         return this.spriteFont;
     }
 
-    protected abstract int getDisplayWidth();
+    public abstract int getWidth();
 
-    protected abstract int getDisplayHeight();
+    public abstract int getHeight();
 
-    protected abstract int getPixelScale(DisplayAngle displayAngle);
+    protected abstract int getRenderWidth();
 
-    protected abstract void populateDataBuffer(int[] buffer);
+    protected abstract int getRenderHeight();
 
-    @Override
+    protected abstract int getPixelRenderScale(DisplayAngle displayAngle);
+
+    protected abstract void fillRenderBuffer(int[] buffer);
+
+    public abstract void clear();
+
     public void flush(int currentInstructionsPerFrame) {
         this.renderer.render();
         String title = this.getWindowTitle(currentInstructionsPerFrame);
@@ -154,7 +159,6 @@ public abstract class AbstractDisplay implements Display {
         return titleString;
     }
 
-    @Override
     public void close() {
         SwingUtilities.invokeLater(this.frame::dispose);
     }
@@ -188,7 +192,7 @@ public abstract class AbstractDisplay implements Display {
 
         private void render() {
             int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
-            populateDataBuffer(buffer);
+            fillRenderBuffer(buffer);
             BufferStrategy bufferStrategy = getBufferStrategy();
             if (bufferStrategy == null) {
                 createBufferStrategy(3);

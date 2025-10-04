@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.base.Memory;
-import io.github.arkosammy12.jchip.base.SoundSystem;
+import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
@@ -16,9 +16,9 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
     }
 
     @Override
-    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) throws InvalidInstructionException {
-        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
-        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
+        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
+        if (isSet(flagsSuper, HANDLED)) {
             return flagsSuper;
         }
         int flags = HANDLED;
@@ -33,15 +33,9 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                 }
                 case 0xF -> {
                     switch (fourthNibble) {
-                        case 0xB -> { // 00FB: Scroll screen 4 columns right
-                            display.scrollRight();
-                        }
-                        case 0xC -> { // 00FC: Scroll screen 4 columns left
-                            display.scrollLeft();
-                        }
-                        case 0xD -> { // 00FD: Exit interpreter
-                            this.shouldTerminate = true;
-                        }
+                        case 0xB -> display.scrollRight(); // 00FB: Scroll screen 4 columns right
+                        case 0xC -> display.scrollLeft(); // 00FC: Scroll screen 4 columns left
+                        case 0xD -> this.shouldTerminate = true; // 00FD: Exit interpreter
                         case 0xE -> { // 00FE: Set lores mode
                             display.setExtendedMode(false);
                             if (this.emulator.isModern()) {
@@ -54,32 +48,22 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                                 display.clear();
                             }
                         }
-                        default -> flags &= ~Chip8Processor.HANDLED;
+                        default -> flags = clear(flags, HANDLED);
                     }
                 }
-                default -> flags &= ~Chip8Processor.HANDLED;
+                default -> flags = clear(flags, HANDLED);
             }
         } else {
-            flags &= ~Chip8Processor.HANDLED;
+            flags = clear(flags, HANDLED);
         }
         return flags;
-    }
-
-    // BXNN
-    @Override
-    protected int executeJumpWithOffset(int secondNibble, int thirdNibble, int fourthNibble, int memoryAddress) {
-        if (!this.emulator.getEmulatorConfig().doJumpWithVX()) {
-            return super.executeJumpWithOffset(secondNibble, thirdNibble, fourthNibble, memoryAddress);
-        }
-        this.setProgramCounter(memoryAddress + this.getRegister(secondNibble));
-        return Chip8Processor.HANDLED;
     }
 
     // DXYN
     @SuppressWarnings("DuplicatedCode")
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
         SChipDisplay display = this.emulator.getDisplay();
-        Memory memory = this.emulator.getMemory();
+        Chip8Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
@@ -180,7 +164,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
     @Override
     protected int executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
         int flagsSuper = super.executeFXOpcode(firstNibble, secondNibble, secondByte);
-        if ((flagsSuper & Chip8Processor.HANDLED) != 0) {
+        if (isSet(flagsSuper, HANDLED)) {
             return flagsSuper;
         }
         int flags = HANDLED;
@@ -188,15 +172,11 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         switch (secondByte) {
             case 0x30 -> { // FX30: Set index register to big font sprite offset
                 this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getBigFontSpriteOffset(vX & 0xF));
-                flags |= Chip8Processor.FONT_SPRITE_POINTER;
+                flags = set(flags, FONT_SPRITE_POINTER);
             }
-            case 0x75 -> { // FX75: Store registers to flags storage
-                this.saveRegistersToFlags(secondNibble);
-            }
-            case 0x85 -> { // FX85: Load registers from flags storage
-                this.loadFlagsToRegisters(secondNibble);
-            }
-            default -> flags &= ~Chip8Processor.HANDLED;
+            case 0x75 -> this.saveRegistersToFlags(secondNibble); // FX75: Store registers to flags storage
+            case 0x85 -> this.loadFlagsToRegisters(secondNibble); // FX85: Load registers from flags storage
+            default -> flags = clear(flags, HANDLED);
         }
         return flags;
     }

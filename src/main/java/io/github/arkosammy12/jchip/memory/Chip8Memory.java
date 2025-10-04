@@ -1,10 +1,9 @@
 package io.github.arkosammy12.jchip.memory;
 
-import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.SpriteFont;
 
-public class Chip8Memory implements Memory {
+public class Chip8Memory {
 
     private final int[] bytes;
     private final int memorySize;
@@ -34,18 +33,15 @@ public class Chip8Memory implements Memory {
         }
     }
 
-    @Override
     public int getMemorySize() {
         return this.memorySize;
     }
 
-    @Override
     public int readByte(int address) {
         // Reading from memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
         return this.bytes[address & (this.memorySize - 1)];
     }
 
-    @Override
     public void writeByte(int address, int value) {
         // Writing to memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
         this.bytes[address & (this.memorySize - 1)] = value;

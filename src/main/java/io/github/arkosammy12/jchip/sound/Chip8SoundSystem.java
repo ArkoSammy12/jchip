@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.sound;
 
-import io.github.arkosammy12.jchip.base.SoundSystem;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 
 import javax.sound.sampled.AudioFormat;

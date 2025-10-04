@@ -124,7 +124,7 @@ public enum KeyboardLayout {
     public static class Converter implements CommandLine.ITypeConverter<KeyboardLayout> {
 
         @Override
-        public KeyboardLayout convert(String value) throws Exception {
+        public KeyboardLayout convert(String value) {
             return getKeyboardLayoutForIdentifier(value);
         }
 

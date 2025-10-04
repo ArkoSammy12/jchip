@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.sound;
 
-import io.github.arkosammy12.jchip.base.Memory;
-import io.github.arkosammy12.jchip.base.SoundSystem;
+import io.github.arkosammy12.jchip.memory.Chip8Memory;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -10,7 +9,7 @@ import java.util.Arrays;
 
 public class MegaChipSoundSystem implements SoundSystem {
 
-    private final Memory memory;
+    private final Chip8Memory memory;
     private SourceDataLine audioLine;
 
     private int trackStart;
@@ -21,7 +20,7 @@ public class MegaChipSoundSystem implements SoundSystem {
     private double samplePos;
     private boolean isPlaying;
 
-    public MegaChipSoundSystem(Memory memory) {
+    public MegaChipSoundSystem(Chip8Memory memory) {
         this.memory = memory;
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, false, true);

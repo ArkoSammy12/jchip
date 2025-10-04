@@ -1,21 +1,23 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.base.*;
 import io.github.arkosammy12.jchip.cpu.*;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
+import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 
 import java.awt.event.KeyAdapter;
 
-public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implements Emulator {
+import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+
+public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implements AutoCloseable {
 
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
-    protected final Chip8VariantProcessor processor;
-    private final Memory memory;
+    protected final Chip8Processor<?, ?, ?> processor;
+    private final Chip8Memory memory;
     protected final D display;
     protected final S soundSystem;
     private final Keypad keyState;
@@ -44,12 +46,11 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         }
     }
 
-    protected Chip8VariantProcessor createProcessor() {
+    protected Chip8Processor<?, ?, ?> createProcessor() {
         return new Chip8Processor<>(this);
     }
 
-    @Override
-    public Chip8VariantProcessor getProcessor() {
+    public Chip8Processor<?, ?, ?> getProcessor() {
         return this.processor;
     }
 
@@ -57,8 +58,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFF + 1);
     }
 
-    @Override
-    public Memory getMemory() {
+    public Chip8Memory getMemory() {
         return this.memory;
     }
 
@@ -67,12 +67,10 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return (D) new Chip8Display(emulatorConfig, keyAdapter);
     }
 
-    @Override
     public D getDisplay() {
         return this.display;
     }
 
-    @Override
     public S getSoundSystem() {
         return this.soundSystem;
     }
@@ -82,32 +80,26 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return (S) new Chip8SoundSystem(chip8Variant);
     }
 
-    @Override
     public Keypad getKeyState() {
         return this.keyState;
     }
 
-    @Override
     public Chip8Variant getChip8Variant() {
         return this.chip8Variant;
     }
 
-    @Override
     public EmulatorConfig getEmulatorConfig() {
         return this.config;
     }
 
-    @Override
-    public void terminate() {
+    protected void terminate() {
         this.isTerminated = true;
     }
 
-    @Override
     public boolean isTerminated() {
         return this.isTerminated;
     }
 
-    @Override
     public void tick() throws InvalidInstructionException {
         long startOfFrame = System.nanoTime();
         this.runInstructionLoop();
@@ -115,6 +107,8 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
         long frameTime = endOfFrame - startOfFrame;
+        //double frameTimeMs = frameTime / 1_000_000.0;
+        //Logger.info(String.format("Frametime: %.3f ms", frameTimeMs));
         if (this.targetInstructionsPerFrame >= IPF_THROTTLE_THRESHOLD) {
             long adjust = (frameTime - Main.FRAME_INTERVAL) / 100;
             this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
@@ -145,9 +139,9 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     protected boolean waitFrameEnd(int flags) {
         if (this.config.doDisplayWait()) {
-            if ((flags & Chip8Processor.DRAW_EXECUTED) != 0) {
+            if (isSet(flags, Chip8Processor.DRAW_EXECUTED)) {
                 return true;
-            } else if ((flags & Chip8Processor.LONG_DRAW_EXECUTED) != 0) {
+            } else if (isSet(flags, Chip8Processor.LONG_DRAW_EXECUTED)) {
                 this.waitFrames = 1;
                 return true;
             }
@@ -155,7 +149,6 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return false;
     }
 
-    @Override
     public void close() {
         try {
             if (this.display != null) {

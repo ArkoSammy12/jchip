@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.base.Chip8VariantProcessor;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
@@ -12,14 +11,16 @@ import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
 import java.awt.event.KeyAdapter;
 
+import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+
 public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem> extends SChipEmulator<D, S> {
 
     public XOChipEmulator(EmulatorConfig emulatorConfig) {
-        super(emulatorConfig);
+        super(emulatorConfig, true);
     }
 
     @Override
-    protected Chip8VariantProcessor createProcessor() {
+    protected Chip8Processor<?, ?, ?> createProcessor() {
         return new XOChipProcessor<>(this);
     }
 
@@ -41,7 +42,7 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
 
     @Override
     protected boolean waitFrameEnd(int flags) {
-        return this.config.doDisplayWait() && ((flags & Chip8Processor.DRAW_EXECUTED) != 0) && !this.getDisplay().isExtendedMode();
+        return this.config.doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isExtendedMode();
     }
 
 }

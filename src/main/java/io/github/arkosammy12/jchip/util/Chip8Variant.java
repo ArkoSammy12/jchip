@@ -1,26 +1,40 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.base.Emulator;
 import io.github.arkosammy12.jchip.emulators.*;
 import picocli.CommandLine;
 
+import java.util.function.ToIntFunction;
+
 public enum Chip8Variant {
-    CHIP_8("chip-8", "CHIP-8", 15),
-    CHIP_8X("chip-8x", "CHIP-8X", 15),
-    SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", 30),
-    SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", 30),
-    XO_CHIP("xo-chip", "XO-CHIP", 1000),
-    MEGA_CHIP("mega-chip", "MEGA-CHIP", 1000),
-    COSMAC_VIP("cosmac-vip", "COSMAC-VIP", 3668);
+    CHIP_8("chip-8", "CHIP-8", new String[]{"originalChip8", "modernChip8"}, new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11)),
+    CHIP_8X("chip-8x", "CHIP-8X", new String[]{"chip8x"}, new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11)),
+    SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", new String[]{"superchip1"}, new Quirkset(false, false, true, true, true, true, doDisplayWait -> 30)),
+    SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", null, new Quirkset(false, false, false, true, true, true, doDisplayWait -> 30)),
+    XO_CHIP("xo-chip", "XO-CHIP", new String[] {"xochip"}, new Quirkset(false, true, false, false, false, false, doDisplayWait -> 1000)),
+    MEGA_CHIP("mega-chip", "MEGA-CHIP", new String[]{"megachip8"}, new Quirkset(false, false, false, true, true, false, doDisplayWait -> 1000));
 
     private final String identifier;
     private final String displayName;
-    private final int defaultInstructionsPerFrame;
+    private final String[] platformIds;
+    private final Quirkset defaultQuirkset;
 
-    Chip8Variant(String identifier, String displayName, int defaultInstructionsPerFrame) {
+    Chip8Variant(String identifier, String displayName, String[] platformIds, Quirkset defaultQuirkset) {
         this.identifier = identifier;
         this.displayName = displayName;
-        this.defaultInstructionsPerFrame = defaultInstructionsPerFrame;
+        this.platformIds =  platformIds;
+        this.defaultQuirkset = defaultQuirkset;
+    }
+
+    public static Chip8Emulator<?, ?> getEmulator(EmulatorConfig emulatorConfig) {
+        Chip8Variant chip8Variant = emulatorConfig.getConsoleVariant();
+        return switch (chip8Variant) {
+            case CHIP_8 -> new Chip8Emulator<>(emulatorConfig);
+            case CHIP_8X -> new Chip8XEmulator<>(emulatorConfig);
+            case SUPER_CHIP_LEGACY -> new SChipEmulator<>(emulatorConfig, false);
+            case SUPER_CHIP_MODERN -> new SChipEmulator<>(emulatorConfig, true);
+            case XO_CHIP -> new XOChipEmulator<>(emulatorConfig);
+            case MEGA_CHIP -> new MegaChipEmulator<>(emulatorConfig);
+        };
     }
 
     public static Chip8Variant getVariantForIdentifier(String identifier) {
@@ -32,38 +46,27 @@ public enum Chip8Variant {
         throw new IllegalArgumentException("Unknown chip-8 variant: " + identifier);
     }
 
-    public static Chip8Variant getVariantForDatabaseId(String id) {
-        return switch (id) {
-            case "originalChip8", "modernChip8", "chip48" -> Chip8Variant.CHIP_8;
-            case "chip8x" -> Chip8Variant.CHIP_8X;
-            case "superchip1", "superchip" -> Chip8Variant.SUPER_CHIP_LEGACY;
-            case "xochip" -> Chip8Variant.XO_CHIP;
-            case "megachip8" -> Chip8Variant.MEGA_CHIP;
-            default -> throw new IllegalArgumentException("Unsupported chip-8 variant: " + id);
-        };
-    }
-
-    public static Emulator getEmulatorForVariant(EmulatorConfig emulatorConfig) {
-        Chip8Variant chip8Variant = emulatorConfig.getConsoleVariant();
-        return switch (chip8Variant) {
-            case CHIP_8X -> new Chip8XEmulator<>(emulatorConfig);
-            case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new SChipEmulator<>(emulatorConfig);
-            case XO_CHIP -> new XOChipEmulator<>(emulatorConfig);
-            case MEGA_CHIP -> new MegaChipEmulator<>(emulatorConfig);
-            default -> new Chip8Emulator<>(emulatorConfig);
-        };
+    public static Chip8Variant getVariantForPlatformId(String id) {
+        for (Chip8Variant variant : Chip8Variant.values()) {
+            String[] platformIds = variant.platformIds;
+            if (platformIds == null) {
+                continue;
+            }
+            for (String platformId : platformIds) {
+                if (platformId.equals(id)) {
+                    return variant;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Unsupported chip-8 variant: " + id);
     }
 
     public String getDisplayName() {
         return this.displayName;
     }
 
-    public int getDefaultInstructionsPerFrame(boolean displayWaitEnabled) {
-        int defaultIpf = this.defaultInstructionsPerFrame;
-        if ((this == Chip8Variant.CHIP_8 || this == Chip8Variant.CHIP_8X) && !displayWaitEnabled) {
-            defaultIpf = 11;
-        }
-        return defaultIpf;
+    public Quirkset getDefaultQuirkset() {
+        return this.defaultQuirkset;
     }
 
     public static class Converter implements CommandLine.ITypeConverter<Chip8Variant> {
@@ -72,6 +75,18 @@ public enum Chip8Variant {
         public Chip8Variant convert(String value) {
             return getVariantForIdentifier(value);
         }
+
+    }
+
+    public record Quirkset(
+        boolean doVFReset,
+        boolean doIncrementIndex,
+        boolean doDisplayWait,
+        boolean doClipping,
+        boolean doShiftVXInPlace,
+        boolean doJumpWithVX,
+        ToIntFunction<Boolean> instructionsPerFrame
+    ) {
 
     }
 

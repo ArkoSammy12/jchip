@@ -26,6 +26,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("info.picocli:picocli:${property("picocli_version")}")
     implementation("com.google.code.gson:gson:${property("gson_version")}")
+    implementation("org.tinylog:tinylog-api:${property("tinylog_version")}")
+    implementation("org.tinylog:tinylog-impl:${property("tinylog_version")}")
 }
 
 tasks.test {

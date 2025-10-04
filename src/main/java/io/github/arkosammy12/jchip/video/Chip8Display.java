@@ -7,7 +7,7 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;
 
-public class Chip8Display extends AbstractDisplay {
+public class Chip8Display extends Display {
 
     protected final ColorPalette colorPalette;
 
@@ -15,7 +15,7 @@ public class Chip8Display extends AbstractDisplay {
 
     public Chip8Display(EmulatorConfig config, KeyAdapter keyAdapter) {
         super(config, keyAdapter);
-        this.bitplaneBuffer = new int[this.getDisplayWidth()][this.getDisplayHeight()];
+        this.bitplaneBuffer = new int[this.getRenderWidth()][this.getRenderHeight()];
         this.colorPalette = config.getColorPalette();
     }
 
@@ -30,12 +30,12 @@ public class Chip8Display extends AbstractDisplay {
     }
 
     @Override
-    protected int getDisplayWidth() {
+    protected int getRenderWidth() {
         return 64;
     }
 
     @Override
-    protected int getDisplayHeight() {
+    protected int getRenderHeight() {
         return 32;
     }
 
@@ -53,7 +53,7 @@ public class Chip8Display extends AbstractDisplay {
     }
 
     @Override
-    protected int getPixelScale(DisplayAngle displayAngle) {
+    protected int getPixelRenderScale(DisplayAngle displayAngle) {
         return switch (displayAngle) {
             case DEG_90, DEG_270 -> 11;
             default -> 20;
@@ -61,7 +61,7 @@ public class Chip8Display extends AbstractDisplay {
     }
 
     @Override
-    protected void populateDataBuffer(int[] buffer) {
+    protected void fillRenderBuffer(int[] buffer) {
         for (int y = 0; y < displayHeight; y++) {
             int base = y * displayWidth;
             for (int x = 0; x < displayWidth; x++) {

@@ -1,9 +1,9 @@
 package io.github.arkosammy12.jchip;
 
-
-import io.github.arkosammy12.jchip.base.Emulator;
+import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import org.tinylog.Logger;
 
 public class Main {
 
@@ -12,7 +12,7 @@ public class Main {
     public static final String VERSION_STRING = "v2.1.1";
 
     public static void main(String[] args) {
-        try (Emulator emulator = Chip8Variant.getEmulatorForVariant(new EmulatorConfig(args))) {
+        try (Chip8Emulator<?, ?> emulator = Chip8Variant.getEmulator(new EmulatorConfig(args))) {
             long lastFrameTime = System.nanoTime();
             while (!emulator.isTerminated()) {
                 long now = System.nanoTime();
@@ -22,7 +22,7 @@ public class Main {
                 }
             }
         } catch (Exception e) {
-            System.err.println("jchip has crashed!");
+            Logger.error("jchip has crashed!");
             e.printStackTrace();
         }
     }

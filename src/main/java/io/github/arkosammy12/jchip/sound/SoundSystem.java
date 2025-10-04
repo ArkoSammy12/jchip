@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.base;
+package io.github.arkosammy12.jchip.sound;
 
 import io.github.arkosammy12.jchip.Main;
 

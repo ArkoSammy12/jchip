@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.base.*;
-import io.github.arkosammy12.jchip.base.Memory;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.Keypad;
@@ -11,7 +11,7 @@ import io.github.arkosammy12.jchip.video.Chip8Display;
 import java.util.List;
 import java.util.Random;
 
-public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Display, S extends SoundSystem> implements Chip8VariantProcessor {
+public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Display, S extends SoundSystem> {
 
     public static final int HANDLED = 1;
     public static final int SKIP_TAKEN = 1 << 1;
@@ -90,6 +90,15 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return this.soundTimer;
     }
 
+    public void decrementTimers() {
+        if (this.getDelayTimer() > 0) {
+            this.delayTimer -= 1;
+        }
+        if (this.getSoundTimer() > 0) {
+            this.soundTimer -= 1;
+        }
+    }
+
     protected void setRegister(int register, int value) {
         this.registers[register] = value & 0xFF;
     }
@@ -122,21 +131,11 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return this.shouldTerminate;
     }
 
-    @Override
     public int cycle() throws InvalidInstructionException {
-        Memory memory = this.emulator.getMemory();
+        Chip8Memory memory = this.emulator.getMemory();
         int programCounter = this.getProgramCounter();
         this.incrementProgramCounter();
         return this.execute(memory.readByte(programCounter), memory.readByte(programCounter + 1));
-    }
-
-    public void decrementTimers() {
-        if (this.getDelayTimer() > 0) {
-            this.delayTimer -= 1;
-        }
-        if (this.getSoundTimer() > 0) {
-            this.soundTimer -= 1;
-        }
     }
 
     private int execute(int firstByte, int secondByte) throws InvalidInstructionException {
@@ -146,7 +145,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         int fourthNibble = (secondByte & 0x0F);
         int memoryAddress = ((firstByte << 8) | secondByte) & 0x0FFF;
         int flags = switch (firstNibble) {
-            case 0x0 -> executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte, memoryAddress);
+            case 0x0 -> executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
             case 0x1 -> executeJump(memoryAddress);
             case 0x2 -> executeCall(memoryAddress);
             case 0x3 -> executeSkipIfEqualsImmediate(secondNibble, secondByte);
@@ -164,26 +163,22 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
             case 0xF -> executeFXOpcode(firstNibble, secondNibble, secondByte);
             default -> throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, this.emulator.getChip8Variant());
         };
-        if ((flags & HANDLED) == 0) {
+        if (!isSet(flags, HANDLED)) {
             throw new InvalidInstructionException(firstNibble, secondNibble, secondByte, this.emulator.getChip8Variant());
         }
         return flags;
     }
 
-    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) throws InvalidInstructionException {
+    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
         int flags = HANDLED;
         if (secondNibble == 0x0 && thirdNibble == 0xE) {
             switch (fourthNibble) {
-                case 0x0 -> { // 00E0: Clear screen
-                    this.emulator.getDisplay().clear();
-                }
-                case 0xE -> { // 00EE: Return from subroutine
-                    this.setProgramCounter(this.pop());
-                }
-                default -> flags &= ~HANDLED;
+                case 0x0 -> this.emulator.getDisplay().clear(); // 00E0: Clear screen
+                case 0xE -> this.setProgramCounter(this.pop()); // 00EE: Return from subroutine
+                default -> flags = clear(flags, HANDLED);
             }
         } else {
-            flags &= ~HANDLED;
+            flags = clear(flags, HANDLED);
         }
         return flags;
     }
@@ -204,9 +199,8 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     // 3XNN
     protected int executeSkipIfEqualsImmediate(int secondNibble, int secondByte) {
         int flags = HANDLED;
-        int vX = this.getRegister(secondNibble);
-        if (secondByte == vX) {
-            flags |= SKIP_TAKEN;
+        if (secondByte == this.getRegister(secondNibble)) {
+            flags = set(flags, SKIP_TAKEN);
             this.incrementProgramCounter();
         }
         return flags;
@@ -215,9 +209,8 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     // 4XNN
     protected int executeSkipIfNotEqualsImmediate(int secondNibble, int secondByte) {
         int flags = HANDLED;
-        int vX = this.getRegister(secondNibble);
-        if (secondByte != vX) {
-            flags |= SKIP_TAKEN;
+        if (secondByte != this.getRegister(secondNibble)) {
+            flags = set(flags, SKIP_TAKEN);
             this.incrementProgramCounter();
         }
         return flags;
@@ -225,15 +218,13 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
 
     protected int executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
         int flags = HANDLED;
-        int vX = this.getRegister(secondNibble);
-        int vY = this.getRegister(thirdNibble);
         if (fourthNibble == 0x0) { // 5XY0: Skip if registers equal
-            if (vX == vY) {
-                flags |= SKIP_TAKEN;
+            if (this.getRegister(secondNibble) == this.getRegister(thirdNibble)) {
+                flags = set(flags, SKIP_TAKEN);
                 this.incrementProgramCounter();
             }
         } else {
-            flags &= ~HANDLED;
+            flags = clear(flags, HANDLED);
         }
         return flags;
     }
@@ -246,8 +237,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
 
     // 7XNN
     protected int executeAddRegisterImmediate(int secondNibble, int secondByte) {
-        int vX = this.getRegister(secondNibble);
-        this.setRegister(secondNibble, vX + secondByte);
+        this.setRegister(secondNibble, this.getRegister(secondNibble) + secondByte);
         return HANDLED;
     }
 
@@ -256,9 +246,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         int vX = this.getRegister(secondNibble);
         int vY = this.getRegister(thirdNibble);
         switch (fourthNibble) {
-            case 0x0 -> { // 8XY0: Copy to register
-                this.setRegister(secondNibble, vY);
-            }
+            case 0x0 -> this.setRegister(secondNibble, vY); // 8XY0: Copy to register
             case 0x1 -> { // 8XY1: OR registers
                 this.setRegister(secondNibble, vX | vY);
                 if (this.emulator.getEmulatorConfig().doVFReset()) {
@@ -279,34 +267,28 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
             }
             case 0x4 -> { // 8XY4: Add registers
                 int value = vX + vY;
-                boolean withCarry = value > 0xFF;
                 this.setRegister(secondNibble, value);
-                this.setVF(withCarry);
+                this.setVF(value > 0xFF);
             }
             case 0x5 -> { // 8XY5: Subtract registers (vX - vY)
-                boolean noBorrow = vX >= vY;
                 this.setRegister(secondNibble, vX - vY);
-                this.setVF(noBorrow);
+                this.setVF(vX >= vY);
             }
-            case 0x6 -> { // 8XY6: Shift right register
+            case 0x6 -> { // 8XY6: Shift register right
                 int operand = this.emulator.getEmulatorConfig().doShiftVXInPlace() ? vX : vY;
-                boolean shiftedOut = (operand & 1) != 0;
                 this.setRegister(secondNibble, operand >>> 1);
-                this.setVF(shiftedOut);
+                this.setVF((operand & 1) != 0);
             }
             case 0x7 -> { // 8XY7: Subtract registers (vY - vX)
-                int value = vY - vX;
-                boolean noBorrow = vY >= vX;
-                this.setRegister(secondNibble, value);
-                this.setVF(noBorrow);
+                this.setRegister(secondNibble, vY - vX);
+                this.setVF(vY >= vX);
             }
             case 0xE -> { // 8XYE: Shift left register
                 int operand = this.emulator.getEmulatorConfig().doShiftVXInPlace() ? vX : vY;
-                boolean shiftedOut = (operand & 128) != 0;
                 this.setRegister(secondNibble, operand << 1);
-                this.setVF(shiftedOut);
+                this.setVF((operand & 128) != 0);
             }
-            default -> flags &= ~HANDLED;
+            default -> flags = clear(flags, HANDLED);
         }
         return flags;
     }
@@ -317,10 +299,8 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
             return 0;
         }
         int flags = HANDLED;
-        int vX = this.getRegister(secondNibble);
-        int vY = this.getRegister(thirdNibble);
-        if (vX != vY) {
-            flags |= SKIP_TAKEN;
+        if (this.getRegister(secondNibble) != this.getRegister(thirdNibble)) {
+            flags = set(flags, SKIP_TAKEN);
             this.incrementProgramCounter();
         }
         return flags;
@@ -332,16 +312,15 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return HANDLED;
     }
 
-    // BNNN
+    // BXNN/BNNN
     protected int executeJumpWithOffset(int secondNibble, int thirdNibble, int fourthNibble, int memoryAddress) {
-        this.setProgramCounter(memoryAddress + this.getRegister(0x0));
+        this.setProgramCounter(memoryAddress + this.getRegister(this.emulator.getEmulatorConfig().doJumpWithVX() ? secondNibble : 0x0));
         return HANDLED;
     }
 
     // CXNN
     protected int executeGetRandomNumber(int secondNibble, int secondByte) {
-        int random = this.getRandom().nextInt();
-        this.setRegister(secondNibble, random & secondByte);
+        this.setRegister(secondNibble, this.getRandom().nextInt() & secondByte);
         return HANDLED;
     }
 
@@ -350,7 +329,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     protected int executeDraw(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte, int memoryAddress) {
         int flags = HANDLED;
         Chip8Display display = this.emulator.getDisplay();
-        Memory memory = this.emulator.getMemory();
+        Chip8Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         int currentIndexRegister = this.getIndexRegister();
 
@@ -365,9 +344,9 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         // 1 or 2 frames if the display wait quirk is enabled.
         // Courtesy of Steffen Schümann (@gulrak)
         if (fourthNibble > 4 && (fourthNibble + (spriteX & 7) > 9)) {
-            flags |= LONG_DRAW_EXECUTED;
+            flags = set(flags, LONG_DRAW_EXECUTED);
         } else {
-            flags |= DRAW_EXECUTED;
+            flags = set(flags, DRAW_EXECUTED);
         }
 
         boolean collided = false;
@@ -404,22 +383,21 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     protected int executeSkipIfKey(int secondNibble, int secondByte) {
         int flags = HANDLED;
         Keypad keyState = this.emulator.getKeyState();
-        int vX = this.getRegister(secondNibble);
-        int hexKey = vX & 0xF;
+        int hexKey = this.getRegister(secondNibble) & 0xF;
         switch (secondByte) {
             case 0x9E -> { // EX9E: Skip if key pressed
                 if (keyState.isKeyPressed(hexKey)) {
-                    flags |= SKIP_TAKEN;
+                    flags = set(flags, SKIP_TAKEN);
                     this.incrementProgramCounter();
                 }
             }
             case 0xA1 -> { // EXA1: Skip if key not pressed
                 if (!keyState.isKeyPressed(hexKey)) {
-                    flags |= SKIP_TAKEN;
+                    flags = set(flags, SKIP_TAKEN);
                     this.incrementProgramCounter();
                 }
             }
-            default -> flags &= ~HANDLED;
+            default -> flags = clear(flags, HANDLED);
         }
         return flags;
     }
@@ -428,13 +406,11 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         int flags = HANDLED;
         int vX = this.getRegister(secondNibble);
         switch (secondByte) {
-            case 0x07 -> { // FX07: Set VX to delay timer
-                this.setRegister(secondNibble, this.getDelayTimer());
-            }
+            case 0x07 -> this.setRegister(secondNibble, this.getDelayTimer()); // FX07: Set VX to delay timer
             case 0x0A -> { // FX0A: Get key
                 Keypad keyState = this.emulator.getKeyState();
                 List<Integer> pressedKeys = keyState.getPressedKeys();
-                flags |= GET_KEY_EXECUTED;
+                flags = set(flags, GET_KEY_EXECUTED);
                 int waitingKey = keyState.getWaitingKey();
                 if (waitingKey >= 0) {
                     if (pressedKeys.isEmpty()) {
@@ -457,21 +433,15 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                     this.decrementProgramCounter();
                 }
             }
-            case 0x15 -> { // FX15: Set delay timer to VX
-                this.setDelayTimer(vX);
-            }
-            case 0x18 -> { // FX18: Set sound timer to VX
-                this.setSoundTimer(vX);
-            }
-            case 0x1E -> { // FX1E: Add to index register immediate
-                this.setIndexRegister(vX + this.getIndexRegister());
-            }
+            case 0x15 -> this.setDelayTimer(vX); // FX15: Set delay timer to VX
+            case 0x18 -> this.setSoundTimer(vX); // FX18: Set sound timer to VX
+            case 0x1E -> this.setIndexRegister(vX + this.getIndexRegister()); // FX1E: Add to index register immediate
             case 0x29 -> { // FX29: Set index register to small font sprite offset
                 this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontSpriteOffset(vX & 0xF));
-                flags |= FONT_SPRITE_POINTER;
+                flags = set(flags, FONT_SPRITE_POINTER);
             }
             case 0x33 -> { // FX33: Store BCD representation of VX at I, I+1, I+2
-                Memory memory = this.emulator.getMemory();
+                Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexPointer = this.getIndexRegister();
 
                 // Compute hundreds digit using "magic number" multiplication instead of division
@@ -488,7 +458,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                 memory.writeByte(currentIndexPointer + 2, (int) ones);
             }
             case 0x55 -> { // FX55: Write v0 to vX to memory
-                Memory memory = this.emulator.getMemory();
+                Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexPointer = this.getIndexRegister();
                 for (int i = 0; i <= secondNibble; i++) {
                     memory.writeByte(currentIndexPointer + i, this.getRegister(i));
@@ -498,7 +468,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                 }
             }
             case 0x65 -> { // FX65: Read into v0 to vX from memory
-                Memory memory = this.emulator.getMemory();
+                Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i <= secondNibble; i++) {
                     this.setRegister(i, memory.readByte(currentIndexRegister + i));
@@ -507,9 +477,21 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                     this.setIndexRegister(currentIndexRegister + secondNibble + 1);
                 }
             }
-            default -> flags &= ~HANDLED;
+            default -> flags = clear(flags, HANDLED);
         }
         return flags;
+    }
+
+    public static boolean isSet(int flags, int mask) {
+        return (flags & mask) != 0;
+    }
+
+    public static int set(int flags, int mask) {
+        return flags | mask;
+    }
+
+    public static int clear(int flags, int mask) {
+        return flags & ~mask;
     }
     
 }

@@ -50,7 +50,7 @@ public class Chip8XDisplay extends Chip8Display {
     }
 
     @Override
-    protected void populateDataBuffer(int[] buffer) {
+    protected void fillRenderBuffer(int[] buffer) {
         if (this.extendedColorDraw) {
             for (int y = 0; y < displayHeight; y++) {
                 int base = y * displayWidth;

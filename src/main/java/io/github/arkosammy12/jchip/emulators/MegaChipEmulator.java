@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.base.Chip8VariantProcessor;
-import io.github.arkosammy12.jchip.base.SoundSystem;
+import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
@@ -13,17 +12,19 @@ import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import java.awt.event.KeyAdapter;
 
+import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+
 public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> extends SChipEmulator<D, S> {
 
     private final MegaChipSoundSystem megaChipSoundSystem;
 
     public MegaChipEmulator(EmulatorConfig emulatorConfig) {
-        super(emulatorConfig);
+        super(emulatorConfig, false);
         this.megaChipSoundSystem = new MegaChipSoundSystem(this.getMemory());
     }
 
     @Override
-    protected Chip8VariantProcessor createProcessor() {
+    protected Chip8Processor<?, ?, ?> createProcessor() {
         return new MegaChipProcessor<>(this);
     }
 
@@ -58,7 +59,7 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
         if (!this.getDisplay().isMegaChipModeEnabled()) {
             return super.waitFrameEnd(flags);
         }
-        return (flags & Chip8Processor.HANDLED) != 0 && (flags & Chip8Processor.CLS_EXECUTED) != 0;
+        return isSet(flags, Chip8Processor.CLS_EXECUTED);
     }
 
 }
