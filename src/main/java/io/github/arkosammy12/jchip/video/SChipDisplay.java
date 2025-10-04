@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
@@ -8,12 +7,12 @@ import java.awt.event.KeyAdapter;
 
 public class SChipDisplay extends Chip8Display {
 
-    protected boolean isModern;
+    private final boolean isModern;
     protected boolean extendedMode;
 
-    public SChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
+    public SChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter, boolean isModern) {
         super(config, keyAdapter);
-        this.isModern = this.chip8Variant == Chip8Variant.SUPER_CHIP_MODERN;
+        this.isModern = isModern;
     }
 
     @Override

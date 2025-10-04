@@ -11,8 +11,7 @@ public class XOChipDisplay extends SChipDisplay {
     private int selectedBitPlanes = 1;
 
     public XOChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
-        super(config, keyAdapter);
-        this.isModern = true;
+        super(config, keyAdapter, true);
     }
 
     public void setSelectedBitPlanes(int selectedBitPlanes) {

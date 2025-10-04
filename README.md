@@ -7,7 +7,7 @@
 A CHIP-8, SUPER-CHIP, and XO-CHIP interpreter written in Java.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
-![Java](https://img.shields.io/badge/Java-21-blue)
+![Java](https://img.shields.io/badge/Java-25-blue)
 
 
 * [Features](#features)
@@ -29,7 +29,7 @@ A CHIP-8, SUPER-CHIP, and XO-CHIP interpreter written in Java.
 
 ## Building from Source
 
-You will at least Java `21` in order to compile and/or run this application.
+You will at least Java `25` in order to compile and/or run this application.
 If you currently don't have a Java Runtime environment installed,
 you may get the latest LTS version from the [Adoptium website](https://adoptium.net/).
 
@@ -55,7 +55,7 @@ Where `x.y.z` is the numeric version embedded in the JAR file’s name.
 - Example:
 
 ```bash
-java -jar jchip-1.0.1.jar -r roms/PONG.ch8 -v chip-8 -c pico8
+java -jar jchip-2.2.0.jar -r roms/PONG.ch8 -v chip-8 -c pico8
 ```
 
 Press the Escape key in order to close the emulator.

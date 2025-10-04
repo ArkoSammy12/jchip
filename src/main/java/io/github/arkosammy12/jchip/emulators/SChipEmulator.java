@@ -15,8 +15,8 @@ public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extend
     private final boolean isModern;
 
     public SChipEmulator(EmulatorConfig emulatorConfig, boolean isModern) {
-        super(emulatorConfig);
         this.isModern = isModern;
+        super(emulatorConfig);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extend
     @Override
     @SuppressWarnings("unchecked")
     protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new SChipDisplay(emulatorConfig, keyAdapter);
+        return (D) new SChipDisplay(emulatorConfig, keyAdapter, this.isModern);
     }
 
     public boolean isModern() {

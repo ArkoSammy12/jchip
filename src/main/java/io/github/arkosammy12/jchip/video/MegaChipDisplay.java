@@ -21,7 +21,7 @@ public class MegaChipDisplay extends SChipDisplay {
     private boolean scrollTriggered = false;
 
     public MegaChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
-        super(config, keyAdapter);
+        super(config, keyAdapter, false);
         this.colorPalette[0] = 0x00000000;
         this.colorPalette[255] = 0xFFFFFFFF;
     }
