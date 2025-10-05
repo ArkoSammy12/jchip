@@ -7,6 +7,8 @@ import java.util.Arrays;
 
 public class HyperWaveChip64Display extends XOChipDisplay {
 
+    private static final int FULL_OPAQUE_MASK = 0xFF << 24;
+
     private final int[] colorPalette = new int[16];
     private DrawingMode drawingMode = DrawingMode.XOR;
 
@@ -20,7 +22,7 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     }
 
     public void setPaletteEntry(int index, int value) {
-        this.colorPalette[index] = (0xFF << 24) | value;
+        this.colorPalette[index] = FULL_OPAQUE_MASK | value;
     }
 
     @Override
