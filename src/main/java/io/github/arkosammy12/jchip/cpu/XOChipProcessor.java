@@ -42,7 +42,7 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
     protected int executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
         int flagsSuper = super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
         if (isSet(flagsSuper, HANDLED)) {
-            if (isSet(flagsSuper, SKIP_TAKEN) && this.previousOpcodeWasF000()) {
+            if (isSet(flagsSuper, SKIP_TAKEN) && this.previousOpcodeWasFX00()) {
                 this.incrementProgramCounter();
             }
             return flagsSuper;
@@ -152,14 +152,14 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
                         continue;
                     }
                     if (extendedMode) {
-                        collided |= display.togglePixelAtBitPlanes(bitPlaneMask, sliceX, sliceY);
+                        collided |= display.togglePixelAtBitPlanes(sliceX, sliceY, bitPlaneMask);
                     } else {
                         int scaledSliceX = sliceX * 2;
                         int scaledSliceY = sliceY * 2;
-                        collided |= display.togglePixelAtBitPlanes(bitPlaneMask, scaledSliceX, scaledSliceY);
-                        collided |= display.togglePixelAtBitPlanes(bitPlaneMask, scaledSliceX + 1, scaledSliceY);
-                        display.togglePixelAtBitPlanes(bitPlaneMask, scaledSliceX, scaledSliceY + 1);
-                        display.togglePixelAtBitPlanes(bitPlaneMask, scaledSliceX + 1, scaledSliceY + 1);
+                        collided |= display.togglePixelAtBitPlanes(scaledSliceX, scaledSliceY, bitPlaneMask);
+                        collided |= display.togglePixelAtBitPlanes(scaledSliceX + 1, scaledSliceY, bitPlaneMask);
+                        display.togglePixelAtBitPlanes(scaledSliceX, scaledSliceY + 1, bitPlaneMask);
+                        display.togglePixelAtBitPlanes(scaledSliceX + 1, scaledSliceY + 1, bitPlaneMask);
                     }
                 }
                 planeIterator++;
@@ -210,16 +210,16 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
     }
 
     private int handleDoubleSkipIfNecessary(int flags) {
-        if (isSet(flags, HANDLED) && isSet(flags, SKIP_TAKEN) && this.previousOpcodeWasF000()) {
+        if (isSet(flags, HANDLED) && isSet(flags, SKIP_TAKEN) && this.previousOpcodeWasFX00()) {
             this.incrementProgramCounter();
         }
         return flags;
     }
 
-    private boolean previousOpcodeWasF000() {
+    protected boolean previousOpcodeWasFX00() {
         Chip8Memory memory = this.emulator.getMemory();
         int currentProgramCounter = this.getProgramCounter();
-        return ((memory.readByte(currentProgramCounter - 2) << 8) | memory.readByte(currentProgramCounter - 1)) == 0xF000;
+        return (memory.readByte(currentProgramCounter - 2) == 0xF0) && (memory.readByte(currentProgramCounter - 1) == 0x00);
     }
 
 }

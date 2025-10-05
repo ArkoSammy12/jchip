@@ -22,7 +22,7 @@ public class XOChipDisplay extends SChipDisplay {
         return this.selectedBitPlanes;
     }
 
-    public boolean togglePixelAtBitPlanes(int bitPlaneMask, int column, int row) {
+    public boolean togglePixelAtBitPlanes(int column, int row, int bitPlaneMask) {
         boolean collision = (this.bitplaneBuffer[column][row] & bitPlaneMask) != 0;
         this.bitplaneBuffer[column][row] ^= bitPlaneMask;
         return collision;

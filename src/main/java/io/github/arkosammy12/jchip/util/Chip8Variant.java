@@ -8,10 +8,11 @@ import java.util.function.ToIntFunction;
 public enum Chip8Variant {
     CHIP_8("chip-8", "CHIP-8", new String[]{"originalChip8", "modernChip8"}, new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11)),
     CHIP_8X("chip-8x", "CHIP-8X", new String[]{"chip8x"}, new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11)),
-    SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", new String[]{"superchip1"}, new Quirkset(false, false, true, true, true, true, doDisplayWait -> 30)),
-    SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", null, new Quirkset(false, false, false, true, true, true, doDisplayWait -> 30)),
-    XO_CHIP("xo-chip", "XO-CHIP", new String[] {"xochip"}, new Quirkset(false, true, false, false, false, false, doDisplayWait -> 1000)),
-    MEGA_CHIP("mega-chip", "MEGA-CHIP", new String[]{"megachip8"}, new Quirkset(false, false, false, true, true, false, doDisplayWait -> 1000));
+    SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", new String[]{"superchip1"}, new Quirkset(false, false, true, true, true, true, _ -> 30)),
+    SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", null, new Quirkset(false, false, false, true, true, true, _ -> 30)),
+    XO_CHIP("xo-chip", "XO-CHIP", new String[] {"xochip"}, new Quirkset(false, true, false, false, false, false, _ -> 1000)),
+    MEGA_CHIP("mega-chip", "MEGA-CHIP", new String[]{"megachip8"}, new Quirkset(false, false, false, true, true, false, _ -> 1000)),
+    HYPERWAVE_CHIP_64("hyperwave-chip-64", "HyperWaveCHIP-64", null, new Quirkset(false, true, false, false, false, false, _ -> 1000));
 
     private final String identifier;
     private final String displayName;
@@ -34,6 +35,7 @@ public enum Chip8Variant {
             case SUPER_CHIP_MODERN -> new SChipEmulator<>(emulatorConfig, true);
             case XO_CHIP -> new XOChipEmulator<>(emulatorConfig);
             case MEGA_CHIP -> new MegaChipEmulator<>(emulatorConfig);
+            case HYPERWAVE_CHIP_64 -> new HyperWaveChip64Emulator<>(emulatorConfig);
         };
     }
 

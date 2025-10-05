@@ -90,7 +90,7 @@ public class SpriteFont {
                 this.smallFont = CHIP_48;
                 this.bigFont = SCHIP_BIG;
             }
-            case XO_CHIP -> {
+            case XO_CHIP, HYPERWAVE_CHIP_64 -> {
                 this.smallFont = CHIP_48;
                 this.bigFont = XO_CHIP_BIG;
             }
