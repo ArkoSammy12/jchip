@@ -151,26 +151,33 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                     yield 0;
                 }
             }
-            case 0x08 -> {
-                if (getYFromNN(NN) == 0x0) { // 080N: Set sprite blend mode
-                    MegaChipDisplay.BlendMode blendMode = switch (getNFromNN(NN)) {
-                        case 0 -> MegaChipDisplay.BlendMode.BLEND_NORMAL;
-                        case 1 -> MegaChipDisplay.BlendMode.BLEND_25;
-                        case 2 -> MegaChipDisplay.BlendMode.BLEND_50;
-                        case 3 -> MegaChipDisplay.BlendMode.BLEND_75;
-                        case 4 -> MegaChipDisplay.BlendMode.BLEND_ADD;
-                        case 5 -> MegaChipDisplay.BlendMode.BLEND_MULTIPLY;
-                        default -> null;
-                    };
-                    if (blendMode == null) {
-                        yield 0;
-                    }
-                    display.setBlendMode(blendMode);
+            case 0x08 -> switch (NN) { // 080N: Set draw blend mode
+                case 0x00 -> {
+                    display.setBlendMode(MegaChipDisplay.BlendMode.BLEND_NORMAL);
                     yield HANDLED;
-                } else {
-                    yield 0;
                 }
-            }
+                case 0x01 -> {
+                    display.setBlendMode(MegaChipDisplay.BlendMode.BLEND_25);
+                    yield HANDLED;
+                }
+                case 0x02 -> {
+                    display.setBlendMode(MegaChipDisplay.BlendMode.BLEND_50);
+                    yield HANDLED;
+                }
+                case 0x03 -> {
+                    display.setBlendMode(MegaChipDisplay.BlendMode.BLEND_75);
+                    yield HANDLED;
+                }
+                case 0x04 -> {
+                    display.setBlendMode(MegaChipDisplay.BlendMode.BLEND_ADD);
+                    yield HANDLED;
+                }
+                case 0x05 -> {
+                    display.setBlendMode(MegaChipDisplay.BlendMode.BLEND_MULTIPLY);
+                    yield HANDLED;
+                }
+                default -> 0;
+            };
             case 0x09 -> { // 09NN: Set collision color index
                 display.setCollisionIndex(NN);
                 yield HANDLED;
