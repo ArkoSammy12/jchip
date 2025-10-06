@@ -6,7 +6,6 @@ import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
-import io.github.arkosammy12.jchip.util.SpriteFont;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
 import java.awt.event.KeyAdapter;
@@ -23,8 +22,8 @@ public class Chip8XEmulator<D extends Chip8XDisplay, S extends Chip8SoundSystem>
     }
 
     @Override
-    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
-        return new Chip8Memory(program, chip8Variant, spriteFont, 0x300, 0xFFF + 1);
+    protected Chip8Memory createMemory(int[] rom, Chip8Variant chip8Variant) {
+        return new Chip8Memory(rom, chip8Variant, 0x300, 0xFFF + 1);
     }
 
     @Override

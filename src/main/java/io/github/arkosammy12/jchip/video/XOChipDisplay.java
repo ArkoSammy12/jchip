@@ -30,13 +30,7 @@ public class XOChipDisplay extends SChipDisplay {
 
     @SuppressWarnings("DuplicatedCode")
     public void scrollUp(int scrollAmount) {
-        int trueScrollAmount;
-        if (this.extendedMode) {
-            trueScrollAmount = scrollAmount;
-        } else {
-            trueScrollAmount = scrollAmount * 2;
-        }
-
+        int trueScrollAmount = this.extendedMode ? scrollAmount : scrollAmount * 2;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
@@ -71,13 +65,7 @@ public class XOChipDisplay extends SChipDisplay {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void scrollDown(int scrollAmount) {
-        int trueScrollAmount;
-        if (this.extendedMode) {
-            trueScrollAmount = scrollAmount;
-        } else {
-            trueScrollAmount = scrollAmount * 2;
-        }
-
+        int trueScrollAmount = this.extendedMode ? scrollAmount : scrollAmount * 2;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
@@ -107,13 +95,7 @@ public class XOChipDisplay extends SChipDisplay {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void scrollRight() {
-        int scrollAmount;
-        if (this.extendedMode) {
-            scrollAmount = 4;
-        } else {
-            scrollAmount = 8;
-        }
-
+        int scrollAmount = this.extendedMode ? 4 : 8;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
@@ -143,13 +125,7 @@ public class XOChipDisplay extends SChipDisplay {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void scrollLeft() {
-        int scrollAmount;
-        if (this.extendedMode) {
-            scrollAmount = 4;
-        } else {
-            scrollAmount = 8;
-        }
-
+        int scrollAmount = this.extendedMode ? 4 : 8;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;

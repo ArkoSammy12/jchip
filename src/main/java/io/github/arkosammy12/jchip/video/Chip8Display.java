@@ -15,7 +15,7 @@ public class Chip8Display extends Display {
 
     public Chip8Display(EmulatorConfig config, KeyAdapter keyAdapter) {
         super(config, keyAdapter);
-        this.bitplaneBuffer = new int[this.getRenderWidth()][this.getRenderHeight()];
+        this.bitplaneBuffer = new int[this.getImageWidth()][this.getImageHeight()];
         this.colorPalette = config.getColorPalette();
     }
 
@@ -30,12 +30,12 @@ public class Chip8Display extends Display {
     }
 
     @Override
-    protected int getRenderWidth() {
+    protected int getImageWidth() {
         return 64;
     }
 
     @Override
-    protected int getRenderHeight() {
+    protected int getImageHeight() {
         return 32;
     }
 
@@ -53,7 +53,7 @@ public class Chip8Display extends Display {
     }
 
     @Override
-    protected int getPixelRenderScale(DisplayAngle displayAngle) {
+    protected int getImageScale(DisplayAngle displayAngle) {
         return switch (displayAngle) {
             case DEG_90, DEG_270 -> 11;
             default -> 20;
@@ -61,7 +61,7 @@ public class Chip8Display extends Display {
     }
 
     @Override
-    protected void fillRenderBuffer(int[] buffer) {
+    protected void fillImageBuffer(int[] buffer) {
         for (int y = 0; y < displayHeight; y++) {
             int base = y * displayWidth;
             for (int x = 0; x < displayWidth; x++) {

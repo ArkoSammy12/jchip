@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
-import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
 public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Processor<E, D, S> {
@@ -14,54 +13,55 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     }
 
     @Override
-    protected int executeZeroOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        int flagsSuper = super.executeZeroOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
-        if (isSet(flagsSuper, HANDLED)) {
+    protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
+        int flagsSuper = super.execute0Opcode(firstByte, NN);
+        if (isHandled(flagsSuper)) {
             return flagsSuper;
         }
-        int flags = HANDLED;
-        if (secondNibble == 0x2 && secondByte == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
+        if (getXFromFirstByte(firstByte) == 0x2 && NN == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
             this.emulator.getDisplay().cycleBackgroundColor();
+            return HANDLED;
         } else {
-            flags = clear(flags, HANDLED);
+            return 0;
         }
-        return flags;
     }
 
     @Override
-    protected int executeFiveOpcode(int firstNibble, int secondNibble, int thirdNibble, int fourthNibble, int secondByte) throws InvalidInstructionException {
-        int flagsSuper = super.executeFiveOpcode(firstNibble, secondNibble, thirdNibble, fourthNibble, secondByte);
-        if (isSet(flagsSuper, HANDLED)) {
+    protected int execute5Opcode(int firstByte, int NN) throws InvalidInstructionException {
+        int flagsSuper = super.execute5Opcode(firstByte, NN);
+        if (isHandled(flagsSuper)) {
             return flagsSuper;
         }
-        int flags = HANDLED;
-        if (fourthNibble == 0x1) { // 5XY1: Octal BCD
-            this.setRegister(secondNibble, ((this.getRegister(secondNibble) & 0x77) + (this.getRegister(thirdNibble) & 0x77)) & 0x77);
+        if (getNFromNN(NN) == 0x1) { // 5XY1: Add registers as packed octal digits
+            int X = getXFromFirstByte(firstByte);
+            this.setRegister(X, ((this.getRegister(X) & 0x77) + (this.getRegister(getYFromNN(NN)) & 0x77)) & 0x77);
+            return HANDLED;
         } else {
-            flags = clear(flags, HANDLED);
+            return 0;
         }
-        return flags;
     }
 
-    // BXYN/BXY0: Set foreground colors
+    // BXYN: Set foreground color
     @Override
-    protected int executeJumpWithOffset(int secondNibble, int thirdNibble, int fourthNibble, int memoryAddress) {
+    protected int executeBOpcode(int firstByte, int NN) {
         Chip8XDisplay display = this.emulator.getDisplay();
-        int vX = this.getRegister(secondNibble);
-        int vX1 = this.getRegister((secondNibble + 1) % 16);
-        int colorIndex = this.getRegister(thirdNibble) & 0x7;
+        int X = getXFromFirstByte(firstByte);
+        int N = getNFromNN(NN);
+
+        int vX = this.getRegister(X);
+        int vX1 = this.getRegister((X + 1) % 16);
+        int colorIndex = this.getRegister(getYFromNN(NN)) & 0x7;
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 
-        if (fourthNibble > 0) {
+        if (N > 0) {
             display.setExtendedColorDraw(true);
             int zoneX = vX & 0x38;
-            for (int i = 0; i < fourthNibble; i++) {
+            for (int i = 0; i < N; i++) {
                 int colorY = (vX1 + i) % displayHeight;
                 for (int j = 0; j < 8; j++) {
-                    int colorX = (j + zoneX) % displayWidth;
-                    display.setForegroundColor(colorX, colorY, colorIndex);
+                    display.setForegroundColor((j + zoneX) % displayWidth, colorY, colorIndex);
                 }
             }
         } else {
@@ -75,8 +75,7 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
                 for (int j = 0; j < horizontalZoneFill; j++) {
                     int zoneX = ((zoneFillStartHorizontalOffset + j) * 8) % displayWidth;
                     for (int dx = 0; dx < 8; dx++) {
-                        int colorX = (zoneX + dx) % displayWidth;
-                        display.setForegroundColor(colorX, zoneY, colorIndex);
+                        display.setForegroundColor((zoneX + dx) % displayWidth, zoneY, colorIndex);
                     }
                 }
             }
@@ -86,41 +85,43 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
 
 
     @Override
-    protected int executeSkipIfKey(int secondNibble, int secondByte) {
-        int flagsSuper = super.executeSkipIfKey(secondNibble, secondByte);
-        if (isSet(flagsSuper, HANDLED)) {
+    protected int executeEOpcode(int firstByte, int NN) {
+        int flagsSuper = super.executeEOpcode(firstByte, NN);
+        if (isHandled(flagsSuper)) {
             return flagsSuper;
         }
-        int flags = HANDLED;
         //Keypad keyState = this.emulator.getKeyState();
         //int hexKey = this.getRegister(secondNibble) & 0xF;
-        switch (secondByte) {
+        return switch (NN) {
             case 0xF2 -> { // EXF2: Skip if key on keypad 2 is pressed
                 // Stub
+                yield HANDLED;
             }
             case 0xF5 -> { // EXF5: Skip if key on keypad 2 is not pressed
                 // Stub
+                yield HANDLED;
             }
-            default -> flags = clear(flags, HANDLED);
-        }
-        return flags;
+            default -> 0;
+        };
     }
 
     @Override
-    protected int executeFXOpcode(int firstNibble, int secondNibble, int secondByte) throws InvalidInstructionException {
-        int flagsSuper = super.executeFXOpcode(firstNibble, secondNibble, secondByte);
-        if (isSet(flagsSuper, HANDLED)) {
+    protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
+        int flagsSuper = super.executeFOpcode(firstByte, NN);
+        if (isHandled(flagsSuper)) {
             return flagsSuper;
         }
-        int flags = HANDLED;
-        switch (secondByte) {
-            case 0xF8 -> this.emulator.getSoundSystem().setPlaybackRate(this.getRegister(secondNibble)); // FXF8: Output vX to IO port
-            case 0xFB -> { // FXFB: Wait for input from IO port and load it into vX
-                // Stub
+        return switch (NN) {
+            case 0xF8 -> { // FXF8: Output register to IO port
+                this.emulator.getSoundSystem().setPlaybackRate(this.getRegister(getXFromFirstByte(firstByte)));
+                yield HANDLED;
             }
-            default -> flags = clear(flags, HANDLED);
-        }
-        return flags;
+            case 0xFB -> { // FXFB: Wait for input from IO port and load into register
+                // Stub
+                yield HANDLED;
+            }
+            default -> 0;
+        };
     }
 
 }

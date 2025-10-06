@@ -25,7 +25,7 @@ public class Chip8SoundSystem implements SoundSystem {
 
     public Chip8SoundSystem(Chip8Variant chip8Variant) {
         Arrays.fill(this.patternBuffer, 0);
-        if (chip8Variant != Chip8Variant.XO_CHIP) {
+        if (chip8Variant != Chip8Variant.XO_CHIP && chip8Variant != Chip8Variant.HYPERWAVE_CHIP_64) {
             System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
             this.setPlaybackRate(175);
         }

@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.util.SpriteFont;
+import io.github.arkosammy12.jchip.util.HexSpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 
 public abstract class Display implements Closeable {
 
-    private final SpriteFont spriteFont;
     protected final Chip8Variant chip8Variant;
 
     protected final int displayWidth;
@@ -40,20 +39,17 @@ public abstract class Display implements Closeable {
 
     public Display(EmulatorConfig config, KeyAdapter keyAdapter) {
         String romTitle = config.getProgramTitle();
-        Chip8Variant chip8Variant = config.getConsoleVariant();
-
         if (romTitle == null) {
             this.romTitle = "";
         } else {
             this.romTitle = " | " + romTitle;
         }
 
-        this.displayWidth = this.getRenderWidth();
-        this.displayHeight = this.getRenderHeight();
-        this.chip8Variant = chip8Variant;
-        this.spriteFont = new SpriteFont(chip8Variant);
+        this.displayWidth = this.getImageWidth();
+        this.displayHeight = this.getImageHeight();
+        this.chip8Variant = config.getConsoleVariant();
         this.displayAngle = config.getDisplayAngle();
-        this.pixelScale = getPixelRenderScale(this.displayAngle);
+        this.pixelScale = getImageScale(this.displayAngle);
 
         int windowWidth;
         int windowHeight;
@@ -74,7 +70,6 @@ public abstract class Display implements Closeable {
 
         try {
             SwingUtilities.invokeAndWait(() -> {
-
                 renderer.setPreferredSize(windowSize);
                 renderer.setMinimumSize(windowSize);
                 renderer.setMaximumSize(windowSize);
@@ -100,21 +95,21 @@ public abstract class Display implements Closeable {
         this.frame = tempFrame;
     }
 
-    public SpriteFont getCharacterSpriteFont() {
-        return this.spriteFont;
+    public HexSpriteFont getCharacterSpriteFont() {
+        return this.chip8Variant.getSpriteFont();
     }
 
     public abstract int getWidth();
 
     public abstract int getHeight();
 
-    protected abstract int getRenderWidth();
+    protected abstract int getImageWidth();
 
-    protected abstract int getRenderHeight();
+    protected abstract int getImageHeight();
 
-    protected abstract int getPixelRenderScale(DisplayAngle displayAngle);
+    protected abstract int getImageScale(DisplayAngle displayAngle);
 
-    protected abstract void fillRenderBuffer(int[] buffer);
+    protected abstract void fillImageBuffer(int[] buffer);
 
     public abstract void clear();
 
@@ -192,7 +187,7 @@ public abstract class Display implements Closeable {
 
         private void render() {
             int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
-            fillRenderBuffer(buffer);
+            fillImageBuffer(buffer);
             BufferStrategy bufferStrategy = getBufferStrategy();
             if (bufferStrategy == null) {
                 createBufferStrategy(3);

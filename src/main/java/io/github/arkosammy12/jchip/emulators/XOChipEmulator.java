@@ -6,7 +6,6 @@ import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
-import io.github.arkosammy12.jchip.util.SpriteFont;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
 import java.awt.event.KeyAdapter;
@@ -25,8 +24,8 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
     }
 
     @Override
-    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
-        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFFF + 1);
+    protected Chip8Memory createMemory(int[] rom, Chip8Variant chip8Variant) {
+        return new Chip8Memory(rom, chip8Variant, 0x200, 0xFFFF + 1);
     }
 
     @Override
@@ -42,7 +41,7 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
 
     @Override
     protected boolean waitFrameEnd(int flags) {
-        return this.config.doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isExtendedMode();
+        return this.getEmulatorConfig().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isExtendedMode();
     }
 
 }

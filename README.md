@@ -9,7 +9,6 @@ A CHIP-8, SUPER-CHIP, and XO-CHIP interpreter written in Java.
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-blue)
 
-
 * [Features](#features)
 * [Building from Source](#building-from-source)
 * [Running the Emulator](#running-the-emulator)
@@ -62,20 +61,20 @@ Press the Escape key in order to close the emulator.
 
 ### Command-line Arguments
 
-| Argument                                                                                   | Description                                                           | Default                                                 |
-|--------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------|
-| `-r, --rom <path>`                                                                         | **Required.** Path to the ROM file (absolute or relative to the JAR). | –                                                       |
-| `-v, --variant <chip-8\|chip-8x\|schip-legacy\|schip-modern\|xo-chip\|mega-chip>`          | Select the CHIP-8 variant.                                            | Auto-detected from database. `chip-8` otherwise.        |
-| `-i, --instructions-per-frame <int>`                                                       | Number of instructions executed per frame (60 fps).                   | Auto-detected from database. Variant default otherwise. |
-| `-c, --color-palette <cadmium\|silicon8\|pico8\|octoclassic\|lcd\|c64\|intellivison\|cga>` | Select a built-in color palette.                                      | Auto-detected from database. `cadmium` otherwise.       |
-| `-k, --keyboard-layout <qwerty\|dvorak\|azerty\|colemak>`                                  | Select keyboard layout for keypad mapping.                            | `qwerty`                                                |
-| `-a, --angle <0\|90\|180\|270>`                                                            | Select the screen rotation value when displaying this rom.            | Auto-detected from database. `0` otherwise.             |
-| `--[no-]vf-reset`                                                                          | Toggle VF reset quirk (`8XY1`, `8XY2`, `8XY3` reset VF to 0).         | Auto-detected from database. Variant default otherwise. |
-| `--[no-]increment-i`                                                                       | Toggle increment-`I` quirk (`FX55`, `FX65` increment `I`).            | Auto-detected from database. Variant default otherwise. |
-| `--[no-]display-wait`                                                                      | Toggle display wait quirk (waits a frame after `DXYN`).               | Auto-detected from database. Variant default otherwise. |
-| `--[no-]clipping`                                                                          | Toggle sprite clipping vs wrapping at screen edges.                   | Auto-detected from database. Variant default otherwise. |
-| `--[no-]shift-vx-in-place`                                                                 | Toggle shifting quirk (`8XY6`, `8XYE` shift `VX` vs `VY`).            | Auto-detected from database. Variant default otherwise  |
-| `--[no-]jump-with-vx`                                                                      | Toggle jump quirk (`BNNN` as `BXNN`).                                 | Auto-detected from database. Variant default otherwise  | 
+| Argument                                                                                             | Description                                                           | Default                                                                                                 |
+|------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `-r, --rom <path>`                                                                                   | **Required.** Path to the ROM file (absolute or relative to the JAR). | –                                                                                                       |
+| `-v, --variant <chip-8\|chip-8x\|schip-legacy\|schip-modern\|xo-chip\|mega-chip\|hyperwave-chip-64>` | Select the CHIP-8 variant.                                            | Auto-detected from database. `chip-8` otherwise.                                                        |
+| `-i, --instructions-per-frame <int>`                                                                 | Number of instructions executed per frame (60 fps).                   | Auto-detected from database. Variant default otherwise.                                                 |
+| `-c, --color-palette <cadmium\|silicon8\|pico8\|octoclassic\|lcd\|c64\|intellivison\|cga>`           | Select a built-in color palette.                                      | Auto-detected from database. `cadmium` otherwise. Ignored if variant or rom provides its color palette. |
+| `-k, --keyboard-layout <qwerty\|dvorak\|azerty\|colemak>`                                            | Select keyboard layout for keypad mapping.                            | `qwerty`                                                                                                |
+| `-a, --angle <0\|90\|180\|270>`                                                                      | Select the screen rotation value when displaying this rom.            | Auto-detected from database. `0` otherwise.                                                             |
+| `--[no-]vf-reset`                                                                                    | Toggle VF reset quirk (`8XY1`, `8XY2`, `8XY3` reset VF to 0).         | Auto-detected from database. Variant default otherwise.                                                 |
+| `--[no-]increment-i`                                                                                 | Toggle increment-`I` quirk (`FX55`, `FX65` increment `I`).            | Auto-detected from database. Variant default otherwise.                                                 |
+| `--[no-]display-wait`                                                                                | Toggle display wait quirk (waits a frame after `DXYN`).               | Auto-detected from database. Variant default otherwise.                                                 |
+| `--[no-]clipping`                                                                                    | Toggle sprite clipping vs wrapping at screen edges.                   | Auto-detected from database. Variant default otherwise.                                                 |
+| `--[no-]shift-vx-in-place`                                                                           | Toggle shifting quirk (`8XY6`, `8XYE` shift `VX` vs `VY`).            | Auto-detected from database. Variant default otherwise                                                  |
+| `--[no-]jump-with-vx`                                                                                | Toggle jump quirk (`BNNN` as `BXNN`).                                 | Auto-detected from database. Variant default otherwise                                                  | 
 
 ## Automatic Database Configuration
 
@@ -121,6 +120,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Timendus - Chipcode](https://github.com/Timendus/chipcode)
 - [GamingMadster - Chip-8 All-In-One Tests](https://github.com/GamingMadster/Chip-8_All-In-One)
 - [NinjaWeedle - Oxiti8's MegaChip docs](https://github.com/NinjaWeedle/MegaChip8/blob/main/docs/Oxiti8's%20MegaChip%20docs.txt)
+- [NinjaWeedle - Oxiti8's HyperWaveCHIP-64 docs](https://github.com/NinjaWeedle/HyperWaveCHIP-64/blob/master/HyperWaveCHIP-64%20Extension%20docs.txt)
 - [Ready4Next - Mega8](https://github.com/Ready4Next/Mega8)
 - [Emulator Development Discord](https://discord.gg/dkmJAes)
 

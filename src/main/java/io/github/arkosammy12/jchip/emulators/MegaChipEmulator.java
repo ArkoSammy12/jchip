@@ -7,7 +7,6 @@ import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
-import io.github.arkosammy12.jchip.util.SpriteFont;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import java.awt.event.KeyAdapter;
@@ -29,8 +28,8 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
     }
 
     @Override
-    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
-        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFFFFF + 1);
+    protected Chip8Memory createMemory(int[] rom, Chip8Variant chip8Variant) {
+        return new Chip8Memory(rom, chip8Variant, 0x200, 0xFFFFFF + 1);
     }
 
     @Override
@@ -45,7 +44,7 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
         if (this.getDisplay().isMegaChipModeEnabled()) {
             return (S) this.megaChipSoundSystem;
         } else {
-            return this.soundSystem;
+            return super.getSoundSystem();
         }
     }
 

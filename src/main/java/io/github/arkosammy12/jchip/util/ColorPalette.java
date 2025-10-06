@@ -61,7 +61,7 @@ public class ColorPalette {
     };
 
     private final int[] argbColors = new int[16];
-    private final int[] rgbaColors = new int[16];
+    //private final int[] rgbaColors = new int[16];
 
     public ColorPalette(String colorPalette) {
         int[] chosenPalette = switch (colorPalette) {
@@ -84,7 +84,7 @@ public class ColorPalette {
             int a = color & 0xFF;
 
             this.argbColors[i] = (a << 24) | (r << 16) | (g << 8) | b;
-            this.rgbaColors[i] = color;
+            //this.rgbaColors[i] = color;
         }
     }
 
@@ -100,7 +100,7 @@ public class ColorPalette {
             int a = 0xFF;
 
             this.argbColors[i] = (a << 24) | (r << 16) | (g << 8) | b;
-            this.rgbaColors[i] = (r << 24) | (g << 16) | (b << 8) | a;
+            //this.rgbaColors[i] = (r << 24) | (g << 16) | (b << 8) | a;
         }
     }
 
@@ -109,9 +109,11 @@ public class ColorPalette {
         return this.argbColors[colorIndex];
     }
 
+    /*
     public int getColorRGBA(int colorIndex) {
         return this.rgbaColors[colorIndex];
     }
+     */
 
     public static class Converter implements CommandLine.ITypeConverter<ColorPalette> {
 

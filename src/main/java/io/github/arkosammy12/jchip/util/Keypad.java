@@ -7,10 +7,10 @@ import java.util.List;
 
 public class Keypad extends KeyAdapter {
 
+    private final KeyboardLayout keyboardLayout;
     private final boolean[] keys = new boolean[16];
     private int waitingKey = -1;
     private boolean terminateEmulator = false;
-    private final KeyboardLayout keyboardLayout;
 
     public Keypad(KeyboardLayout keyboardLayout) {
         this.keyboardLayout = keyboardLayout;
@@ -21,35 +21,33 @@ public class Keypad extends KeyAdapter {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             terminateEmulator = true;
         }
-        int keyCode = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
-        if (keyCode < 0) {
-            return;
+        int hex = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
+        if (hex > -1) {
+            this.setKeypadKeyPressed(hex);
         }
-        this.setKeyPressed(keyCode);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        int keyCode = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
-        if (keyCode < 0) {
-            return;
+        int hex = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
+        if (hex > -1) {
+            this.setKeypadKeyUnpressed(hex);
         }
-        this.setKeyUnpressed(keyCode);
     }
 
     public synchronized boolean isKeyPressed(int hex) {
         return this.keys[hex];
     }
 
-    public void setWaitingKey(int hex) {
+    public void setWaitingKeypadKey(int hex) {
         this.waitingKey = hex;
     }
 
-    public int getWaitingKey() {
+    public int getWaitingKeypadKey() {
         return waitingKey;
     }
 
-    public void resetWaitingKey() {
+    public void resetWaitingKeypadKey() {
         this.waitingKey = -1;
     }
 
@@ -57,7 +55,7 @@ public class Keypad extends KeyAdapter {
         return this.terminateEmulator;
     }
 
-    public List<Integer> getPressedKeys() {
+    public List<Integer> getPressedKeypadKeys() {
         List<Integer> pressedKeys = new ArrayList<>(16);
         for (int i = 0; i < 16; i++) {
             if (this.keys[i]) {
@@ -67,11 +65,11 @@ public class Keypad extends KeyAdapter {
         return pressedKeys;
     }
 
-    private synchronized void setKeyPressed(int keyCode) {
+    private synchronized void setKeypadKeyPressed(int keyCode) {
         this.keys[keyCode] = true;
     }
 
-    private synchronized void setKeyUnpressed(int keyCode) {
+    private synchronized void setKeypadKeyUnpressed(int keyCode) {
         this.keys[keyCode] = false;
     }
 

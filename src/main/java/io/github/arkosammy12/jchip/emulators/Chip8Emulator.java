@@ -17,18 +17,18 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
-    protected final Chip8Processor<?, ?, ?> processor;
+    private final Chip8Processor<?, ?, ?> processor;
     private final Chip8Memory memory;
-    protected final D display;
-    protected final S soundSystem;
-    private final Keypad keyState;
+    private final D display;
+    private final S soundSystem;
+    private final Keypad keypad;
     private final Chip8Variant chip8Variant;
-    protected final EmulatorConfig config;
+    private final EmulatorConfig config;
 
     private final int targetInstructionsPerFrame;
     private int currentInstructionsPerFrame;
-    private boolean isTerminated = false;
     private int waitFrames = 0;
+    private boolean isTerminated = false;
 
     public Chip8Emulator(EmulatorConfig emulatorConfig) {
         try {
@@ -36,10 +36,10 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             this.chip8Variant = emulatorConfig.getConsoleVariant();
             this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
-            this.keyState = new Keypad(this.config.getKeyboardLayout());
+            this.keypad = new Keypad(this.config.getKeyboardLayout());
             this.soundSystem = this.createSoundSystem(this.chip8Variant);
-            this.display = this.createDisplay(config, keyState);
-            this.memory = this.createMemory(this.config.getRom(), this.chip8Variant, this.display.getCharacterSpriteFont());
+            this.display = this.createDisplay(config, keypad);
+            this.memory = this.createMemory(this.config.getRom(), this.chip8Variant);
             this.processor = this.createProcessor();
         } catch (Exception e) {
             this.close();
@@ -55,8 +55,8 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return this.processor;
     }
 
-    protected Chip8Memory createMemory(int[] program, Chip8Variant chip8Variant, SpriteFont spriteFont) {
-        return new Chip8Memory(program, chip8Variant, spriteFont, 0x200, 0xFFF + 1);
+    protected Chip8Memory createMemory(int[] rom, Chip8Variant chip8Variant) {
+        return new Chip8Memory(rom, chip8Variant, 0x200, 0xFFF + 1);
     }
 
     public Chip8Memory getMemory() {
@@ -81,8 +81,8 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return (S) new Chip8SoundSystem(chip8Variant);
     }
 
-    public Keypad getKeyState() {
-        return this.keyState;
+    public Keypad getKeypad() {
+        return this.keypad;
     }
 
     public Chip8Variant getChip8Variant() {
@@ -108,8 +108,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
         long frameTime = endOfFrame - startOfFrame;
-        //double frameTimeMs = frameTime / 1_000_000.0;
-        //Logger.info(String.format("Frametime: %.3f ms", frameTimeMs));
+        //Logger.info(String.format("Frametime: %.3f ms", frameTime / 1_000_000.0));
         if (this.targetInstructionsPerFrame >= IPF_THROTTLE_THRESHOLD) {
             long adjust = (frameTime - Main.FRAME_INTERVAL) / 100;
             this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
@@ -123,15 +122,14 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             return;
         }
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-            int flags = this.processor.cycle();
-            if (this.waitFrameEnd(flags)) {
+            if (this.waitFrameEnd(this.processor.cycle())) {
                 break;
             }
             if (this.processor.shouldTerminate()) {
                 this.terminate();
                 break;
             }
-            if (this.getKeyState().shouldTerminate()) {
+            if (this.getKeypad().shouldTerminate()) {
                 this.terminate();
                 break;
             }

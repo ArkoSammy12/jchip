@@ -36,7 +36,7 @@ public class HyperWaveChip64Display extends XOChipDisplay {
         return collision;
     }
 
-    public void invertSelectedBitplanes() {
+    public void invert() {
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.getSelectedBitPlanes()) == 0) {
                 continue;
@@ -50,7 +50,7 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     }
 
     @Override
-    protected void fillRenderBuffer(int[] buffer) {
+    protected void fillImageBuffer(int[] buffer) {
         for (int y = 0; y < displayHeight; y++) {
             int base = y * displayWidth;
             for (int x = 0; x < displayWidth; x++) {
