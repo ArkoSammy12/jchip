@@ -129,17 +129,21 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 display.setScreenAlpha(NN);
                 yield HANDLED;
             }
-            case 0x06 -> { // 06NU: Play digitized sound
-                if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
-                    Chip8Memory memory = this.emulator.getMemory();
-                    int currentIndexRegister = this.getIndexRegister();
-                    int size = ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF);
-                    if (size == 0) {
-                        yield 0;
+            case 0x06 -> { // 060N: Play digitized sound
+                if (getYFromNN(NN) == 0x0) {
+                    if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
+                        Chip8Memory memory = this.emulator.getMemory();
+                        int currentIndexRegister = this.getIndexRegister();
+                        int size = ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF);
+                        if (size == 0) {
+                            yield 0;
+                        }
+                        megaChipSoundSystem.playTrack(((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF, size, getNFromNN(NN) == 0, currentIndexRegister + 6);
                     }
-                    megaChipSoundSystem.playTrack(((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF, size, getNFromNN(NN) == 0, currentIndexRegister + 6);
+                    yield HANDLED;
+                } else {
+                    yield 0;
                 }
-                yield HANDLED;
             }
             case 0x07 -> { // 0700: Stop digitized sound
                 if (NN == 0x00) {
