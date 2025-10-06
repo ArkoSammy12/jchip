@@ -21,48 +21,48 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         if (isHandled(flagsSuper)) {
             return flagsSuper;
         }
-        if (getXFromFirstByte(firstByte) == 0x0) {
-            return switch (getYFromNN(NN)) {
-                case 0xC -> { // 00CN: Scroll screen down
-                    int N = getNFromNN(NN);
-                    if (N <= 0x0 && !this.emulator.isModern()) {
-                        yield 0;
-                    }
-                    this.emulator.getDisplay().scrollDown(N);
+        if (firstByte == 0x00) {
+            return switch (NN) {
+                case 0xFB -> { // 00FB: Scroll screen right
+                    this.emulator.getDisplay().scrollRight();
                     yield HANDLED;
                 }
-                case 0xF -> switch (getNFromNN(NN)) {
-                    case 0xB -> { // 00FB: Scroll screen right
-                        this.emulator.getDisplay().scrollRight();
-                        yield HANDLED;
+                case 0xFC -> { // 00FC: Scroll screen left
+                    this.emulator.getDisplay().scrollLeft();
+                    yield HANDLED;
+                }
+                case 0xFD -> { // 00FD: Exit interpreter
+                    this.shouldTerminate = true;
+                    yield HANDLED;
+                }
+                case 0xFE -> { // 00FE: Set lores mode
+                    SChipDisplay display = this.emulator.getDisplay();
+                    display.setExtendedMode(false);
+                    if (this.emulator.isModern()) {
+                        display.clear();
                     }
-                    case 0xC -> { // 00FC: Scroll screen left
-                        this.emulator.getDisplay().scrollLeft();
-                        yield HANDLED;
+                    yield HANDLED;
+                }
+                case 0xFF -> { // 00FF: Set hires mode
+                    SChipDisplay display = this.emulator.getDisplay();
+                    display.setExtendedMode(true);
+                    if (this.emulator.isModern()) {
+                        display.clear();
                     }
-                    case 0xD -> { // 00FD: Exit interpreter
-                        this.shouldTerminate = true;
-                        yield HANDLED;
-                    }
-                    case 0xE -> { // 00FE: Set lores mode
-                        SChipDisplay display = this.emulator.getDisplay();
-                        display.setExtendedMode(false);
-                        if (this.emulator.isModern()) {
-                            display.clear();
+                    yield HANDLED;
+                }
+                default -> {
+                    if (getYFromNN(NN) == 0xC) { // 00CN: Scroll screen down
+                        int N = getNFromNN(NN);
+                        if (N <= 0x0 && !this.emulator.isModern()) {
+                            yield 0;
                         }
+                        this.emulator.getDisplay().scrollDown(N);
                         yield HANDLED;
+                    } else {
+                        yield 0;
                     }
-                    case 0xF -> { // 00FF: Set hires mode
-                        SChipDisplay display = this.emulator.getDisplay();
-                        display.setExtendedMode(true);
-                        if (this.emulator.isModern()) {
-                            display.clear();
-                        }
-                        yield HANDLED;
-                    }
-                    default -> 0;
-                };
-                default -> 0;
+                }
             };
         } else {
             return 0;

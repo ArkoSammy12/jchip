@@ -19,18 +19,15 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
     @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
         MegaChipDisplay display = this.emulator.getDisplay();
-        int X = getXFromFirstByte(firstByte);
-        int Y = getYFromNN(NN);
-        int N = getNFromNN(NN);
         boolean handled = false;
-        if (X == 0x0 && Y == 0x1) {
+        if (firstByte == 0x00) {
             // Do not clear the frame buffer of the display we are switching into as per original Mega8 behavior
-            handled = switch (N) {
-                case 0x0 -> { // 0010: Disable megachip mode
+            handled = switch (NN) {
+                case 0x10 -> { // 0010: Disable megachip mode
                     display.setMegaChipMode(false);
                     yield true;
                 }
-                case 0x1 -> { // 0011: Enable megachip mode
+                case 0x11 -> { // 0011: Enable megachip mode
                     display.setMegaChipMode(true);
                     yield true;
                 }
@@ -43,73 +40,71 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         if (!display.isMegaChipModeEnabled()) {
             return super.execute0Opcode(firstByte, NN);
         }
-        return switch (X) {
-            case 0x0 -> switch (Y) {
-                case 0xB -> { // 00BN: Scroll screen up
-                    display.scrollUp(N);
+
+        return switch (firstByte) {
+            case 0x00 -> switch (NN) {
+                case 0xE0 -> { // 00E0: Clear the screen
+                    display.flushBackBuffer();
+                    display.clear();
+                    yield HANDLED | CLS_EXECUTED;
+                }
+                case 0xEE -> { // 00EE: Return from subroutine
+                    this.setProgramCounter(this.pop());
+                    yield HANDLED;
+                }
+                case 0xFB -> { // 00FB: Scroll screen right
+                    display.scrollRight();
                     display.setDisplayUpdateScrollTriggered();
                     yield HANDLED;
                 }
-                case 0xC -> { // 00CN: Scroll screen down
-                    if (N > 0) {
-                        display.scrollDown(N);
-                        display.setDisplayUpdateScrollTriggered();
-                        yield HANDLED;
-                    } else {
-                        yield 0;
-                    }
+                case 0xFC -> { // 00FC: Scroll screen left
+                    display.scrollLeft();
+                    display.setDisplayUpdateScrollTriggered();
+                    yield HANDLED;
                 }
-                case 0xE -> switch (N) {
-                    case 0x0 -> { // 00E0: Clear the screen
-                        display.flushBackBuffer();
-                        display.clear();
-                        yield HANDLED | CLS_EXECUTED;
-                    }
-                    case 0xE -> { // 00EE: Return from subroutine
-                        this.setProgramCounter(this.pop());
-                        yield HANDLED;
-                    }
-                    default -> 0;
-                };
-                case 0xF -> switch (N) {
-                    case 0xB -> { // 00FB: Scroll screen right
-                        display.scrollRight();
+                case 0xFD -> { // 00FD: Exit interpreter
+                    this.shouldTerminate = true;
+                    yield HANDLED;
+                }
+                case 0xFE -> { // 00FE: Switch to lores mode
+                    // Doesn't work in MegaChip mode
+                    yield HANDLED;
+                }
+                case 0xFF -> { // 00FF: Switch to hires mode
+                    // Doesn't work in MegaChip mode
+                    yield HANDLED;
+                }
+                default -> switch (getYFromNN(NN)) {
+                    case 0xB -> { // 00BN: Scroll screen up
+                        display.scrollUp(getNFromNN(NN));
                         display.setDisplayUpdateScrollTriggered();
                         yield HANDLED;
                     }
-                    case 0xC -> { // 00FC: Scroll screen left
-                        display.scrollLeft();
-                        display.setDisplayUpdateScrollTriggered();
-                        yield HANDLED;
-                    }
-                    case 0xD -> { // 00FD: Exit interpreter
-                        this.shouldTerminate = true;
-                        yield HANDLED;
-                    }
-                    case 0xE -> { // 00FE: Switch to lores mode
-                        // Doesn't work in MegaChip mode
-                        yield HANDLED;
-                    }
-                    case 0xF -> { // 00FF: Switch to hires mode
-                        // Doesn't work in MegaChip mode
-                        yield HANDLED;
+                    case 0xC -> { // 00CN: Scroll screen down
+                        int N = getNFromNN(NN);
+                        if (N > 0) {
+                            display.scrollDown(N);
+                            display.setDisplayUpdateScrollTriggered();
+                            yield HANDLED;
+                        } else {
+                            yield 0;
+                        }
                     }
                     default -> 0;
                 };
-                default -> 0;
             };
-            case 0x1 -> { // 01NN NNNN: Set index to immediate 24-bit address
+            case 0x01 -> { // 01NN NNNN: Set index to immediate 24-bit address
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentProgramCounter = this.getProgramCounter();
                 this.setIndexRegister(
                         (NN << 16) |
-                        (memory.readByte(currentProgramCounter) << 8) |
-                        memory.readByte(currentProgramCounter + 1)
+                                (memory.readByte(currentProgramCounter) << 8) |
+                                memory.readByte(currentProgramCounter + 1)
                 );
                 this.incrementProgramCounter();
                 yield HANDLED;
             }
-            case 0x2 -> { // 02NN: Load color palette entries
+            case 0x02 -> { // 02NN: Load color palette entries
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i < NN; i++) {
@@ -122,19 +117,19 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 }
                 yield HANDLED;
             }
-            case 0x3 -> { // 03NN: Set sprite width
+            case 0x03 -> { // 03NN: Set sprite width
                 display.setSpriteWidth(NN);
                 yield HANDLED;
             }
-            case 0x4 -> { // 04NN: Set sprite height
+            case 0x04 -> { // 04NN: Set sprite height
                 display.setSpriteHeight(NN);
                 yield HANDLED;
             }
-            case 0x5 -> { // 05NN: Set screen alpha
+            case 0x05 -> { // 05NN: Set screen alpha
                 display.setScreenAlpha(NN);
                 yield HANDLED;
             }
-            case 0x6 -> { // 06NU: Play digitized sound
+            case 0x06 -> { // 06NU: Play digitized sound
                 if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
                     Chip8Memory memory = this.emulator.getMemory();
                     int currentIndexRegister = this.getIndexRegister();
@@ -142,11 +137,11 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                     if (size == 0) {
                         yield 0;
                     }
-                    megaChipSoundSystem.playTrack(((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF, size, N == 0, currentIndexRegister + 6);
+                    megaChipSoundSystem.playTrack(((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF, size, getNFromNN(NN) == 0, currentIndexRegister + 6);
                 }
                 yield HANDLED;
             }
-            case 0x7 -> { // 0700: Stop digitized sound
+            case 0x07 -> { // 0700: Stop digitized sound
                 if (NN == 0x00) {
                     if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
                         megaChipSoundSystem.stopTrack();
@@ -156,9 +151,9 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                     yield 0;
                 }
             }
-            case 0x8 -> {
-                if (Y == 0) { // 080N: Set sprite blend mode
-                    MegaChipDisplay.BlendMode blendMode = switch (N) {
+            case 0x08 -> {
+                if (getYFromNN(NN) == 0x0) { // 080N: Set sprite blend mode
+                    MegaChipDisplay.BlendMode blendMode = switch (getNFromNN(NN)) {
                         case 0 -> MegaChipDisplay.BlendMode.BLEND_NORMAL;
                         case 1 -> MegaChipDisplay.BlendMode.BLEND_25;
                         case 2 -> MegaChipDisplay.BlendMode.BLEND_50;
@@ -176,7 +171,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                     yield 0;
                 }
             }
-            case 0x9 -> { // 09NN: Set collision color index
+            case 0x09 -> { // 09NN: Set collision color index
                 display.setCollisionIndex(NN);
                 yield HANDLED;
             }

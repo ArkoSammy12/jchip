@@ -161,13 +161,13 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     }
 
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        if (getXFromFirstByte(firstByte) == 0x0 && getYFromNN(NN) == 0xE) {
-            return switch (getNFromNN(NN)) {
-                case 0x0 -> { // 00E0: Clear screen
+        if (firstByte == 0x00) {
+            return switch (NN) {
+                case 0xE0 -> { // 00E0: Clear screen
                     this.emulator.getDisplay().clear();
                     yield HANDLED;
                 }
-                case 0xE -> { // 00EE: Return from subroutine
+                case 0xEE -> { // 00EE: Return from subroutine
                     this.setProgramCounter(this.pop());
                     yield HANDLED;
                 }

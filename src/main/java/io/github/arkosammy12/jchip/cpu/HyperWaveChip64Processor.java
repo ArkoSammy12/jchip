@@ -18,31 +18,24 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
         if (isHandled(flagsSuper)) {
             return flagsSuper;
         }
-        if (getXFromFirstByte(firstByte) == 0x0) {
-            return switch (getYFromNN(NN)) {
-                case 0xE -> {
-                    if (getNFromNN(NN) == 0x1) { // OOE1: Invert selected bitplanes
-                        this.emulator.getDisplay().invert();
-                        yield HANDLED;
-                    } else {
-                        yield 0;
-                    }
+        if (firstByte == 0x00) {
+            return switch (NN) {
+                case 0xE1 -> { // OOE1: Invert selected bitplanes
+                    this.emulator.getDisplay().invert();
+                    yield HANDLED;
                 }
-                case 0xF -> switch (getNFromNN(NN)) {
-                    case 0x1 -> { // 00F1: Set draw mode to OR
-                        this.emulator.getDisplay().setDrawingMode(HyperWaveChip64Display.DrawingMode.OR);
-                        yield HANDLED;
-                    }
-                    case 0x2 -> { // 00F2: Set draw mode to SUBTRACT
-                        this.emulator.getDisplay().setDrawingMode(HyperWaveChip64Display.DrawingMode.SUBTRACT);
-                        yield HANDLED;
-                    }
-                    case 0x3 -> { // 00F3: Set draw mode to XOR
-                        this.emulator.getDisplay().setDrawingMode(HyperWaveChip64Display.DrawingMode.XOR);
-                        yield HANDLED;
-                    }
-                    default -> 0;
-                };
+                case 0xF1 -> { // 00F1: Set draw mode to OR
+                    this.emulator.getDisplay().setDrawingMode(HyperWaveChip64Display.DrawingMode.OR);
+                    yield HANDLED;
+                }
+                case 0xF2 -> { // 00F2: Set draw mode to SUBTRACT
+                    this.emulator.getDisplay().setDrawingMode(HyperWaveChip64Display.DrawingMode.SUBTRACT);
+                    yield HANDLED;
+                }
+                case 0xF3 -> { // 00F3: Set draw mode to XOR
+                    this.emulator.getDisplay().setDrawingMode(HyperWaveChip64Display.DrawingMode.XOR);
+                    yield HANDLED;
+                }
                 default -> 0;
             };
         } else {
@@ -123,21 +116,21 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
             return flagsSuper;
         }
         return switch (NN) {
-            case 0x00 -> switch (getXFromFirstByte(firstByte)) {
-                case 0x1 -> { // F100 NNNN: Long jump
+            case 0x00 -> switch (firstByte) {
+                case 0xF1 -> { // F100 NNNN: Long jump
                     Chip8Memory memory = this.emulator.getMemory();
                     int currentProgramCounter = this.getProgramCounter();
                     this.setProgramCounter((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
                     yield HANDLED;
                 }
-                case 0x2 -> { // F200 NNNN: Long call to subroutine
+                case 0xF2 -> { // F200 NNNN: Long call to subroutine
                     Chip8Memory memory = this.emulator.getMemory();
                     int currentProgramCounter = this.getProgramCounter();
                     this.push(currentProgramCounter + 2);
                     this.setProgramCounter((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
                     yield HANDLED;
                 }
-                case 0x3 -> { // F300 NNNN: Long jump with offset
+                case 0xF3 -> { // F300 NNNN: Long jump with offset
                     Chip8Memory memory = this.emulator.getMemory();
                     int currentProgramCounter = this.getProgramCounter();
                     this.setProgramCounter(((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1)) + this.getRegister(0x0));

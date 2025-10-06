@@ -19,7 +19,7 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
         if (isHandled(flagsSuper)) {
             return flagsSuper;
         }
-        if (getXFromFirstByte(firstByte) == 0x0 && getYFromNN(NN) == 0xD) {// OODN: Scroll screen up
+        if (firstByte == 0x00 && getYFromNN(NN) == 0xD) {// OODN: Scroll screen up
             this.emulator.getDisplay().scrollUp(getNFromNN(NN));
             return HANDLED;
         } else {

@@ -18,12 +18,12 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
         if (isHandled(flagsSuper)) {
             return flagsSuper;
         }
-        if (getXFromFirstByte(firstByte) == 0x2 && NN == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
-            this.emulator.getDisplay().cycleBackgroundColor();
-            return HANDLED;
-        } else {
-            return 0;
-        }
+         if (firstByte == 0x02 && NN == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
+             this.emulator.getDisplay().cycleBackgroundColor();
+             return HANDLED;
+         } else {
+             return 0;
+         }
     }
 
     @Override
