@@ -24,11 +24,12 @@ public class Chip8SoundSystem implements SoundSystem {
     };
 
     public Chip8SoundSystem(Chip8Variant chip8Variant) {
-        this.setPlaybackRate(4000);
-        Arrays.fill(this.patternBuffer, 0);
         if (chip8Variant != Chip8Variant.XO_CHIP && chip8Variant != Chip8Variant.HYPERWAVE_CHIP_64) {
             System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
             this.setPlaybackRate(175);
+        } else {
+            Arrays.fill(this.patternBuffer, 0);
+            this.setPlaybackRate(64);
         }
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
@@ -61,7 +62,7 @@ public class Chip8SoundSystem implements SoundSystem {
         }
         for (int i = 0; i < data.length; i++) {
             int bitStep = (int) (this.phase * 128);
-            data[i] = (byte) ((this.patternBuffer[bitStep >>> 3] & (1 << (7 ^ (bitStep & 7)))) != 0 ? 4 : -4);
+            data[i] = (byte) (((this.patternBuffer[bitStep >> 3]) & (1 << (7 ^ (bitStep & 7)))) != 0 ? 4 : -4);
             this.phase = (this.phase + step) % 1.0;
         }
         audioLine.write(data, 0, data.length);
