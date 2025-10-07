@@ -125,17 +125,14 @@ public class MegaChipDisplay extends SChipDisplay {
             super.setPixel(column, row, val);
             return;
         }
-        int src = this.colorPalette[val];
-        int dst = this.backBuffer[column][row];
-        int result = switch (this.blendMode) {
-            case BLEND_NORMAL -> src;
-            case BLEND_25 -> blendAlpha(src, dst, 64);
-            case BLEND_50 -> blendAlpha(src, dst, 128);
-            case BLEND_75 -> blendAlpha(src, dst, 192);
-            case BLEND_ADD -> addColors(src, dst);
-            case BLEND_MULTIPLY -> multiplyColors(src, dst);
+        this.backBuffer[column][row] = switch (this.blendMode) {
+            case BLEND_NORMAL -> this.colorPalette[val];
+            case BLEND_25 -> blendAlpha(this.colorPalette[val], this.backBuffer[column][row], 64);
+            case BLEND_50 -> blendAlpha(this.colorPalette[val], this.backBuffer[column][row], 128);
+            case BLEND_75 -> blendAlpha(this.colorPalette[val], this.backBuffer[column][row], 192);
+            case BLEND_ADD -> addColors(this.colorPalette[val], this.backBuffer[column][row]);
+            case BLEND_MULTIPLY -> multiplyColors(this.colorPalette[val], this.backBuffer[column][row]);
         };
-        this.backBuffer[column][row] = result;
         this.indexBuffer[column][row] = val;
     }
 
@@ -310,54 +307,26 @@ public class MegaChipDisplay extends SChipDisplay {
     @SuppressWarnings("DuplicatedCode")
     private static int blendAlpha(int src, int dst, int alpha) {
         int invAlpha = 255 - alpha;
-
-        int sr = (src >> 16) & 0xFF;
-        int sg = (src >> 8) & 0xFF;
-        int sb = src & 0xFF;
-
-        int dr = (dst >> 16) & 0xFF;
-        int dg = (dst >> 8) & 0xFF;
-        int db = dst & 0xFF;
-
-        int r = (sr * alpha + dr * invAlpha) / 255;
-        int g = (sg * alpha + dg * invAlpha) / 255;
-        int b = (sb * alpha + db * invAlpha) / 255;
-
-        return 0xFF000000 | (r << 16) | (g << 8) | b;
+        return 0xFF000000 |
+                (((((src >>> 16) & 0xFF) * alpha + ((dst >>> 16) & 0xFF) * invAlpha) / 255) << 16) |
+                (((((src >>> 8) & 0xFF) * alpha + ((dst >>> 8) & 0xFF) * invAlpha) / 255) << 8) |
+                (((src & 0xFF) * alpha + (dst & 0xFF) * invAlpha) / 255);
     }
 
     @SuppressWarnings("DuplicatedCode")
     private static int addColors(int src, int dst) {
-        int sr = (src >> 16) & 0xFF;
-        int sg = (src >> 8) & 0xFF;
-        int sb = src & 0xFF;
-
-        int dr = (dst >> 16) & 0xFF;
-        int dg = (dst >> 8) & 0xFF;
-        int db = dst & 0xFF;
-
-        int r = Math.min(sr + dr, 255);
-        int g = Math.min(sg + dg, 255);
-        int b = Math.min(sb + db, 255);
-
-        return 0xFF000000 | (r << 16) | (g << 8) | b;
+        return 0xFF000000 |
+                ((Math.min(((src >>> 16) & 0xFF) + ((dst >>> 16) & 0xFF), 255)) << 16) |
+                ((Math.min(((src >>> 8) & 0xFF) + ((dst >>> 8) & 0xFF), 255)) << 8) |
+                Math.min((src & 0xFF) + (dst & 0xFF), 255);
     }
 
     @SuppressWarnings("DuplicatedCode")
     private static int multiplyColors(int src, int dst) {
-        int sr = (src >> 16) & 0xFF;
-        int sg = (src >> 8) & 0xFF;
-        int sb = src & 0xFF;
-
-        int dr = (dst >> 16) & 0xFF;
-        int dg = (dst >> 8) & 0xFF;
-        int db = dst & 0xFF;
-
-        int r = (sr * dr) / 255;
-        int g = (sg * dg) / 255;
-        int b = (sb * db) / 255;
-
-        return 0xFF000000 | (r << 16) | (g << 8) | b;
+        return 0xFF000000 |
+                (((((src >>> 16) & 0xFF) * ((dst >>> 16) & 0xFF)) / 255) << 16) |
+                (((((src >>> 8) & 0xFF) * ((dst >>> 8) & 0xFF)) / 255) << 8) |
+                (((src & 0xFF) * (dst & 0xFF)) / 255);
     }
 
     public enum BlendMode {

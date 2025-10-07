@@ -12,7 +12,7 @@ public class Chip8SoundSystem implements SoundSystem {
     private SourceDataLine audioLine;
 
     private final int[] patternBuffer = new int[16];
-    private double playbackRate = 4000;
+    private double step = 0;
     private double phase = 0.0;
 
     private static final int[] DEFAULT_PATTERN_1 = {
@@ -24,6 +24,7 @@ public class Chip8SoundSystem implements SoundSystem {
     };
 
     public Chip8SoundSystem(Chip8Variant chip8Variant) {
+        this.setPlaybackRate(4000);
         Arrays.fill(this.patternBuffer, 0);
         if (chip8Variant != Chip8Variant.XO_CHIP && chip8Variant != Chip8Variant.HYPERWAVE_CHIP_64) {
             System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
@@ -44,7 +45,7 @@ public class Chip8SoundSystem implements SoundSystem {
     }
 
     public void setPlaybackRate(int pitch) {
-        this.playbackRate = 4000 * Math.pow(2.0, (pitch - 64) / 48.0);
+        this.step = (4000 * Math.pow(2.0, (pitch - 64) / 48.0)) / 128.0 / SAMPLE_RATE;
     }
 
     public void pushSamples(int soundTimer) {
@@ -58,16 +59,10 @@ public class Chip8SoundSystem implements SoundSystem {
             audioLine.write(data, 0, data.length);
             return;
         }
-        double step = this.playbackRate / 128.0 / SAMPLE_RATE;
         for (int i = 0; i < data.length; i++) {
             int bitStep = (int) (this.phase * 128);
-            int bitMask = 1 << (7 ^ (bitStep & 7));
-            int index = bitStep >> 3;
-            int rawData = this.patternBuffer[index];
-            byte sample = (byte) ((rawData & bitMask) != 0 ? 4 : -4);
-            data[i] = sample;
-            this.phase += step;
-            this.phase %= 1.0f;
+            data[i] = (byte) ((this.patternBuffer[bitStep >>> 3] & (1 << (7 ^ (bitStep & 7)))) != 0 ? 4 : -4);
+            this.phase = (this.phase + step) % 1.0;
         }
         audioLine.write(data, 0, data.length);
     }

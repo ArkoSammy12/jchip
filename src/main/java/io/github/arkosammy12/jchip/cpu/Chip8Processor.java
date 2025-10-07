@@ -8,6 +8,7 @@ import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
@@ -26,6 +27,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     protected final E emulator;
     private final Random random = new Random();
     protected boolean shouldTerminate;
+    private final int memoryBoundsMask;
 
     private final int[] registers = new int[16];
     private final int[] flagsStorage = new int[16];
@@ -38,96 +40,97 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
 
     public Chip8Processor(E emulator) {
         this.emulator = emulator;
+        this.memoryBoundsMask = emulator.getMemory().getMemoryBoundsMask();
     }
 
-    protected void setProgramCounter(int programCounter) {
-        this.programCounter = programCounter & (this.emulator.getMemory().getMemorySize() - 1);
+    protected final void setProgramCounter(int programCounter) {
+        this.programCounter = programCounter & this.memoryBoundsMask;
     }
 
-    protected void incrementProgramCounter() {
-        this.setProgramCounter(this.getProgramCounter() + 2);
+    protected final void incrementProgramCounter() {
+        this.programCounter = (programCounter + 2) & this.memoryBoundsMask;
     }
 
-    protected void decrementProgramCounter() {
-        this.setProgramCounter(this.getProgramCounter() - 2);
+    protected final void decrementProgramCounter() {
+        this.programCounter = (programCounter - 2) & this.memoryBoundsMask;
     }
 
-    public int getProgramCounter() {
+    protected final int getProgramCounter() {
         return this.programCounter;
     }
 
-    protected void setIndexRegister(int indexRegister) {
-        this.indexRegister = indexRegister & (this.emulator.getMemory().getMemorySize() - 1);
+    protected final void setIndexRegister(int indexRegister) {
+        this.indexRegister = indexRegister & this.memoryBoundsMask;
     }
 
-    protected int getIndexRegister() {
+    protected final int getIndexRegister() {
         return this.indexRegister;
     }
 
-    protected void push(int value) {
+    protected final void push(int value) {
         this.stack[stackPointer] = value;
         this.stackPointer = (this.stackPointer + 1) & 0xF;
     }
 
-    protected int pop() {
+    protected final int pop() {
         this.stackPointer = (this.stackPointer - 1) & 0xF;
         return this.stack[stackPointer];
     }
 
-    protected void setDelayTimer(int timer) {
+    protected final void setDelayTimer(int timer) {
         this.delayTimer = timer;
     }
 
-    public int getDelayTimer() {
+    protected final int getDelayTimer() {
         return this.delayTimer;
     }
 
-    protected void setSoundTimer(int timer) {
+    protected final void setSoundTimer(int timer) {
         this.soundTimer = timer;
     }
 
-    public int getSoundTimer() {
+    public final int getSoundTimer() {
         return this.soundTimer;
     }
 
-    public void decrementTimers() {
-        if (this.getDelayTimer() > 0) {
+    public final void decrementTimers() {
+        if (this.delayTimer > 0) {
             this.delayTimer -= 1;
         }
-        if (this.getSoundTimer() > 0) {
+        if (this.soundTimer > 0) {
             this.soundTimer -= 1;
         }
     }
 
-    protected void setRegister(int register, int value) {
+    protected final void setRegister(int register, int value) {
         this.registers[register] = value & 0xFF;
     }
 
-    protected void setVF(boolean value) {
-        this.setRegister(0xF, value ? 1 : 0);
+    protected final void setVF(boolean value) {
+        this.registers[0xF] = value ? 1 : 0;
     }
 
-    protected int getRegister(int register) {
+    protected final int getRegister(int register) {
         return this.registers[register];
     }
 
-    protected Random getRandom() {
+    protected final Random getRandom() {
         return this.random;
     }
 
-    protected void loadFlagsToRegisters(int length) {
+    protected final void loadFlagsToRegisters(int length) {
         System.arraycopy(this.flagsStorage, 0, this.registers, 0, length);
     }
 
-    protected void saveRegistersToFlags(int length) {
+    protected final void saveRegistersToFlags(int length) {
         System.arraycopy(this.registers, 0, this.flagsStorage, 0, length);
     }
 
-    public boolean shouldTerminate() {
+    public final boolean shouldTerminate() {
         return this.shouldTerminate;
     }
 
-    public int cycle() throws InvalidInstructionException {
+    public final int cycle() throws InvalidInstructionException {
         Chip8Memory memory = this.emulator.getMemory();
         int programCounter = this.getProgramCounter();
         this.incrementProgramCounter();
@@ -348,6 +351,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         Chip8Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         int currentIndexRegister = this.getIndexRegister();
+        boolean doClipping = config.doClipping();
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
@@ -358,10 +362,11 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
 
         boolean collided = false;
         this.setVF(false);
+
         for (int i = 0; i < N; i++) {
             int sliceY = spriteY + i;
             if (sliceY >= displayHeight) {
-                if (config.doClipping()) {
+                if (doClipping) {
                     break;
                 } else {
                     sliceY %= displayHeight;
@@ -371,16 +376,15 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
             for (int j = 0, sliceMask = BASE_SLICE_MASK_8; j < 8; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= displayWidth) {
-                    if (config.doClipping()) {
+                    if (doClipping) {
                         break;
                     } else {
                         sliceX %= displayWidth;
                     }
                 }
-                if ((slice & sliceMask) <= 0) {
-                    continue;
+                if ((slice & sliceMask) != 0) {
+                    collided |= display.togglePixel(sliceX, sliceY);
                 }
-                collided |= display.togglePixel(sliceX, sliceY);
             }
         }
         this.setVF(collided);
@@ -457,15 +461,9 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexPointer = this.getIndexRegister();
                 int vX = this.getRegister(getXFromFirstByte(firstByte));
-
-                // Compute hundreds digit using "magic number" multiplication instead of division
-                long hundreds = (vX * 0x51EB851FL) >> 37;
+                long hundreds = (vX * 0x51EB851FL) >>> 37;
                 long remainder = vX - hundreds * 100;
-
-                // Compute tens digit using another magic number multiplication
-                long tens = (remainder * 0xCCCDL) >> 19;
-
-                // Ones digit is the remainder after removing hundreds and tens
+                long tens = (remainder * 0xCCCDL) >>> 19;
                 long ones = remainder - tens * 10;
                 memory.writeByte(currentIndexPointer, (int) hundreds);
                 memory.writeByte(currentIndexPointer + 1, (int) tens);

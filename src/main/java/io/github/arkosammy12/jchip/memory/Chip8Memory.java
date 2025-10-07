@@ -6,18 +6,20 @@ import io.github.arkosammy12.jchip.util.HexSpriteFont;
 public class Chip8Memory {
 
     private final int[] bytes;
-    private final int memorySize;
+    private final int memoryBoundsMask;
 
     public Chip8Memory(int[] rom, Chip8Variant chip8Variant, int programStart, int memorySize) {
         try {
-            this.memorySize = memorySize;
-            this.bytes = new int[this.memorySize];
+            this.memoryBoundsMask = memorySize - 1;
+            this.bytes = new int[memorySize];
             chip8Variant.getSpriteFont().getSmallFont().ifPresent(smallFont -> {
                 for (int i = 0; i < smallFont.length; i++) {
                     int[] slice = smallFont[i];
                     int sliceLength = slice.length;
                     int offset = HexSpriteFont.SMALL_FONT_BEGIN_OFFSET + (sliceLength * i);
-                    System.arraycopy(slice, 0, this.bytes, offset, sliceLength);
+                    for (int j = 0; j < sliceLength; j++) {
+                        this.bytes[offset + j] = slice[j] & 0xFF;
+                    }
                 }
             });
             chip8Variant.getSpriteFont().getBigFont().ifPresent(bigFont -> {
@@ -25,27 +27,31 @@ public class Chip8Memory {
                     int[] slice = bigFont[i];
                     int sliceLength = slice.length;
                     int offset = HexSpriteFont.BIG_FONT_BEGIN_OFFSET + (sliceLength * i);
-                    System.arraycopy(slice, 0, this.bytes, offset, sliceLength);
+                    for (int j = 0; j < sliceLength; j++) {
+                        this.bytes[offset + j] = slice[j] & 0xFF;
+                    }
                 }
             });
-            System.arraycopy(rom, 0, this.bytes, programStart, rom.length);
+            for (int i = 0; i < rom.length; i++) {
+                this.bytes[i + programStart] = rom[i] & 0xFF;
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("ROM size too big for CHIP-8 variant " + chip8Variant.getDisplayName() + "!");
         }
     }
 
-    public int getMemorySize() {
-        return this.memorySize;
+    public int getMemoryBoundsMask() {
+        return this.memoryBoundsMask;
     }
 
-    public int readByte(int address) {
+    public final int readByte(int address) {
         // Reading from memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
-        return this.bytes[address & (this.memorySize - 1)];
+        return this.bytes[address & this.memoryBoundsMask];
     }
 
-    public void writeByte(int address, int value) {
+    public final void writeByte(int address, int value) {
         // Writing to memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
-        this.bytes[address & (this.memorySize - 1)] = value;
+        this.bytes[address & this.memoryBoundsMask] = value;
     }
 
 }

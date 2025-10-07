@@ -14,10 +14,6 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
 
     @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.execute0Opcode(firstByte, NN);
-        if (isHandled(flagsSuper)) {
-            return flagsSuper;
-        }
         if (firstByte == 0x00) {
             return switch (NN) {
                 case 0xE1 -> { // OOE1: Invert selected bitplanes
@@ -36,19 +32,15 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
                     this.emulator.getDisplay().setDrawingMode(HyperWaveChip64Display.DrawingMode.XOR);
                     yield HANDLED;
                 }
-                default -> 0;
+                default -> super.execute0Opcode(firstByte, NN);
             };
         } else {
-            return 0;
+            return super.execute0Opcode(firstByte, NN);
         }
     }
 
     @Override
     protected int execute5Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.execute5Opcode(firstByte, NN);
-        if (isSet(flagsSuper, HANDLED)) {
-            return flagsSuper;
-        }
         if (getNFromNN(NN) == 0x1) { // 5XY1: Skip if register greater than
             int flags = HANDLED;
             if (this.getRegister(getXFromFirstByte(firstByte)) > this.getRegister(getYFromNN(NN))) {
@@ -60,17 +52,13 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
             }
             return flags;
         } else {
-            return 0;
+            return super.execute5Opcode(firstByte, NN);
         }
     }
 
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int execute8Opcode(int firstByte, int NN) {
-        int flagsSuper = super.execute8Opcode(firstByte, NN);
-        if (isSet(flagsSuper, HANDLED)) {
-            return flagsSuper;
-        }
         return switch (getNFromNN(NN)) {
             case 0xC -> { // 8XYC: Multiply registers
                 int X = getXFromFirstByte(firstByte);
@@ -82,7 +70,7 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
             case 0xD -> { // 8XYD: Divide registers
                 int X = getXFromFirstByte(firstByte);
                 int vY = this.getRegister(getYFromNN(NN));
-                if (vY <= 0) {
+                if (vY == 0) {
                     this.setRegister(X, 0);
                     this.setVF(false);
                 } else {
@@ -95,7 +83,7 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
             case 0xF -> { // 8XYF: Divide registers inverse
                 int X = getXFromFirstByte(firstByte);
                 int vX = this.getRegister(X);
-                if (vX <= 0) {
+                if (vX == 0) {
                     this.setRegister(X, 0);
                     this.setVF(false);
                 } else {
@@ -105,16 +93,12 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
                 }
                 yield HANDLED;
             }
-            default -> 0;
+            default -> super.execute8Opcode(firstByte, NN);
         };
     }
 
     @Override
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.executeFOpcode(firstByte, NN);
-        if (isHandled(flagsSuper)) {
-            return flagsSuper;
-        }
         return switch (NN) {
             case 0x00 -> switch (firstByte) {
                 case 0xF1 -> { // F100 NNNN: Long jump
@@ -136,7 +120,7 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
                     this.setProgramCounter(((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1)) + this.getRegister(0x0));
                     yield HANDLED;
                 }
-                default -> 0;
+                default -> super.executeFOpcode(firstByte, NN);
             };
             case 0x03 -> { // FX03: Set color of palette X to three byte (24-bit) color from memory at I, I+1, I+2
                 Chip8Memory memory = this.emulator.getMemory();
@@ -148,7 +132,7 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
                 this.setIndexRegister(this.getIndexRegister() - this.getRegister(getXFromFirstByte(firstByte)));
                 yield HANDLED;
             }
-            default -> 0;
+            default -> super.executeFOpcode(firstByte, NN);
         };
     }
 

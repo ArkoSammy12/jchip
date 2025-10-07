@@ -17,10 +17,6 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
 
     @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.execute0Opcode(firstByte, NN);
-        if (isHandled(flagsSuper)) {
-            return flagsSuper;
-        }
         if (firstByte == 0x00) {
             return switch (NN) {
                 case 0xFB -> { // 00FB: Scroll screen right
@@ -54,18 +50,19 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                 default -> {
                     if (getYFromNN(NN) == 0xC) { // 00CN: Scroll screen down
                         int N = getNFromNN(NN);
-                        if (N <= 0x0 && !this.emulator.isModern()) {
-                            yield 0;
+                        if (N == 0x0 && !this.emulator.isModern()) {
+                            // 00C0 is invalid on legacy SUPER-CHIP
+                            yield super.execute0Opcode(firstByte, NN);
                         }
                         this.emulator.getDisplay().scrollDown(N);
                         yield HANDLED;
                     } else {
-                        yield 0;
+                        yield super.execute0Opcode(firstByte, NN);
                     }
                 }
             };
         } else {
-            return 0;
+            return super.execute0Opcode(firstByte, NN);
         }
     }
 
@@ -76,6 +73,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
+        boolean doClipping = config.doClipping();
 
         int N = getNFromNN(NN);
         int spriteHeight = N < 1 ? 16 : N;
@@ -105,7 +103,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
         for (int i = 0; i < spriteHeight; i++) {
             int sliceY = spriteY + i;
             if (sliceY >= displayHeight) {
-                if (config.doClipping()) {
+                if (doClipping) {
                     if (addBottomClippedRows) {
                         collisionCounter++;
                         continue;
@@ -115,34 +113,30 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                     sliceY %= displayHeight;
                 }
             }
-            int slice;
-            if (draw16WideSprite) {
-                slice = (memory.readByte(currentIndexRegister + i * 2) << 8) | memory.readByte(currentIndexRegister + (i * 2) + 1);
-            } else {
-                slice = memory.readByte(currentIndexRegister + i);
-            }
+            int slice = draw16WideSprite
+                    ? (memory.readByte(currentIndexRegister + i * 2) << 8) | memory.readByte(currentIndexRegister + (i * 2) + 1)
+                    : memory.readByte(currentIndexRegister + i);
             boolean rowCollided = false;
             for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= displayWidth) {
-                    if (config.doClipping()) {
+                    if (doClipping) {
                         break;
                     } else {
                         sliceX %= displayWidth;
                     }
                 }
-                if ((slice & sliceMask) <= 0) {
-                    continue;
-                }
-                if (extendedMode) {
-                    rowCollided |= display.togglePixel(sliceX, sliceY);
-                } else {
-                    int scaledSliceX = sliceX * 2;
-                    int scaledSliceY = sliceY * 2;
-                    rowCollided |= display.togglePixel(scaledSliceX, scaledSliceY);
-                    rowCollided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
-                    display.togglePixel(scaledSliceX, scaledSliceY + 1);
-                    display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
+                if ((slice & sliceMask) != 0) {
+                    if (extendedMode) {
+                        rowCollided |= display.togglePixel(sliceX, sliceY);
+                    } else {
+                        int scaledSliceX = sliceX * 2;
+                        int scaledSliceY = sliceY * 2;
+                        rowCollided |= display.togglePixel(scaledSliceX, scaledSliceY);
+                        rowCollided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
+                        display.togglePixel(scaledSliceX, scaledSliceY + 1);
+                        display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
+                    }
                 }
             }
             if (!isModern) {
@@ -170,10 +164,6 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
 
     @Override
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.executeFOpcode(firstByte, NN);
-        if (isSet(flagsSuper, HANDLED)) {
-            return flagsSuper;
-        }
         return switch (NN) {
             case 0x30 -> { // FX30: Set index to big font sprite memory offset
                 this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getBigFontSpriteOffset(this.getRegister(getXFromFirstByte(firstByte)) & 0xF));
@@ -187,7 +177,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                 this.loadFlagsToRegisters(getXFromFirstByte(firstByte));
                 yield HANDLED;
             }
-            default -> 0;
+            default -> super.executeFOpcode(firstByte, NN);
         };
     }
 

@@ -186,8 +186,7 @@ public abstract class Display implements Closeable {
         }
 
         private void render() {
-            int[] buffer = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
-            fillImageBuffer(buffer);
+            fillImageBuffer(((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData());
             BufferStrategy bufferStrategy = getBufferStrategy();
             if (bufferStrategy == null) {
                 createBufferStrategy(3);

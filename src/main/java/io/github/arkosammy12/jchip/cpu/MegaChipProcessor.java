@@ -40,7 +40,6 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         if (!display.isMegaChipModeEnabled()) {
             return super.execute0Opcode(firstByte, NN);
         }
-
         return switch (firstByte) {
             case 0x00 -> switch (NN) {
                 case 0xE0 -> { // 00E0: Clear the screen
@@ -96,11 +95,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
             case 0x01 -> { // 01NN NNNN: Set index to immediate 24-bit address
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentProgramCounter = this.getProgramCounter();
-                this.setIndexRegister(
-                        (NN << 16) |
-                                (memory.readByte(currentProgramCounter) << 8) |
-                                memory.readByte(currentProgramCounter + 1)
-                );
+                this.setIndexRegister((NN << 16) | (memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
                 this.incrementProgramCounter();
                 yield HANDLED;
             }
@@ -108,12 +103,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i < NN; i++) {
-                    display.loadPaletteEntry(i + 1,
-                            (memory.readByte(currentIndexRegister + (i * 4)) << 24) |
-                                    (memory.readByte(currentIndexRegister + (i * 4) + 1) << 16) |
-                                    (memory.readByte(currentIndexRegister + (i * 4) + 2) << 8) |
-                                    memory.readByte(currentIndexRegister + (i * 4) + 3)
-                    );
+                    display.loadPaletteEntry(i + 1, (memory.readByte(currentIndexRegister + (i * 4)) << 24) | (memory.readByte(currentIndexRegister + (i * 4) + 1) << 16) | (memory.readByte(currentIndexRegister + (i * 4) + 2) << 8) | memory.readByte(currentIndexRegister + (i * 4) + 3));
                 }
                 yield HANDLED;
             }
@@ -129,8 +119,8 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 display.setScreenAlpha(NN);
                 yield HANDLED;
             }
-            case 0x06 -> { // 060N: Play digitized sound
-                if (getYFromNN(NN) == 0x0) {
+            case 0x06 -> {
+                if (getYFromNN(NN) == 0x0) { // 060N: Play digitized sound
                     if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
                         Chip8Memory memory = this.emulator.getMemory();
                         int currentIndexRegister = this.getIndexRegister();
@@ -145,8 +135,8 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                     yield 0;
                 }
             }
-            case 0x07 -> { // 0700: Stop digitized sound
-                if (NN == 0x00) {
+            case 0x07 -> {
+                if (NN == 0x00) { // 0700: Stop digitized sound
                     if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
                         megaChipSoundSystem.stopTrack();
                     }
@@ -221,6 +211,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         Chip8Memory memory = this.emulator.getMemory();
         EmulatorConfig config = this.emulator.getEmulatorConfig();
         int currentIndexRegister = this.getIndexRegister();
+        boolean doClipping = config.doClipping();
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
@@ -244,69 +235,67 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 sliceLength = 8;
                 baseMask = BASE_SLICE_MASK_8;
             }
-
             for (int i = 0; i < spriteHeight; i++) {
                 int sliceY = spriteY + i;
                 if (sliceY >= displayHeight) {
-                    if (config.doClipping()) {
+                    if (doClipping) {
                         break;
                     } else {
                         sliceY %= displayHeight;
                     }
                 }
-                int slice;
-                if (draw16WideSprite) {
-                    slice = (memory.readByte(currentIndexRegister + i * 2) << 8) | memory.readByte(currentIndexRegister + (i * 2) + 1);
-                } else {
-                    slice = memory.readByte(currentIndexRegister + i);
-                }
+                int slice = draw16WideSprite
+                        ? (memory.readByte(currentIndexRegister + i * 2) << 8) | memory.readByte(currentIndexRegister + (i * 2) + 1)
+                        : memory.readByte(currentIndexRegister + i);
                 for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                     int sliceX = spriteX + j;
                     if (sliceX >= displayWidth) {
-                        if (config.doClipping()) {
+                        if (doClipping) {
                             break;
                         } else {
                             sliceX %= displayWidth;
                         }
                     }
-                    if ((slice & sliceMask) <= 0) {
-                        continue;
+                    if ((slice & sliceMask) != 0) {
+                        display.drawFontPixel(sliceX, sliceY);
                     }
-                    display.drawFontPixel(sliceX, sliceY);
                 }
             }
         } else {
             int currentCollisionIndex = display.getCollisionIndex();
             int spriteWidth = display.getSpriteWidth();
             int spriteHeight = display.getSpriteHeight();
+            boolean collided = false;
             for (int i = 0; i < spriteHeight; i++) {
                 int pixelY = spriteY + i;
                 if (pixelY >= displayHeight) {
-                    if (config.doClipping()) {
+                    if (doClipping) {
                         break;
                     } else {
                         pixelY %= displayHeight;
                     }
                 }
+                int base = i * spriteWidth;
                 for (int j = 0; j < spriteWidth; j++) {
                     int pixelX = spriteX + j;
                     if (pixelX >= displayWidth) {
-                        if (config.doClipping()) {
+                        if (doClipping) {
                             break;
                         } else {
                             pixelX %= displayWidth;
                         }
                     }
-                    int colorIndex = memory.readByte(currentIndexRegister + (i * spriteWidth) + j) & 0xFF;
-                    if (colorIndex == 0) {
+                    int pixelColorIndex = memory.readByte(currentIndexRegister + base + j);
+                    if (pixelColorIndex == 0) {
                         continue;
                     }
-                    if (display.getColorIndexAt(pixelX, pixelY) == currentCollisionIndex && display.getColorForIndex(colorIndex) != 0) {
-                        this.setVF(true);
+                    if (display.getColorIndexAt(pixelX, pixelY) == currentCollisionIndex && display.getColorForIndex(pixelColorIndex) != 0) {
+                        collided = true;
                     }
-                    display.setPixel(pixelX, pixelY, colorIndex);
+                    display.setPixel(pixelX, pixelY, pixelColorIndex);
                 }
             }
+            this.setVF(collided);
         }
         return HANDLED | DRAW_EXECUTED;
     }
@@ -318,16 +307,16 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
 
     @Override
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.executeFOpcode(firstByte, NN);
+        int result = super.executeFOpcode(firstByte, NN);
         if (this.emulator.getDisplay().isMegaChipModeEnabled()) {
-            if (isSet(flagsSuper, GET_KEY_EXECUTED)) {
+            if (isSet(result, GET_KEY_EXECUTED)) {
                 this.emulator.getDisplay().flushBackBuffer();
             }
-            if (isSet(flagsSuper, FONT_SPRITE_POINTER)) {
+            if (isSet(result, FONT_SPRITE_POINTER)) {
                 this.cachedCharacterFontIndex = this.getIndexRegister();
             }
         }
-        return flagsSuper;
+        return result;
     }
 
     private int handleDoubleSkipIfNecessary(int flags) {

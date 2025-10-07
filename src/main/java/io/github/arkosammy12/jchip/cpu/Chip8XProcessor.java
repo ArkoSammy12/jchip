@@ -14,30 +14,22 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
 
     @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.execute0Opcode(firstByte, NN);
-        if (isHandled(flagsSuper)) {
-            return flagsSuper;
-        }
          if (firstByte == 0x02 && NN == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
              this.emulator.getDisplay().cycleBackgroundColor();
              return HANDLED;
          } else {
-             return 0;
+             return super.execute0Opcode(firstByte, NN);
          }
     }
 
     @Override
     protected int execute5Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.execute5Opcode(firstByte, NN);
-        if (isHandled(flagsSuper)) {
-            return flagsSuper;
-        }
         if (getNFromNN(NN) == 0x1) { // 5XY1: Add registers as packed octal digits
             int X = getXFromFirstByte(firstByte);
             this.setRegister(X, ((this.getRegister(X) & 0x77) + (this.getRegister(getYFromNN(NN)) & 0x77)) & 0x77);
             return HANDLED;
         } else {
-            return 0;
+            return super.execute5Opcode(firstByte, NN);
         }
     }
 
@@ -86,10 +78,6 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
 
     @Override
     protected int executeEOpcode(int firstByte, int NN) {
-        int flagsSuper = super.executeEOpcode(firstByte, NN);
-        if (isHandled(flagsSuper)) {
-            return flagsSuper;
-        }
         //Keypad keyState = this.emulator.getKeyState();
         //int hexKey = this.getRegister(secondNibble) & 0xF;
         return switch (NN) {
@@ -101,16 +89,12 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
                 // Stub
                 yield HANDLED;
             }
-            default -> 0;
+            default -> super.executeEOpcode(firstByte, NN);
         };
     }
 
     @Override
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
-        int flagsSuper = super.executeFOpcode(firstByte, NN);
-        if (isHandled(flagsSuper)) {
-            return flagsSuper;
-        }
         return switch (NN) {
             case 0xF8 -> { // FXF8: Output register to IO port
                 this.emulator.getSoundSystem().setPlaybackRate(this.getRegister(getXFromFirstByte(firstByte)));
@@ -120,7 +104,7 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
                 // Stub
                 yield HANDLED;
             }
-            default -> 0;
+            default -> super.executeFOpcode(firstByte, NN);
         };
     }
 
