@@ -16,7 +16,7 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
         if (firstByte == 0x00) {
             return switch (NN) {
-                case 0xE1 -> { // OOE1: Invert selected bitplanes
+                case 0xE1 -> { // 00E1: Invert selected bitplanes
                     this.emulator.getDisplay().invert();
                     yield HANDLED;
                 }
