@@ -35,6 +35,13 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
 
     @Override
     protected int execute5Opcode(int firstByte, int NN) throws InvalidInstructionException {
+        int result = super.execute5Opcode(firstByte, NN);
+        if (isHandled(result)) {
+            if (isSet(result, SKIP_TAKEN) && this.previousOpcodeWasFX00()) {
+                this.incrementProgramCounter();
+            }
+            return result;
+        }
         return switch (getNFromNN(NN)) {
             case 0x2 -> { // 5XY2: Write vX to vY to memory
                 Chip8Memory memory = this.emulator.getMemory();
@@ -70,7 +77,7 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
                 }
                 yield HANDLED;
             }
-            default -> super.execute5Opcode(firstByte, NN);
+            default -> 0;
         };
     }
 
