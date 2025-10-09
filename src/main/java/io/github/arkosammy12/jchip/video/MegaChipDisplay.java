@@ -60,7 +60,7 @@ public class MegaChipDisplay extends SChipDisplay {
     @Override
     public int getHeight() {
         if (!this.isMegaChipModeEnabled()) {
-            return super.getWidth();
+            return super.getHeight();
         }
         return 256;
     }
