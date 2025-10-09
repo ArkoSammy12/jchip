@@ -1,7 +1,5 @@
 package io.github.arkosammy12.jchip.util;
 
-import org.graalvm.collections.Pair;
-
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.*;
@@ -14,9 +12,9 @@ public class EmulatorController extends KeyAdapter {
     private final Set<Integer> pressedKeys = new HashSet<>();
 
     private EmulatorController(Builder builder) {
-        for (Pair<Integer, Runnable> controller : builder.getControllers()) {
-            int keyCode = controller.getLeft();
-            Runnable action = controller.getRight();
+        for (Map.Entry<Integer, Runnable> controller : builder.getControllers()) {
+            int keyCode = controller.getKey();
+            Runnable action = controller.getValue();
             if (this.controllers.containsKey(keyCode)) {
                 this.controllers.get(keyCode).add(action);
             } else {
@@ -48,38 +46,35 @@ public class EmulatorController extends KeyAdapter {
 
     public static class Builder {
 
-        private final List<Pair<Integer, Runnable>> controllers = new ArrayList<>();
+        private final List<Map.Entry<Integer, Runnable>> controllers = new ArrayList<>();
 
         public Builder withController(Integer keycode, Runnable controller) {
-            this.controllers.add(Pair.create(keycode, controller));
+            this.controllers.add(new AbstractMap.SimpleEntry<>(keycode, controller));
             return this;
         }
 
         public Builder withControllers(Collection<Integer> keycodes, Runnable controller) {
             for (Integer keycode : keycodes) {
-                this.controllers.add(Pair.create(keycode, controller));
+                this.controllers.add(new AbstractMap.SimpleEntry<>(keycode, controller));
             }
             return this;
         }
 
         public Builder withControllers(Runnable controller, Integer... keycodes) {
             for (Integer keycode : keycodes) {
-                this.controllers.add(Pair.create(keycode, controller));
+                this.controllers.add(new AbstractMap.SimpleEntry<>(keycode, controller));
             }
             return this;
+        }
+
+        private List<Map.Entry<Integer, Runnable>> getControllers() {
+            return this.controllers;
         }
 
         public EmulatorController build() {
             return new EmulatorController(this);
         }
-
-        private List<Pair<Integer, Runnable>> getControllers() {
-            return this.controllers;
-        }
-
-
     }
-
 
 }
 
