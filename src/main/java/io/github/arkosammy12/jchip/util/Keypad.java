@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.util;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Keypad extends KeyAdapter {
@@ -10,18 +11,21 @@ public class Keypad extends KeyAdapter {
     private final KeyboardLayout keyboardLayout;
     private final boolean[] keys = new boolean[16];
     private int waitingKey = -1;
-    private boolean terminateEmulator = false;
 
     public Keypad(KeyboardLayout keyboardLayout) {
         this.keyboardLayout = keyboardLayout;
     }
 
+    public void reset() {
+        Arrays.fill(keys, false);
+        this.waitingKey = -1;
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            terminateEmulator = true;
-        }
-        int hex = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
+        //int hex = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
+        int hex = this.keyboardLayout.getKeypadHexForKeyCode(e.getKeyCode());
+        //Logger.info(e.getExtendedKeyCode());
         if (hex > -1) {
             this.setKeypadKeyPressed(hex);
         }
@@ -29,7 +33,8 @@ public class Keypad extends KeyAdapter {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        int hex = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
+        //int hex = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
+        int hex = this.keyboardLayout.getKeypadHexForKeyCode(e.getKeyCode());
         if (hex > -1) {
             this.setKeypadKeyUnpressed(hex);
         }
@@ -49,10 +54,6 @@ public class Keypad extends KeyAdapter {
 
     public void resetWaitingKeypadKey() {
         this.waitingKey = -1;
-    }
-
-    public boolean shouldTerminate() {
-        return this.terminateEmulator;
     }
 
     public List<Integer> getPressedKeypadKeys() {

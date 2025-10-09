@@ -9,7 +9,12 @@ import java.util.Arrays;
 
 public class Chip8SoundSystem implements SoundSystem {
 
+    private static final int MAX_VOLUME = 5;
+    private static final int MIN_VOLUME = 0;
+
+    private final Chip8Variant chip8Variant;
     private SourceDataLine audioLine;
+    private int volume = 3;
 
     private final int[] patternBuffer = new int[16];
     private double step = 0;
@@ -24,6 +29,7 @@ public class Chip8SoundSystem implements SoundSystem {
     };
 
     public Chip8SoundSystem(Chip8Variant chip8Variant) {
+        this.chip8Variant = chip8Variant;
         if (chip8Variant != Chip8Variant.XO_CHIP && chip8Variant != Chip8Variant.HYPERWAVE_CHIP_64) {
             System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
             this.setPlaybackRate(175);
@@ -39,6 +45,16 @@ public class Chip8SoundSystem implements SoundSystem {
         } catch (Exception e) {
             System.err.println("Error starting audio line: " + e);
         }
+    }
+
+    @Override
+    public void volumeUp() {
+        this.volume = Math.min(this.volume + 1, MAX_VOLUME);
+    }
+
+    @Override
+    public void volumeDown() {
+        this.volume = Math.max(this.volume - 1, MIN_VOLUME);
     }
 
     public void loadPatternByte(int index, int value) {
@@ -60,17 +76,37 @@ public class Chip8SoundSystem implements SoundSystem {
             audioLine.write(data, 0, data.length);
             return;
         }
+        int volume = this.volume;
         for (int i = 0; i < data.length; i++) {
             int bitStep = (int) (this.phase * 128);
-            data[i] = (byte) (((this.patternBuffer[bitStep >> 3]) & (1 << (7 ^ (bitStep & 7)))) != 0 ? 4 : -4);
+            data[i] = (byte) (((this.patternBuffer[bitStep >> 3]) & (1 << (7 ^ (bitStep & 7)))) != 0 ? volume : -volume);
             this.phase = (this.phase + step) % 1.0;
         }
         audioLine.write(data, 0, data.length);
     }
 
+    public void reset() {
+        this.step = 0;
+        this.phase = 0;
+        if (this.audioLine != null && this.audioLine.isOpen()) {
+            this.audioLine.stop();
+            this.audioLine.flush();
+            this.audioLine.start();
+        }
+        if (chip8Variant != Chip8Variant.XO_CHIP && chip8Variant != Chip8Variant.HYPERWAVE_CHIP_64) {
+            System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
+            this.setPlaybackRate(175);
+        } else {
+            Arrays.fill(this.patternBuffer, 0);
+            this.setPlaybackRate(64);
+        }
+    }
+
     @Override
     public void close() {
         if (this.audioLine != null) {
+            this.audioLine.stop();
+            this.audioLine.flush();
             this.audioLine.close();
         }
     }

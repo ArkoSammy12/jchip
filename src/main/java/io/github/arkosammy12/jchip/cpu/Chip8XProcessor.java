@@ -13,6 +13,12 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     }
 
     @Override
+    public void reset() {
+        super.reset();
+        this.setProgramCounter(0x300);
+    }
+
+    @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
          if (firstByte == 0x02 && NN == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
              this.emulator.getDisplay().cycleBackgroundColor();

@@ -9,6 +9,7 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
 import java.awt.event.KeyAdapter;
+import java.util.List;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
@@ -30,8 +31,8 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
 
     @Override
     @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new XOChipDisplay(emulatorConfig, keyAdapter);
+    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
+        return (D) new XOChipDisplay(emulatorConfig, keyAdapters);
     }
 
     @Override

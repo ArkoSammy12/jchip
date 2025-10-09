@@ -9,6 +9,7 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
 import java.awt.event.KeyAdapter;
+import java.util.List;
 
 public class Chip8XEmulator<D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Emulator<D, S> {
 
@@ -28,8 +29,8 @@ public class Chip8XEmulator<D extends Chip8XDisplay, S extends Chip8SoundSystem>
 
     @Override
     @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new Chip8XDisplay(emulatorConfig, keyAdapter);
+    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
+        return (D) new Chip8XDisplay(emulatorConfig, keyAdapters);
     }
 
 }

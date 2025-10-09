@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
 import java.awt.event.KeyAdapter;
+import java.util.List;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
@@ -26,8 +27,8 @@ public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extend
 
     @Override
     @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new SChipDisplay(emulatorConfig, keyAdapter, this.isModern);
+    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
+        return (D) new SChipDisplay(emulatorConfig, keyAdapters, this.isModern);
     }
 
     public boolean isModern() {

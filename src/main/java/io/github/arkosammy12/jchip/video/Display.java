@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.Closeable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 public abstract class Display implements Closeable {
 
@@ -37,7 +38,7 @@ public abstract class Display implements Closeable {
 
     private final StringBuilder stringBuilder = new StringBuilder(128);
 
-    public Display(EmulatorConfig config, KeyAdapter keyAdapter) {
+    public Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
         String romTitle = config.getProgramTitle();
         if (romTitle == null) {
             this.romTitle = "";
@@ -73,7 +74,7 @@ public abstract class Display implements Closeable {
                 renderer.setPreferredSize(windowSize);
                 renderer.setMinimumSize(windowSize);
                 renderer.setMaximumSize(windowSize);
-                renderer.addKeyListener(keyAdapter);
+                keyAdapters.forEach(renderer::addKeyListener);
                 renderer.setFocusable(true);
                 renderer.requestFocus();
                 renderer.setVisible(true);

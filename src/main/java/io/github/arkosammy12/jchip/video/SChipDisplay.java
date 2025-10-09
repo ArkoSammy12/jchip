@@ -4,15 +4,22 @@ import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 import java.awt.event.KeyAdapter;
+import java.util.List;
 
 public class SChipDisplay extends Chip8Display {
 
     private final boolean isModern;
     protected boolean extendedMode;
 
-    public SChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter, boolean isModern) {
-        super(config, keyAdapter);
+    public SChipDisplay(EmulatorConfig config, List<KeyAdapter> keyAdapters, boolean isModern) {
+        super(config, keyAdapters);
         this.isModern = isModern;
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.extendedMode = false;
     }
 
     @Override

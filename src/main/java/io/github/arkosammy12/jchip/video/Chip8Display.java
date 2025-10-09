@@ -6,6 +6,7 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;
+import java.util.List;
 
 public class Chip8Display extends Display {
 
@@ -13,10 +14,18 @@ public class Chip8Display extends Display {
 
     protected final int[][] bitplaneBuffer;
 
-    public Chip8Display(EmulatorConfig config, KeyAdapter keyAdapter) {
-        super(config, keyAdapter);
+    public Chip8Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+        super(config, keyAdapters);
         this.bitplaneBuffer = new int[this.getImageWidth()][this.getImageHeight()];
         this.colorPalette = config.getColorPalette();
+    }
+
+    public void reset() {
+        for (int i = 0; i < bitplaneBuffer.length; i++) {
+            for (int j = 0; j < bitplaneBuffer[i].length; j++) {
+                this.bitplaneBuffer[i][j] = 0;
+            }
+        }
     }
 
     @Override

@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.HyperWaveChip64Display;
 
 import java.awt.event.KeyAdapter;
+import java.util.List;
 
 public class HyperWaveChip64Emulator<D extends HyperWaveChip64Display, S extends Chip8SoundSystem> extends XOChipEmulator<D, S> {
 
@@ -21,7 +22,7 @@ public class HyperWaveChip64Emulator<D extends HyperWaveChip64Display, S extends
 
     @Override
     @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new HyperWaveChip64Display(emulatorConfig, keyAdapter);
+    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
+        return (D) new HyperWaveChip64Display(emulatorConfig, keyAdapters);
     }
 }

@@ -7,9 +7,10 @@ import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
-import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.List;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
@@ -22,9 +23,10 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     private final D display;
     private final S soundSystem;
     private final Keypad keypad;
-    private final Chip8Variant chip8Variant;
-    private final EmulatorConfig config;
 
+    private final Chip8Variant chip8Variant;
+    private final EmulatorController emulatorController;
+    private final EmulatorConfig config;
     private final int targetInstructionsPerFrame;
     private int currentInstructionsPerFrame;
     private int waitFrames = 0;
@@ -38,13 +40,22 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keypad = new Keypad(this.config.getKeyboardLayout());
             this.soundSystem = this.createSoundSystem(this.chip8Variant);
-            this.display = this.createDisplay(config, keypad);
+            this.emulatorController = this.addControllers(new EmulatorController.Builder()).build();
+            this.display = this.createDisplay(config, List.of(this.keypad, this.emulatorController));
             this.memory = this.createMemory(this.config.getRom(), this.chip8Variant);
             this.processor = this.createProcessor();
         } catch (Exception e) {
             this.close();
             throw new RuntimeException(e);
         }
+    }
+
+    protected EmulatorController.Builder addControllers(EmulatorController.Builder builder) {
+        return builder
+                .withController(KeyEvent.VK_F2, this::reset)
+                .withController(KeyEvent.VK_ESCAPE, this::terminate)
+                .withController(KeyEvent.VK_F11, this.soundSystem::volumeDown)
+                .withController(KeyEvent.VK_F12, this.soundSystem::volumeUp);
     }
 
     protected Chip8Processor<?, ?, ?> createProcessor() {
@@ -64,8 +75,8 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     }
 
     @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new Chip8Display(emulatorConfig, keyAdapter);
+    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
+        return (D) new Chip8Display(emulatorConfig, keyAdapters);
     }
 
     public D getDisplay() {
@@ -103,6 +114,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     public void tick() throws InvalidInstructionException {
         long startOfFrame = System.nanoTime();
+        this.emulatorController.pollControllers();
         this.runInstructionLoop();
         this.getDisplay().flush(this.currentInstructionsPerFrame);
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
@@ -129,10 +141,6 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
                 this.terminate();
                 break;
             }
-            if (this.getKeypad().shouldTerminate()) {
-                this.terminate();
-                break;
-            }
         }
     }
 
@@ -146,6 +154,16 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             }
         }
         return false;
+    }
+
+    protected void reset() {
+        this.currentInstructionsPerFrame = this.targetInstructionsPerFrame;
+        this.waitFrames = 0;
+        this.processor.reset();
+        this.memory.reset();
+        this.display.reset();
+        this.soundSystem.reset();
+        this.keypad.reset();
     }
 
     public void close() {

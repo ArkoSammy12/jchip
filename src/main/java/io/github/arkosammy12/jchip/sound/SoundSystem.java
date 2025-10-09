@@ -11,4 +11,10 @@ public interface SoundSystem extends Closeable {
 
     void pushSamples(int soundTimer);
 
+    void volumeUp();
+
+    void volumeDown();
+
+    void reset();
+
 }

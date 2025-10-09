@@ -7,9 +7,12 @@ import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.util.EmulatorController;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.List;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
@@ -20,6 +23,27 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
     public MegaChipEmulator(EmulatorConfig emulatorConfig) {
         super(emulatorConfig, false);
         this.megaChipSoundSystem = new MegaChipSoundSystem(this.getMemory());
+    }
+
+    @Override
+    public EmulatorController.Builder addControllers(EmulatorController.Builder builder) {
+        return super.addControllers(builder)
+                .withController(KeyEvent.VK_F11, () -> {
+                    if (this.megaChipSoundSystem != null) {
+                        this.megaChipSoundSystem.volumeDown();
+                    }
+                })
+                .withController(KeyEvent.VK_F12, () -> {
+                    if (this.megaChipSoundSystem != null) {
+                        this.megaChipSoundSystem.volumeUp();
+                    }
+                });
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.megaChipSoundSystem.reset();
     }
 
     @Override
@@ -34,8 +58,8 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
 
     @Override
     @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, KeyAdapter keyAdapter) {
-        return (D) new MegaChipDisplay(emulatorConfig, keyAdapter);
+    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
+        return (D) new MegaChipDisplay(emulatorConfig, keyAdapters);
     }
 
     @Override

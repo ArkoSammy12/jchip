@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;
+import java.util.List;
 
 public class HyperWaveChip64Display extends XOChipDisplay {
 
@@ -12,9 +13,16 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     private final int[] colorPalette = new int[16];
     private DrawingMode drawingMode = DrawingMode.XOR;
 
-    public HyperWaveChip64Display(EmulatorConfig config, KeyAdapter keyAdapter) {
-        super(config, keyAdapter);
+    public HyperWaveChip64Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+        super(config, keyAdapters);
         Arrays.fill(this.colorPalette, 0xFF000000);
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        Arrays.fill(this.colorPalette, 0xFF000000);
+        this.drawingMode = DrawingMode.XOR;
     }
 
     public void setDrawingMode(DrawingMode drawingMode) {

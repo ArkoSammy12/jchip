@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.video;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 import java.awt.event.KeyAdapter;
+import java.util.List;
 
 public class XOChipDisplay extends SChipDisplay {
 
@@ -10,8 +11,14 @@ public class XOChipDisplay extends SChipDisplay {
 
     private int selectedBitPlanes = 1;
 
-    public XOChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
-        super(config, keyAdapter, true);
+    public XOChipDisplay(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+        super(config, keyAdapters, true);
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.selectedBitPlanes = 1;
     }
 
     public void setSelectedBitPlanes(int selectedBitPlanes) {

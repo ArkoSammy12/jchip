@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 
 import java.awt.event.KeyAdapter;
+import java.util.List;
 
 public class MegaChipDisplay extends SChipDisplay {
 
@@ -11,19 +12,41 @@ public class MegaChipDisplay extends SChipDisplay {
     private final int[][] indexBuffer = new int[256][256];
     private final int[][] frontBuffer = new int[256][256];
     private final int[] colorPalette = new int[256];
-
     private int spriteWidth = 0;
     private int spriteHeight = 0;
     private int screenAlpha = 0;
     private int collisionIndex = 0;
     private BlendMode blendMode = BlendMode.BLEND_NORMAL;
+
     private boolean megaChipModeEnabled = false;
     private boolean scrollTriggered = false;
 
-    public MegaChipDisplay(EmulatorConfig config, KeyAdapter keyAdapter) {
-        super(config, keyAdapter, false);
+    public MegaChipDisplay(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+        super(config, keyAdapters, false);
         this.colorPalette[0] = 0x00000000;
         this.colorPalette[255] = 0xFFFFFFFF;
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.colorPalette[0] = 0x00000000;
+        this.colorPalette[255] = 0xFFFFFFFF;
+        this.spriteWidth = 0;
+        this.spriteHeight = 0;
+        this.screenAlpha = 0;
+        this.collisionIndex = 0;
+        this.blendMode = BlendMode.BLEND_NORMAL;
+        this.megaChipModeEnabled = false;
+        this.scrollTriggered = false;
+        for (int i = 0; i < 256; i++) {
+            this.colorPalette[i] = 0;
+            for (int j = 0; j < 256; j++) {
+                this.backBuffer[i][j] = 0;
+                this.indexBuffer[i][j] = 0;
+                this.frontBuffer[i][j] = 0;
+            }
+        }
     }
 
     @Override

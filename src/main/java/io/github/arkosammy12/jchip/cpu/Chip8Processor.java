@@ -8,6 +8,7 @@ import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -40,6 +41,17 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     public Chip8Processor(E emulator) {
         this.emulator = emulator;
         this.memoryBoundsMask = emulator.getMemory().getMemoryBoundsMask();
+    }
+
+    public void reset() {
+        Arrays.fill(this.registers, 0);
+        Arrays.fill(this.flagsStorage, 0);
+        Arrays.fill(this.stack, 0);
+        this.programCounter = 0x200;
+        this.indexRegister = 0;
+        this.stackPointer = 0;
+        this.delayTimer = 0;
+        this.soundTimer = 0;
     }
 
     protected final void setProgramCounter(int programCounter) {

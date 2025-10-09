@@ -2,114 +2,112 @@ package io.github.arkosammy12.jchip.util;
 
 import picocli.CommandLine;
 
-import java.util.function.ToIntFunction;
+import java.awt.event.KeyEvent;
+import java.util.function.IntUnaryOperator;
 
 public enum KeyboardLayout {
-    QWERTY("qwerty", c -> switch (c) {
-        case 'x' -> 0x0;
-        case '1' -> 0x1;
-        case '2' -> 0x2;
-        case '3' -> 0x3;
-        case 'q' -> 0x4;
-        case 'w' -> 0x5;
-        case 'e' -> 0x6;
-        case 'a' -> 0x7;
-        case 's' -> 0x8;
-        case 'd' -> 0x9;
-        case 'z' -> 0xA;
-        case 'c' -> 0xB;
-        case '4' -> 0xC;
-        case 'r' -> 0xD;
-        case 'f' -> 0xE;
-        case 'v' -> 0xF;
+    QWERTY("qwerty", keyCode -> switch (keyCode) {
+        case KeyEvent.VK_X -> 0x0;
+        case KeyEvent.VK_1 -> 0x1;
+        case KeyEvent.VK_2 -> 0x2;
+        case KeyEvent.VK_3 -> 0x3;
+        case KeyEvent.VK_Q -> 0x4;
+        case KeyEvent.VK_W -> 0x5;
+        case KeyEvent.VK_E -> 0x6;
+        case KeyEvent.VK_A -> 0x7;
+        case KeyEvent.VK_S -> 0x8;
+        case KeyEvent.VK_D -> 0x9;
+        case KeyEvent.VK_Z -> 0xA;
+        case KeyEvent.VK_C -> 0xB;
+        case KeyEvent.VK_4 -> 0xC;
+        case KeyEvent.VK_R -> 0xD;
+        case KeyEvent.VK_F -> 0xE;
+        case KeyEvent.VK_V -> 0xF;
         default -> -1;
     }),
-    DVORAK("dvorak", c -> switch (c) {
-        case 'x' -> 0x0;
-        case '1' -> 0x1;
-        case '2' -> 0x2;
-        case '3' -> 0x3;
-        case '\'' -> 0x4;
-        case ',' -> 0x5;
-        case '.' -> 0x6;
-        case 'a' -> 0x7;
-        case 'o' -> 0x8;
-        case 'e' -> 0x9;
-        case ';' -> 0xA;
-        case 'q' -> 0xB;
-        case '4' -> 0xC;
-        case 'p' -> 0xD;
-        case 'u' -> 0xE;
-        case 'k' -> 0xF;
+    DVORAK("dvorak", keyCode -> switch (keyCode) {
+        case KeyEvent.VK_Q -> 0x0;
+        case KeyEvent.VK_1 -> 0x1;
+        case KeyEvent.VK_2 -> 0x2;
+        case KeyEvent.VK_3 -> 0x3;
+        case KeyEvent.VK_QUOTE -> 0x4;
+        case KeyEvent.VK_COMMA -> 0x5;
+        case KeyEvent.VK_PERIOD -> 0x6;
+        case KeyEvent.VK_A -> 0x7;
+        case KeyEvent.VK_O -> 0x8;
+        case KeyEvent.VK_E -> 0x9;
+        case KeyEvent.VK_SEMICOLON -> 0xA;
+        case KeyEvent.VK_J -> 0xB;
+        case KeyEvent.VK_4 -> 0xC;
+        case KeyEvent.VK_P -> 0xD;
+        case KeyEvent.VK_U -> 0xE;
+        case KeyEvent.VK_K -> 0xF;
         default -> -1;
     }),
-    AZERTY("azerty", c -> switch (c) {
-        case 'x' -> 0x0;
-        case '1' -> 0x1;
-        case '2' -> 0x2;
-        case '3' -> 0x3;
-        case 'a' -> 0x4;
-        case 'z' -> 0x5;
-        case 'e' -> 0x6;
-        case 'q' -> 0x7;
-        case 's' -> 0x8;
-        case 'd' -> 0x9;
-        case 'w' -> 0xA;
-        case 'c' -> 0xB;
-        case '4' -> 0xC;
-        case 'r' -> 0xD;
-        case 'f' -> 0xE;
-        case 'v' -> 0xF;
+    AZERTY("azerty", keyCode -> switch (keyCode) {
+        case KeyEvent.VK_X -> 0x0;
+        case KeyEvent.VK_1 -> 0x1;
+        case KeyEvent.VK_2 -> 0x2;
+        case KeyEvent.VK_3 -> 0x3;
+        case KeyEvent.VK_A -> 0x4;
+        case KeyEvent.VK_Z -> 0x5;
+        case KeyEvent.VK_E -> 0x6;
+        case KeyEvent.VK_Q -> 0x7;
+        case KeyEvent.VK_S -> 0x8;
+        case KeyEvent.VK_D -> 0x9;
+        case KeyEvent.VK_W -> 0xA;
+        case KeyEvent.VK_C -> 0xB;
+        case KeyEvent.VK_4 -> 0xC;
+        case KeyEvent.VK_R -> 0xD;
+        case KeyEvent.VK_F -> 0xE;
+        case KeyEvent.VK_V -> 0xF;
         default -> -1;
     }),
-    COLEMAK("colemak", c -> switch (c) {
-        case 'x' -> 0x0;
-        case '1' -> 0x1;
-        case '2' -> 0x2;
-        case '3' -> 0x3;
-        case 'q' -> 0x4;
-        case 'w' -> 0x5;
-        case 'f' -> 0x6;
-        case 'a' -> 0x7;
-        case 'r' -> 0x8;
-        case 's' -> 0x9;
-        case 'z' -> 0xA;
-        case 'c' -> 0xB;
-        case '4' -> 0xC;
-        case 'p' -> 0xD;
-        case 't' -> 0xE;
-        case 'v' -> 0xF;
+    COLEMAK("colemak", keyCode -> switch (keyCode) {
+        case KeyEvent.VK_X -> 0x0;
+        case KeyEvent.VK_1 -> 0x1;
+        case KeyEvent.VK_2 -> 0x2;
+        case KeyEvent.VK_3 -> 0x3;
+        case KeyEvent.VK_Q -> 0x4;
+        case KeyEvent.VK_W -> 0x5;
+        case KeyEvent.VK_F -> 0x6;
+        case KeyEvent.VK_A -> 0x7;
+        case KeyEvent.VK_R -> 0x8;
+        case KeyEvent.VK_S -> 0x9;
+        case KeyEvent.VK_Z -> 0xA;
+        case KeyEvent.VK_C -> 0xB;
+        case KeyEvent.VK_4 -> 0xC;
+        case KeyEvent.VK_P -> 0xD;
+        case KeyEvent.VK_T -> 0xE;
+        case KeyEvent.VK_V -> 0xF;
         default -> -1;
     });
 
     private final String identifier;
-    private final ToIntFunction<Character> keypadCharacterMapper;
+    private final IntUnaryOperator keypadKeyCodeMapper;
 
-    KeyboardLayout(String identifier, ToIntFunction<Character> keypadCharacterMapper) {
+    KeyboardLayout(String identifier, IntUnaryOperator keypadKeyCodeMapper) {
         this.identifier = identifier;
-        this.keypadCharacterMapper = keypadCharacterMapper;
+        this.keypadKeyCodeMapper = keypadKeyCodeMapper;
+    }
+
+    public int getKeypadHexForKeyCode(int keyCode) {
+        return this.keypadKeyCodeMapper.applyAsInt(keyCode);
     }
 
     public static KeyboardLayout getKeyboardLayoutForIdentifier(String identifier) {
-        for (KeyboardLayout keyboardLayout : KeyboardLayout.values()) {
-            if (keyboardLayout.identifier.equals(identifier)) {
-                return keyboardLayout;
+        for (KeyboardLayout layout : values()) {
+            if (layout.identifier.equals(identifier)) {
+                return layout;
             }
         }
-        throw new IllegalArgumentException("Unknown keyboard layout: " + identifier + "!");
-    }
-
-    public int getKeypadHexForChar(char c) {
-        return this.keypadCharacterMapper.applyAsInt(Character.toLowerCase(c));
+        throw new IllegalArgumentException("Unknown keyboard layout: " + identifier);
     }
 
     public static class Converter implements CommandLine.ITypeConverter<KeyboardLayout> {
-
         @Override
         public KeyboardLayout convert(String value) {
             return getKeyboardLayoutForIdentifier(value);
         }
-
     }
-
 }
