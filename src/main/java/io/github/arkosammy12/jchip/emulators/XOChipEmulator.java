@@ -40,9 +40,4 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
         return true;
     }
 
-    @Override
-    protected boolean waitFrameEnd(int flags) {
-        return this.getEmulatorConfig().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isExtendedMode();
-    }
-
 }

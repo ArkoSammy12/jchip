@@ -76,6 +76,11 @@ Press the Escape key in order to close the emulator.
 | `--[no-]shift-vx-in-place`                                                                           | Toggle shifting quirk (`8XY6`, `8XYE` shift `VX` vs `VY`).            | Auto-detected from database. Variant default otherwise                                                  |
 | `--[no-]jump-with-vx`                                                                                | Toggle jump quirk (`BNNN` as `BXNN`).                                 | Auto-detected from database. Variant default otherwise                                                  | 
 
+- Exceptions:
+  1. On the `schip-legacy` variant, if the `display-wait` quirk setting is enabled, it will only apply this behavior when on "lores" mode.
+  2. On the `mega-chip` variant, if mega mode is on, the `display-wait` quirk setting is ignored, as MEGA-CHIP always waits for the next frame after updating the screen.
+  3. On the `mega-chip` variant, if mega mode is off, the `clipping` quirk setting is ignored and does clipping always.
+
 ## Automatic Database Configuration
 
 This emulator integrates with the [chip-8-database](https://github.com/chip-8/chip-8-database) to automatically apply the correct:

@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.util.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
+import io.github.arkosammy12.jchip.video.SChipDisplay;
 
 public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaChipDisplay, S extends SoundSystem> extends SChipProcessor<E, D, S> {
 
@@ -211,7 +212,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
     protected int executeDOpcode(int firstByte, int NN) {
         MegaChipDisplay display = this.emulator.getDisplay();
         if (!display.isMegaChipModeEnabled()) {
-            return super.executeDOpcode(firstByte, NN);
+            return this.handleMegaOffDraw(firstByte, NN);
         }
 
         Chip8Memory memory = this.emulator.getMemory();
@@ -334,6 +335,69 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
 
     private boolean previousOpcodeWas01() {
         return this.emulator.getMemory().readByte(this.getProgramCounter() - 2) == 0x01;
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    private int handleMegaOffDraw(int firstByte, int NN) {
+        SChipDisplay display = this.emulator.getDisplay();
+        Chip8Memory memory = this.emulator.getMemory();
+
+        boolean extendedMode = display.isExtendedMode();
+        int currentIndexRegister = this.getIndexRegister();
+
+        int N = getNFromNN(NN);
+        int spriteHeight = N < 1 ? 16 : N;
+        int displayWidth = display.getWidth();
+        int displayHeight = display.getHeight();
+
+        int spriteX = this.getRegister(getXFromFirstByte(firstByte)) % displayWidth;
+        int spriteY = this.getRegister(getYFromNN(NN)) % displayHeight;
+
+        boolean draw16WideSprite = extendedMode && spriteHeight >= 16;
+
+        int sliceLength;
+        int baseMask;
+        if (draw16WideSprite) {
+            sliceLength = 16;
+            baseMask = BASE_SLICE_MASK_16;
+        } else {
+            sliceLength = 8;
+            baseMask = BASE_SLICE_MASK_8;
+        }
+
+
+        boolean collided = false;
+        this.setVF(false);
+
+        for (int i = 0; i < spriteHeight; i++) {
+            int sliceY = spriteY + i;
+            if (sliceY >= displayHeight) {
+                break;
+            }
+            int slice = draw16WideSprite
+                    ? (memory.readByte(currentIndexRegister + i * 2) << 8) | memory.readByte(currentIndexRegister + (i * 2) + 1)
+                    : memory.readByte(currentIndexRegister + i);
+            for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
+                int sliceX = spriteX + j;
+                if (sliceX >= displayWidth) {
+                    break;
+                }
+                if ((slice & sliceMask) != 0) {
+                    if (extendedMode) {
+                        collided |= display.togglePixel(sliceX, sliceY);
+                    } else {
+                        int scaledSliceX = sliceX * 2;
+                        int scaledSliceY = sliceY * 2;
+                        collided |= display.togglePixel(scaledSliceX, scaledSliceY);
+                        collided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
+                        display.togglePixel(scaledSliceX, scaledSliceY + 1);
+                        display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
+                    }
+                }
+            }
+        }
+        this.setVF(collided);
+        return HANDLED | DRAW_EXECUTED;
     }
 
 }
