@@ -28,7 +28,7 @@ public class MegaChipSoundSystem implements SoundSystem {
     public MegaChipSoundSystem(Chip8Memory memory) {
         this.memory = memory;
         try {
-            AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, false, true);
+            AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
             audioLine = AudioSystem.getSourceDataLine(format);
             audioLine.open(format);
             audioLine.start();
@@ -88,7 +88,7 @@ public class MegaChipSoundSystem implements SoundSystem {
         byte[] data = new byte[SAMPLES_PER_FRAME];
 
         if (!this.isPlaying) {
-            Arrays.fill(data, (byte) 128);
+            Arrays.fill(data, (byte) 0);
             audioLine.write(data, 0, data.length);
             return;
         }
@@ -98,17 +98,12 @@ public class MegaChipSoundSystem implements SoundSystem {
             if (loop && this.samplePos >= this.trackSize) {
                 this.samplePos %= this.trackSize;
             }
-
-            int rawSample;
             if (this.samplePos < this.trackSize) {
-                rawSample = memory.readByte((int) (this.trackStart + this.samplePos)) & 0xFF;
+                data[i] = (byte) ((memory.readByte((int) (this.trackStart + this.samplePos)) - 128) * scale);
                 this.samplePos += this.step;
             } else {
-                rawSample = 128;
+                data[i] = 0;
             }
-            int centered = rawSample - 128;
-            int scaled = (int) (centered * scale);
-            data[i] = (byte) (scaled + 128);
         }
 
         audioLine.write(data, 0, data.length);

@@ -23,7 +23,7 @@ public class Main {
             }
         } catch (Exception e) {
             Logger.error("jchip has crashed!");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }
