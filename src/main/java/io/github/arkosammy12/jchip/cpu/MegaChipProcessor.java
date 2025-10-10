@@ -72,14 +72,8 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                     this.shouldTerminate = true;
                     yield HANDLED;
                 }
-                case 0xFE -> { // 00FE: Switch to lores mode
-                    // Doesn't work in MegaChip mode
-                    yield HANDLED;
-                }
-                case 0xFF -> { // 00FF: Switch to hires mode
-                    // Doesn't work in MegaChip mode
-                    yield HANDLED;
-                }
+                case 0xFE -> HANDLED; // 00FE: Switch to lores mode. Doesn't work when mega mode is on
+                case 0xFF -> HANDLED; // 00FF: Switch to hires mode. Doesn't work when mega mode is on
                 default -> switch (getYFromNN(NN)) {
                     case 0xB -> { // 00BN: Scroll screen up
                         display.scrollUp(getNFromNN(NN));
@@ -131,11 +125,12 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                     if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
                         Chip8Memory memory = this.emulator.getMemory();
                         int currentIndexRegister = this.getIndexRegister();
-                        int size = ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF);
-                        if (size == 0) {
-                            yield 0;
-                        }
-                        megaChipSoundSystem.playTrack(((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF, size, getNFromNN(NN) == 0, currentIndexRegister + 6);
+                        megaChipSoundSystem.playTrack(
+                                ((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF,
+                                ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF),
+                                getNFromNN(NN) == 0,
+                                currentIndexRegister + 6
+                        );
                     }
                     yield HANDLED;
                 } else {

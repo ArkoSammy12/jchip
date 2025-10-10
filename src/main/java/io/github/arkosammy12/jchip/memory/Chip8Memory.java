@@ -8,8 +8,8 @@ import java.util.Arrays;
 public class Chip8Memory {
 
     private final int[] rom;
-    private final Chip8Variant chip8Variant;
     private final int programStart;
+    private final Chip8Variant chip8Variant;
 
     private final int[] bytes;
     private final int memoryBoundsMask;

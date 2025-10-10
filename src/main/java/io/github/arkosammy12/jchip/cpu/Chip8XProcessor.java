@@ -87,14 +87,8 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
         //Keypad keyState = this.emulator.getKeyState();
         //int hexKey = this.getRegister(secondNibble) & 0xF;
         return switch (NN) {
-            case 0xF2 -> { // EXF2: Skip if key on keypad 2 is pressed
-                // Stub
-                yield HANDLED;
-            }
-            case 0xF5 -> { // EXF5: Skip if key on keypad 2 is not pressed
-                // Stub
-                yield HANDLED;
-            }
+            case 0xF2 -> HANDLED; // EXF2: Skip if key on keypad 2 is pressed. Stubbed
+            case 0xF5 -> HANDLED; // EXF5: Skip if key on keypad 2 is not pressed. Stubbed
             default -> super.executeEOpcode(firstByte, NN);
         };
     }
@@ -106,10 +100,7 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
                 this.emulator.getSoundSystem().setPlaybackRate(this.getRegister(getXFromFirstByte(firstByte)));
                 yield HANDLED;
             }
-            case 0xFB -> { // FXFB: Wait for input from IO port and load into register
-                // Stub
-                yield HANDLED;
-            }
+            case 0xFB -> HANDLED; // FXFB: Wait for input from IO port and load into register. Stubbed
             default -> super.executeFOpcode(firstByte, NN);
         };
     }

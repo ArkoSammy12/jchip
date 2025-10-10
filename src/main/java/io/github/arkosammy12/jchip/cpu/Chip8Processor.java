@@ -44,9 +44,11 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     }
 
     public void reset() {
-        Arrays.fill(this.registers, 0);
-        Arrays.fill(this.flagsStorage, 0);
-        Arrays.fill(this.stack, 0);
+        for (int i = 0; i < 16; i++) {
+            this.registers[i] = 0;
+            this.flagsStorage[i] = 0;
+            this.stack[i] = 0;
+        }
         this.programCounter = 0x200;
         this.indexRegister = 0;
         this.stackPointer = 0;

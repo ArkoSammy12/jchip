@@ -16,9 +16,15 @@ public class Main {
             long lastFrameTime = System.nanoTime();
             while (!emulator.isTerminated()) {
                 long now = System.nanoTime();
-                while (now - lastFrameTime >= FRAME_INTERVAL) {
-                    lastFrameTime += FRAME_INTERVAL;
+                long elapsed = now - lastFrameTime;
+                if (elapsed > 1_000_000_000L) {
+                    lastFrameTime = now;
+                    continue;
+                }
+                while (elapsed >= FRAME_INTERVAL) {
                     emulator.tick();
+                    lastFrameTime += FRAME_INTERVAL;
+                    elapsed -= FRAME_INTERVAL;
                 }
             }
         } catch (Exception e) {

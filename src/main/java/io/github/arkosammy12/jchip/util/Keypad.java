@@ -23,9 +23,7 @@ public class Keypad extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        //int hex = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
         int hex = this.keyboardLayout.getKeypadHexForKeyCode(e.getKeyCode());
-        //Logger.info(e.getExtendedKeyCode());
         if (hex > -1) {
             this.setKeypadKeyPressed(hex);
         }
@@ -33,7 +31,6 @@ public class Keypad extends KeyAdapter {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        //int hex = this.keyboardLayout.getKeypadHexForChar(e.getKeyChar());
         int hex = this.keyboardLayout.getKeypadHexForKeyCode(e.getKeyCode());
         if (hex > -1) {
             this.setKeypadKeyUnpressed(hex);
