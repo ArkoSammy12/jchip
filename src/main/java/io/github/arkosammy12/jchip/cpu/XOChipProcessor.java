@@ -145,17 +145,18 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
                             sliceX %= displayWidth;
                         }
                     }
-                    if ((slice & sliceMask) != 0) {
-                        if (extendedMode) {
-                            collided |= display.togglePixelAtBitPlanes(sliceX, sliceY, bitPlaneMask);
-                        } else {
-                            int scaledSliceX = sliceX * 2;
-                            int scaledSliceY = sliceY * 2;
-                            collided |= display.togglePixelAtBitPlanes(scaledSliceX, scaledSliceY, bitPlaneMask);
-                            collided |= display.togglePixelAtBitPlanes(scaledSliceX + 1, scaledSliceY, bitPlaneMask);
-                            display.togglePixelAtBitPlanes(scaledSliceX, scaledSliceY + 1, bitPlaneMask);
-                            display.togglePixelAtBitPlanes(scaledSliceX + 1, scaledSliceY + 1, bitPlaneMask);
-                        }
+                    if ((slice & sliceMask) == 0) {
+                        continue;
+                    }
+                    if (extendedMode) {
+                        collided |= display.togglePixelAtBitPlanes(sliceX, sliceY, bitPlaneMask);
+                    } else {
+                        int scaledSliceX = sliceX * 2;
+                        int scaledSliceY = sliceY * 2;
+                        collided |= display.togglePixelAtBitPlanes(scaledSliceX, scaledSliceY, bitPlaneMask);
+                        collided |= display.togglePixelAtBitPlanes(scaledSliceX + 1, scaledSliceY, bitPlaneMask);
+                        display.togglePixelAtBitPlanes(scaledSliceX, scaledSliceY + 1, bitPlaneMask);
+                        display.togglePixelAtBitPlanes(scaledSliceX + 1, scaledSliceY + 1, bitPlaneMask);
                     }
                 }
                 planeIterator++;

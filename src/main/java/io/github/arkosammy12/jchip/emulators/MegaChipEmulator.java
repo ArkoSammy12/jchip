@@ -73,11 +73,6 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
     }
 
     @Override
-    public boolean isModern() {
-        return false;
-    }
-
-    @Override
     protected boolean waitFrameEnd(int flags) {
         if (!this.getDisplay().isMegaChipModeEnabled()) {
             return super.waitFrameEnd(flags);

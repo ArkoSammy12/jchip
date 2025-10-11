@@ -395,9 +395,10 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                         sliceX %= displayWidth;
                     }
                 }
-                if ((slice & sliceMask) != 0) {
-                    collided |= display.togglePixel(sliceX, sliceY);
+                if ((slice & sliceMask) == 0) {
+                    continue;
                 }
+                collided |= display.togglePixel(sliceX, sliceY);
             }
         }
         this.setVF(collided);

@@ -258,9 +258,10 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                             sliceX %= displayWidth;
                         }
                     }
-                    if ((slice & sliceMask) != 0) {
-                        display.drawFontPixel(sliceX, sliceY);
+                    if ((slice & sliceMask) == 0) {
+                        continue;
                     }
+                    display.drawFontPixel(sliceX, sliceY);
                 }
             }
         } else {
@@ -360,7 +361,6 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
             baseMask = BASE_SLICE_MASK_8;
         }
 
-
         boolean collided = false;
         this.setVF(false);
 
@@ -377,17 +377,18 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 if (sliceX >= displayWidth) {
                     break;
                 }
-                if ((slice & sliceMask) != 0) {
-                    if (extendedMode) {
-                        collided |= display.togglePixel(sliceX, sliceY);
-                    } else {
-                        int scaledSliceX = sliceX * 2;
-                        int scaledSliceY = sliceY * 2;
-                        collided |= display.togglePixel(scaledSliceX, scaledSliceY);
-                        collided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
-                        display.togglePixel(scaledSliceX, scaledSliceY + 1);
-                        display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
-                    }
+                if ((slice & sliceMask) == 0) {
+                    continue;
+                }
+                if (extendedMode) {
+                    collided |= display.togglePixel(sliceX, sliceY);
+                } else {
+                    int scaledSliceX = sliceX * 2;
+                    int scaledSliceY = sliceY * 2;
+                    collided |= display.togglePixel(scaledSliceX, scaledSliceY);
+                    collided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
+                    display.togglePixel(scaledSliceX, scaledSliceY + 1);
+                    display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
                 }
             }
         }

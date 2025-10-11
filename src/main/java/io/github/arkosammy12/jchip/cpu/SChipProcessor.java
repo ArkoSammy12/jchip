@@ -126,17 +126,18 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                         sliceX %= displayWidth;
                     }
                 }
-                if ((slice & sliceMask) != 0) {
-                    if (extendedMode) {
-                        rowCollided |= display.togglePixel(sliceX, sliceY);
-                    } else {
-                        int scaledSliceX = sliceX * 2;
-                        int scaledSliceY = sliceY * 2;
-                        rowCollided |= display.togglePixel(scaledSliceX, scaledSliceY);
-                        rowCollided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
-                        display.togglePixel(scaledSliceX, scaledSliceY + 1);
-                        display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
-                    }
+                if ((slice & sliceMask) == 0) {
+                    continue;
+                }
+                if (extendedMode) {
+                    rowCollided |= display.togglePixel(sliceX, sliceY);
+                } else {
+                    int scaledSliceX = sliceX * 2;
+                    int scaledSliceY = sliceY * 2;
+                    rowCollided |= display.togglePixel(scaledSliceX, scaledSliceY);
+                    rowCollided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
+                    display.togglePixel(scaledSliceX, scaledSliceY + 1);
+                    display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
                 }
             }
             if (!isModern) {

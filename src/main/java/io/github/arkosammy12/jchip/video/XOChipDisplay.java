@@ -64,9 +64,7 @@ public class XOChipDisplay extends SChipDisplay {
                     this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }
-
         }
-
     }
 
     @Override

@@ -35,9 +35,4 @@ public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem>
         return (D) new XOChipDisplay(emulatorConfig, keyAdapters);
     }
 
-    @Override
-    public boolean isModern() {
-        return true;
-    }
-
 }
