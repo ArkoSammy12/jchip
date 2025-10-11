@@ -8,7 +8,6 @@ import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 

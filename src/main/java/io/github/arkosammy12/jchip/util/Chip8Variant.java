@@ -18,13 +18,16 @@ public enum Chip8Variant {
     CHIP_8X(
             Chip8XEmulator::new,
             "chip-8x", "CHIP-8X",
-            new String[]{"chip8x"}, new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11),
+            new String[]{"chip8x"},
+            new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11),
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     ),
     SUPER_CHIP_LEGACY(
             config -> new SChipEmulator<>(config, false),
-            "schip-legacy", "SCHIP-1.1",
-            new String[]{"superchip1"}, new Quirkset(false, false, true, true, true, true, _ -> 30),
+            "schip-legacy",
+            "SCHIP-1.1",
+            new String[]{"superchip1", "superchip"},
+            new Quirkset(false, false, true, true, true, true, _ -> 30),
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG)
     ),
     SUPER_CHIP_MODERN(
@@ -53,7 +56,8 @@ public enum Chip8Variant {
     ),
     HYPERWAVE_CHIP_64(
             HyperWaveChip64Emulator::new,
-            "hyperwave-chip-64", "HyperWaveCHIP-64",
+            "hyperwave-chip-64",
+            "HyperWaveCHIP-64",
             null,
             new Quirkset(false, true, false, false, false, false, _ -> 1000),
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG))

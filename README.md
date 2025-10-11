@@ -22,7 +22,7 @@ A CHIP-8, SUPER-CHIP, and XO-CHIP interpreter written in Java.
 ## Features
 
 - Configurable quirks for accurate emulation.
-- Bundled [CHIP-8 database](https://github.com/chip-8/chip-8-database) for automatic variant and quirk detection.
+- Bundled [CHIP-8 database](https://github.com/chip-8/chip-8-database) for automatic variant and quirk detection. I currently use my own [fork](https://github.com/ArkoSammy12/chip-8-database) to add lesser known ROMs made by the community.
 - Multiple built-in color palettes.
 - Adjustable **IPF** (instructions per frame).
 

@@ -90,6 +90,7 @@ public class EmulatorConfig {
             // Get our program object using the index in the hashes database
             String sha1 = getSha1Hash(rawRom);
             JsonElement indexElement = hashesDatabase.get(sha1);
+            // ac30bca77d47b252c0764aff94fcac5202779f18
             if (indexElement == null) {
                 throw new IllegalStateException("Index for loaded ROM not found in database!");
             }
