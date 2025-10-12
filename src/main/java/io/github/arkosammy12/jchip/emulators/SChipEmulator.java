@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.SChipProcessor;
-import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
 import java.awt.event.KeyAdapter;

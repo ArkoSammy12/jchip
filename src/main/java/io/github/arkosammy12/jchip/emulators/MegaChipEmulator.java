@@ -6,7 +6,7 @@ import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
-import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.EmulatorController;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 

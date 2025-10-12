@@ -6,7 +6,7 @@ import java.awt.event.KeyEvent;
 import java.util.function.IntUnaryOperator;
 
 public enum KeyboardLayout {
-    QWERTY("qwerty", keyCode -> switch (keyCode) {
+    QWERTY("Qwerty", "qwerty", keyCode -> switch (keyCode) {
         case KeyEvent.VK_X -> 0x0;
         case KeyEvent.VK_1 -> 0x1;
         case KeyEvent.VK_2 -> 0x2;
@@ -25,7 +25,7 @@ public enum KeyboardLayout {
         case KeyEvent.VK_V -> 0xF;
         default -> -1;
     }),
-    DVORAK("dvorak", keyCode -> switch (keyCode) {
+    DVORAK("Dvorak", "dvorak", keyCode -> switch (keyCode) {
         case KeyEvent.VK_Q -> 0x0;
         case KeyEvent.VK_1 -> 0x1;
         case KeyEvent.VK_2 -> 0x2;
@@ -44,7 +44,7 @@ public enum KeyboardLayout {
         case KeyEvent.VK_K -> 0xF;
         default -> -1;
     }),
-    AZERTY("azerty", keyCode -> switch (keyCode) {
+    AZERTY("Azerty", "azerty", keyCode -> switch (keyCode) {
         case KeyEvent.VK_X -> 0x0;
         case KeyEvent.VK_1 -> 0x1;
         case KeyEvent.VK_2 -> 0x2;
@@ -63,7 +63,7 @@ public enum KeyboardLayout {
         case KeyEvent.VK_V -> 0xF;
         default -> -1;
     }),
-    COLEMAK("colemak", keyCode -> switch (keyCode) {
+    COLEMAK("Colemak", "colemak", keyCode -> switch (keyCode) {
         case KeyEvent.VK_X -> 0x0;
         case KeyEvent.VK_1 -> 0x1;
         case KeyEvent.VK_2 -> 0x2;
@@ -83,10 +83,12 @@ public enum KeyboardLayout {
         default -> -1;
     });
 
+    private final String displayName;
     private final String identifier;
     private final IntUnaryOperator keypadKeyCodeMapper;
 
-    KeyboardLayout(String identifier, IntUnaryOperator keypadKeyCodeMapper) {
+    KeyboardLayout(String displayName, String identifier, IntUnaryOperator keypadKeyCodeMapper) {
+        this.displayName = displayName;
         this.identifier = identifier;
         this.keypadKeyCodeMapper = keypadKeyCodeMapper;
     }
@@ -102,6 +104,10 @@ public enum KeyboardLayout {
             }
         }
         throw new IllegalArgumentException("Unknown keyboard layout: " + identifier);
+    }
+
+    public String getDisplayName() {
+        return this.displayName;
     }
 
     public static class Converter implements CommandLine.ITypeConverter<KeyboardLayout> {

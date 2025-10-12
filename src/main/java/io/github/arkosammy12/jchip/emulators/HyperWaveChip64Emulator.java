@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.HyperWaveChip64Processor;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.HyperWaveChip64Display;
 
 import java.awt.event.KeyAdapter;

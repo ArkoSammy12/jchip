@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.cpu.*;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
@@ -120,7 +121,6 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
         long frameTime = endOfFrame - startOfFrame;
-        //Logger.info(String.format("Frametime: %.3f ms", frameTime / 1_000_000.0));
         if (this.targetInstructionsPerFrame >= IPF_THROTTLE_THRESHOLD) {
             long adjust = (frameTime - Main.FRAME_INTERVAL) / 100;
             this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);

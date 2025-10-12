@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.util;
 
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.emulators.*;
 import picocli.CommandLine;
 
@@ -17,7 +18,8 @@ public enum Chip8Variant {
     ),
     CHIP_8X(
             Chip8XEmulator::new,
-            "chip-8x", "CHIP-8X",
+            "chip-8x",
+            "CHIP-8X",
             new String[]{"chip8x"},
             new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11),
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)

@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 
 import javax.swing.*;
 import java.awt.*;

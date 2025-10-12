@@ -1,8 +1,7 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.util.ColorPalette;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;

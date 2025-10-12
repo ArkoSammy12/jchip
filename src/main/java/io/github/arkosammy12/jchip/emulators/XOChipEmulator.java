@@ -5,13 +5,11 @@ import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
-import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
-
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
 public class XOChipEmulator<D extends XOChipDisplay, S extends Chip8SoundSystem> extends SChipEmulator<D, S> {
 

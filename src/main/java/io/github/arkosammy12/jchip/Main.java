@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
-import io.github.arkosammy12.jchip.util.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import org.tinylog.Logger;
 
 public class Main {
