@@ -113,6 +113,7 @@ If a ROM is not in the database, the emulator defaults to the **CHIP-8** variant
 - [Gulrak – Opcode & Quirks Table](https://chip8.gulrak.net/)
 - [Gulrak – Cadmium Emulator](https://github.com/gulrak/cadmium)
 - [Gulrak - Cadmium Web Version](https://games.gulrak.net/cadmium-wip/)
+- [Gulrak - Variant Detection Test](https://github.com/gulrak/cadmium/wiki/Variant-Detection-Test)
 - [Gulrak - CHIP‑8 1dcell.ch8 Emulator Benchmarks](https://chip8.gulrak.net/1dcell)
 - [Gulrak - Chiplet](https://github.com/gulrak/chiplet?tab=readme-ov-file)
 - [LordZorgath - MOSES](https://github.com/LordZorgath/MOSES)
