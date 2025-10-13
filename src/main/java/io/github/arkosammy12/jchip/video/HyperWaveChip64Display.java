@@ -25,7 +25,7 @@ public class HyperWaveChip64Display extends XOChipDisplay {
         this.drawingMode = DrawingMode.XOR;
     }
 
-    public void setDrawingMode(DrawingMode drawingMode) {
+    public synchronized void setDrawingMode(DrawingMode drawingMode) {
         this.drawingMode = drawingMode;
     }
 

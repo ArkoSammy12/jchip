@@ -83,27 +83,27 @@ public class MegaChipDisplay extends SChipDisplay {
         };
     }
 
-    public void setSpriteWidth(int width) {
+    public synchronized void setSpriteWidth(int width) {
         this.spriteWidth = width < 1 ? 256 : width;
     }
 
-    public int getSpriteWidth() {
+    public synchronized int getSpriteWidth() {
         return this.spriteWidth;
     }
 
-    public void setSpriteHeight(int height) {
+    public synchronized void setSpriteHeight(int height) {
         this.spriteHeight = height < 1 ? 256 : height;
     }
 
-    public int getSpriteHeight() {
+    public synchronized int getSpriteHeight() {
         return this.spriteHeight;
     }
 
-    public void setScreenAlpha(int alpha) {
+    public synchronized void setScreenAlpha(int alpha) {
         this.screenAlpha = alpha;
     }
 
-    public void setBlendMode(BlendMode blendMode) {
+    public synchronized void setBlendMode(BlendMode blendMode) {
         this.blendMode = blendMode;
     }
 
@@ -114,11 +114,11 @@ public class MegaChipDisplay extends SChipDisplay {
         this.colorPalette[index] = argb ;
     }
 
-    public void setCollisionIndex(int index) {
+    public synchronized void setCollisionIndex(int index) {
         this.collisionIndex = index & 0xFF;
     }
 
-    public int getCollisionIndex() {
+    public synchronized int getCollisionIndex() {
         return this.collisionIndex;
     }
 

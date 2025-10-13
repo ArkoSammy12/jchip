@@ -50,11 +50,11 @@ public class SChipDisplay extends Chip8Display {
         };
     }
 
-    public void setExtendedMode(boolean extendedMode) {
+    public synchronized void setExtendedMode(boolean extendedMode) {
         this.extendedMode = extendedMode;
     }
 
-    public boolean isExtendedMode() {
+    public synchronized boolean isExtendedMode() {
         return this.extendedMode;
     }
 
