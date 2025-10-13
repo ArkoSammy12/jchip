@@ -16,27 +16,27 @@ public class XOChipDisplay extends SChipDisplay {
     }
 
     @Override
-    public void reset() {
+    public synchronized void reset() {
         super.reset();
         this.selectedBitPlanes = 1;
     }
 
-    public void setSelectedBitPlanes(int selectedBitPlanes) {
+    public synchronized void setSelectedBitPlanes(int selectedBitPlanes) {
         this.selectedBitPlanes = selectedBitPlanes;
     }
 
-    public int getSelectedBitPlanes() {
+    public synchronized int getSelectedBitPlanes() {
         return this.selectedBitPlanes;
     }
 
-    public boolean togglePixelAtBitPlanes(int column, int row, int bitPlaneMask) {
+    public synchronized boolean togglePixelAtBitPlanes(int column, int row, int bitPlaneMask) {
         boolean collision = (this.bitplaneBuffer[column][row] & bitPlaneMask) != 0;
         this.bitplaneBuffer[column][row] ^= bitPlaneMask;
         return collision;
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public void scrollUp(int scrollAmount) {
+    public synchronized void scrollUp(int scrollAmount) {
         int trueScrollAmount = this.extendedMode ? scrollAmount : scrollAmount * 2;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
@@ -69,7 +69,7 @@ public class XOChipDisplay extends SChipDisplay {
 
     @Override
     @SuppressWarnings("DuplicatedCode")
-    public void scrollDown(int scrollAmount) {
+    public synchronized void scrollDown(int scrollAmount) {
         int trueScrollAmount = this.extendedMode ? scrollAmount : scrollAmount * 2;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
@@ -99,7 +99,7 @@ public class XOChipDisplay extends SChipDisplay {
 
     @Override
     @SuppressWarnings("DuplicatedCode")
-    public void scrollRight() {
+    public synchronized void scrollRight() {
         int scrollAmount = this.extendedMode ? 4 : 8;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
@@ -129,7 +129,7 @@ public class XOChipDisplay extends SChipDisplay {
 
     @Override
     @SuppressWarnings("DuplicatedCode")
-    public void scrollLeft() {
+    public synchronized void scrollLeft() {
         int scrollAmount = this.extendedMode ? 4 : 8;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
@@ -161,7 +161,7 @@ public class XOChipDisplay extends SChipDisplay {
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;

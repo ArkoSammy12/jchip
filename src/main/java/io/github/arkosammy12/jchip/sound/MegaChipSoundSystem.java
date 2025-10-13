@@ -86,13 +86,11 @@ public class MegaChipSoundSystem implements SoundSystem {
         }
 
         byte[] data = new byte[SAMPLES_PER_FRAME];
-
         if (!this.isPlaying) {
             Arrays.fill(data, (byte) 0);
             audioLine.write(data, 0, data.length);
             return;
         }
-
         float scale = this.volume / (float) MAX_VOLUME;
         for (int i = 0; i < data.length; i++) {
             if (loop && this.samplePos >= this.trackSize) {
@@ -105,7 +103,6 @@ public class MegaChipSoundSystem implements SoundSystem {
                 data[i] = 0;
             }
         }
-
         audioLine.write(data, 0, data.length);
     }
 
@@ -118,4 +115,3 @@ public class MegaChipSoundSystem implements SoundSystem {
         }
     }
 }
-

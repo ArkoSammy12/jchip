@@ -8,28 +8,26 @@ import io.github.arkosammy12.jchip.config.EmulatorConfig;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.Closeable;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class Display implements Closeable {
 
     protected final Chip8Variant chip8Variant;
-
     protected final int displayWidth;
     protected final int displayHeight;
-    private final int pixelScale;
 
-    private final Renderer renderer;
     private final JFrame frame;
+    private final Renderer renderer;
     private final DisplayAngle displayAngle;
-
     private final String romTitle;
+
     private long lastWindowTitleUpdate = 0;
     private long lastFrameTime = System.nanoTime();
     private int framesSinceLastUpdate = 0;
@@ -38,66 +36,62 @@ public abstract class Display implements Closeable {
 
     private final StringBuilder stringBuilder = new StringBuilder(128);
 
+    private volatile boolean running = true;
+    private volatile boolean frameRequested = false;
+
+    private final Object renderLock = new Object();
+    private final Thread renderThread;
+
     public Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
         String romTitle = config.getProgramTitle();
-        if (romTitle == null) {
-            this.romTitle = "";
-        } else {
-            this.romTitle = " | " + romTitle;
-        }
+        this.romTitle = (romTitle == null) ? "" : " | " + romTitle;
 
-        this.displayWidth = this.getImageWidth();
-        this.displayHeight = this.getImageHeight();
         this.chip8Variant = config.getConsoleVariant();
         this.displayAngle = config.getDisplayAngle();
-        this.pixelScale = getImageScale(this.displayAngle);
+        this.displayWidth = getImageWidth();
+        this.displayHeight = getImageHeight();
 
-        int windowWidth;
-        int windowHeight;
-        switch (displayAngle) {
-            case DEG_90, DEG_270 -> {
-                windowWidth = this.displayHeight * this.pixelScale;
-                windowHeight = this.displayWidth * this.pixelScale;
-            }
-            default -> {
-                windowWidth = this.displayWidth * this.pixelScale;
-                windowHeight = this.displayHeight * this.pixelScale;
-            }
-        }
+        int initialScale = getImageScale(this.displayAngle);
+        int windowWidth = displayWidth * initialScale;
+        int windowHeight = displayHeight * initialScale;
 
-        Dimension windowSize = new Dimension(windowWidth, windowHeight);
         this.renderer = new Renderer();
-        JFrame tempFrame = new JFrame();
+        this.frame = new JFrame();
 
-        try {
-            SwingUtilities.invokeAndWait(() -> {
-                renderer.setPreferredSize(windowSize);
-                renderer.setMinimumSize(windowSize);
-                renderer.setMaximumSize(windowSize);
-                keyAdapters.forEach(renderer::addKeyListener);
-                renderer.setFocusable(true);
-                renderer.requestFocus();
-                renderer.setVisible(true);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        renderer.setPreferredSize(new Dimension(windowWidth, windowHeight));
+        renderer.setFocusable(true);
+        keyAdapters.forEach(renderer::addKeyListener);
 
-                tempFrame.add(renderer);
-                tempFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                tempFrame.getContentPane().setPreferredSize(windowSize);
-                tempFrame.getContentPane().setMinimumSize(windowSize);
-                tempFrame.getContentPane().setMaximumSize(windowSize);
-                tempFrame.pack();
-                tempFrame.setAutoRequestFocus(true);
-                tempFrame.setLocation(30, 20);
-                tempFrame.setResizable(false);
-                tempFrame.setVisible(true);
-            });
-        } catch (InterruptedException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to initialize display", e);
-        }
-        this.frame = tempFrame;
+        frame.setBackground(Color.BLACK);
+        frame.getContentPane().setBackground(Color.BLACK);
+        frame.getContentPane().add(renderer);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setIgnoreRepaint(false);
+        frame.pack();
+
+        int x = (screenSize.width - frame.getWidth()) / 2;
+        int y = (screenSize.height - frame.getHeight()) / 2;
+        frame.setLocation(x, y - 15);
+        frame.setMinimumSize(new Dimension(displayWidth * (initialScale / 2), displayHeight * (initialScale / 2)));
+        frame.setMaximumSize(screenSize);
+        frame.setVisible(true);
+        frame.setResizable(true);
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                renderer.requestFocusInWindow();
+            }
+        });
+
+        renderThread = new Thread(this::renderLoop, "jchip-Render-Thread");
+        renderThread.setDaemon(true);
+        renderThread.start();
     }
 
     public HexSpriteFont getCharacterSpriteFont() {
-        return this.chip8Variant.getSpriteFont();
+        return chip8Variant.getSpriteFont();
     }
 
     public abstract int getWidth();
@@ -115,90 +109,143 @@ public abstract class Display implements Closeable {
     public abstract void clear();
 
     public void flush(int currentInstructionsPerFrame) {
-        this.renderer.render();
-        String title = this.getWindowTitle(currentInstructionsPerFrame);
-        if (title != null) {
-            SwingUtilities.invokeLater(() -> this.frame.setTitle(title));
+        this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
+        synchronized (this.renderLock) {
+            this.frameRequested = true;
+            this.renderLock.notify();
         }
     }
 
-    private String getWindowTitle(int currentInstructionsPerFrame) {
+    private void renderLoop() {
+        while (this.running) {
+            synchronized (this.renderLock) {
+                while (!this.frameRequested) {
+                    try {
+                        this.renderLock.wait();
+                    } catch (InterruptedException ignored) {}
+                }
+                this.frameRequested = false;
+            }
+            this.renderer.render();
+            this.updateWindowTitle();
+        }
+    }
+
+    private void updateWindowTitle() {
         long now = System.nanoTime();
-        double lastFrameDuration = now - this.lastFrameTime;
-        this.lastFrameTime = now;
-        this.totalFrameTimeSinceLastUpdate += lastFrameDuration;
-        this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
-        this.framesSinceLastUpdate++;
+        double lastFrameDuration = now - lastFrameTime;
+        lastFrameTime = now;
+        totalFrameTimeSinceLastUpdate += lastFrameDuration;
+        framesSinceLastUpdate++;
+
         long deltaTime = now - lastWindowTitleUpdate;
         if (deltaTime < 1_000_000_000L) {
-            return null;
+            return;
         }
-        double lastFps = this.framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
-        long averageInstructionsPerFrame = this.totalIpfSinceLastUpdate / this.framesSinceLastUpdate;
-        double averageFrameTimeMs = (this.totalFrameTimeSinceLastUpdate / this.framesSinceLastUpdate) / 1_000_000.0;
-        double mips = (averageInstructionsPerFrame * lastFps) / 1_000_000;
-        this.framesSinceLastUpdate = 0;
-        this.totalFrameTimeSinceLastUpdate = 0;
-        this.totalIpfSinceLastUpdate = 0;
-        this.lastWindowTitleUpdate = now;
+
+        double fps = framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
+        long averageIpf = totalIpfSinceLastUpdate / framesSinceLastUpdate;
+        double averageFrameTimeMs = (totalFrameTimeSinceLastUpdate / framesSinceLastUpdate) / 1_000_000.0;
+        double mips = (averageIpf * fps) / 1_000_000.0;
+
+        framesSinceLastUpdate = 0;
+        totalIpfSinceLastUpdate = 0;
+        totalFrameTimeSinceLastUpdate = 0;
+        lastWindowTitleUpdate = now;
 
         stringBuilder.append("jchip ").append(Main.VERSION_STRING)
                 .append(" | ").append(chip8Variant.getDisplayName())
                 .append(romTitle)
-                .append(" | IPF: ").append(averageInstructionsPerFrame)
-                .append(" | MIPS: ").append((long)(mips * 100) / 100.0)  // round to 2 decimals
-                .append(" | Frame Time: ").append((long)(averageFrameTimeMs * 100) / 100.0)
-                .append(" ms | FPS: ").append((long)(lastFps * 100) / 100.0);
+                .append(" | IPF: ").append(averageIpf)
+                .append(" | MIPS: ").append(String.format("%.2f", mips))
+                .append(" | Frame Time: ").append(String.format("%.2f ms", averageFrameTimeMs))
+                .append(" | FPS: ").append(String.format("%.2f", fps));
 
-        String titleString = stringBuilder.toString();
+        String title = stringBuilder.toString();
         stringBuilder.setLength(0);
-        return titleString;
+
+        SwingUtilities.invokeLater(() -> frame.setTitle(title));
     }
 
+    @Override
     public void close() {
-        SwingUtilities.invokeLater(this.frame::dispose);
+        this.running = false;
+        synchronized (this.renderLock) {
+            this.renderLock.notify();
+        }
+        try {
+            this.renderThread.join();
+        } catch (InterruptedException ignored) {}
+        SwingUtilities.invokeLater(frame::dispose);
     }
 
     private class Renderer extends Canvas {
-
         private final BufferedImage backBuffer;
-        private final AffineTransform imageTransform;
+        private final AffineTransform rotationTransform;
+        private final AffineTransform drawTransform = new AffineTransform();
+        private int lastWidth = -1;
+        private int lastHeight = -1;
 
         private Renderer() {
             backBuffer = new BufferedImage(displayWidth, displayHeight, BufferedImage.TYPE_INT_ARGB);
-            imageTransform = new AffineTransform();
-            int scaledWidth = displayWidth * pixelScale;
-            int scaledHeight = displayHeight * pixelScale;
+            setIgnoreRepaint(false);
+
+            this.rotationTransform = new AffineTransform();
             switch (displayAngle) {
                 case DEG_90 -> {
-                    imageTransform.translate(scaledHeight, 0);
-                    imageTransform.rotate(Math.toRadians(90));
+                    this.rotationTransform.translate(displayHeight, 0);
+                    this.rotationTransform.rotate(Math.toRadians(90));
                 }
                 case DEG_180 -> {
-                    imageTransform.translate(scaledWidth, scaledHeight);
-                    imageTransform.rotate(Math.toRadians(180));
+                    this.rotationTransform.translate(displayWidth, displayHeight);
+                    this.rotationTransform.rotate(Math.toRadians(180));
                 }
                 case DEG_270 -> {
-                    imageTransform.translate(0, scaledWidth);
-                    imageTransform.rotate(Math.toRadians(270));
+                    this.rotationTransform.translate(0, displayWidth);
+                    this.rotationTransform.rotate(Math.toRadians(270));
                 }
+                default -> {}
             }
-            imageTransform.scale(pixelScale, pixelScale);
+        }
+
+        private void updateTransformIfNeeded() {
+            double windowWidth = getWidth();
+            double windowHeight = getHeight();
+            if (windowWidth != lastWidth || windowHeight != lastHeight) {
+                double logicalWidth = (displayAngle == DisplayAngle.DEG_90 || displayAngle == DisplayAngle.DEG_270)
+                        ? displayHeight : displayWidth;
+                double logicalHeight = (displayAngle == DisplayAngle.DEG_90 || displayAngle == DisplayAngle.DEG_270)
+                        ? displayWidth : displayHeight;
+                double scale = Math.min(windowWidth / logicalWidth, windowHeight / logicalHeight);
+                double scaledWidth = logicalWidth * scale;
+                double scaledHeight = logicalHeight * scale;
+                double offsetX = (windowWidth - scaledWidth) / 2.0;
+                double offsetY = (windowHeight - scaledHeight) / 2.0;
+                drawTransform.setToIdentity();
+                drawTransform.translate(offsetX, offsetY);
+                drawTransform.scale(scale, scale);
+                drawTransform.concatenate(rotationTransform);
+                lastWidth = (int) windowWidth;
+                lastHeight = (int) windowHeight;
+            }
         }
 
         private void render() {
-            fillImageBuffer(((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData());
             BufferStrategy bufferStrategy = getBufferStrategy();
             if (bufferStrategy == null) {
                 createBufferStrategy(3);
                 return;
             }
+            updateTransformIfNeeded();
+            int[] pixels = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
+            Arrays.fill(pixels, 0xFF000000);
+            fillImageBuffer(pixels);
             Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            g.drawImage(backBuffer, imageTransform, null);
+            g.drawImage(backBuffer, drawTransform, null);
             g.dispose();
             bufferStrategy.show();
+            Toolkit.getDefaultToolkit().sync();
         }
     }
-
 }

@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -17,7 +17,7 @@ public class SChipDisplay extends Chip8Display {
     }
 
     @Override
-    public void reset() {
+    public synchronized void reset() {
         super.reset();
         this.extendedMode = false;
     }
@@ -58,15 +58,15 @@ public class SChipDisplay extends Chip8Display {
         return this.extendedMode;
     }
 
-    public void setPixel(int column, int row, int value) {
+    public synchronized void setPixel(int column, int row, int value) {
         this.bitplaneBuffer[column][row] = value;
     }
 
-    public int getPixel(int column, int row) {
+    public synchronized int getPixel(int column, int row) {
         return this.bitplaneBuffer[column][row];
     }
 
-    public void scrollDown(int scrollAmount) {
+    public synchronized void scrollDown(int scrollAmount) {
         int trueScrollAmount;
         if (!this.isModern) {
             trueScrollAmount = scrollAmount;
@@ -94,7 +94,7 @@ public class SChipDisplay extends Chip8Display {
 
     }
 
-    public void scrollRight() {
+    public synchronized void scrollRight() {
         int scrollAmount;
         if (!this.isModern) {
             scrollAmount = 4;
@@ -123,7 +123,7 @@ public class SChipDisplay extends Chip8Display {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public void scrollLeft() {
+    public synchronized void scrollLeft() {
         int scrollAmount;
         if (!this.isModern) {
             scrollAmount = 4;

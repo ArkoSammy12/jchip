@@ -11,6 +11,7 @@ import io.github.arkosammy12.jchip.video.Chip8Display;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;

@@ -39,7 +39,7 @@ public class Chip8XDisplay extends Chip8Display {
     }
 
     @Override
-    public void reset() {
+    public synchronized void reset() {
         super.reset();
         this.backgroundColorIndex = 0;
         this.extendedColorDraw = false;
@@ -53,20 +53,20 @@ public class Chip8XDisplay extends Chip8Display {
         }
     }
 
-    public void cycleBackgroundColor() {
+    public synchronized void cycleBackgroundColor() {
         this.backgroundColorIndex = (backgroundColorIndex + 1) % BACKGROUND_COLORS.length;
     }
 
-    public void setForegroundColor(int column, int row, int colorIndex) {
+    public synchronized void setForegroundColor(int column, int row, int colorIndex) {
         this.foregroundColorIndexes[column][row] = colorIndex;
     }
 
-    public void setExtendedColorDraw(boolean extendedColorDraw) {
+    public synchronized void setExtendedColorDraw(boolean extendedColorDraw) {
         this.extendedColorDraw = extendedColorDraw;
     }
 
     @Override
-    protected void fillImageBuffer(int[] buffer) {
+    protected synchronized void fillImageBuffer(int[] buffer) {
         if (this.extendedColorDraw) {
             for (int y = 0; y < displayHeight; y++) {
                 int base = y * displayWidth;

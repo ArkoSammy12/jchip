@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -28,7 +28,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @Override
-    public void reset() {
+    public synchronized void reset() {
         super.reset();
         this.colorPalette[0] = 0x00000000;
         this.colorPalette[255] = 0xFFFFFFFF;
@@ -107,7 +107,7 @@ public class MegaChipDisplay extends SChipDisplay {
         this.blendMode = blendMode;
     }
 
-    public void loadPaletteEntry(int index, int argb) {
+    public synchronized void loadPaletteEntry(int index, int argb) {
         if (index < 1) {
             return;
         }
@@ -122,28 +122,28 @@ public class MegaChipDisplay extends SChipDisplay {
         return this.collisionIndex;
     }
 
-    public int getColorForIndex(int index) {
+    public synchronized int getColorForIndex(int index) {
         return this.colorPalette[index];
     }
 
-    public int getColorIndexAt(int column, int row) {
+    public synchronized int getColorIndexAt(int column, int row) {
         return this.indexBuffer[column][row];
     }
 
-    public void setMegaChipMode(boolean value) {
+    public synchronized void setMegaChipMode(boolean value) {
         this.megaChipModeEnabled = value;
     }
 
-    public boolean isMegaChipModeEnabled() {
+    public synchronized boolean isMegaChipModeEnabled() {
         return this.megaChipModeEnabled;
     }
 
-    public void setDisplayUpdateScrollTriggered() {
+    public synchronized void setDisplayUpdateScrollTriggered() {
         this.scrollTriggered = true;
     }
 
     @Override
-    public void setPixel(int column, int row, int val) {
+    public synchronized void setPixel(int column, int row, int val) {
         if (!this.isMegaChipModeEnabled()) {
             super.setPixel(column, row, val);
             return;
@@ -159,13 +159,13 @@ public class MegaChipDisplay extends SChipDisplay {
         this.indexBuffer[column][row] = val;
     }
 
-    public void drawFontPixel(int column, int row) {
+    public synchronized void drawFontPixel(int column, int row) {
         // Use hardcoded opaque white for drawing font pixels, and set the index buffer to 255
         this.backBuffer[column][row] = 0xFFFFFFFF;
         this.indexBuffer[column][row] = 255;
     }
 
-    public void scrollUp(int scrollAmount) {
+    public synchronized void scrollUp(int scrollAmount) {
         for (int i = 0; i < this.displayHeight; i++) {
             int shiftedVerticalPosition = i - scrollAmount;
             if (shiftedVerticalPosition < 0) {
@@ -185,7 +185,7 @@ public class MegaChipDisplay extends SChipDisplay {
         }
     }
 
-    public void scrollDown(int scrollAmount) {
+    public synchronized void scrollDown(int scrollAmount) {
         if (!isMegaChipModeEnabled()) {
             super.scrollDown(scrollAmount);
             return;
@@ -208,7 +208,7 @@ public class MegaChipDisplay extends SChipDisplay {
 
     }
 
-    public void scrollRight() {
+    public synchronized void scrollRight() {
         if (!isMegaChipModeEnabled()) {
             super.scrollRight();
             return;
@@ -231,7 +231,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public void scrollLeft() {
+    public synchronized void scrollLeft() {
         if (!isMegaChipModeEnabled()) {
             super.scrollLeft();
             return;
@@ -258,7 +258,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @Override
-    protected void fillImageBuffer(int[] buffer) {
+    protected synchronized void fillImageBuffer(int[] buffer) {
         if (this.isMegaChipModeEnabled()) {
             for (int y = 0; y < displayHeight; y++) {
                 int base = y * displayWidth;
@@ -305,7 +305,7 @@ public class MegaChipDisplay extends SChipDisplay {
         }
     }
 
-    public void flushBackBuffer() {
+    public synchronized void flushBackBuffer() {
         this.scrollTriggered = false;
         for (int i = 0; i < this.backBuffer.length; i++) {
             System.arraycopy(this.backBuffer[i], 0, this.frontBuffer[i], 0, this.backBuffer[i].length);
@@ -314,7 +314,7 @@ public class MegaChipDisplay extends SChipDisplay {
 
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         if (!isMegaChipModeEnabled()) {
             super.clear();
             return;

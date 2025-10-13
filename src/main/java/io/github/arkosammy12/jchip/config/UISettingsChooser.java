@@ -37,10 +37,6 @@ public class UISettingsChooser implements PrimarySettingsProvider {
     }
 
     private void showUI() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
-
         JDialog dialog = new JDialog(null, String.format("jchip %s - Setup", Main.VERSION_STRING), Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setSize(400, 550);
