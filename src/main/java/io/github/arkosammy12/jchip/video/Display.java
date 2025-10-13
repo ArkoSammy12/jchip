@@ -16,6 +16,7 @@ import java.awt.image.DataBufferInt;
 import java.io.Closeable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 public abstract class Display implements Closeable {
 
@@ -40,6 +41,7 @@ public abstract class Display implements Closeable {
     private volatile boolean frameRequested = false;
 
     private final Object renderLock = new Object();
+    protected final Object renderBufferLock = new Object();
     private final Thread renderThread;
 
     public Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
@@ -104,12 +106,15 @@ public abstract class Display implements Closeable {
 
     protected abstract int getImageScale(DisplayAngle displayAngle);
 
+    protected abstract void updateRenderBuffer();
+
     protected abstract void fillImageBuffer(int[] buffer);
 
     public abstract void clear();
 
     public void flush(int currentInstructionsPerFrame) {
         this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
+        this.updateRenderBuffer();
         synchronized (this.renderLock) {
             this.frameRequested = true;
             this.renderLock.notify();
@@ -117,17 +122,22 @@ public abstract class Display implements Closeable {
     }
 
     private void renderLoop() {
-        while (this.running) {
-            synchronized (this.renderLock) {
-                while (!this.frameRequested) {
-                    try {
-                        this.renderLock.wait();
-                    } catch (InterruptedException ignored) {}
+        try {
+            while (this.running) {
+                synchronized (this.renderLock) {
+                    while (!this.frameRequested) {
+                        try {
+                            this.renderLock.wait();
+                        } catch (InterruptedException ignored) {
+                        }
+                    }
+                    this.frameRequested = false;
                 }
-                this.frameRequested = false;
+                this.renderer.render();
+                this.updateWindowTitle();
             }
-            this.renderer.render();
-            this.updateWindowTitle();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -173,9 +183,6 @@ public abstract class Display implements Closeable {
         synchronized (this.renderLock) {
             this.renderLock.notify();
         }
-        try {
-            this.renderThread.join();
-        } catch (InterruptedException ignored) {}
         SwingUtilities.invokeLater(frame::dispose);
     }
 

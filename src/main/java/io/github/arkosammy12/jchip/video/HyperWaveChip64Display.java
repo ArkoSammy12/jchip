@@ -19,22 +19,22 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     }
 
     @Override
-    public synchronized void reset() {
+    public void reset() {
         super.reset();
         Arrays.fill(this.colorPalette, 0xFF000000);
         this.drawingMode = DrawingMode.XOR;
     }
 
-    public synchronized void setDrawingMode(DrawingMode drawingMode) {
+    public void setDrawingMode(DrawingMode drawingMode) {
         this.drawingMode = drawingMode;
     }
 
-    public synchronized void setPaletteEntry(int index, int value) {
+    public void setPaletteEntry(int index, int value) {
         this.colorPalette[index] = FULL_OPAQUE_MASK | value;
     }
 
     @Override
-    public synchronized boolean togglePixelAtBitPlanes(int column, int row, int bitPlaneMask) {
+    public boolean togglePixelAtBitPlanes(int column, int row, int bitPlaneMask) {
         boolean collision = (this.bitplaneBuffer[column][row] & bitPlaneMask) != 0;
         switch (this.drawingMode) {
             case OR -> this.bitplaneBuffer[column][row] |= bitPlaneMask;
@@ -44,7 +44,7 @@ public class HyperWaveChip64Display extends XOChipDisplay {
         return collision;
     }
 
-    public synchronized void invert() {
+    public void invert() {
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.getSelectedBitPlanes()) == 0) {
                 continue;
@@ -58,11 +58,12 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     }
 
     @Override
-    protected synchronized void fillImageBuffer(int[] buffer) {
-        for (int y = 0; y < displayHeight; y++) {
-            int base = y * displayWidth;
-            for (int x = 0; x < displayWidth; x++) {
-                buffer[base + x] = this.colorPalette[bitplaneBuffer[x][y] & 0xF];
+    protected void updateRenderBuffer() {
+        synchronized (this.renderBufferLock) {
+            for (int y = 0; y < displayHeight; y++) {
+                for (int x = 0; x < displayWidth; x++) {
+                    this.renderBuffer[x][y] = this.colorPalette[bitplaneBuffer[x][y] & 0xF];
+                }
             }
         }
     }

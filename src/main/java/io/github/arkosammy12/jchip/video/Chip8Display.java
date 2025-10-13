@@ -2,25 +2,27 @@ package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
+import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class Chip8Display extends Display {
 
     protected final ColorPalette colorPalette;
 
     protected final int[][] bitplaneBuffer;
+    protected final int[][] renderBuffer;
 
     public Chip8Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
         super(config, keyAdapters);
         this.bitplaneBuffer = new int[this.getImageWidth()][this.getImageHeight()];
+        this.renderBuffer = new int[this.getImageWidth()][this.getImageHeight()];
         this.colorPalette = config.getColorPalette();
     }
 
-    public synchronized void reset() {
+    public void reset() {
         for (int i = 0; i < bitplaneBuffer.length; i++) {
             for (int j = 0; j < bitplaneBuffer[i].length; j++) {
                 this.bitplaneBuffer[i][j] = 0;
@@ -48,14 +50,14 @@ public class Chip8Display extends Display {
         return 32;
     }
 
-    public synchronized boolean togglePixel(int column, int row) {
+    public boolean togglePixel(int column, int row) {
         int current = this.bitplaneBuffer[column][row];
         this.bitplaneBuffer[column][row] ^= 1;
         return current != 0;
     }
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         for (int[] ints : this.bitplaneBuffer) {
             Arrays.fill(ints, 0);
         }
@@ -70,11 +72,24 @@ public class Chip8Display extends Display {
     }
 
     @Override
-    protected synchronized void fillImageBuffer(int[] buffer) {
-        for (int y = 0; y < displayHeight; y++) {
-            int base = y * displayWidth;
-            for (int x = 0; x < displayWidth; x++) {
-                buffer[base + x] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
+    protected void updateRenderBuffer() {
+        synchronized (this.renderBufferLock) {
+            for (int y = 0; y < displayHeight; y++) {
+                for (int x = 0; x < displayWidth; x++) {
+                    this.renderBuffer[x][y] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void fillImageBuffer(int[] buffer) {
+        synchronized (this.renderBufferLock) {
+            for (int y = 0; y < displayHeight; y++) {
+                int base = y * displayWidth;
+                for (int x = 0; x < displayWidth; x++) {
+                    buffer[base + x] = this.renderBuffer[x][y];
+                }
             }
         }
     }

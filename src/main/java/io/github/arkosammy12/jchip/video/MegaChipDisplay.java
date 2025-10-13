@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
+import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -28,7 +29,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @Override
-    public synchronized void reset() {
+    public void reset() {
         super.reset();
         this.colorPalette[0] = 0x00000000;
         this.colorPalette[255] = 0xFFFFFFFF;
@@ -83,67 +84,67 @@ public class MegaChipDisplay extends SChipDisplay {
         };
     }
 
-    public synchronized void setSpriteWidth(int width) {
+    public void setSpriteWidth(int width) {
         this.spriteWidth = width < 1 ? 256 : width;
     }
 
-    public synchronized int getSpriteWidth() {
+    public int getSpriteWidth() {
         return this.spriteWidth;
     }
 
-    public synchronized void setSpriteHeight(int height) {
+    public void setSpriteHeight(int height) {
         this.spriteHeight = height < 1 ? 256 : height;
     }
 
-    public synchronized int getSpriteHeight() {
+    public int getSpriteHeight() {
         return this.spriteHeight;
     }
 
-    public synchronized void setScreenAlpha(int alpha) {
+    public void setScreenAlpha(int alpha) {
         this.screenAlpha = alpha;
     }
 
-    public synchronized void setBlendMode(BlendMode blendMode) {
+    public void setBlendMode(BlendMode blendMode) {
         this.blendMode = blendMode;
     }
 
-    public synchronized void loadPaletteEntry(int index, int argb) {
+    public void loadPaletteEntry(int index, int argb) {
         if (index < 1) {
             return;
         }
         this.colorPalette[index] = argb ;
     }
 
-    public synchronized void setCollisionIndex(int index) {
+    public void setCollisionIndex(int index) {
         this.collisionIndex = index & 0xFF;
     }
 
-    public synchronized int getCollisionIndex() {
+    public int getCollisionIndex() {
         return this.collisionIndex;
     }
 
-    public synchronized int getColorForIndex(int index) {
+    public int getColorForIndex(int index) {
         return this.colorPalette[index];
     }
 
-    public synchronized int getColorIndexAt(int column, int row) {
+    public int getColorIndexAt(int column, int row) {
         return this.indexBuffer[column][row];
     }
 
-    public synchronized void setMegaChipMode(boolean value) {
+    public void setMegaChipMode(boolean value) {
         this.megaChipModeEnabled = value;
     }
 
-    public synchronized boolean isMegaChipModeEnabled() {
+    public boolean isMegaChipModeEnabled() {
         return this.megaChipModeEnabled;
     }
 
-    public synchronized void setDisplayUpdateScrollTriggered() {
+    public void setDisplayUpdateScrollTriggered() {
         this.scrollTriggered = true;
     }
 
     @Override
-    public synchronized void setPixel(int column, int row, int val) {
+    public void setPixel(int column, int row, int val) {
         if (!this.isMegaChipModeEnabled()) {
             super.setPixel(column, row, val);
             return;
@@ -159,13 +160,13 @@ public class MegaChipDisplay extends SChipDisplay {
         this.indexBuffer[column][row] = val;
     }
 
-    public synchronized void drawFontPixel(int column, int row) {
+    public void drawFontPixel(int column, int row) {
         // Use hardcoded opaque white for drawing font pixels, and set the index buffer to 255
         this.backBuffer[column][row] = 0xFFFFFFFF;
         this.indexBuffer[column][row] = 255;
     }
 
-    public synchronized void scrollUp(int scrollAmount) {
+    public void scrollUp(int scrollAmount) {
         for (int i = 0; i < this.displayHeight; i++) {
             int shiftedVerticalPosition = i - scrollAmount;
             if (shiftedVerticalPosition < 0) {
@@ -185,7 +186,7 @@ public class MegaChipDisplay extends SChipDisplay {
         }
     }
 
-    public synchronized void scrollDown(int scrollAmount) {
+    public void scrollDown(int scrollAmount) {
         if (!isMegaChipModeEnabled()) {
             super.scrollDown(scrollAmount);
             return;
@@ -208,7 +209,7 @@ public class MegaChipDisplay extends SChipDisplay {
 
     }
 
-    public synchronized void scrollRight() {
+    public void scrollRight() {
         if (!isMegaChipModeEnabled()) {
             super.scrollRight();
             return;
@@ -231,7 +232,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public synchronized void scrollLeft() {
+    public void scrollLeft() {
         if (!isMegaChipModeEnabled()) {
             super.scrollLeft();
             return;
@@ -258,46 +259,45 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @Override
-    protected synchronized void fillImageBuffer(int[] buffer) {
-        if (this.isMegaChipModeEnabled()) {
-            for (int y = 0; y < displayHeight; y++) {
-                int base = y * displayWidth;
-                for (int x = 0; x < displayWidth; x++) {
-                    int pixel = 0xFF000000;
-                    if (scrollTriggered) {
-                        int back = this.backBuffer[x][y];
-                        if ((back & 0xFF000000) != 0) {
-                            pixel = back;
+    protected void updateRenderBuffer() {
+        synchronized (this.renderBufferLock) {
+            if (this.isMegaChipModeEnabled()) {
+                for (int y = 0; y < displayHeight; y++) {
+                    for (int x = 0; x < displayWidth; x++) {
+                        int pixel = 0xFF000000;
+                        if (scrollTriggered) {
+                            int back = this.backBuffer[x][y];
+                            if ((back & 0xFF000000) != 0) {
+                                pixel = back;
+                            }
                         }
+                        int front = this.frontBuffer[x][y];
+                        if ((front & 0xFF000000) != 0) {
+                            pixel = front;
+                        }
+                        this.renderBuffer[x][y] = pixel;
                     }
-                    int front = this.frontBuffer[x][y];
-                    if ((front & 0xFF000000) != 0) {
-                        pixel = front;
+                }
+            } else {
+                for (int y = 0; y < displayHeight; y++) {
+                    for (int x = 0; x < displayWidth; x++) {
+                        this.renderBuffer[x][y] = 0xFF000000;
                     }
-                    buffer[base + x] = pixel;
                 }
-            }
-        } else {
-            for (int y = 0; y < displayHeight; y++) {
-                int base = y * displayWidth;
-                for (int x = 0; x < displayWidth; x++) {
-                    buffer[base + x] = 0xFF000000;
-                }
-            }
-            int displayWidth = super.getImageWidth();
-            int displayHeight = super.getImageHeight();
-            int xScale = 2;
-            int yScale = 2;
-            int yOffset = (this.displayHeight - displayHeight * yScale) / 2;
-            for (int sy = 0; sy < displayHeight; sy++) {
-                int baseY = yOffset + sy * yScale;
-                for (int sx = 0; sx < displayWidth; sx++) {
-                    int color = super.colorPalette.getColorARGB(this.bitplaneBuffer[sx][sy] & 0xF);
-                    int baseX = sx * xScale;
-                    for (int dy = 0; dy < yScale; dy++) {
-                        int rowBase = (baseY + dy) * this.displayWidth;
-                        for (int dx = 0; dx < xScale; dx++) {
-                            buffer[rowBase + baseX + dx] = color;
+                int displayWidth = super.getImageWidth();
+                int displayHeight = super.getImageHeight();
+                int xScale = 2;
+                int yScale = 2;
+                int yOffset = (this.displayHeight - displayHeight * yScale) / 2;
+                for (int sy = 0; sy < displayHeight; sy++) {
+                    int baseY = yOffset + sy * yScale;
+                    for (int sx = 0; sx < displayWidth; sx++) {
+                        int color = super.colorPalette.getColorARGB(this.bitplaneBuffer[sx][sy] & 0xF);
+                        int baseX = sx * xScale;
+                        for (int dy = 0; dy < yScale; dy++) {
+                            for (int dx = 0; dx < xScale; dx++) {
+                                this.renderBuffer[baseX + dx][baseY + dy] = color;
+                            }
                         }
                     }
                 }
@@ -305,7 +305,7 @@ public class MegaChipDisplay extends SChipDisplay {
         }
     }
 
-    public synchronized void flushBackBuffer() {
+    public void flushBackBuffer() {
         this.scrollTriggered = false;
         for (int i = 0; i < this.backBuffer.length; i++) {
             System.arraycopy(this.backBuffer[i], 0, this.frontBuffer[i], 0, this.backBuffer[i].length);
@@ -314,7 +314,7 @@ public class MegaChipDisplay extends SChipDisplay {
 
 
     @Override
-    public synchronized void clear() {
+    public void clear() {
         if (!isMegaChipModeEnabled()) {
             super.clear();
             return;

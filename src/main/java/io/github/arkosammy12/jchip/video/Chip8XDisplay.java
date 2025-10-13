@@ -39,7 +39,7 @@ public class Chip8XDisplay extends Chip8Display {
     }
 
     @Override
-    public synchronized void reset() {
+    public void reset() {
         super.reset();
         this.backgroundColorIndex = 0;
         this.extendedColorDraw = false;
@@ -53,39 +53,39 @@ public class Chip8XDisplay extends Chip8Display {
         }
     }
 
-    public synchronized void cycleBackgroundColor() {
+    public void cycleBackgroundColor() {
         this.backgroundColorIndex = (backgroundColorIndex + 1) % BACKGROUND_COLORS.length;
     }
 
-    public synchronized void setForegroundColor(int column, int row, int colorIndex) {
+    public void setForegroundColor(int column, int row, int colorIndex) {
         this.foregroundColorIndexes[column][row] = colorIndex;
     }
 
-    public synchronized void setExtendedColorDraw(boolean extendedColorDraw) {
+    public void setExtendedColorDraw(boolean extendedColorDraw) {
         this.extendedColorDraw = extendedColorDraw;
     }
 
     @Override
-    protected synchronized void fillImageBuffer(int[] buffer) {
-        if (this.extendedColorDraw) {
-            for (int y = 0; y < displayHeight; y++) {
-                int base = y * displayWidth;
-                for (int x = 0; x < displayWidth; x++) {
-                    buffer[base + x] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
+    protected void updateRenderBuffer() {
+        synchronized (this.renderBufferLock) {
+            if (this.extendedColorDraw) {
+                for (int y = 0; y < displayHeight; y++) {
+                    for (int x = 0; x < displayWidth; x++) {
+                        this.renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
+                    }
                 }
-            }
-        } else {
-            for (int i = 0; i < 8; i++) {
-                int zoneY = i * 4;
-                for (int j = 0; j < 8; j++) {
-                    int zoneX = j * 8;
-                    int zoneColorIndex = this.foregroundColorIndexes[zoneX][zoneY];
-                    for (int dy = 0; dy < 4; dy++) {
-                        int y = zoneY + dy;
-                        int base = y * displayWidth;
-                        for (int dx = 0; dx < 8; dx++) {
-                            int x = zoneX + dx;
-                            buffer[base + x] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[zoneColorIndex] : BACKGROUND_COLORS[this.backgroundColorIndex];
+            } else {
+                for (int i = 0; i < 8; i++) {
+                    int zoneY = i * 4;
+                    for (int j = 0; j < 8; j++) {
+                        int zoneX = j * 8;
+                        int zoneColorIndex = this.foregroundColorIndexes[zoneX][zoneY];
+                        for (int dy = 0; dy < 4; dy++) {
+                            int y = zoneY + dy;
+                            for (int dx = 0; dx < 8; dx++) {
+                                int x = zoneX + dx;
+                                this.renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[zoneColorIndex] : BACKGROUND_COLORS[this.backgroundColorIndex];
+                            }
                         }
                     }
                 }

@@ -17,7 +17,7 @@ public class SChipDisplay extends Chip8Display {
     }
 
     @Override
-    public synchronized void reset() {
+    public void reset() {
         super.reset();
         this.extendedMode = false;
     }
@@ -50,23 +50,23 @@ public class SChipDisplay extends Chip8Display {
         };
     }
 
-    public synchronized void setExtendedMode(boolean extendedMode) {
+    public void setExtendedMode(boolean extendedMode) {
         this.extendedMode = extendedMode;
     }
 
-    public synchronized boolean isExtendedMode() {
+    public boolean isExtendedMode() {
         return this.extendedMode;
     }
 
-    public synchronized void setPixel(int column, int row, int value) {
+    public void setPixel(int column, int row, int value) {
         this.bitplaneBuffer[column][row] = value;
     }
 
-    public synchronized int getPixel(int column, int row) {
+    public int getPixel(int column, int row) {
         return this.bitplaneBuffer[column][row];
     }
 
-    public synchronized void scrollDown(int scrollAmount) {
+    public void scrollDown(int scrollAmount) {
         int trueScrollAmount;
         if (!this.isModern) {
             trueScrollAmount = scrollAmount;
@@ -94,7 +94,7 @@ public class SChipDisplay extends Chip8Display {
 
     }
 
-    public synchronized void scrollRight() {
+    public void scrollRight() {
         int scrollAmount;
         if (!this.isModern) {
             scrollAmount = 4;
@@ -123,7 +123,7 @@ public class SChipDisplay extends Chip8Display {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public synchronized void scrollLeft() {
+    public void scrollLeft() {
         int scrollAmount;
         if (!this.isModern) {
             scrollAmount = 4;

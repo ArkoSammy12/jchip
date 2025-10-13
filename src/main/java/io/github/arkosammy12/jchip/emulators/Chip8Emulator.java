@@ -8,10 +8,10 @@ import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
+import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
