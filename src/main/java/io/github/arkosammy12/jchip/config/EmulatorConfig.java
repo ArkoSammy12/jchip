@@ -1,12 +1,13 @@
 package io.github.arkosammy12.jchip.config;
 
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
+import io.github.arkosammy12.jchip.ui.JChip;
+import io.github.arkosammy12.jchip.ui.SettingsMenu;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
 import io.github.arkosammy12.jchip.video.ColorPalette;
-import picocli.CommandLine;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,6 +18,7 @@ public class EmulatorConfig {
 
     private final int[] rom;
     private final String romTitle;
+    private final JChip jchip;
 
     private final Chip8Variant chip8Variant;
     private final KeyboardLayout keyboardLayout;
@@ -30,27 +32,14 @@ public class EmulatorConfig {
     private final boolean doShiftVXInPlace;
     private final boolean doJumpWithVX;
 
-    public EmulatorConfig(String[] args) throws IOException {
-        PrimarySettingsProvider primarySettingsProvider;
-        if (args.length > 0) {
-            primarySettingsProvider = new CommandLineArgs();
-            CommandLine cli = new CommandLine(primarySettingsProvider);
-            CommandLine.ParseResult parseResult = cli.parseArgs(args);
-            Integer executeHelpResult = CommandLine.executeHelpRequest(parseResult);
-            int exitCodeOnUsageHelp = cli.getCommandSpec().exitCodeOnUsageHelp();
-            int exitCodeOnVersionHelp = cli.getCommandSpec().exitCodeOnVersionHelp();
-            if (executeHelpResult != null) {
-                if (executeHelpResult == exitCodeOnUsageHelp) {
-                    System.exit(exitCodeOnUsageHelp);
-                } else if (executeHelpResult == exitCodeOnVersionHelp) {
-                    System.exit(exitCodeOnVersionHelp);
-                }
-            }
-        } else {
-            primarySettingsProvider = new UISettingsChooser();
-        }
+    public EmulatorConfig(JChip jchip) throws IOException {
+        this.jchip = jchip;
 
-        Path romPath = primarySettingsProvider.getRomPath();
+        SettingsMenu settings = this.jchip.getSettingsBar();
+        Path romPath = settings.getRomPath();
+        if (romPath == null) {
+            throw new IllegalArgumentException("ROM path cannot be null!");
+        }
         byte[] rawRom = Files.readAllBytes(romPath);
         this.rom = new int[rawRom.length];
         for (int i = 0; i < rom.length; i++) {
@@ -59,32 +48,23 @@ public class EmulatorConfig {
         Chip8Database database = new Chip8Database(rawRom);
 
         this.romTitle = database.getProgramTitle().orElse(romPath.getFileName().toString());
-        this.keyboardLayout = primarySettingsProvider.getKeyboardLayout().orElse(KeyboardLayout.QWERTY);
-        this.colorPalette = database.getColorPalette().orElse(primarySettingsProvider.getColorPalette().orElse(BuiltInColorPalette.CADMIUM));
-        this.displayAngle = primarySettingsProvider.getDisplayAngle().orElse(database.getDisplayAngle().orElse(DisplayAngle.DEG_0));
+        this.keyboardLayout = settings.getKeyboardLayout().orElse(KeyboardLayout.QWERTY);
+        this.colorPalette = database.getColorPalette().orElse(settings.getColorPalette().orElse(BuiltInColorPalette.CADMIUM));
+        this.displayAngle = settings.getDisplayAngle().orElse(database.getDisplayAngle().orElse(DisplayAngle.DEG_0));
 
-        Optional<Chip8Variant> optionalChip8VariantArg = primarySettingsProvider.getChip8Variant();
-        if (optionalChip8VariantArg.isPresent()) {
-            this.chip8Variant = optionalChip8VariantArg.get();
-            Chip8Variant.Quirkset defaultQuirkset = this.chip8Variant.getDefaultQuirkset();
-            this.doVFReset = primarySettingsProvider.doVFReset().orElse(defaultQuirkset.doVFReset());
-            this.doIncrementIndex = primarySettingsProvider.doIncrementIndex().orElse(defaultQuirkset.doIncrementIndex());
-            this.doDisplayWait = primarySettingsProvider.doDisplayWait().orElse(defaultQuirkset.doDisplayWait());
-            this.doClipping = primarySettingsProvider.doClipping().orElse(defaultQuirkset.doClipping());
-            this.doShiftVXInPlace = primarySettingsProvider.doShiftVXInPlace().orElse(defaultQuirkset.doShiftVXInPlace());
-            this.doJumpWithVX = primarySettingsProvider.doJumpWithVX().orElse(defaultQuirkset.doJumpWithVX());
-            this.instructionsPerFrame = primarySettingsProvider.getInstructionsPerFrame().orElse(defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait));
-        } else {
-            this.chip8Variant = database.getChip8Variant().orElse(Chip8Variant.CHIP_8);
-            Chip8Variant.Quirkset defaultQuirkset = this.chip8Variant.getDefaultQuirkset();
-            this.doVFReset = primarySettingsProvider.doVFReset().orElse(database.doVFReset().orElse(defaultQuirkset.doVFReset()));
-            this.doIncrementIndex = primarySettingsProvider.doIncrementIndex().orElse(database.doIncrementIndex().orElse(defaultQuirkset.doIncrementIndex()));
-            this.doDisplayWait = primarySettingsProvider.doDisplayWait().orElse(database.doDisplayWait().orElse((defaultQuirkset.doDisplayWait())));
-            this.doClipping = primarySettingsProvider.doClipping().orElse(database.doClipping().orElse(defaultQuirkset.doClipping()));
-            this.doShiftVXInPlace = primarySettingsProvider.doShiftVXInPlace().orElse(database.doShiftVXInPlace().orElse(defaultQuirkset.doShiftVXInPlace()));
-            this.doJumpWithVX = primarySettingsProvider.doJumpWithVX().orElse(database.doJumpWithVX().orElse(defaultQuirkset.doJumpWithVX()));
-            this.instructionsPerFrame = primarySettingsProvider.getInstructionsPerFrame().orElse(database.getInstructionsPerFrame().orElse(defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait)));
-        }
+        this.chip8Variant = settings.getChip8Variant().orElse(database.getChip8Variant().orElse(Chip8Variant.CHIP_8));
+        Chip8Variant.Quirkset defaultQuirkset = this.chip8Variant.getDefaultQuirkset();
+        this.doVFReset = settings.doVFReset().orElse(database.doVFReset().orElse(defaultQuirkset.doVFReset()));
+        this.doIncrementIndex = settings.doIncrementIndex().orElse(database.doIncrementIndex().orElse(defaultQuirkset.doIncrementIndex()));
+        this.doDisplayWait = settings.doDisplayWait().orElse(database.doDisplayWait().orElse((defaultQuirkset.doDisplayWait())));
+        this.doClipping = settings.doClipping().orElse(database.doClipping().orElse(defaultQuirkset.doClipping()));
+        this.doShiftVXInPlace = settings.doShiftVXInPlace().orElse(database.doShiftVXInPlace().orElse(defaultQuirkset.doShiftVXInPlace()));
+        this.doJumpWithVX = settings.doJumpWithVX().orElse(database.doJumpWithVX().orElse(defaultQuirkset.doJumpWithVX()));
+        this.instructionsPerFrame = settings.getInstructionsPerFrame().orElse(database.getInstructionsPerFrame().orElse(defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait)));
+    }
+
+    public JChip getJChip() {
+        return this.jchip;
     }
 
     public int[] getRom() {

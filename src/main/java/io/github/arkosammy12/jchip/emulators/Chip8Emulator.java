@@ -8,7 +8,6 @@ import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
-import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -158,6 +157,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     }
 
     protected void reset() {
+        this.getEmulatorConfig().getJChip().reset();
         this.currentInstructionsPerFrame = this.targetInstructionsPerFrame;
         this.waitFrames = 0;
         this.processor.reset();

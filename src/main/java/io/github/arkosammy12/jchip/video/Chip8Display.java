@@ -2,23 +2,20 @@ package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Chip8Display extends Display {
 
     protected final ColorPalette colorPalette;
-
     protected final int[][] bitplaneBuffer;
-    protected final int[][] renderBuffer;
 
     public Chip8Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
         super(config, keyAdapters);
         this.bitplaneBuffer = new int[this.getImageWidth()][this.getImageHeight()];
-        this.renderBuffer = new int[this.getImageWidth()][this.getImageHeight()];
         this.colorPalette = config.getColorPalette();
     }
 
@@ -72,25 +69,14 @@ public class Chip8Display extends Display {
     }
 
     @Override
-    protected void updateRenderBuffer() {
-        synchronized (this.renderBufferLock) {
+    protected Consumer<int[][]> getRenderBufferUpdater() {
+        return renderBuffer -> {
             for (int y = 0; y < displayHeight; y++) {
                 for (int x = 0; x < displayWidth; x++) {
-                    this.renderBuffer[x][y] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
+                    renderBuffer[x][y] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
                 }
             }
-        }
+        };
     }
 
-    @Override
-    protected void fillImageBuffer(int[] buffer) {
-        synchronized (this.renderBufferLock) {
-            for (int y = 0; y < displayHeight; y++) {
-                int base = y * displayWidth;
-                for (int x = 0; x < displayWidth; x++) {
-                    buffer[base + x] = this.renderBuffer[x][y];
-                }
-            }
-        }
-    }
 }

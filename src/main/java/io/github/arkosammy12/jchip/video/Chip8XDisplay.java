@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.config.EmulatorConfig;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Chip8XDisplay extends Chip8Display {
 
@@ -66,12 +67,12 @@ public class Chip8XDisplay extends Chip8Display {
     }
 
     @Override
-    protected void updateRenderBuffer() {
-        synchronized (this.renderBufferLock) {
+    protected Consumer<int[][]> getRenderBufferUpdater() {
+        return renderBuffer -> {
             if (this.extendedColorDraw) {
                 for (int y = 0; y < displayHeight; y++) {
                     for (int x = 0; x < displayWidth; x++) {
-                        this.renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
+                        renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
                     }
                 }
             } else {
@@ -84,13 +85,13 @@ public class Chip8XDisplay extends Chip8Display {
                             int y = zoneY + dy;
                             for (int dx = 0; dx < 8; dx++) {
                                 int x = zoneX + dx;
-                                this.renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[zoneColorIndex] : BACKGROUND_COLORS[this.backgroundColorIndex];
+                                renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[zoneColorIndex] : BACKGROUND_COLORS[this.backgroundColorIndex];
                             }
                         }
                     }
                 }
             }
-        }
+        };
     }
 
 }

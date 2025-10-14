@@ -2,10 +2,10 @@ package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class MegaChipDisplay extends SChipDisplay {
 
@@ -259,8 +259,8 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @Override
-    protected void updateRenderBuffer() {
-        synchronized (this.renderBufferLock) {
+    protected Consumer<int[][]> getRenderBufferUpdater() {
+        return renderBuffer -> {
             if (this.isMegaChipModeEnabled()) {
                 for (int y = 0; y < displayHeight; y++) {
                     for (int x = 0; x < displayWidth; x++) {
@@ -275,13 +275,13 @@ public class MegaChipDisplay extends SChipDisplay {
                         if ((front & 0xFF000000) != 0) {
                             pixel = front;
                         }
-                        this.renderBuffer[x][y] = pixel;
+                        renderBuffer[x][y] = pixel;
                     }
                 }
             } else {
                 for (int y = 0; y < displayHeight; y++) {
                     for (int x = 0; x < displayWidth; x++) {
-                        this.renderBuffer[x][y] = 0xFF000000;
+                        renderBuffer[x][y] = 0xFF000000;
                     }
                 }
                 int displayWidth = super.getImageWidth();
@@ -296,13 +296,13 @@ public class MegaChipDisplay extends SChipDisplay {
                         int baseX = sx * xScale;
                         for (int dy = 0; dy < yScale; dy++) {
                             for (int dx = 0; dx < xScale; dx++) {
-                                this.renderBuffer[baseX + dx][baseY + dy] = color;
+                                renderBuffer[baseX + dx][baseY + dy] = color;
                             }
                         }
                     }
                 }
             }
-        }
+        };
     }
 
     public void flushBackBuffer() {

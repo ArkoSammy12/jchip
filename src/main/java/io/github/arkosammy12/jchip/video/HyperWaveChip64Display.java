@@ -5,6 +5,7 @@ import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class HyperWaveChip64Display extends XOChipDisplay {
 
@@ -58,14 +59,14 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     }
 
     @Override
-    protected void updateRenderBuffer() {
-        synchronized (this.renderBufferLock) {
+    protected Consumer<int[][]> getRenderBufferUpdater() {
+        return renderBuffer -> {
             for (int y = 0; y < displayHeight; y++) {
                 for (int x = 0; x < displayWidth; x++) {
-                    this.renderBuffer[x][y] = this.colorPalette[bitplaneBuffer[x][y] & 0xF];
+                    renderBuffer[x][y] = this.colorPalette[bitplaneBuffer[x][y] & 0xF];
                 }
             }
-        }
+        };
     }
 
     public enum DrawingMode {
