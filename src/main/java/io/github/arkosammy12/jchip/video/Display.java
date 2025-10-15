@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.ui.GameRenderer;
-import io.github.arkosammy12.jchip.ui.JChip;
+import io.github.arkosammy12.jchip.ui.EmulatorRenderer;
+import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public abstract class Display implements Closeable {
 
-    private final GameRenderer gameRenderer;
+    private final EmulatorRenderer emulatorRenderer;
     private final JChip jchip;
 
     protected final Chip8Variant chip8Variant;
@@ -30,9 +30,9 @@ public abstract class Display implements Closeable {
         this.displayWidth = getImageWidth();
         this.displayHeight = getImageHeight();
         int initialScale = getImageScale(displayAngle);
-        this.gameRenderer = new GameRenderer(this.jchip, this.displayWidth, this.displayHeight, displayAngle, initialScale, this.getRenderBufferUpdater(), this.chip8Variant, romTitle1);
-        keyAdapters.forEach(gameRenderer::addKeyListener);
-        this.gameRenderer.setVisible(true);
+        this.emulatorRenderer = new EmulatorRenderer(this.jchip, this.displayWidth, this.displayHeight, displayAngle, initialScale, this.getRenderBufferUpdater(), this.chip8Variant, romTitle1);
+        keyAdapters.forEach(emulatorRenderer::addKeyListener);
+        this.emulatorRenderer.setVisible(true);
 
     }
 
@@ -55,13 +55,13 @@ public abstract class Display implements Closeable {
     public abstract void clear();
 
     public void flush(int currentInstructionsPerFrame) {
-        this.gameRenderer.requestFrame();
-        this.jchip.updateWindowTitle(currentInstructionsPerFrame);
+        this.emulatorRenderer.requestFrame();
+        this.jchip.getMainWindow().updateWindowTitle(currentInstructionsPerFrame);
     }
 
     @Override
     public void close() {
-        this.gameRenderer.close();
+        this.emulatorRenderer.close();
     }
 
 }

@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.util;
 
 import picocli.CommandLine;
 
-public enum DisplayAngle {
+public enum DisplayAngle implements DisplayNameProvider {
     DEG_0("No rotation", 0, "0"),
     DEG_90("90 degrees", 90, "90"),
     DEG_180("180 degrees", 180, "180"),
@@ -36,6 +36,7 @@ public enum DisplayAngle {
         throw new IllegalArgumentException("Invalid display angle value: " + intValue + "!");
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
     }

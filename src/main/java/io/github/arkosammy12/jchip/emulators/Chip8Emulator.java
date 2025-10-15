@@ -3,6 +3,8 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.cpu.*;
+import io.github.arkosammy12.jchip.exceptions.EmulatorException;
+import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
@@ -47,14 +49,14 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             this.processor = this.createProcessor();
         } catch (Exception e) {
             this.close();
-            throw new RuntimeException(e);
+            throw new EmulatorException(e);
         }
     }
 
     protected EmulatorController.Builder addControllers(EmulatorController.Builder builder) {
         return builder
-                .withController(KeyEvent.VK_F2, this::reset)
-                .withController(KeyEvent.VK_ESCAPE, this::terminate)
+                //.withController(KeyEvent.VK_F2, this::reset)
+                //.withController(KeyEvent.VK_ESCAPE, this::terminate)
                 .withController(KeyEvent.VK_F11, this.soundSystem::volumeDown)
                 .withController(KeyEvent.VK_F12, this.soundSystem::volumeUp);
     }

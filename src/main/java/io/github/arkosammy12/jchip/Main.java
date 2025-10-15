@@ -1,8 +1,6 @@
 package io.github.arkosammy12.jchip;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import io.github.arkosammy12.jchip.ui.JChip;
-import io.github.arkosammy12.jchip.util.InvalidInstructionException;
 
 import javax.swing.*;
 import java.awt.*;

@@ -5,7 +5,7 @@ import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
-import io.github.arkosammy12.jchip.util.InvalidInstructionException;
+import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 

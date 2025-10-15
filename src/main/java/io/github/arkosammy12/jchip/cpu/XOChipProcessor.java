@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
-import io.github.arkosammy12.jchip.util.InvalidInstructionException;
+import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
 public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDisplay, S extends Chip8SoundSystem> extends SChipProcessor<E, D, S> {

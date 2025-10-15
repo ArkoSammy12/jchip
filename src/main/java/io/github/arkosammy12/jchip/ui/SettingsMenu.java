@@ -1,17 +1,15 @@
 package io.github.arkosammy12.jchip.ui;
 
+import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
-import io.github.arkosammy12.jchip.video.ColorPalette;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class SettingsMenu extends JMenuBar {
@@ -22,59 +20,39 @@ public class SettingsMenu extends JMenuBar {
 
     private final JMenu fileMenu;
     private final JMenu quirksMenu;
-    private final JMenu variantMenu;
-    private final JMenu colorPaletteMenu;
-    private final JMenu displayAngleMenu;
+    private final EnumMenu<Chip8Variant> variantMenu;
+    private final EnumMenu<BuiltInColorPalette> colorPaletteMenu;
+    private final EnumMenu<DisplayAngle> displayAngleMenu;
     private final JMenu instructionsPerFrameMenu;
 
+    private final QuirkSubMenu doVFResetMenu;
+    private final QuirkSubMenu doIncrementIndexMenu;
+    private final QuirkSubMenu doDisplayWaitMenu;
+    private final QuirkSubMenu doClippingMenu;
+    private final QuirkSubMenu doShiftVXInPlaceMenu;
+    private final QuirkSubMenu doJumpWithVXMenu;
+
     private Path selectedRomPath;
-
-    private Chip8Variant selectedVariant;
-    private final JRadioButtonMenuItem unspecifiedVariantButton;
-    private final List<JRadioButtonMenuItem> variantButtons = new ArrayList<>();
-
-    private final JCheckBoxMenuItem useCustomQuirksBox;
-    private final JCheckBoxMenuItem doVFResetBox;
-    private final JCheckBoxMenuItem doIncrementIndexBox;
-    private final JCheckBoxMenuItem doDisplayWaitBox;
-    private final JCheckBoxMenuItem doClippingBox;
-    private final JCheckBoxMenuItem doShiftVXInPlaceBox;
-    private final JCheckBoxMenuItem doJumpWithVXBox;
-
-    Boolean doVFReset;
-    Boolean doIncrementIndex;
-    Boolean doDisplayWait;
-    Boolean doClipping;
-    Boolean doShiftVXInPlace;
-    Boolean doJumpWithVX;
-
-    private BuiltInColorPalette selectedPalette;
-    private final JRadioButtonMenuItem unspecifiedPaletteButton;
-    private final List<JRadioButtonMenuItem> paletteButtons = new ArrayList<>();
-
-    private DisplayAngle selectedAngle;
-    private final JRadioButtonMenuItem unspecifiedAngleButton;
-    private final List<JRadioButtonMenuItem> angleButtons = new ArrayList<>();
-
     private Integer instructionsPerFrame;
 
     public SettingsMenu(JChip jChip) {
+        super();
         this.jchip = jChip;
 
         this.fileMenu = new JMenu("File");
         this.quirksMenu = new JMenu("Quirks");
-        this.variantMenu = new JMenu("Variant");
-        this.colorPaletteMenu = new JMenu("Color Palette");
-        this.displayAngleMenu = new JMenu("Display Angle");
+        this.variantMenu = new EnumMenu<>("Variant", Chip8Variant.class);
+        this.colorPaletteMenu = new EnumMenu<>("Color Palette", BuiltInColorPalette.class);
+        this.displayAngleMenu = new EnumMenu<>("Display Angle", DisplayAngle.class);
         this.instructionsPerFrameMenu = new JMenu("Instructions per frame");
 
         JMenuItem openItem = new JMenuItem("Load ROM");
-        openItem.addActionListener(e -> {
+        openItem.addActionListener(_ -> {
             JFileChooser chooser = new JFileChooser();
             chooser.setFileFilter(new FileNameExtensionFilter("CHIP-8 ROMs", FILE_EXTENSIONS));
             Action details = chooser.getActionMap().get("viewTypeDetails");
             details.actionPerformed(null);
-            if (chooser.showOpenDialog(this.jchip) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.showOpenDialog(this.getParent()) == JFileChooser.APPROVE_OPTION) {
                 if (this.selectedRomPath == null) {
                     this.jchip.reset();
                 }
@@ -82,82 +60,12 @@ public class SettingsMenu extends JMenuBar {
             }
         });
 
-        ButtonGroup variantButtonGroup = new ButtonGroup();
-        this.unspecifiedVariantButton = new JRadioButtonMenuItem("Unspecified");
-        this.unspecifiedVariantButton.addActionListener(_ -> selectedVariant = null);
-        this.unspecifiedVariantButton.setSelected(true);
-        variantButtonGroup.add(this.unspecifiedVariantButton);
-        for (Chip8Variant variant : Chip8Variant.values()) {
-            JRadioButtonMenuItem item = new JRadioButtonMenuItem(variant.getDisplayName());
-            item.addActionListener(_ -> {
-                this.selectedVariant = variant;
-            });
-            this.variantButtons.add(item);
-            variantButtonGroup.add(item);
-        }
-
-        this.doVFResetBox = new JCheckBoxMenuItem("Do VF Reset", false);
-        doVFResetBox.setEnabled(false);
-        doVFResetBox.addActionListener(_ -> this.doVFReset = doVFResetBox.getState());
-
-        this.doIncrementIndexBox = new JCheckBoxMenuItem("Do Increment Index", false);
-        doIncrementIndexBox.setEnabled(false);
-        doIncrementIndexBox.addActionListener(_ -> this.doIncrementIndex = doIncrementIndexBox.getState());
-
-        this.doDisplayWaitBox = new JCheckBoxMenuItem("Do Display Wait", false);
-        doDisplayWaitBox.setEnabled(false);
-        doDisplayWaitBox.addActionListener(_ -> this.doDisplayWait = doDisplayWaitBox.getState());
-
-        this.doClippingBox = new JCheckBoxMenuItem("Do Clipping", false);
-        doClippingBox.setEnabled(false);
-        doClippingBox.addActionListener(_ -> this.doClipping = doClippingBox.getState());
-
-        this.doShiftVXInPlaceBox = new JCheckBoxMenuItem("Do Shift VX In Place", false);
-        doShiftVXInPlaceBox.setEnabled(false);
-        doShiftVXInPlaceBox.addActionListener(_ -> this.doShiftVXInPlace = doShiftVXInPlaceBox.getState());
-
-        this.doJumpWithVXBox = new JCheckBoxMenuItem("Do Jump With VX", false);
-        doJumpWithVXBox.setEnabled(false);
-        doJumpWithVXBox.addActionListener(_ -> this.doJumpWithVX = doJumpWithVXBox.getState());
-
-        this.useCustomQuirksBox = new JCheckBoxMenuItem("Use Custom Quirks", false);
-        this.useCustomQuirksBox.addActionListener(_ -> {
-            boolean enabled = this.useCustomQuirksBox.getState();
-            this.doVFResetBox.setEnabled(enabled);
-            this.doIncrementIndexBox.setEnabled(enabled);
-            this.doDisplayWaitBox.setEnabled(enabled);
-            this.doClippingBox.setEnabled(enabled);
-            this.doShiftVXInPlaceBox.setEnabled(enabled);
-            this.doJumpWithVXBox.setEnabled(enabled);
-        });
-
-        ButtonGroup colorPaletteButtonGroup = new ButtonGroup();
-        this.unspecifiedPaletteButton = new JRadioButtonMenuItem("Unspecified");
-        this.unspecifiedPaletteButton.addActionListener(_ -> selectedPalette = null);
-        this.unspecifiedPaletteButton.setSelected(true);
-        colorPaletteButtonGroup.add(this.unspecifiedPaletteButton);
-        for (BuiltInColorPalette palette : BuiltInColorPalette.values()) {
-            JRadioButtonMenuItem item = new JRadioButtonMenuItem(palette.getDisplayName());
-            item.addActionListener(_ -> {
-                this.selectedPalette = palette;
-            });
-            this.paletteButtons.add(item);
-            colorPaletteButtonGroup.add(item);
-        }
-
-        ButtonGroup displayAngleButtonGroup = new ButtonGroup();
-        this.unspecifiedAngleButton = new JRadioButtonMenuItem("Unspecified");
-        this.unspecifiedAngleButton.addActionListener(_ -> selectedAngle = null);
-        this.unspecifiedAngleButton.setSelected(true);
-        displayAngleButtonGroup.add(this.unspecifiedAngleButton);
-        for (DisplayAngle angle : DisplayAngle.values()) {
-            JRadioButtonMenuItem item = new JRadioButtonMenuItem(angle.getDisplayName());
-            item.addActionListener(_ -> {
-                this.selectedAngle = angle;
-            });
-            this.angleButtons.add(item);
-            displayAngleButtonGroup.add(item);
-        }
+        this.doVFResetMenu = new QuirkSubMenu("Do VF Reset");
+        this.doIncrementIndexMenu = new QuirkSubMenu("Do Increment Index");
+        this.doDisplayWaitMenu = new QuirkSubMenu("Do Display Wait");
+        this.doClippingMenu = new QuirkSubMenu("Do Clipping");
+        this.doShiftVXInPlaceMenu = new QuirkSubMenu("Do Shift VX In Place");
+        this.doJumpWithVXMenu = new QuirkSubMenu("Do Jump With VX");
 
         JLabel label = new JLabel("IPF: ");
         JTextField ipfField = new JTextField(6);
@@ -179,22 +87,12 @@ public class SettingsMenu extends JMenuBar {
 
         fileMenu.add(openItem);
 
-        this.variantMenu.add(this.unspecifiedVariantButton);
-        this.variantButtons.forEach(variantMenu::add);
-
-        this.colorPaletteMenu.add(this.unspecifiedPaletteButton);
-        this.paletteButtons.forEach(this.colorPaletteMenu::add);
-
-        this.displayAngleMenu.add(this.unspecifiedAngleButton);
-        this.angleButtons.forEach(this.displayAngleMenu::add);
-
-        this.quirksMenu.add(this.useCustomQuirksBox);
-        this.quirksMenu.add(this.doVFResetBox);
-        this.quirksMenu.add(this.doIncrementIndexBox);
-        this.quirksMenu.add(this.doDisplayWaitBox);
-        this.quirksMenu.add(this.doClippingBox);
-        this.quirksMenu.add(this.doShiftVXInPlaceBox);
-        this.quirksMenu.add(this.doJumpWithVXBox);
+        this.quirksMenu.add(this.doVFResetMenu);
+        this.quirksMenu.add(this.doIncrementIndexMenu);
+        this.quirksMenu.add(this.doDisplayWaitMenu);
+        this.quirksMenu.add(this.doClippingMenu);
+        this.quirksMenu.add(this.doShiftVXInPlaceMenu);
+        this.quirksMenu.add(this.doJumpWithVXMenu);
 
         this.add(fileMenu);
         this.add(quirksMenu);
@@ -209,13 +107,13 @@ public class SettingsMenu extends JMenuBar {
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
         this.selectedRomPath = primarySettingsProvider.getRomPath();
-        primarySettingsProvider.getChip8Variant().ifPresent(variant -> this.selectedVariant = variant);
-        primarySettingsProvider.doVFReset().ifPresent(val -> this.doVFReset = val);
-        primarySettingsProvider.doIncrementIndex().ifPresent(val -> this.doIncrementIndex = val);
-        primarySettingsProvider.doDisplayWait().ifPresent(val -> this.doDisplayWait = val);
-        primarySettingsProvider.doClipping().ifPresent(val -> this.doClipping = val);
-        primarySettingsProvider.doShiftVXInPlace().ifPresent(val -> this.doShiftVXInPlace = val);
-        primarySettingsProvider.doJumpWithVX().ifPresent(val -> this.doJumpWithVX = val);
+        primarySettingsProvider.getChip8Variant().ifPresent(this.variantMenu::setState);
+        primarySettingsProvider.doVFReset().ifPresent(this.doVFResetMenu::setState);
+        primarySettingsProvider.doIncrementIndex().ifPresent(this.doIncrementIndexMenu::setState);
+        primarySettingsProvider.doDisplayWait().ifPresent(this.doDisplayWaitMenu::setState);
+        primarySettingsProvider.doClipping().ifPresent(this.doClippingMenu::setState);
+        primarySettingsProvider.doShiftVXInPlace().ifPresent(this.doShiftVXInPlaceMenu::setState);
+        primarySettingsProvider.doJumpWithVX().ifPresent(this.doJumpWithVXMenu::setState);
         primarySettingsProvider.getInstructionsPerFrame().ifPresent(val -> this.instructionsPerFrame = val);
     }
 
@@ -231,58 +129,40 @@ public class SettingsMenu extends JMenuBar {
         return Optional.ofNullable(this.instructionsPerFrame);
     }
 
-    public Optional<ColorPalette> getColorPalette() {
-        return Optional.ofNullable(this.selectedPalette);
+    public Optional<BuiltInColorPalette> getColorPalette() {
+        return this.colorPaletteMenu.getState();
     }
 
     public Optional<DisplayAngle> getDisplayAngle() {
-        return Optional.ofNullable(this.selectedAngle);
+        return this.displayAngleMenu.getState();
     }
 
     public Optional<Chip8Variant> getChip8Variant() {
-        return Optional.ofNullable(this.selectedVariant);
+        return this.variantMenu.getState();
     }
 
     public Optional<Boolean> doVFReset() {
-        if (!this.useCustomQuirksBox.getState()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(this.doVFReset);
+        return this.doVFResetMenu.getState();
     }
 
     public Optional<Boolean> doIncrementIndex() {
-        if (!this.useCustomQuirksBox.getState()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(this.doIncrementIndex);
+        return this.doIncrementIndexMenu.getState();
     }
 
     public Optional<Boolean> doDisplayWait() {
-        if (!this.useCustomQuirksBox.getState()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(this.doDisplayWait);
+        return this.doDisplayWaitMenu.getState();
     }
 
     public Optional<Boolean> doClipping() {
-        if (!this.useCustomQuirksBox.getState()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(this.doClipping);
+        return this.doClippingMenu.getState();
     }
 
     public Optional<Boolean> doShiftVXInPlace() {
-        if (!this.useCustomQuirksBox.getState()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(this.doShiftVXInPlace);
+        return this.doShiftVXInPlaceMenu.getState();
     }
 
     public Optional<Boolean> doJumpWithVX() {
-        if (!this.useCustomQuirksBox.getState()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(this.doJumpWithVX);
+        return this.doJumpWithVXMenu.getState();
     }
 
 }

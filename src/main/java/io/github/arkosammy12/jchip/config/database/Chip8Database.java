@@ -1,7 +1,9 @@
 package io.github.arkosammy12.jchip.config.database;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import io.github.arkosammy12.jchip.config.SettingsProvider;
+import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
@@ -10,6 +12,7 @@ import io.github.arkosammy12.jchip.video.CustomColorPalette;
 import org.tinylog.Logger;
 
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
@@ -18,65 +21,67 @@ import java.util.function.Function;
 
 public class Chip8Database implements SettingsProvider {
 
+    private Hashes hashes;
+    private Platforms platforms;
+    private Programs programs;
+
     private ProgramEntry programEntry;
     private RomEntry romEntry;
     private PlatformEntry platformEntry;
 
-    public Chip8Database(byte[] rom) {
+    public Chip8Database() {
         try {
-            JsonElement hashesElement = loadJsonFromResources("/database/sha1-hashes.json");
-            if (hashesElement == null || !hashesElement.isJsonObject()) {
-                throw new IllegalArgumentException("Unable to read hashes database!");
-            }
-
-            String sha1 = getSha1Hash(rom);
-            JsonObject hashes = hashesElement.getAsJsonObject();
-            JsonElement indexElement = hashes.get(sha1);
-            if (indexElement == null || !indexElement.isJsonPrimitive()) {
-                throw new IllegalArgumentException("Unable to obtain program entry index from hashes database!");
-            }
-            int index = indexElement.getAsInt();
-
-            JsonElement programsElement = loadJsonFromResources("/database/programs.json");
-            if (programsElement == null || !programsElement.isJsonArray()) {
-                throw new IllegalArgumentException("Unable to read programs database!");
-            }
-            JsonArray programsArray = programsElement.getAsJsonArray();
-
-            JsonElement programElement = programsArray.get(index);
-            if (programElement == null || !programElement.isJsonObject()) {
-                throw new IllegalArgumentException("Unable to obtain program entry from programs database!");
-            }
             Gson gson = new Gson();
-            this.programEntry = gson.fromJson(programElement, ProgramEntry.class);
+            Type mapType = new TypeToken<Map<String, Integer>>() {}.getType();
+            this.hashes = new Hashes(gson.fromJson(loadJsonFromResources("/database/sha1-hashes.json"), mapType));
+
+            Type programListType = new TypeToken<List<ProgramEntry>>() {}.getType();
+            this.programs = new Programs(gson.fromJson(loadJsonFromResources("/database/programs.json"), programListType));
+
+            Type platformListType = new TypeToken<List<PlatformEntry>>() {}.getType();
+            this.platforms = new Platforms(gson.fromJson(loadJsonFromResources("/database/platforms.json"), platformListType));
+        } catch (Exception e) {
+            throw new EmulatorException("Failed loading ROM metadata from database! ", e);
+        }
+    }
+
+    public void fetchDataForRom(byte[] rom) {
+        try {
+            String sha1 = getSha1Hash(rom);
+            Optional<Integer> indexOptional = this.getHashes().flatMap(hashes -> hashes.getIndexForHash(sha1));
+            if (indexOptional.isEmpty()) {
+                throw new EmulatorException("Unable to obtain program entry index from hashes database!");
+            }
+            int index = indexOptional.get();
+
+            Optional<ProgramEntry> programEntryOptional = this.getPrograms().flatMap(programs -> programs.getProgramEntryAt(index));
+            if (programEntryOptional.isEmpty()) {
+                throw new EmulatorException("Unable to obtain program entry from programs database!");
+            }
+
+            this.programEntry = programEntryOptional.get();
             this.romEntry = this.programEntry.getRomEntries()
                     .flatMap(romEntries -> Optional.ofNullable(romEntries.get(sha1)))
-                    .orElseThrow(() ->  new IllegalArgumentException("Unable to obtain rom entry from program entry!"));
+                    .orElseThrow(() ->  new EmulatorException("Unable to obtain rom entry from program entry!"));
 
-            JsonElement platformsElement = loadJsonFromResources("/database/platforms.json");
-            if (platformsElement == null || !platformsElement.isJsonArray()) {
-                throw new IllegalArgumentException("Unable to read platforms database!");
+            Optional<List<PlatformEntry>> platformsOptional = this.getPlatforms().flatMap(Platforms::getPlatformEntries);
+            if (platformsOptional.isEmpty()) {
+                throw new EmulatorException("Unable to read platforms database!");
             }
 
-            JsonArray platforms = platformsElement.getAsJsonArray();
+            List<PlatformEntry> platformEntryList = platformsOptional.get();
             Consumer<String> platformIdConsumer = platformId -> {
-                for (int i = 0; i < platforms.size(); i++) {
-                    JsonElement platformElement = platforms.get(i);
-                    if (platformElement == null || !platformElement.isJsonObject()) {
+                for (PlatformEntry platformElement : platformEntryList) {
+                    Optional<String> idOptional = platformElement.getId();
+                    if (idOptional.isEmpty()) {
                         continue;
                     }
-                    JsonObject platform = platformElement.getAsJsonObject();
-                    if (platform.has("id")) {
-                        JsonElement idElement = platform.get("id");
-                        if (idElement == null || !idElement.isJsonPrimitive()) {
-                            continue;
-                        }
-                        String id = idElement.getAsString();
-                        if (id.equals(platformId)) {
-                            this.platformEntry = gson.fromJson(platform, PlatformEntry.class);
-                            break;
-                        }
+                    String id = idOptional.get();
+                    if (id.equals(platformId)) {
+                        this.platformEntry = platformElement;
+                        break;
                     }
+
                 }
             };
 
@@ -204,6 +209,18 @@ public class Chip8Database implements SettingsProvider {
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
         byte[] hashBytes = sha1.digest(data);
         return HexFormat.of().formatHex(hashBytes);
+    }
+
+    private Optional<Hashes> getHashes() {
+        return Optional.ofNullable(this.hashes);
+    }
+
+    private Optional<Programs> getPrograms() {
+        return Optional.ofNullable(this.programs);
+    }
+
+    private Optional<Platforms> getPlatforms() {
+        return Optional.ofNullable(this.platforms);
     }
 
 }

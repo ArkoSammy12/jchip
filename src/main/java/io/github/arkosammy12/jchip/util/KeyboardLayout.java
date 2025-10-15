@@ -5,7 +5,7 @@ import picocli.CommandLine;
 import java.awt.event.KeyEvent;
 import java.util.function.IntUnaryOperator;
 
-public enum KeyboardLayout {
+public enum KeyboardLayout implements DisplayNameProvider {
     QWERTY("Qwerty", "qwerty", keyCode -> switch (keyCode) {
         case KeyEvent.VK_X -> 0x0;
         case KeyEvent.VK_1 -> 0x1;
@@ -106,6 +106,7 @@ public enum KeyboardLayout {
         throw new IllegalArgumentException("Unknown keyboard layout: " + identifier);
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
     }

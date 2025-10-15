@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.emulators.HyperWaveChip64Emulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.util.InvalidInstructionException;
+import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.HyperWaveChip64Display;
 
 public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D extends HyperWaveChip64Display, S extends Chip8SoundSystem> extends XOChipProcessor<E, D, S> {

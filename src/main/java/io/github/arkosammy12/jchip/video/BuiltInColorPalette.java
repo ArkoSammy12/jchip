@@ -1,8 +1,9 @@
 package io.github.arkosammy12.jchip.video;
 
+import io.github.arkosammy12.jchip.util.DisplayNameProvider;
 import picocli.CommandLine;
 
-public enum BuiltInColorPalette implements ColorPalette {
+public enum BuiltInColorPalette implements ColorPalette, DisplayNameProvider {
     CADMIUM("Cadmium", "cadmium", new int[] {
             0x1a1c2cff, 0xf4f4f4ff, 0x94b0c2ff, 0x333c57ff,
             0xb13e53ff, 0xa7f070ff, 0x3b5dc9ff, 0xffcd75ff,
@@ -78,6 +79,7 @@ public enum BuiltInColorPalette implements ColorPalette {
         throw new IllegalArgumentException("Invalid color palette value: " + identifier + "!");
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
     }

@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.util.InvalidInstructionException;
+import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
 public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Processor<E, D, S> {

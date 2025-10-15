@@ -7,7 +7,7 @@ import picocli.CommandLine;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
-public enum Chip8Variant {
+public enum Chip8Variant implements DisplayNameProvider {
     CHIP_8(
             Chip8Emulator::new,
             "chip-8",
@@ -109,6 +109,7 @@ public enum Chip8Variant {
         throw new IllegalArgumentException("Unsupported chip-8 variant: " + id);
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
     }

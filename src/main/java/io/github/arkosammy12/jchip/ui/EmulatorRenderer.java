@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
+import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
@@ -10,11 +11,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.Closeable;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static io.github.arkosammy12.jchip.util.DisplayAngle.*;
 
-public class GameRenderer extends Canvas implements Closeable {
+public class EmulatorRenderer extends Canvas implements Closeable {
 
     private final int[][] renderBuffer;
     private final Consumer<int[][]> renderBufferUpdater;
@@ -33,13 +35,14 @@ public class GameRenderer extends Canvas implements Closeable {
     private int lastWidth = -1;
     private int lastHeight = -1;
 
-    private volatile boolean running = true;
-    private volatile boolean frameRequested = false;
+    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicBoolean frameRequested = new AtomicBoolean(false);
 
     private final Object renderLock = new Object();
     protected final Object renderBufferLock = new Object();
 
-    public GameRenderer(JChip jchip, int displayWidth, int displayHeight, DisplayAngle displayAngle, int initialScale, Consumer<int[][]> renderBufferUpdater, Chip8Variant variant, String romTitle) {
+    public EmulatorRenderer(JChip jchip, int displayWidth, int displayHeight, DisplayAngle displayAngle, int initialScale, Consumer<int[][]> renderBufferUpdater, Chip8Variant variant, String romTitle) {
+        super();
         this.jchip = jchip;
         this.displayWidth = displayWidth;
         this.displayHeight = displayHeight;
@@ -75,11 +78,7 @@ public class GameRenderer extends Canvas implements Closeable {
         this.setFocusable(true);
         setIgnoreRepaint(false);
 
-        Thread renderThread = new Thread(this::renderLoop, "jchip-Render-Thread");
-        renderThread.setDaemon(true);
-        renderThread.start();
-
-        this.jchip.setGameRenderer(this);
+        this.jchip.getMainWindow().setGameRenderer(this);
     }
 
     public int getDisplayWidth() {
@@ -107,22 +106,28 @@ public class GameRenderer extends Canvas implements Closeable {
             this.renderBufferUpdater.accept(this.renderBuffer);
         }
         synchronized (this.renderLock) {
-            this.frameRequested = true;
+            this.frameRequested.set(true);
             this.renderLock.notify();
         }
      }
 
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        initializeAndStart();
+    }
+
     private void renderLoop() {
         try {
-            while (this.running) {
+            while (this.running.get()) {
                 synchronized (this.renderLock) {
-                    while (!this.frameRequested) {
+                    while (!this.frameRequested.get()) {
                         try {
                             this.renderLock.wait();
                         } catch (InterruptedException ignored) {
                         }
                     }
-                    this.frameRequested = false;
+                    this.frameRequested.set(false);
                 }
                 this.render();
             }
@@ -181,9 +186,19 @@ public class GameRenderer extends Canvas implements Closeable {
 
     @Override
     public void close() {
-        this.running = false;
+        this.running.set(false);
         synchronized (this.renderLock) {
             this.renderLock.notify();
         }
     }
+
+    private void initializeAndStart() {
+        if (getBufferStrategy() == null) {
+            createBufferStrategy(3);
+        }
+        Thread renderThread = new Thread(this::renderLoop, "jchip-Render-Thread");
+        renderThread.setDaemon(true);
+        renderThread.start();
+    }
+
 }
