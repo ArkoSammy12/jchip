@@ -38,12 +38,12 @@ public class Chip8Display extends Display {
     }
 
     @Override
-    protected int getImageWidth() {
+    public int getImageWidth() {
         return 64;
     }
 
     @Override
-    protected int getImageHeight() {
+    public int getImageHeight() {
         return 32;
     }
 
@@ -61,7 +61,7 @@ public class Chip8Display extends Display {
     }
 
     @Override
-    protected int getImageScale(DisplayAngle displayAngle) {
+    public int getImageScale(DisplayAngle displayAngle) {
         return switch (displayAngle) {
             case DEG_90, DEG_270 -> 11;
             default -> 20;
@@ -71,8 +71,8 @@ public class Chip8Display extends Display {
     @Override
     protected Consumer<int[][]> getRenderBufferUpdater() {
         return renderBuffer -> {
-            for (int y = 0; y < displayHeight; y++) {
-                for (int x = 0; x < displayWidth; x++) {
+            for (int y = 0; y < imageHeight; y++) {
+                for (int x = 0; x < imageWidth; x++) {
                     renderBuffer[x][y] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
                 }
             }

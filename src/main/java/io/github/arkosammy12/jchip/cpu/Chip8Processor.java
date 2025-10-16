@@ -67,7 +67,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         this.programCounter = (programCounter - 2) & this.memoryBoundsMask;
     }
 
-    protected final int getProgramCounter() {
+    public final int getProgramCounter() {
         return this.programCounter;
     }
 
@@ -75,7 +75,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         this.indexRegister = indexRegister & this.memoryBoundsMask;
     }
 
-    protected final int getIndexRegister() {
+    public final int getIndexRegister() {
         return this.indexRegister;
     }
 
@@ -89,11 +89,20 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return this.stack[stackPointer];
     }
 
+    public int[] getStack(int[] ret) {
+        System.arraycopy(this.stack, 0, ret, 0, Math.clamp(this.stack.length, 0, ret.length));
+        return ret;
+    }
+
+    public int getStackPointer() {
+        return this.stackPointer;
+    }
+
     protected final void setDelayTimer(int timer) {
         this.delayTimer = timer;
     }
 
-    protected final int getDelayTimer() {
+    public final int getDelayTimer() {
         return this.delayTimer;
     }
 
@@ -124,6 +133,11 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
 
     protected final int getRegister(int register) {
         return this.registers[register];
+    }
+
+    public final int[] getRegisters(int[] ret) {
+        System.arraycopy(this.registers, 0, ret, 0, Math.clamp(this.registers.length, 0, ret.length));
+        return ret;
     }
 
     protected final Random getRandom() {

@@ -33,17 +33,17 @@ public class SChipDisplay extends Chip8Display {
     }
 
     @Override
-    protected int getImageWidth() {
+    public int getImageWidth() {
         return 128;
     }
 
     @Override
-    protected int getImageHeight() {
+    public int getImageHeight() {
         return 64;
     }
 
     @Override
-    protected int getImageScale(DisplayAngle displayAngle) {
+    public int getImageScale(DisplayAngle displayAngle) {
         return switch (displayAngle) {
             case DEG_90, DEG_270 -> 6;
             default -> 10;
@@ -77,17 +77,17 @@ public class SChipDisplay extends Chip8Display {
                 trueScrollAmount = scrollAmount * 2;
             }
         }
-        for (int i = this.displayHeight - 1; i >= 0; i--) {
+        for (int i = this.imageHeight - 1; i >= 0; i--) {
             int shiftedVerticalPosition = trueScrollAmount + i;
-            if (shiftedVerticalPosition >= this.displayHeight) {
+            if (shiftedVerticalPosition >= this.imageHeight) {
                 continue;
             }
-            for (int j = 0; j < this.displayWidth; j++) {
+            for (int j = 0; j < this.imageWidth; j++) {
                 this.bitplaneBuffer[j][shiftedVerticalPosition] = this.bitplaneBuffer[j][i];
             }
         }
-        for (int y = 0; y < trueScrollAmount && y < this.displayHeight; y++) {
-            for (int x = 0; x < this.displayWidth; x++) {
+        for (int y = 0; y < trueScrollAmount && y < this.imageHeight; y++) {
+            for (int x = 0; x < this.imageWidth; x++) {
                 this.bitplaneBuffer[x][y] = 0;
             }
         }
@@ -105,17 +105,17 @@ public class SChipDisplay extends Chip8Display {
                 scrollAmount = 8;
             }
         }
-        for (int i = this.displayWidth - 1; i >= 0; i--) {
+        for (int i = this.imageWidth - 1; i >= 0; i--) {
             int shiftedHorizontalPosition = i + scrollAmount;
-            if (shiftedHorizontalPosition >= this.displayWidth) {
+            if (shiftedHorizontalPosition >= this.imageWidth) {
                 continue;
             }
-            if (this.displayHeight >= 0) {
-                System.arraycopy(this.bitplaneBuffer[i], 0, this.bitplaneBuffer[shiftedHorizontalPosition], 0, this.displayHeight);
+            if (this.imageHeight >= 0) {
+                System.arraycopy(this.bitplaneBuffer[i], 0, this.bitplaneBuffer[shiftedHorizontalPosition], 0, this.imageHeight);
             }
         }
-        for (int x = 0; x < scrollAmount && x < this.displayWidth; x++) {
-            for (int y = 0; y < this.displayHeight; y++) {
+        for (int x = 0; x < scrollAmount && x < this.imageWidth; x++) {
+            for (int y = 0; y < this.imageHeight; y++) {
                 this.bitplaneBuffer[x][y] = 0;
             }
         }
@@ -134,20 +134,20 @@ public class SChipDisplay extends Chip8Display {
                 scrollAmount = 8;
             }
         }
-        for (int i = 0; i < this.displayWidth; i++) {
+        for (int i = 0; i < this.imageWidth; i++) {
             int shiftedHorizontalPosition = i - scrollAmount;
             if (shiftedHorizontalPosition < 0) {
                 continue;
             }
-            if (this.displayHeight >= 0) {
-                System.arraycopy(this.bitplaneBuffer[i], 0, this.bitplaneBuffer[shiftedHorizontalPosition], 0, this.displayHeight);
+            if (this.imageHeight >= 0) {
+                System.arraycopy(this.bitplaneBuffer[i], 0, this.bitplaneBuffer[shiftedHorizontalPosition], 0, this.imageHeight);
             }
         }
-        for (int x = this.displayWidth - scrollAmount; x < this.displayWidth; x++) {
+        for (int x = this.imageWidth - scrollAmount; x < this.imageWidth; x++) {
             if (x < 0) {
                 continue;
             }
-            for (int y = 0; y < this.displayHeight; y++) {
+            for (int y = 0; y < this.imageHeight; y++) {
                 this.bitplaneBuffer[x][y] = 0;
             }
         }

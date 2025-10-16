@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.ui;
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
+import io.github.arkosammy12.jchip.video.Display;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -41,15 +42,15 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final Object renderLock = new Object();
     protected final Object renderBufferLock = new Object();
 
-    public EmulatorRenderer(JChip jchip, int displayWidth, int displayHeight, DisplayAngle displayAngle, int initialScale, Consumer<int[][]> renderBufferUpdater, Chip8Variant variant, String romTitle) {
+    public EmulatorRenderer(JChip jchip, Display display, Consumer<int[][]> renderBufferUpdater, Chip8Variant variant, String romTitle) {
         super();
         this.jchip = jchip;
-        this.displayWidth = displayWidth;
-        this.displayHeight = displayHeight;
-        this.displayAngle = displayAngle;
+        this.displayWidth = display.getImageWidth();
+        this.displayHeight = display.getImageHeight();
+        this.displayAngle = display.getDisplayAngle();
         this.chip8Variant = variant;
         this.romTitle = romTitle;
-        this.initialScale = initialScale;
+        this.initialScale = display.getImageScale(this.displayAngle);
         this.renderBuffer = new int[displayWidth][displayHeight];
         this.renderBufferUpdater = renderBufferUpdater;
 
@@ -78,7 +79,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         this.setFocusable(true);
         setIgnoreRepaint(false);
 
-        this.jchip.getMainWindow().setGameRenderer(this);
+        this.jchip.getMainWindow().setEmulatorRenderer(this);
     }
 
     public int getDisplayWidth() {

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
+public class EnumMenu<E extends DisplayNameProvider> extends JMenu {
 
     private final Map<E, JRadioButtonMenuItem> buttonMap = new HashMap<>();
     private final JRadioButtonMenuItem unspecifiedItem;

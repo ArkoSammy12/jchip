@@ -65,6 +65,11 @@ public class Chip8Memory {
         this.bytes[address & this.memoryBoundsMask] = value;
     }
 
+    public final int[] getMemoryView(int[] ret) {
+        System.arraycopy(this.bytes, 0, ret, 0, Math.clamp(this.bytes.length, 0, ret.length));
+        return ret;
+    }
+
     public void reset() {
         Arrays.fill(this.bytes, 0);
         chip8Variant.getSpriteFont().getSmallFont().ifPresent(smallFont -> {

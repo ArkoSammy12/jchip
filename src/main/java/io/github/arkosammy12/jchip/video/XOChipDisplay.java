@@ -42,12 +42,12 @@ public class XOChipDisplay extends SChipDisplay {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
             }
-            for (int i = 0; i < this.displayHeight; i++) {
+            for (int i = 0; i < this.imageHeight; i++) {
                 int shiftedVerticalPosition = i - trueScrollAmount;
                 if (shiftedVerticalPosition < 0) {
                     continue;
                 }
-                for (int j = 0; j < this.displayWidth; j++) {
+                for (int j = 0; j < this.imageWidth; j++) {
                     int val = this.bitplaneBuffer[j][i] & mask;
                     if (val != 0) {
                         this.bitplaneBuffer[j][shiftedVerticalPosition] |= mask;
@@ -56,11 +56,11 @@ public class XOChipDisplay extends SChipDisplay {
                     }
                 }
             }
-            for (int y = this.displayHeight - trueScrollAmount; y < this.displayHeight; y++) {
+            for (int y = this.imageHeight - trueScrollAmount; y < this.imageHeight; y++) {
                 if (y < 0) {
                     continue;
                 }
-                for (int x = 0; x < this.displayWidth; x++) {
+                for (int x = 0; x < this.imageWidth; x++) {
                     this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }
@@ -75,12 +75,12 @@ public class XOChipDisplay extends SChipDisplay {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
             }
-            for (int i = this.displayHeight - 1; i >= 0; i--) {
+            for (int i = this.imageHeight - 1; i >= 0; i--) {
                 int shiftedVerticalPosition = trueScrollAmount + i;
-                if (shiftedVerticalPosition >= this.displayHeight) {
+                if (shiftedVerticalPosition >= this.imageHeight) {
                     continue;
                 }
-                for (int j = 0; j < this.displayWidth; j++) {
+                for (int j = 0; j < this.imageWidth; j++) {
                     int val = this.bitplaneBuffer[j][i] & mask;
                     if (val != 0) {
                         this.bitplaneBuffer[j][shiftedVerticalPosition] |= mask;
@@ -89,8 +89,8 @@ public class XOChipDisplay extends SChipDisplay {
                     }
                 }
             }
-            for (int y = 0; y < trueScrollAmount && y < this.displayHeight; y++) {
-                for (int x = 0; x < this.displayWidth; x++) {
+            for (int y = 0; y < trueScrollAmount && y < this.imageHeight; y++) {
+                for (int x = 0; x < this.imageWidth; x++) {
                     this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }
@@ -105,12 +105,12 @@ public class XOChipDisplay extends SChipDisplay {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
             }
-            for (int i = this.displayWidth - 1; i >= 0; i--) {
+            for (int i = this.imageWidth - 1; i >= 0; i--) {
                 int shiftedHorizontalPosition = i + scrollAmount;
-                if (shiftedHorizontalPosition >= this.displayWidth) {
+                if (shiftedHorizontalPosition >= this.imageWidth) {
                     continue;
                 }
-                for (int j = 0; j < this.displayHeight; j++) {
+                for (int j = 0; j < this.imageHeight; j++) {
                     int val = this.bitplaneBuffer[i][j] & mask;
                     if (val != 0) {
                         this.bitplaneBuffer[shiftedHorizontalPosition][j] |= mask;
@@ -119,8 +119,8 @@ public class XOChipDisplay extends SChipDisplay {
                     }
                 }
             }
-            for (int x = 0; x < scrollAmount && x < this.displayWidth; x++) {
-                for (int y = 0; y < this.displayHeight; y++) {
+            for (int x = 0; x < scrollAmount && x < this.imageWidth; x++) {
+                for (int y = 0; y < this.imageHeight; y++) {
                     this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }
@@ -135,12 +135,12 @@ public class XOChipDisplay extends SChipDisplay {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
             }
-            for (int i = 0; i < this.displayWidth; i++) {
+            for (int i = 0; i < this.imageWidth; i++) {
                 int shiftedHorizontalPosition = i - scrollAmount;
                 if (shiftedHorizontalPosition < 0) {
                     continue;
                 }
-                for (int j = 0; j < this.displayHeight; j++) {
+                for (int j = 0; j < this.imageHeight; j++) {
                     int val = this.bitplaneBuffer[i][j] & mask;
                     if (val != 0) {
                         this.bitplaneBuffer[shiftedHorizontalPosition][j] |= mask;
@@ -149,11 +149,11 @@ public class XOChipDisplay extends SChipDisplay {
                     }
                 }
             }
-            for (int x = this.displayWidth - scrollAmount; x < this.displayWidth; x++) {
+            for (int x = this.imageWidth - scrollAmount; x < this.imageWidth; x++) {
                 if (x < 0) {
                     continue;
                 }
-                for (int y = 0; y < this.displayHeight; y++) {
+                for (int y = 0; y < this.imageHeight; y++) {
                     this.bitplaneBuffer[x][y] &= ~mask;
                 }
             }

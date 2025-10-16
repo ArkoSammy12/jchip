@@ -82,7 +82,7 @@ public enum Chip8Variant implements DisplayNameProvider {
     }
 
     public static Chip8Emulator<?, ?> getEmulator(EmulatorConfig emulatorConfig) {
-        return emulatorConfig.getConsoleVariant().emulatorSupplier.apply(emulatorConfig);
+        return emulatorConfig.getVariant().emulatorSupplier.apply(emulatorConfig);
     }
 
     public static Chip8Variant getVariantForIdentifier(String identifier) {

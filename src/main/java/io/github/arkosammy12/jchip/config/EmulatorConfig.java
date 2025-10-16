@@ -36,7 +36,7 @@ public class EmulatorConfig {
     public EmulatorConfig(JChip jchip) throws IOException {
         this.jchip = jchip;
 
-        SettingsMenu settings = this.jchip.getMainWindow().getSettingsBar();
+        SettingsMenu settings = this.jchip.getMainWindow().getSettingsMenu();
         Path romPath = settings.getRomPath();
         if (romPath == null) {
             throw new EmulatorException("ROM path cannot be null!");
@@ -93,7 +93,7 @@ public class EmulatorConfig {
         return this.displayAngle;
     }
 
-    public Chip8Variant getConsoleVariant() {
+    public Chip8Variant getVariant() {
         return this.chip8Variant;
     }
 

@@ -61,8 +61,8 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     @Override
     protected Consumer<int[][]> getRenderBufferUpdater() {
         return renderBuffer -> {
-            for (int y = 0; y < displayHeight; y++) {
-                for (int x = 0; x < displayWidth; x++) {
+            for (int y = 0; y < imageHeight; y++) {
+                for (int x = 0; x < imageWidth; x++) {
                     renderBuffer[x][y] = this.colorPalette[bitplaneBuffer[x][y] & 0xF];
                 }
             }

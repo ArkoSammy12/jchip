@@ -10,9 +10,8 @@ import io.github.arkosammy12.jchip.util.Chip8Variant;
 import org.tinylog.Logger;
 import picocli.CommandLine;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JChip {
@@ -41,9 +40,13 @@ public class JChip {
                     System.exit(exitCodeOnVersionHelp);
                 }
             }
-            this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
+            this.mainWindow.getSettingsMenu().initializeSettings(cliArgs);
             this.currentEmulator = Chip8Variant.getEmulator(new EmulatorConfig(this));
         }
+    }
+
+    public Optional<Chip8Emulator<?, ?>> getCurrentEmulator() {
+        return Optional.ofNullable(this.currentEmulator);
     }
 
     public MainWindow getMainWindow() {
@@ -56,7 +59,7 @@ public class JChip {
 
     public void start() {
         try {
-            long lastFrame = System.nanoTime();
+            long lastFrameTime = System.nanoTime();
             while (this.running.get()) {
                 try {
                     if (this.stop.get()) {
@@ -72,18 +75,19 @@ public class JChip {
                         continue;
                     }
                     if (this.currentEmulator.isTerminated()) {
-                        this.handleStop();
+                        this.stop();
                         continue;
                     }
                     long now = System.nanoTime();
-                    long elapsed = now - lastFrame;
+                    long elapsed = now - lastFrameTime;
                     if (elapsed > 1_000_000_000L) {
-                        lastFrame = now;
+                        lastFrameTime = now;
                         continue;
                     }
                     while (elapsed >= Main.FRAME_INTERVAL) {
                         this.currentEmulator.tick();
-                        lastFrame += Main.FRAME_INTERVAL;
+                        this.mainWindow.onTick();
+                        lastFrameTime += Main.FRAME_INTERVAL;
                         elapsed -= Main.FRAME_INTERVAL;
                     }
                 } catch (EmulatorException emulatorException) {
@@ -96,11 +100,9 @@ public class JChip {
             Logger.error("jchip has crashed!");
             throw new RuntimeException(e);
         } finally {
-            if (this.currentEmulator != null) {
-                this.currentEmulator.close();
-            }
+            this.handleStop();
+            this.mainWindow.close();
         }
-        this.mainWindow.close();
     }
 
     public void reset() {
@@ -114,7 +116,7 @@ public class JChip {
     private void handleReset() throws IOException {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
-            this.mainWindow.setGameRenderer(null);
+            this.mainWindow.setEmulatorRenderer(null);
         }
         this.currentEmulator = Chip8Variant.getEmulator(new EmulatorConfig(this));
     }
@@ -122,9 +124,10 @@ public class JChip {
     private void handleStop() {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
+            this.mainWindow.setEmulatorRenderer(null);
         }
         this.currentEmulator = null;
-        this.mainWindow.setGameRenderer(null);
+        this.mainWindow.onStopped();
     }
 
 }

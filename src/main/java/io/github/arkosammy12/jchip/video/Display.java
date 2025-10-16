@@ -18,37 +18,39 @@ public abstract class Display implements Closeable {
     private final JChip jchip;
 
     protected final Chip8Variant chip8Variant;
-    protected final int displayWidth;
-    protected final int displayHeight;
+    private final DisplayAngle displayAngle;
+    protected final int imageWidth;
+    protected final int imageHeight;
 
     public Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
         this.jchip = config.getJChip();
         String romTitle = config.getProgramTitle();
-        String romTitle1 = (romTitle == null) ? "" : " | " + romTitle;
-        this.chip8Variant = config.getConsoleVariant();
-        DisplayAngle displayAngle = config.getDisplayAngle();
-        this.displayWidth = getImageWidth();
-        this.displayHeight = getImageHeight();
-        int initialScale = getImageScale(displayAngle);
-        this.emulatorRenderer = new EmulatorRenderer(this.jchip, this.displayWidth, this.displayHeight, displayAngle, initialScale, this.getRenderBufferUpdater(), this.chip8Variant, romTitle1);
+        this.chip8Variant = config.getVariant();
+        this.displayAngle = config.getDisplayAngle();
+        this.imageWidth = getImageWidth();
+        this.imageHeight = getImageHeight();
+        this.emulatorRenderer = new EmulatorRenderer(this.jchip, this, this.getRenderBufferUpdater(), this.chip8Variant, (romTitle == null) ? "" : " | " + romTitle);
         keyAdapters.forEach(emulatorRenderer::addKeyListener);
         this.emulatorRenderer.setVisible(true);
-
     }
 
     public HexSpriteFont getCharacterSpriteFont() {
         return chip8Variant.getSpriteFont();
     }
 
+    public DisplayAngle getDisplayAngle() {
+        return this.displayAngle;
+    }
+
     public abstract int getWidth();
 
     public abstract int getHeight();
 
-    protected abstract int getImageWidth();
+    public abstract int getImageWidth();
 
-    protected abstract int getImageHeight();
+    public abstract int getImageHeight();
 
-    protected abstract int getImageScale(DisplayAngle displayAngle);
+    public abstract int getImageScale(DisplayAngle displayAngle);
 
     protected abstract Consumer<int[][]> getRenderBufferUpdater();
 

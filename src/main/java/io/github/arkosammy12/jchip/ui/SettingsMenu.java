@@ -6,13 +6,14 @@ import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
+import io.github.arkosammy12.jchip.video.ColorPalette;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public class SettingsMenu extends JMenuBar {
+public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
 
     private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8"};
 
@@ -31,6 +32,8 @@ public class SettingsMenu extends JMenuBar {
     private final QuirkSubMenu doClippingMenu;
     private final QuirkSubMenu doShiftVXInPlaceMenu;
     private final QuirkSubMenu doJumpWithVXMenu;
+
+    private final JTextField instructionsPerFrameField;
 
     private Path selectedRomPath;
     private Integer instructionsPerFrame;
@@ -53,10 +56,7 @@ public class SettingsMenu extends JMenuBar {
             Action details = chooser.getActionMap().get("viewTypeDetails");
             details.actionPerformed(null);
             if (chooser.showOpenDialog(this.getParent()) == JFileChooser.APPROVE_OPTION) {
-                if (this.selectedRomPath == null) {
-                    this.jchip.reset();
-                }
-                    this.selectedRomPath = chooser.getSelectedFile().toPath().toAbsolutePath();
+                this.selectedRomPath = chooser.getSelectedFile().toPath().toAbsolutePath();
             }
         });
 
@@ -68,22 +68,33 @@ public class SettingsMenu extends JMenuBar {
         this.doJumpWithVXMenu = new QuirkSubMenu("Do Jump With VX");
 
         JLabel label = new JLabel("IPF: ");
-        JTextField ipfField = new JTextField(6);
-        ipfField.setMaximumSize(ipfField.getPreferredSize());
-        ipfField.setText(this.instructionsPerFrame != null ? this.instructionsPerFrame.toString() : "");
-        ipfField.addActionListener(_ -> {
+        this.instructionsPerFrameField = new JTextField(6);
+        instructionsPerFrameField.setMaximumSize(instructionsPerFrameField.getPreferredSize());
+        instructionsPerFrameField.setText(this.instructionsPerFrame != null ? this.instructionsPerFrame.toString() : "");
+        instructionsPerFrameField.addActionListener(_ -> {
+            String text = instructionsPerFrameField.getText().trim();
+            if (text.isEmpty()) {
+                this.instructionsPerFrame = null;
+                return;
+            }
             try {
-                int ipf = Integer.parseInt(ipfField.getText().trim());
+                int ipf  = Integer.parseInt(text);
                 if (ipf > 0) {
                     this.instructionsPerFrame = ipf;
                 }
             } catch (NumberFormatException ignored) {
-                this.instructionsPerFrame = null;
+                JOptionPane.showMessageDialog(
+                        jchip.getMainWindow(),
+                        "The instructions per frame value must be a valid integer!",
+                        "Incorrect formatting",
+                        JOptionPane.WARNING_MESSAGE
+                );
             }
+
         });
         JPanel ipfPanel = new JPanel();
         ipfPanel.add(label);
-        ipfPanel.add(ipfField);
+        ipfPanel.add(instructionsPerFrameField);
 
         fileMenu.add(openItem);
 
@@ -114,53 +125,72 @@ public class SettingsMenu extends JMenuBar {
         primarySettingsProvider.doClipping().ifPresent(this.doClippingMenu::setState);
         primarySettingsProvider.doShiftVXInPlace().ifPresent(this.doShiftVXInPlaceMenu::setState);
         primarySettingsProvider.doJumpWithVX().ifPresent(this.doJumpWithVXMenu::setState);
-        primarySettingsProvider.getInstructionsPerFrame().ifPresent(val -> this.instructionsPerFrame = val);
+        primarySettingsProvider.getInstructionsPerFrame().ifPresent(val -> {
+            this.instructionsPerFrame = val;
+            this.instructionsPerFrameField.setText(String.valueOf(val));
+        });
     }
 
+    @Override
     public Path getRomPath() {
         return this.selectedRomPath;
     }
 
+    @Override
     public Optional<KeyboardLayout> getKeyboardLayout() {
         return Optional.empty();
     }
 
+    @Override
     public Optional<Integer> getInstructionsPerFrame() {
         return Optional.ofNullable(this.instructionsPerFrame);
     }
 
-    public Optional<BuiltInColorPalette> getColorPalette() {
-        return this.colorPaletteMenu.getState();
+    @Override
+    public Optional<ColorPalette> getColorPalette() {
+        Optional<BuiltInColorPalette> optionalBuiltInColorPalette = this.colorPaletteMenu.getState();
+        if (optionalBuiltInColorPalette.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(optionalBuiltInColorPalette.get());
     }
 
+    @Override
     public Optional<DisplayAngle> getDisplayAngle() {
         return this.displayAngleMenu.getState();
     }
 
+    @Override
     public Optional<Chip8Variant> getChip8Variant() {
         return this.variantMenu.getState();
     }
 
+    @Override
     public Optional<Boolean> doVFReset() {
         return this.doVFResetMenu.getState();
     }
 
+    @Override
     public Optional<Boolean> doIncrementIndex() {
         return this.doIncrementIndexMenu.getState();
     }
 
+    @Override
     public Optional<Boolean> doDisplayWait() {
         return this.doDisplayWaitMenu.getState();
     }
 
+    @Override
     public Optional<Boolean> doClipping() {
         return this.doClippingMenu.getState();
     }
 
+    @Override
     public Optional<Boolean> doShiftVXInPlace() {
         return this.doShiftVXInPlaceMenu.getState();
     }
 
+    @Override
     public Optional<Boolean> doJumpWithVX() {
         return this.doJumpWithVXMenu.getState();
     }

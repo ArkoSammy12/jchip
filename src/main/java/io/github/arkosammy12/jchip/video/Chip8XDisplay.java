@@ -70,8 +70,8 @@ public class Chip8XDisplay extends Chip8Display {
     protected Consumer<int[][]> getRenderBufferUpdater() {
         return renderBuffer -> {
             if (this.extendedColorDraw) {
-                for (int y = 0; y < displayHeight; y++) {
-                    for (int x = 0; x < displayWidth; x++) {
+                for (int y = 0; y < imageHeight; y++) {
+                    for (int x = 0; x < imageWidth; x++) {
                         renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
                     }
                 }

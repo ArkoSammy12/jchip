@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import org.tinylog.Logger;
 
@@ -15,8 +16,11 @@ public class MainWindow extends JFrame implements Closeable {
 
     private static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
+    private final JChip jchip;
+
     private EmulatorRenderer emulatorRenderer;
-    private final SettingsMenu settingsBar;
+    private final SettingsMenu settingsMenu;
+    private final DebuggerViewPanel debuggerViewPanel;
 
     private long lastWindowTitleUpdate = 0;
     private long lastFrameTime = System.nanoTime();
@@ -27,6 +31,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     public MainWindow(JChip jchip) {
         super();
+        this.jchip = jchip;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.setBackground(Color.BLACK);
         this.getContentPane().setBackground(Color.BLACK);
@@ -39,36 +44,10 @@ public class MainWindow extends JFrame implements Closeable {
 
         this.getContentPane().setLayout(new BorderLayout());
 
-        JPanel debuggerPanel = new JPanel();
-        debuggerPanel.setBackground(Color.DARK_GRAY);
-        debuggerPanel.setLayout(new GridLayout(0, 1, 2, 2));
-        debuggerPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                "Live Debugger", 0, 0, new Font("Monospaced", Font.BOLD, 12), Color.WHITE));
-
-        JLabel pcLabel = new JLabel("PC: 0x0000");
-        JLabel iLabel = new JLabel("I: 0x0000");
-        JLabel delayTimerLabel = new JLabel("Delay Timer: 0");
-        JLabel soundTimerLabel = new JLabel("Sound Timer: 0");
-        JLabel stackLabel = new JLabel("Stack: [0x0000, 0x0000, ...]");
-
-        pcLabel.setForeground(Color.WHITE);
-        iLabel.setForeground(Color.WHITE);
-        delayTimerLabel.setForeground(Color.WHITE);
-        soundTimerLabel.setForeground(Color.WHITE);
-        stackLabel.setForeground(Color.WHITE);
-
-        debuggerPanel.add(pcLabel);
-        debuggerPanel.add(iLabel);
-        debuggerPanel.add(delayTimerLabel);
-        debuggerPanel.add(soundTimerLabel);
-        debuggerPanel.add(stackLabel);
-
-        this.getContentPane().add(debuggerPanel, BorderLayout.EAST);
-
         InputMap im = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = this.getRootPane().getActionMap();
 
-        im.put(KeyStroke.getKeyStroke("F2"), "resetEmulator");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "resetEmulator");
         am.put("resetEmulator", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -80,7 +59,7 @@ public class MainWindow extends JFrame implements Closeable {
             }
         });
 
-        im.put(KeyStroke.getKeyStroke("ESCAPE"), "stopEmulator");
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "stopEmulator");
         am.put("stopEmulator", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -92,48 +71,60 @@ public class MainWindow extends JFrame implements Closeable {
             }
         });
 
-        this.settingsBar = new SettingsMenu(jchip);
+        this.debuggerViewPanel = new DebuggerViewPanel(jchip);
+        this.debuggerViewPanel.setPreferredSize(new Dimension(225, 0));
+        this.getContentPane().add(this.debuggerViewPanel, BorderLayout.EAST);
+        this.settingsMenu = new SettingsMenu(jchip);
         this.setTitle(DEFAULT_TITLE);
-        this.setJMenuBar(this.settingsBar);
+        this.setJMenuBar(this.settingsMenu);
         this.requestFocusInWindow();
-        this.setVisible(true);
         this.setResizable(true);
+        this.setVisible(true);
     }
 
-    public void setGameRenderer(EmulatorRenderer emulatorRenderer) {
+    public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
         SwingUtilities.invokeLater(() -> {
             if (this.emulatorRenderer != null) {
                 this.getContentPane().remove(this.emulatorRenderer);
             }
             if (emulatorRenderer == null) {
                 this.getContentPane().repaint();
-                this.revalidate();
+                this.getContentPane().revalidate();
                 this.setTitle(DEFAULT_TITLE);
                 return;
             }
             this.emulatorRenderer = emulatorRenderer;
-            this.getContentPane().add(emulatorRenderer);
             int displayWidth = emulatorRenderer.getDisplayWidth();
             int displayHeight = emulatorRenderer.getDisplayHeight();
             int initialScale = emulatorRenderer.getInitialScale();
+            this.getContentPane().add(this.emulatorRenderer);
             this.setMinimumSize(new Dimension(displayWidth * (initialScale / 2), displayHeight * (initialScale / 2)));
-            this.repaint();
-            this.revalidate();
+            this.getContentPane().repaint();
+            this.getContentPane().revalidate();
             emulatorRenderer.requestFocusInWindow();
         });
     }
 
-    public EmulatorRenderer getGameRenderer() {
+    public EmulatorRenderer getEmulatorRenderer() {
         return this.emulatorRenderer;
     }
 
-    public SettingsMenu getSettingsBar() {
-        return this.settingsBar;
+    public SettingsMenu getSettingsMenu() {
+        return this.settingsMenu;
+    }
+
+    public void onTick() {
+        this.debuggerViewPanel.tick();
+    }
+
+    public void onStopped() {
+        this.setEmulatorRenderer(null);
+        this.debuggerViewPanel.clear();
     }
 
     public void updateWindowTitle(int currentInstructionsPerFrame) {
         SwingUtilities.invokeLater(() -> {
-            ifGameRendererSet(renderer -> {
+            this.ifEmulatorRendererSet(renderer -> {
                 this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
                 long now = System.nanoTime();
                 double lastFrameDuration = now - lastFrameTime;
@@ -172,7 +163,7 @@ public class MainWindow extends JFrame implements Closeable {
         });
     }
 
-    private void ifGameRendererSet(Consumer<EmulatorRenderer> consumer) {
+    private void ifEmulatorRendererSet(Consumer<EmulatorRenderer> consumer) {
         if (this.emulatorRenderer != null) {
             consumer.accept(this.emulatorRenderer);
         }
@@ -180,9 +171,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     @Override
     public void close() {
-        SwingUtilities.invokeLater(() -> {
-            this.emulatorRenderer.close();
-            this.dispose();
-        });
+        this.emulatorRenderer.close();
+        this.dispose();
     }
 }

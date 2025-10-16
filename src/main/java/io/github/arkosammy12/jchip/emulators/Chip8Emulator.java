@@ -38,7 +38,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     public Chip8Emulator(EmulatorConfig emulatorConfig) {
         try {
             this.config = emulatorConfig;
-            this.chip8Variant = emulatorConfig.getConsoleVariant();
+            this.chip8Variant = emulatorConfig.getVariant();
             this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keypad = new Keypad(this.config.getKeyboardLayout());
@@ -105,6 +105,10 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     public EmulatorConfig getEmulatorConfig() {
         return this.config;
+    }
+
+    public int getCurrentInstructionsPerFrame() {
+        return this.currentInstructionsPerFrame;
     }
 
     protected void terminate() {
