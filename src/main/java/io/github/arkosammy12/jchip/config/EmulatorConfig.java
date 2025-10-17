@@ -51,7 +51,7 @@ public class EmulatorConfig {
 
         this.romTitle = database.getProgramTitle().orElse(romPath.getFileName().toString());
         this.keyboardLayout = settings.getKeyboardLayout().orElse(KeyboardLayout.QWERTY);
-        this.colorPalette = database.getColorPalette().orElse(settings.getColorPalette().orElse(BuiltInColorPalette.CADMIUM));
+        this.colorPalette = settings.getColorPalette().orElse(database.getColorPalette().orElse(BuiltInColorPalette.CADMIUM));
         this.displayAngle = settings.getDisplayAngle().orElse(database.getDisplayAngle().orElse(DisplayAngle.DEG_0));
 
         this.chip8Variant = settings.getChip8Variant().orElse(database.getChip8Variant().orElse(Chip8Variant.CHIP_8));
