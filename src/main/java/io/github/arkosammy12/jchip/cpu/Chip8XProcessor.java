@@ -13,12 +13,6 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     }
 
     @Override
-    public void reset() {
-        super.reset();
-        this.setProgramCounter(0x300);
-    }
-
-    @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
          if (firstByte == 0x02 && NN == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
              this.emulator.getDisplay().cycleBackgroundColor();
@@ -97,7 +91,7 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         return switch (NN) {
             case 0xF8 -> { // FXF8: Output register to IO port
-                this.emulator.getSoundSystem().setPlaybackRate(this.getRegister(getXFromFirstByte(firstByte)));
+                this.emulator.getSoundSystem().setPitch(this.getRegister(getXFromFirstByte(firstByte)));
                 yield HANDLED;
             }
             case 0xFB -> HANDLED; // FXFB: Wait for input from IO port and load into register. Stubbed

@@ -15,6 +15,4 @@ public interface SoundSystem extends Closeable {
 
     void volumeDown();
 
-    void reset();
-
 }

@@ -29,28 +29,6 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     @Override
-    public void reset() {
-        super.reset();
-        this.colorPalette[0] = 0x00000000;
-        this.colorPalette[255] = 0xFFFFFFFF;
-        this.spriteWidth = 0;
-        this.spriteHeight = 0;
-        this.screenAlpha = 0;
-        this.collisionIndex = 0;
-        this.blendMode = BlendMode.BLEND_NORMAL;
-        this.megaChipModeEnabled = false;
-        this.scrollTriggered = false;
-        for (int i = 0; i < 256; i++) {
-            this.colorPalette[i] = 0;
-            for (int j = 0; j < 256; j++) {
-                this.backBuffer[i][j] = 0;
-                this.indexBuffer[i][j] = 0;
-                this.frontBuffer[i][j] = 0;
-            }
-        }
-    }
-
-    @Override
     public int getWidth() {
         if (!this.isMegaChipModeEnabled()) {
             return super.getWidth();

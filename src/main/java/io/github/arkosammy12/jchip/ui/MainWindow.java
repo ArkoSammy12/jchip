@@ -10,17 +10,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.Closeable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class MainWindow extends JFrame implements Closeable {
 
     private static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
-    private final JChip jchip;
-
     private EmulatorRenderer emulatorRenderer;
     private final SettingsMenu settingsMenu;
     private final DebuggerViewPanel debuggerViewPanel;
+    private final AtomicBoolean showingDebuggerView = new AtomicBoolean(false);
 
     private long lastWindowTitleUpdate = 0;
     private long lastFrameTime = System.nanoTime();
@@ -31,7 +31,6 @@ public class MainWindow extends JFrame implements Closeable {
 
     public MainWindow(JChip jchip) {
         super();
-        this.jchip = jchip;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.setBackground(Color.BLACK);
         this.getContentPane().setBackground(Color.BLACK);
@@ -54,7 +53,7 @@ public class MainWindow extends JFrame implements Closeable {
                 try {
                     jchip.reset();
                 } catch (EmulatorException cause) {
-                    Logger.info("Error automatically resetting emulator: {}", cause);
+                    Logger.info("Error resetting emulator: {}", cause);
                 }
             }
         });
@@ -73,93 +72,107 @@ public class MainWindow extends JFrame implements Closeable {
 
         this.debuggerViewPanel = new DebuggerViewPanel(jchip);
         this.debuggerViewPanel.setPreferredSize(new Dimension(225, 0));
-        this.getContentPane().add(this.debuggerViewPanel, BorderLayout.EAST);
+
         this.settingsMenu = new SettingsMenu(jchip);
-        this.setTitle(DEFAULT_TITLE);
         this.setJMenuBar(this.settingsMenu);
+
+        this.setTitle(DEFAULT_TITLE);
         this.requestFocusInWindow();
         this.setResizable(true);
         this.setVisible(true);
-    }
-
-    public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
-        SwingUtilities.invokeLater(() -> {
-            if (this.emulatorRenderer != null) {
-                this.getContentPane().remove(this.emulatorRenderer);
-            }
-            if (emulatorRenderer == null) {
-                this.getContentPane().repaint();
-                this.getContentPane().revalidate();
-                this.setTitle(DEFAULT_TITLE);
-                return;
-            }
-            this.emulatorRenderer = emulatorRenderer;
-            int displayWidth = emulatorRenderer.getDisplayWidth();
-            int displayHeight = emulatorRenderer.getDisplayHeight();
-            int initialScale = emulatorRenderer.getInitialScale();
-            this.getContentPane().add(this.emulatorRenderer);
-            this.setMinimumSize(new Dimension(displayWidth * (initialScale / 2), displayHeight * (initialScale / 2)));
-            this.getContentPane().repaint();
-            this.getContentPane().revalidate();
-            emulatorRenderer.requestFocusInWindow();
-        });
-    }
-
-    public EmulatorRenderer getEmulatorRenderer() {
-        return this.emulatorRenderer;
     }
 
     public SettingsMenu getSettingsMenu() {
         return this.settingsMenu;
     }
 
-    public void onTick() {
-        this.debuggerViewPanel.tick();
+    public void update(Chip8Emulator<?, ?> emulator) {
+        if (this.showingDebuggerView.get()) {
+            this.debuggerViewPanel.update();
+        }
+        this.updateWindowTitle(emulator.getCurrentInstructionsPerFrame());
     }
 
     public void onStopped() {
-        this.setEmulatorRenderer(null);
         this.debuggerViewPanel.clear();
     }
 
-    public void updateWindowTitle(int currentInstructionsPerFrame) {
-        SwingUtilities.invokeLater(() -> {
-            this.ifEmulatorRendererSet(renderer -> {
-                this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
-                long now = System.nanoTime();
-                double lastFrameDuration = now - lastFrameTime;
-                lastFrameTime = now;
-                totalFrameTimeSinceLastUpdate += lastFrameDuration;
-                framesSinceLastUpdate++;
-
-                long deltaTime = now - lastWindowTitleUpdate;
-                if (deltaTime < 1_000_000_000L) {
-                    return;
-                }
-
-                double fps = framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
-                long averageIpf = totalIpfSinceLastUpdate / framesSinceLastUpdate;
-                double averageFrameTimeMs = (totalFrameTimeSinceLastUpdate / framesSinceLastUpdate) / 1_000_000.0;
-                double mips = (averageIpf * fps) / 1_000_000.0;
-
-                framesSinceLastUpdate = 0;
-                totalIpfSinceLastUpdate = 0;
-                totalFrameTimeSinceLastUpdate = 0;
-                lastWindowTitleUpdate = now;
-
-                stringBuilder.append(DEFAULT_TITLE)
-                        .append(" | ").append(renderer.getChip8Variant().getDisplayName())
-                        .append(renderer.getRomTitle())
-                        .append(" | IPF: ").append(averageIpf)
-                        .append(" | MIPS: ").append(String.format("%.2f", mips))
-                        .append(" | Frame Time: ").append(String.format("%.2f ms", averageFrameTimeMs))
-                        .append(" | FPS: ").append(String.format("%.2f", fps));
-
-                String title = stringBuilder.toString();
-                stringBuilder.setLength(0);
-
-                this.setTitle(title);
+    public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
+        if (this.emulatorRenderer != null) {
+            this.emulatorRenderer.close();
+            this.getContentPane().remove(this.emulatorRenderer);
+        }
+        if (emulatorRenderer == null) {
+            this.emulatorRenderer = null;
+            SwingUtilities.invokeLater(() -> {
+                this.getContentPane().revalidate();
+                this.getContentPane().repaint();
+                this.setTitle(DEFAULT_TITLE);
             });
+            return;
+        }
+        this.emulatorRenderer = emulatorRenderer;
+        SwingUtilities.invokeLater(() -> {
+            int displayWidth = emulatorRenderer.getDisplayWidth();
+            int displayHeight = emulatorRenderer.getDisplayHeight();
+            int initialScale = emulatorRenderer.getInitialScale();
+            this.getContentPane().add(emulatorRenderer);
+            this.setMinimumSize(new Dimension(displayWidth * (initialScale / 2), displayHeight * (initialScale / 2)));
+            this.getContentPane().revalidate();
+            this.getContentPane().repaint();
+            this.emulatorRenderer.requestFocusInWindow();
+        });
+    }
+
+    public void setDebuggerViewEnabled(boolean enabled) {
+        SwingUtilities.invokeLater(() -> {
+            this.showingDebuggerView.set(enabled);
+            if (enabled) {
+                this.getContentPane().add(this.debuggerViewPanel, BorderLayout.EAST);
+            } else {
+                this.getContentPane().remove(this.debuggerViewPanel);
+            }
+            this.getContentPane().revalidate();
+            this.getContentPane().repaint();
+        });
+    }
+
+    private void updateWindowTitle(int currentInstructionsPerFrame) {
+        this.ifEmulatorRendererSet(renderer -> {
+            this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
+            long now = System.nanoTime();
+            double lastFrameDuration = now - lastFrameTime;
+            lastFrameTime = now;
+            totalFrameTimeSinceLastUpdate += lastFrameDuration;
+            framesSinceLastUpdate++;
+
+            long deltaTime = now - lastWindowTitleUpdate;
+            if (deltaTime < 1_000_000_000L) {
+                return;
+            }
+
+            double fps = framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
+            long averageIpf = totalIpfSinceLastUpdate / framesSinceLastUpdate;
+            double averageFrameTimeMs = (totalFrameTimeSinceLastUpdate / framesSinceLastUpdate) / 1_000_000.0;
+            double mips = (averageIpf * fps) / 1_000_000.0;
+
+            framesSinceLastUpdate = 0;
+            totalIpfSinceLastUpdate = 0;
+            totalFrameTimeSinceLastUpdate = 0;
+            lastWindowTitleUpdate = now;
+
+            stringBuilder.append(DEFAULT_TITLE)
+                    .append(" | ").append(renderer.getChip8Variant().getDisplayName())
+                    .append(renderer.getRomTitle())
+                    .append(" | IPF: ").append(averageIpf)
+                    .append(" | MIPS: ").append(String.format("%.2f", mips))
+                    .append(" | Frame Time: ").append(String.format("%.2f ms", averageFrameTimeMs))
+                    .append(" | FPS: ").append(String.format("%.2f", fps));
+
+            String title = stringBuilder.toString();
+            stringBuilder.setLength(0);
+
+            SwingUtilities.invokeLater(() -> this.setTitle(title));
         });
     }
 
@@ -171,7 +184,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     @Override
     public void close() {
-        this.emulatorRenderer.close();
-        this.dispose();
+        SwingUtilities.invokeLater(this::dispose);
     }
+
 }

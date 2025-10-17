@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.util;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Keypad extends KeyAdapter {
@@ -14,11 +13,6 @@ public class Keypad extends KeyAdapter {
 
     public Keypad(KeyboardLayout keyboardLayout) {
         this.keyboardLayout = keyboardLayout;
-    }
-
-    public void reset() {
-        Arrays.fill(keys, false);
-        this.waitingKey = -1;
     }
 
     @Override

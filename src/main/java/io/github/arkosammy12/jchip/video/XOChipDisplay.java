@@ -15,12 +15,6 @@ public class XOChipDisplay extends SChipDisplay {
         super(config, keyAdapters, true);
     }
 
-    @Override
-    public void reset() {
-        super.reset();
-        this.selectedBitPlanes = 1;
-    }
-
     public void setSelectedBitPlanes(int selectedBitPlanes) {
         this.selectedBitPlanes = selectedBitPlanes;
     }

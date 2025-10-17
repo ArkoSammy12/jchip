@@ -11,7 +11,6 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.Closeable;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -21,7 +20,6 @@ public class EmulatorRenderer extends Canvas implements Closeable {
 
     private final int[][] renderBuffer;
     private final Consumer<int[][]> renderBufferUpdater;
-    private final JChip jchip;
 
     private final int displayWidth;
     private final int displayHeight;
@@ -30,7 +28,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final Chip8Variant chip8Variant;
     private final String romTitle;
 
-    private final BufferedImage backBuffer;
+    private final BufferedImage bufferedImage;
     private final AffineTransform rotationTransform;
     private final AffineTransform drawTransform = new AffineTransform();
     private int lastWidth = -1;
@@ -39,22 +37,22 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean frameRequested = new AtomicBoolean(false);
 
+    private Thread renderThread;
     private final Object renderLock = new Object();
     protected final Object renderBufferLock = new Object();
 
     public EmulatorRenderer(JChip jchip, Display display, Consumer<int[][]> renderBufferUpdater, Chip8Variant variant, String romTitle) {
         super();
-        this.jchip = jchip;
+        this.romTitle = romTitle;
         this.displayWidth = display.getImageWidth();
         this.displayHeight = display.getImageHeight();
         this.displayAngle = display.getDisplayAngle();
-        this.chip8Variant = variant;
-        this.romTitle = romTitle;
         this.initialScale = display.getImageScale(this.displayAngle);
+        this.chip8Variant = variant;
         this.renderBuffer = new int[displayWidth][displayHeight];
         this.renderBufferUpdater = renderBufferUpdater;
 
-        this.backBuffer = new BufferedImage(displayWidth, displayHeight, BufferedImage.TYPE_INT_ARGB);
+        this.bufferedImage = new BufferedImage(displayWidth, displayHeight, BufferedImage.TYPE_INT_ARGB);
         this.rotationTransform = new AffineTransform();
         switch (displayAngle) {
             case DEG_90 -> {
@@ -77,9 +75,8 @@ public class EmulatorRenderer extends Canvas implements Closeable {
 
         this.setPreferredSize(new Dimension(windowWidth, windowHeight));
         this.setFocusable(true);
-        setIgnoreRepaint(false);
 
-        this.jchip.getMainWindow().setEmulatorRenderer(this);
+        jchip.getMainWindow().setEmulatorRenderer(this);
     }
 
     public int getDisplayWidth() {
@@ -115,28 +112,25 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     @Override
     public void addNotify() {
         super.addNotify();
-        initializeAndStart();
+        this.initializeAndStart();
     }
 
     private void renderLoop() {
-        try {
-            while (this.running.get()) {
-                synchronized (this.renderLock) {
-                    while (!this.frameRequested.get()) {
-                        try {
-                            this.renderLock.wait();
-                        } catch (InterruptedException ignored) {
-                        }
-                    }
-                    this.frameRequested.set(false);
+        while (this.running.get()) {
+            synchronized (this.renderLock) {
+                while (this.running.get() && !this.frameRequested.get()) {
+                    try {
+                        this.renderLock.wait();
+                    } catch (InterruptedException ignored) {}
                 }
-                this.render();
+                if (!this.running.get()) {
+                    break;
+                }
+                this.frameRequested.set(false);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            this.render();
         }
     }
-
 
     private void updateTransformIfNeeded() {
         double windowWidth = getWidth();
@@ -167,8 +161,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
             return;
         }
         updateTransformIfNeeded();
-        int[] pixels = ((DataBufferInt) backBuffer.getRaster().getDataBuffer()).getData();
-        Arrays.fill(pixels, 0xFF000000);
+        int[] pixels = ((DataBufferInt) bufferedImage.getRaster().getDataBuffer()).getData();
         synchronized (this.renderBufferLock) {
             for (int y = 0; y < displayHeight; y++) {
                 int base = y * displayWidth;
@@ -179,7 +172,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         }
         Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        g.drawImage(backBuffer, drawTransform, null);
+        g.drawImage(bufferedImage, drawTransform, null);
         g.dispose();
         bufferStrategy.show();
         Toolkit.getDefaultToolkit().sync();
@@ -189,7 +182,13 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     public void close() {
         this.running.set(false);
         synchronized (this.renderLock) {
-            this.renderLock.notify();
+            this.frameRequested.set(true);
+            this.renderLock.notifyAll();
+        }
+        if (this.renderThread != null && this.renderThread.isAlive()) {
+            try {
+                renderThread.join(200);
+            } catch (InterruptedException ignored) {}
         }
     }
 
@@ -197,9 +196,9 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         if (getBufferStrategy() == null) {
             createBufferStrategy(3);
         }
-        Thread renderThread = new Thread(this::renderLoop, "jchip-Render-Thread");
-        renderThread.setDaemon(true);
-        renderThread.start();
+        this.renderThread = new Thread(this::renderLoop, "jchip-Render-Thread");
+        this.renderThread.setDaemon(true);
+        this.renderThread.start();
     }
 
 }

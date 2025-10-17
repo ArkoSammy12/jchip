@@ -18,12 +18,6 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
     }
 
     @Override
-    public void reset() {
-        super.reset();
-        this.cachedCharacterFontIndex = 0;
-    }
-
-    @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
         MegaChipDisplay display = this.emulator.getDisplay();
         boolean handled = false;

@@ -64,12 +64,11 @@ public class JChip {
                 try {
                     if (this.stop.get()) {
                         this.handleStop();
-                        this.stop.set(false);
-                        this.reset.set(false);
+                        continue;
                     }
                     if (this.reset.get()) {
                         this.handleReset();
-                        this.reset.set(false);
+                        continue;
                     }
                     if (this.currentEmulator == null) {
                         continue;
@@ -86,13 +85,12 @@ public class JChip {
                     }
                     while (elapsed >= Main.FRAME_INTERVAL) {
                         this.currentEmulator.tick();
-                        this.mainWindow.onTick();
+                        this.mainWindow.update(currentEmulator);
                         lastFrameTime += Main.FRAME_INTERVAL;
                         elapsed -= Main.FRAME_INTERVAL;
                     }
                 } catch (EmulatorException emulatorException) {
-                    Logger.info("The current CHIP-8 emulator has crashed due to: {}", emulatorException);
-                    Logger.info("Stopping...");
+                    Logger.info("Error while running emulator: {}", emulatorException);
                     this.stop();
                 }
             }
@@ -119,15 +117,18 @@ public class JChip {
             this.mainWindow.setEmulatorRenderer(null);
         }
         this.currentEmulator = Chip8Variant.getEmulator(new EmulatorConfig(this));
+        this.reset.set(false);
     }
 
     private void handleStop() {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
+            this.currentEmulator = null;
             this.mainWindow.setEmulatorRenderer(null);
         }
-        this.currentEmulator = null;
         this.mainWindow.onStopped();
+        this.stop.set(false);
+        this.reset.set(false);
     }
 
 }

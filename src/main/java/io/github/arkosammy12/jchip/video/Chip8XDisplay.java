@@ -39,21 +39,6 @@ public class Chip8XDisplay extends Chip8Display {
         }
     }
 
-    @Override
-    public void reset() {
-        super.reset();
-        this.backgroundColorIndex = 0;
-        this.extendedColorDraw = false;
-        for (int i = 0; i < bitplaneBuffer.length; i++) {
-            for (int j = 0; j < bitplaneBuffer[i].length; j++) {
-                this.foregroundColorIndexes[i][j] = 0;
-            }
-        }
-        for (int i = 0; i < 8; i++) {
-            this.foregroundColorIndexes[i][0] = 2;
-        }
-    }
-
     public void cycleBackgroundColor() {
         this.backgroundColorIndex = (backgroundColorIndex + 1) % BACKGROUND_COLORS.length;
     }

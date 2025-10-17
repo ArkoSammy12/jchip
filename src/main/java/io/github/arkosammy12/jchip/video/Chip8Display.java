@@ -19,14 +19,6 @@ public class Chip8Display extends Display {
         this.colorPalette = config.getColorPalette();
     }
 
-    public void reset() {
-        for (int i = 0; i < bitplaneBuffer.length; i++) {
-            for (int j = 0; j < bitplaneBuffer[i].length; j++) {
-                this.bitplaneBuffer[i][j] = 0;
-            }
-        }
-    }
-
     @Override
     public int getWidth() {
         return 64;

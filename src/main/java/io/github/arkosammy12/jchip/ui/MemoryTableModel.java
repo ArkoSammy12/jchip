@@ -5,20 +5,24 @@ import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MemoryTableModel extends AbstractTableModel {
 
+    public static final int BYTES_PER_ROW = 8;
     private static final int TOTAL_SHOWN_BYTES = 0xFFFF + 1;
-    private static final int BYTES_PER_ROW = 8;
+    private static final int ROW_COUNT = (int) Math.ceil(TOTAL_SHOWN_BYTES / (double) BYTES_PER_ROW);
 
     private final int[] memoryView = new int[TOTAL_SHOWN_BYTES];
+    private final AtomicBoolean cleared = new AtomicBoolean(false);
 
     public MemoryTableModel() {
+        super();
     }
 
     @Override
     public int getRowCount() {
-        return (int) Math.ceil(memoryView.length / (double) BYTES_PER_ROW);
+        return ROW_COUNT;
     }
 
     @Override
@@ -36,13 +40,18 @@ public class MemoryTableModel extends AbstractTableModel {
         }
     }
 
-    public void updateState(Chip8Emulator<?, ?> emulator) {
+    public void update(Chip8Emulator<?, ?> emulator) {
         emulator.getMemory().getMemoryView(this.memoryView);
+        this.cleared.set(false);
         SwingUtilities.invokeLater(this::fireTableDataChanged);
     }
 
     public void clear() {
-        Arrays.fill(this.memoryView, 0);
+        if (!this.cleared.get()) {
+            Arrays.fill(this.memoryView, 0);
+        }
+        this.cleared.set(true);
+        SwingUtilities.invokeLater(this::fireTableDataChanged);
     }
 
 }

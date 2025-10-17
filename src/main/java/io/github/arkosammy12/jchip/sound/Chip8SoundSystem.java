@@ -12,7 +12,6 @@ public class Chip8SoundSystem implements SoundSystem {
     private static final int MAX_VOLUME = 5;
     private static final int MIN_VOLUME = 0;
 
-    private final Chip8Variant chip8Variant;
     private SourceDataLine audioLine;
     private int volume = 3;
 
@@ -29,13 +28,12 @@ public class Chip8SoundSystem implements SoundSystem {
     };
 
     public Chip8SoundSystem(Chip8Variant chip8Variant) {
-        this.chip8Variant = chip8Variant;
         if (chip8Variant != Chip8Variant.XO_CHIP && chip8Variant != Chip8Variant.HYPERWAVE_CHIP_64) {
             System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
-            this.setPlaybackRate(175);
+            this.setPitch(175);
         } else {
             Arrays.fill(this.patternBuffer, 0);
-            this.setPlaybackRate(64);
+            this.setPitch(64);
         }
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
@@ -61,7 +59,7 @@ public class Chip8SoundSystem implements SoundSystem {
         this.patternBuffer[index] = value & 0xFF;
     }
 
-    public void setPlaybackRate(int pitch) {
+    public void setPitch(int pitch) {
         this.step = (4000 * Math.pow(2.0, (pitch - 64) / 48.0)) / 128.0 / SAMPLE_RATE;
     }
 
@@ -83,23 +81,6 @@ public class Chip8SoundSystem implements SoundSystem {
             this.phase = (this.phase + step) % 1.0;
         }
         audioLine.write(data, 0, data.length);
-    }
-
-    public void reset() {
-        this.step = 0;
-        this.phase = 0;
-        if (this.audioLine != null && this.audioLine.isOpen()) {
-            this.audioLine.stop();
-            this.audioLine.flush();
-            this.audioLine.start();
-        }
-        if (chip8Variant != Chip8Variant.XO_CHIP && chip8Variant != Chip8Variant.HYPERWAVE_CHIP_64) {
-            System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
-            this.setPlaybackRate(175);
-        } else {
-            Arrays.fill(this.patternBuffer, 0);
-            this.setPlaybackRate(64);
-        }
     }
 
     @Override

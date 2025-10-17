@@ -42,19 +42,6 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         this.memoryBoundsMask = emulator.getMemory().getMemoryBoundsMask();
     }
 
-    public void reset() {
-        for (int i = 0; i < 16; i++) {
-            this.registers[i] = 0;
-            this.flagsStorage[i] = 0;
-            this.stack[i] = 0;
-        }
-        this.programCounter = 0x200;
-        this.indexRegister = 0;
-        this.stackPointer = 0;
-        this.delayTimer = 0;
-        this.soundTimer = 0;
-    }
-
     protected final void setProgramCounter(int programCounter) {
         this.programCounter = programCounter & this.memoryBoundsMask;
     }
@@ -89,9 +76,8 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return this.stack[stackPointer];
     }
 
-    public int[] getStack(int[] ret) {
-        System.arraycopy(this.stack, 0, ret, 0, Math.clamp(this.stack.length, 0, ret.length));
-        return ret;
+    public void getStackView(int[] ret) {
+        System.arraycopy(this.stack, 0, ret, 0, Math.min(this.stack.length, ret.length));
     }
 
     public int getStackPointer() {
@@ -135,9 +121,8 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return this.registers[register];
     }
 
-    public final int[] getRegisters(int[] ret) {
-        System.arraycopy(this.registers, 0, ret, 0, Math.clamp(this.registers.length, 0, ret.length));
-        return ret;
+    public final void getRegisterView(int[] ret) {
+        System.arraycopy(this.registers, 0, ret, 0, Math.min(this.registers.length, ret.length));
     }
 
     protected final Random getRandom() {

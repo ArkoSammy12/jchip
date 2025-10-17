@@ -56,9 +56,8 @@ public abstract class Display implements Closeable {
 
     public abstract void clear();
 
-    public void flush(int currentInstructionsPerFrame) {
+    public void flush() {
         this.emulatorRenderer.requestFrame();
-        this.jchip.getMainWindow().updateWindowTitle(currentInstructionsPerFrame);
     }
 
     @Override

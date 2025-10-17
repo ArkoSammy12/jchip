@@ -17,12 +17,6 @@ public class SChipDisplay extends Chip8Display {
     }
 
     @Override
-    public void reset() {
-        super.reset();
-        this.extendedMode = false;
-    }
-
-    @Override
     public int getWidth() {
         return this.extendedMode ? 128 : 64;
     }

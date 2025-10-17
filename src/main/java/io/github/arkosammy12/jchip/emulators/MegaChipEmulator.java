@@ -41,12 +41,6 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
     }
 
     @Override
-    public void reset() {
-        super.reset();
-        this.megaChipSoundSystem.reset();
-    }
-
-    @Override
     protected Chip8Processor<?, ?, ?> createProcessor() {
         return new MegaChipProcessor<>(this);
     }

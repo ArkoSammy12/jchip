@@ -203,7 +203,7 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
                 }
             }
             case 0x3A -> { // FX3A: Set audio pattern pitch
-                this.emulator.getSoundSystem().setPlaybackRate(this.getRegister(getXFromFirstByte(firstByte)));
+                this.emulator.getSoundSystem().setPitch(this.getRegister(getXFromFirstByte(firstByte)));
                 yield HANDLED;
             }
             default -> super.executeFOpcode(firstByte, NN);

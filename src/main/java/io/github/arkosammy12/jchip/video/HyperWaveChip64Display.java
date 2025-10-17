@@ -19,13 +19,6 @@ public class HyperWaveChip64Display extends XOChipDisplay {
         Arrays.fill(this.colorPalette, 0xFF000000);
     }
 
-    @Override
-    public void reset() {
-        super.reset();
-        Arrays.fill(this.colorPalette, 0xFF000000);
-        this.drawingMode = DrawingMode.XOR;
-    }
-
     public void setDrawingMode(DrawingMode drawingMode) {
         this.drawingMode = drawingMode;
     }

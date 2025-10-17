@@ -47,20 +47,6 @@ public class MegaChipSoundSystem implements SoundSystem {
         this.volume = Math.max(this.volume - 1, MIN_VOLUME);
     }
 
-    public void reset() {
-        this.trackStart = 0;
-        this.trackSize = 0;
-        this.loop = false;
-        this.step = 0;
-        this.samplePos = 0;
-        this.isPlaying = false;
-        if (this.audioLine != null && this.audioLine.isOpen()) {
-            audioLine.stop();
-            audioLine.flush();
-            audioLine.start();
-        }
-    }
-
     public void playTrack(int trackSampleRate, int trackSize, boolean loop, int trackStart) {
         this.step = (double) trackSampleRate / SAMPLE_RATE;
         this.trackSize = trackSize;

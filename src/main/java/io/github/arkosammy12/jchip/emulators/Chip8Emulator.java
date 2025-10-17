@@ -55,8 +55,6 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     protected EmulatorController.Builder addControllers(EmulatorController.Builder builder) {
         return builder
-                //.withController(KeyEvent.VK_F2, this::reset)
-                //.withController(KeyEvent.VK_ESCAPE, this::terminate)
                 .withController(KeyEvent.VK_F11, this.soundSystem::volumeDown)
                 .withController(KeyEvent.VK_F12, this.soundSystem::volumeUp);
     }
@@ -123,7 +121,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         long startOfFrame = System.nanoTime();
         this.emulatorController.pollControllers();
         this.runInstructionLoop();
-        this.getDisplay().flush(this.currentInstructionsPerFrame);
+        this.getDisplay().flush();
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         long endOfFrame = System.nanoTime();
         long frameTime = endOfFrame - startOfFrame;
@@ -162,31 +160,16 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return false;
     }
 
-    protected void reset() {
-        this.getEmulatorConfig().getJChip().reset();
-        this.currentInstructionsPerFrame = this.targetInstructionsPerFrame;
-        this.waitFrames = 0;
-        this.processor.reset();
-        this.memory.reset();
-        this.display.reset();
-        this.soundSystem.reset();
-        this.keypad.reset();
-    }
-
     public void close() {
         try {
             if (this.display != null) {
                 this.display.close();
             }
-        } catch (Exception e) {
-            System.err.println("Error releasing emulator display resources: " + e);
-        }
-        try {
             if (this.soundSystem != null) {
                 this.soundSystem.close();
             }
         } catch (Exception e) {
-            System.err.println("Error releasing emulator sound system resources: " + e);
+            System.err.println("Error releasing emulator resources: " + e);
         }
     }
 

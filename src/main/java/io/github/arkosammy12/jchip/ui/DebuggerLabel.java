@@ -19,11 +19,14 @@ public class DebuggerLabel<T> extends JLabel {
     }
 
     public void setState(T val) {
-        this.state = val;
-        if (this.state == null) {
-            this.setText(this.name);
+        if (val == null) {
+            if (this.state != null) {
+                this.setText(this.name);
+                this.state = null;
+            }
             return;
         }
+        this.state = val;
         String str = this.toStringFunction != null ? this.toStringFunction.apply(val) : val.toString();
         this.setText(this.name + ": " + str);
     }

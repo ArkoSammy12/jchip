@@ -25,6 +25,7 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
     private final EnumMenu<BuiltInColorPalette> colorPaletteMenu;
     private final EnumMenu<DisplayAngle> displayAngleMenu;
     private final JMenu instructionsPerFrameMenu;
+    private final DebuggerSettingsMenu debuggerMenu;
 
     private final QuirkSubMenu doVFResetMenu;
     private final QuirkSubMenu doIncrementIndexMenu;
@@ -48,6 +49,7 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
         this.colorPaletteMenu = new EnumMenu<>("Color Palette", BuiltInColorPalette.class);
         this.displayAngleMenu = new EnumMenu<>("Display Angle", DisplayAngle.class);
         this.instructionsPerFrameMenu = new JMenu("Instructions per frame");
+        this.debuggerMenu = new DebuggerSettingsMenu(jchip);
 
         JMenuItem openItem = new JMenuItem("Load ROM");
         openItem.addActionListener(_ -> {
@@ -114,6 +116,8 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
         this.instructionsPerFrameMenu.add(ipfPanel);
         this.add(this.instructionsPerFrameMenu);
 
+        this.add(debuggerMenu);
+
     }
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
@@ -134,6 +138,10 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
     @Override
     public Path getRomPath() {
         return this.selectedRomPath;
+    }
+
+    public DebuggerSettingsMenu getDebuggerSettingsMenu() {
+        return this.debuggerMenu;
     }
 
     @Override
