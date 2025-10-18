@@ -75,8 +75,8 @@ public class DebuggerViewPanel extends JPanel {
             registerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
             stackLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
 
-            registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 10));
-            stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 10));
+            registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+            stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
             this.registerLabels.add(registerLabel);
             this.stackLabels.add(stackLabel);
@@ -97,8 +97,8 @@ public class DebuggerViewPanel extends JPanel {
         singleRegistersPanel.add(this.soundTimerLabel);
         singleRegistersPanel.add(this.stackPointerLabel);
 
-        JPanel registersPanel = new JPanel(new GridLayout(0, 4, 0, 1));
-        JPanel stackPanel = new JPanel(new GridLayout(0, 2, 0, 1));
+        JPanel registersPanel = new JPanel(new GridLayout(0, 4, 5, 1));
+        JPanel stackPanel = new JPanel(new GridLayout(0, 2, 5, 1));
 
         for (int i = 0; i < 16; i++) {
             registersPanel.add(this.registerLabels.get(i));
@@ -131,7 +131,7 @@ public class DebuggerViewPanel extends JPanel {
         stackScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Stack", 0, 0));
 
         JScrollPane memoryScrollPane = new JScrollPane(memoryTable);
-        memoryScrollPane.setPreferredSize(new Dimension(memoryScrollPane.getSize().width, 305));
+        memoryScrollPane.setPreferredSize(new Dimension(memoryScrollPane.getSize().width, 280));
         memoryScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Memory", 0, 0));
 
         this.add(currentQuirksScrollPane);

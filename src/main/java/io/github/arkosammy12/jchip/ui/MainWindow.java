@@ -71,7 +71,7 @@ public class MainWindow extends JFrame implements Closeable {
         });
 
         this.debuggerViewPanel = new DebuggerViewPanel(jchip);
-        this.debuggerViewPanel.setPreferredSize(new Dimension(225, 0));
+        this.debuggerViewPanel.setPreferredSize(new Dimension(230, 0));
 
         this.settingsMenu = new SettingsMenu(jchip);
         this.setJMenuBar(this.settingsMenu);

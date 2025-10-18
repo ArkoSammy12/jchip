@@ -11,9 +11,8 @@ public class Chip8Memory {
     private final int memoryBoundsMask;
 
     public Chip8Memory(int[] rom, Chip8Variant chip8Variant, int programStart, int memorySize) {
-        System.arraycopy(rom, 0, rom, 0, rom.length);
-        this.memoryBoundsMask = memorySize - 1;
         try {
+            this.memoryBoundsMask = memorySize - 1;
             this.bytes = new int[memorySize];
             chip8Variant.getSpriteFont().getSmallFont().ifPresent(smallFont -> {
                 for (int i = 0; i < smallFont.length; i++) {
