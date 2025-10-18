@@ -34,6 +34,9 @@ public class CommandLineArgs implements PrimarySettingsProvider {
     @CommandLine.Option(names = {"--keyboard-layout", "-k"}, defaultValue = "qwerty", converter = KeyboardLayout.Converter.class, fallbackValue = CommandLine.Option.NULL_VALUE)
     private Optional<KeyboardLayout> keyboardLayout;
 
+    @CommandLine.Option(names = "--use-variant-quirks", negatable = true, defaultValue = "false")
+    private Boolean useVariantQuirks;
+
     @CommandLine.Option(names = {"-a", "--angle"}, converter = DisplayAngle.Converter.class, fallbackValue = CommandLine.Option.NULL_VALUE)
     private Optional<DisplayAngle> displayAngle;
 
@@ -58,6 +61,11 @@ public class CommandLineArgs implements PrimarySettingsProvider {
     @Override
     public Path getRomPath() {
         return convertToAbsolutePathIfNeeded(romPath);
+    }
+
+    @Override
+    public boolean useVariantQuirks() {
+        return this.useVariantQuirks;
     }
 
     @Override

@@ -56,13 +56,25 @@ public class EmulatorConfig {
 
         this.chip8Variant = settings.getChip8Variant().orElse(database.getChip8Variant().orElse(Chip8Variant.CHIP_8));
         Chip8Variant.Quirkset defaultQuirkset = this.chip8Variant.getDefaultQuirkset();
-        this.doVFReset = settings.doVFReset().orElse(database.doVFReset().orElse(defaultQuirkset.doVFReset()));
-        this.doIncrementIndex = settings.doIncrementIndex().orElse(database.doIncrementIndex().orElse(defaultQuirkset.doIncrementIndex()));
-        this.doDisplayWait = settings.doDisplayWait().orElse(database.doDisplayWait().orElse((defaultQuirkset.doDisplayWait())));
-        this.doClipping = settings.doClipping().orElse(database.doClipping().orElse(defaultQuirkset.doClipping()));
-        this.doShiftVXInPlace = settings.doShiftVXInPlace().orElse(database.doShiftVXInPlace().orElse(defaultQuirkset.doShiftVXInPlace()));
-        this.doJumpWithVX = settings.doJumpWithVX().orElse(database.doJumpWithVX().orElse(defaultQuirkset.doJumpWithVX()));
-        this.instructionsPerFrame = settings.getInstructionsPerFrame().orElse(database.getInstructionsPerFrame().orElse(defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait)));
+        boolean useVariantQuirks = settings.useVariantQuirks();
+
+        if (useVariantQuirks) {
+            this.doVFReset = defaultQuirkset.doVFReset();
+            this.doIncrementIndex = defaultQuirkset.doIncrementIndex();
+            this.doDisplayWait = defaultQuirkset.doDisplayWait();
+            this.doClipping = defaultQuirkset.doClipping();
+            this.doShiftVXInPlace = defaultQuirkset.doShiftVXInPlace();
+            this.doJumpWithVX = defaultQuirkset.doJumpWithVX();
+            this.instructionsPerFrame = defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait);
+        } else {
+            this.doVFReset = settings.doVFReset().orElse(database.doVFReset().orElse(defaultQuirkset.doVFReset()));
+            this.doIncrementIndex = settings.doIncrementIndex().orElse(database.doIncrementIndex().orElse(defaultQuirkset.doIncrementIndex()));
+            this.doDisplayWait = settings.doDisplayWait().orElse(database.doDisplayWait().orElse((defaultQuirkset.doDisplayWait())));
+            this.doClipping = settings.doClipping().orElse(database.doClipping().orElse(defaultQuirkset.doClipping()));
+            this.doShiftVXInPlace = settings.doShiftVXInPlace().orElse(database.doShiftVXInPlace().orElse(defaultQuirkset.doShiftVXInPlace()));
+            this.doJumpWithVX = settings.doJumpWithVX().orElse(database.doJumpWithVX().orElse(defaultQuirkset.doJumpWithVX()));
+            this.instructionsPerFrame = settings.getInstructionsPerFrame().orElse(database.getInstructionsPerFrame().orElse(defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait)));
+        }
     }
 
     public JChip getJChip() {

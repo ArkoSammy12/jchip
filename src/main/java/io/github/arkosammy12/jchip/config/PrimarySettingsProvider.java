@@ -9,6 +9,8 @@ public interface PrimarySettingsProvider extends SettingsProvider {
 
     Path getRomPath();
 
+    boolean useVariantQuirks();
+
     Optional<KeyboardLayout> getKeyboardLayout();
 
 }

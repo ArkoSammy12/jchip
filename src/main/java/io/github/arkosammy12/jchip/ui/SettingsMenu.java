@@ -28,6 +28,7 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
     private final JMenu instructionsPerFrameMenu;
     private final DebuggerSettingsMenu debuggerMenu;
 
+    private final JRadioButtonMenuItem useVariantQuirksButton;
     private final QuirkSubMenu doVFResetMenu;
     private final QuirkSubMenu doIncrementIndexMenu;
     private final QuirkSubMenu doDisplayWaitMenu;
@@ -39,6 +40,7 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
 
     private Path selectedRomPath;
     private Integer instructionsPerFrame;
+    private boolean useVariantQuirks;
 
     public SettingsMenu(JChip jChip) {
         super();
@@ -63,6 +65,9 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
                 this.selectedRomPath = chooser.getSelectedFile().toPath().toAbsolutePath();
             }
         });
+
+        this.useVariantQuirksButton = new JRadioButtonMenuItem("Use Variant Quirks");
+        this.useVariantQuirksButton.addActionListener(_ -> this.useVariantQuirks = useVariantQuirksButton.isSelected());
 
         this.doVFResetMenu = new QuirkSubMenu("Do VF Reset");
         this.doIncrementIndexMenu = new QuirkSubMenu("Do Increment Index");
@@ -102,6 +107,7 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
 
         fileMenu.add(openItem);
 
+        this.quirksMenu.add(this.useVariantQuirksButton);
         this.quirksMenu.add(this.doVFResetMenu);
         this.quirksMenu.add(this.doIncrementIndexMenu);
         this.quirksMenu.add(this.doDisplayWaitMenu);
@@ -136,6 +142,8 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
             this.instructionsPerFrame = val;
             this.instructionsPerFrameField.setText(String.valueOf(val));
         });
+        this.useVariantQuirks = primarySettingsProvider.useVariantQuirks();
+        this.useVariantQuirksButton.setSelected(this.useVariantQuirks);
     }
 
     @Override
@@ -174,6 +182,11 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
     @Override
     public Optional<Chip8Variant> getChip8Variant() {
         return this.variantMenu.getState();
+    }
+
+    @Override
+    public boolean useVariantQuirks() {
+        return this.useVariantQuirks;
     }
 
     @Override
