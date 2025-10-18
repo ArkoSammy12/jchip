@@ -24,6 +24,7 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
     private final EnumMenu<Chip8Variant> variantMenu;
     private final EnumMenu<BuiltInColorPalette> colorPaletteMenu;
     private final EnumMenu<DisplayAngle> displayAngleMenu;
+    private final EnumMenu<KeyboardLayout> keyboardLayoutMenu;
     private final JMenu instructionsPerFrameMenu;
     private final DebuggerSettingsMenu debuggerMenu;
 
@@ -48,6 +49,7 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
         this.variantMenu = new EnumMenu<>("Variant", Chip8Variant.class);
         this.colorPaletteMenu = new EnumMenu<>("Color Palette", BuiltInColorPalette.class);
         this.displayAngleMenu = new EnumMenu<>("Display Angle", DisplayAngle.class);
+        this.keyboardLayoutMenu = new EnumMenu<>("Keyboard Layout", KeyboardLayout.class);
         this.instructionsPerFrameMenu = new JMenu("Instructions per frame");
         this.debuggerMenu = new DebuggerSettingsMenu(jchip);
 
@@ -112,6 +114,7 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
         this.add(variantMenu);
         this.add(colorPaletteMenu);
         this.add(displayAngleMenu);
+        this.add(keyboardLayoutMenu);
 
         this.instructionsPerFrameMenu.add(ipfPanel);
         this.add(this.instructionsPerFrameMenu);
@@ -145,11 +148,6 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
     }
 
     @Override
-    public Optional<KeyboardLayout> getKeyboardLayout() {
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<Integer> getInstructionsPerFrame() {
         return Optional.ofNullable(this.instructionsPerFrame);
     }
@@ -166,6 +164,11 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
     @Override
     public Optional<DisplayAngle> getDisplayAngle() {
         return this.displayAngleMenu.getState();
+    }
+
+    @Override
+    public Optional<KeyboardLayout> getKeyboardLayout() {
+        return this.keyboardLayoutMenu.getState();
     }
 
     @Override
