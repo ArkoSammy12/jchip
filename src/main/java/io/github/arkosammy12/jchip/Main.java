@@ -5,6 +5,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 public class Main {
 
@@ -12,7 +13,7 @@ public class Main {
     public static final long FRAME_INTERVAL = 1_000_000_000L / FRAMES_PER_SECOND;
     public static final String VERSION_STRING = "v3.0.0";
 
-    static void main(String[] args) throws IOException {
+    static void main(String[] args) throws IOException, InterruptedException, InvocationTargetException {
         System.setProperty("flatlaf.menuBarEmbedded", "false");
         FlatLightLaf.setup();
         JFrame.setDefaultLookAndFeelDecorated(true);

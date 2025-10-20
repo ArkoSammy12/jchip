@@ -162,6 +162,7 @@ public class DebuggerViewPanel extends JPanel {
             }
 
             this.memoryTable.clear();
+
         });
     }
 

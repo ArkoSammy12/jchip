@@ -5,27 +5,43 @@ import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
+import io.github.arkosammy12.jchip.sound.SoundWriter;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import org.tinylog.Logger;
 import picocli.CommandLine;
 
+import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JChip {
 
-    private final MainWindow mainWindow;
+    private MainWindow mainWindow;
     private Chip8Emulator<?, ?> currentEmulator;
     private final Chip8Database database = new Chip8Database();
 
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean reset = new AtomicBoolean(false);
     private final AtomicBoolean stop = new AtomicBoolean(false);
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
-    public JChip(String[] args) throws IOException {
-        this.mainWindow = new MainWindow(this);
+    public JChip(String[] args) throws IOException, InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(() -> {
+            this.mainWindow = new MainWindow(this);
+            this.mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.mainWindow.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    onShutdown();
+                }
+            });
+            this.mainWindow.setVisible(true);
+        });
         if (args.length > 0) {
             CommandLineArgs cliArgs = new CommandLineArgs();
             CommandLine cli = new CommandLine(cliArgs);
@@ -98,8 +114,7 @@ public class JChip {
             Logger.error("jchip has crashed!");
             throw new RuntimeException(e);
         } finally {
-            this.handleStop();
-            this.mainWindow.close();
+            this.onShutdown();
         }
     }
 
@@ -129,6 +144,15 @@ public class JChip {
         this.mainWindow.onStopped();
         this.stop.set(false);
         this.reset.set(false);
+    }
+
+    private void onShutdown() {
+        if (!shutdown.compareAndSet(false, true)) {
+            return;
+        }
+        this.handleStop();
+        this.mainWindow.close();
+        SoundWriter.close();
     }
 
 }

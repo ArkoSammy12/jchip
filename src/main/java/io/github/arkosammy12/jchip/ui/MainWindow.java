@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
+import io.github.arkosammy12.jchip.sound.SoundWriter;
 import org.tinylog.Logger;
 
 import javax.swing.*;
@@ -34,7 +35,6 @@ public class MainWindow extends JFrame implements Closeable {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.setBackground(Color.BLACK);
         this.getContentPane().setBackground(Color.BLACK);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setIgnoreRepaint(false);
         this.pack();
         this.setSize((int) (screenSize.getWidth() / 2), (int) (screenSize.getHeight() / 2));
@@ -70,6 +70,22 @@ public class MainWindow extends JFrame implements Closeable {
             }
         });
 
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0), "volumeDown");
+        am.put("volumeDown", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SoundWriter.getInstance().volumeDown();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0), "volumeUp");
+        am.put("volumeUp", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SoundWriter.getInstance().volumeUp();
+            }
+        });
+
         this.debuggerViewPanel = new DebuggerViewPanel(jchip);
         this.debuggerViewPanel.setPreferredSize(new Dimension(230, 0));
 
@@ -79,7 +95,6 @@ public class MainWindow extends JFrame implements Closeable {
         this.setTitle(DEFAULT_TITLE);
         this.requestFocusInWindow();
         this.setResizable(true);
-        this.setVisible(true);
     }
 
     public SettingsMenu getSettingsMenu() {
@@ -94,25 +109,28 @@ public class MainWindow extends JFrame implements Closeable {
     }
 
     public void onStopped() {
+        lastWindowTitleUpdate = 0;
+        lastFrameTime = System.nanoTime();
+        framesSinceLastUpdate = 0;
+        totalIpfSinceLastUpdate = 0;
+        totalFrameTimeSinceLastUpdate = 0;
         this.debuggerViewPanel.clear();
     }
 
     public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
-        if (this.emulatorRenderer != null) {
-            this.emulatorRenderer.close();
-            this.getContentPane().remove(this.emulatorRenderer);
-        }
-        if (emulatorRenderer == null) {
-            this.emulatorRenderer = null;
-            SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(() -> {
+            if (this.emulatorRenderer != null) {
+                this.emulatorRenderer.close();
+                this.getContentPane().remove(this.emulatorRenderer);
+            }
+            if (emulatorRenderer == null) {
+                this.emulatorRenderer = null;
                 this.getContentPane().revalidate();
                 this.getContentPane().repaint();
                 this.setTitle(DEFAULT_TITLE);
-            });
-            return;
-        }
-        this.emulatorRenderer = emulatorRenderer;
-        SwingUtilities.invokeLater(() -> {
+                return;
+            }
+            this.emulatorRenderer = emulatorRenderer;
             int displayWidth = emulatorRenderer.getDisplayWidth();
             int displayHeight = emulatorRenderer.getDisplayHeight();
             int initialScale = emulatorRenderer.getInitialScale();
@@ -125,8 +143,8 @@ public class MainWindow extends JFrame implements Closeable {
     }
 
     public void setDebuggerViewEnabled(boolean enabled) {
+        this.showingDebuggerView.set(enabled);
         SwingUtilities.invokeLater(() -> {
-            this.showingDebuggerView.set(enabled);
             if (enabled) {
                 this.getContentPane().add(this.debuggerViewPanel, BorderLayout.EAST);
             } else {

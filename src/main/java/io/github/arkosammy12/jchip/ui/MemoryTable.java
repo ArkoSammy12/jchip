@@ -49,6 +49,7 @@ public class MemoryTable extends JTable {
 
     public void clear() {
         this.memoryTableModel.clear();
+        this.scrollToAddress(0);
     }
 
     public void scrollToAddress(int address) {

@@ -5,12 +5,15 @@ import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.Display;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.Closeable;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -41,14 +44,14 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final Object renderLock = new Object();
     protected final Object renderBufferLock = new Object();
 
-    public EmulatorRenderer(JChip jchip, Display display, Consumer<int[][]> renderBufferUpdater, Chip8Variant variant, String romTitle) {
+    public EmulatorRenderer(JChip jchip, Display display, Consumer<int[][]> renderBufferUpdater, List<KeyAdapter> keyAdapters, String romTitle) {
         super();
-        this.romTitle = romTitle;
+        this.romTitle = romTitle == null ? "" : " | " + romTitle;
         this.displayWidth = display.getImageWidth();
         this.displayHeight = display.getImageHeight();
         this.displayAngle = display.getDisplayAngle();
         this.initialScale = display.getImageScale(this.displayAngle);
-        this.chip8Variant = variant;
+        this.chip8Variant = display.getChip8Variant();
         this.renderBuffer = new int[displayWidth][displayHeight];
         this.renderBufferUpdater = renderBufferUpdater;
 
@@ -73,9 +76,11 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         int windowWidth = displayWidth * initialScale;
         int windowHeight = displayHeight * initialScale;
 
-        this.setPreferredSize(new Dimension(windowWidth, windowHeight));
-        this.setFocusable(true);
-
+        SwingUtilities.invokeLater(() -> {
+            this.setPreferredSize(new Dimension(windowWidth, windowHeight));
+            keyAdapters.forEach(this::addKeyListener);
+            this.setFocusable(true);
+        });
         jchip.getMainWindow().setEmulatorRenderer(this);
     }
 
@@ -182,12 +187,11 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     public void close() {
         this.running.set(false);
         synchronized (this.renderLock) {
-            this.frameRequested.set(true);
             this.renderLock.notifyAll();
         }
         if (this.renderThread != null && this.renderThread.isAlive()) {
             try {
-                renderThread.join(200);
+                renderThread.join();
             } catch (InterruptedException ignored) {}
         }
     }
@@ -197,7 +201,6 @@ public class EmulatorRenderer extends Canvas implements Closeable {
             createBufferStrategy(3);
         }
         this.renderThread = new Thread(this::renderLoop, "jchip-Render-Thread");
-        this.renderThread.setDaemon(true);
         this.renderThread.start();
     }
 

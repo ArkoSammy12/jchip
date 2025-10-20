@@ -12,7 +12,6 @@ import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 
 import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.List;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
@@ -28,7 +27,6 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     private final Keypad keypad;
 
     private final Chip8Variant chip8Variant;
-    private final EmulatorController emulatorController;
     private final EmulatorConfig config;
     private final int targetInstructionsPerFrame;
     private int currentInstructionsPerFrame;
@@ -43,8 +41,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keypad = new Keypad(this.config.getKeyboardLayout());
             this.soundSystem = this.createSoundSystem(this.chip8Variant);
-            this.emulatorController = this.addControllers(new EmulatorController.Builder()).build();
-            this.display = this.createDisplay(config, List.of(this.keypad, this.emulatorController));
+            this.display = this.createDisplay(config, List.of(this.keypad));
             this.memory = this.createMemory(this.config.getRom(), this.chip8Variant);
             this.processor = this.createProcessor();
         } catch (Exception e) {
@@ -53,11 +50,6 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         }
     }
 
-    protected EmulatorController.Builder addControllers(EmulatorController.Builder builder) {
-        return builder
-                .withController(KeyEvent.VK_F11, this.soundSystem::volumeDown)
-                .withController(KeyEvent.VK_F12, this.soundSystem::volumeUp);
-    }
 
     protected Chip8Processor<?, ?, ?> createProcessor() {
         return new Chip8Processor<>(this);
@@ -119,7 +111,6 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     public void tick() throws InvalidInstructionException {
         long startOfFrame = System.nanoTime();
-        this.emulatorController.pollControllers();
         this.runInstructionLoop();
         this.getDisplay().flush();
         this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());

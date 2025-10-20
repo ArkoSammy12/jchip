@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.ui.EmulatorRenderer;
-import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -15,7 +14,6 @@ import java.util.function.Consumer;
 public abstract class Display implements Closeable {
 
     private final EmulatorRenderer emulatorRenderer;
-    private final JChip jchip;
 
     protected final Chip8Variant chip8Variant;
     private final DisplayAngle displayAngle;
@@ -23,15 +21,15 @@ public abstract class Display implements Closeable {
     protected final int imageHeight;
 
     public Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
-        this.jchip = config.getJChip();
-        String romTitle = config.getProgramTitle();
         this.chip8Variant = config.getVariant();
         this.displayAngle = config.getDisplayAngle();
         this.imageWidth = getImageWidth();
         this.imageHeight = getImageHeight();
-        this.emulatorRenderer = new EmulatorRenderer(this.jchip, this, this.getRenderBufferUpdater(), this.chip8Variant, (romTitle == null) ? "" : " | " + romTitle);
-        keyAdapters.forEach(emulatorRenderer::addKeyListener);
-        this.emulatorRenderer.setVisible(true);
+        this.emulatorRenderer = new EmulatorRenderer(config.getJChip(), this, this.getRenderBufferUpdater(), keyAdapters, config.getProgramTitle());
+    }
+
+    public Chip8Variant getChip8Variant() {
+        return this.chip8Variant;
     }
 
     public HexSpriteFont getCharacterSpriteFont() {
