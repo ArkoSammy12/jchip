@@ -9,12 +9,13 @@ import io.github.arkosammy12.jchip.video.Chip8Display;
 public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8SoundSystem> {
 
     private long machineCycles;
-    private long instructionCycles;
-    private long nextFrame = 1122;
-    private boolean waiting;
+    private long nextFrame;
 
     public StrictChip8Emulator(EmulatorConfig emulatorConfig) {
         super(emulatorConfig);
+        // Amount of cycles the COSMAC-VIP needs to set things up before beginning execution of the ROM
+        this.machineCycles = 3250;
+        this.nextFrame = this.calculateNextFrame();
     }
 
     @Override
@@ -39,22 +40,6 @@ public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8
             this.machineCycles += irqTime;
             this.nextFrame = this.calculateNextFrame();
         }
-    }
-
-    public long getInstructionCycles() {
-        return this.instructionCycles;
-    }
-
-    public void setInstructionCycles(long instructionCycles) {
-        this.instructionCycles = instructionCycles;
-    }
-
-    public void setWaiting(boolean waiting) {
-        this.waiting = waiting;
-    }
-
-    public boolean isWaiting() {
-        return this.waiting;
     }
 
     public long getCyclesLeftInCurrentFrame() {

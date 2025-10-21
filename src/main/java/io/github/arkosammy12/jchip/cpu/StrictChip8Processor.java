@@ -11,13 +11,32 @@ import java.util.List;
 
 public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulator, Chip8Display, Chip8SoundSystem> {
 
+    private long instructionCycles;
+    private boolean waiting;
+
     public StrictChip8Processor(StrictChip8Emulator emulator) {
         super(emulator);
     }
 
+    public long getInstructionCycles() {
+        return this.instructionCycles;
+    }
+
+    public void setInstructionCycles(long instructionCycles) {
+        this.instructionCycles = instructionCycles;
+    }
+
+    public void setWaiting(boolean waiting) {
+        this.waiting = waiting;
+    }
+
+    public boolean isWaiting() {
+        return this.waiting;
+    }
+
     @Override
     protected int execute(int firstByte, int NN) throws InvalidInstructionException {
-        if (!this.emulator.isWaiting()) {
+        if (!this.isWaiting()) {
             this.emulator.addCycles((firstByte & 0xF0) != 0 ? 68 : 40);
         }
         return super.execute(firstByte, NN);
@@ -30,19 +49,19 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                 case 0xE0 -> { // 00E0: Clear screen
                     final int eraseCycles = 3078;
                     long cyclesLeftInFrame = this.emulator.getCyclesLeftInCurrentFrame();
-                    if (!this.emulator.isWaiting()) {
-                        this.emulator.setWaiting(true);
+                    if (!this.isWaiting()) {
+                        this.setWaiting(true);
                         this.decrementProgramCounter();
-                        this.emulator.setInstructionCycles((eraseCycles > cyclesLeftInFrame) ? eraseCycles - cyclesLeftInFrame : 0);
+                        this.setInstructionCycles((eraseCycles > cyclesLeftInFrame) ? eraseCycles - cyclesLeftInFrame : 0);
                         this.emulator.addCycles(cyclesLeftInFrame);
                     } else {
-                        if (this.emulator.getInstructionCycles() != 0) {
-                            long currentInstructionCycles = this.emulator.getInstructionCycles();
-                            this.emulator.setInstructionCycles(currentInstructionCycles - ((currentInstructionCycles > cyclesLeftInFrame) ? cyclesLeftInFrame : currentInstructionCycles));
+                        if (this.getInstructionCycles() != 0) {
+                            long currentInstructionCycles = this.getInstructionCycles();
+                            this.setInstructionCycles(currentInstructionCycles - (Math.min(currentInstructionCycles, cyclesLeftInFrame)));
                             this.emulator.addCycles(cyclesLeftInFrame);
                         }
-                        if (this.emulator.getInstructionCycles() == 0) {
-                            this.emulator.setWaiting(false);
+                        if (this.getInstructionCycles() == 0) {
+                            this.setWaiting(false);
                             this.emulator.getDisplay().clear();
                         } else {
                             this.decrementProgramCounter();
@@ -263,20 +282,20 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
         int N = getNFromNN(NN);
 
         long cyclesLeftInFrame = this.emulator.getCyclesLeftInCurrentFrame();
-        if (!this.emulator.isWaiting()) {
+        if (!this.isWaiting()) {
             long prepareTime = 68 + N * (46 + 20 * (spriteX & 7));
-            this.emulator.setWaiting(true);
+            this.setWaiting(true);
             this.decrementProgramCounter();
-            this.emulator.setInstructionCycles(prepareTime > cyclesLeftInFrame ? prepareTime - cyclesLeftInFrame : 0);
+            this.setInstructionCycles(prepareTime > cyclesLeftInFrame ? prepareTime - cyclesLeftInFrame : 0);
             this.emulator.addCycles(cyclesLeftInFrame);
         } else {
-            if (this.emulator.getInstructionCycles() != 0) {
+            if (this.getInstructionCycles() != 0) {
                 this.decrementProgramCounter();
-                long currentInstructionCycles = this.emulator.getInstructionCycles();
-                this.emulator.setInstructionCycles(currentInstructionCycles - (currentInstructionCycles > cyclesLeftInFrame ? cyclesLeftInFrame : currentInstructionCycles));
+                long currentInstructionCycles = this.getInstructionCycles();
+                this.setInstructionCycles(currentInstructionCycles - (Math.min(currentInstructionCycles, cyclesLeftInFrame)));
                 this.emulator.addCycles(cyclesLeftInFrame);
             } else {
-                this.emulator.setWaiting(false);
+                this.setWaiting(false);
                 this.drawSprite(spriteX, spriteY, this.getIndexRegister(), N);
             }
         }
@@ -313,6 +332,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     }
 
     @Override
+    @SuppressWarnings("DuplicatedCode")
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
     this.emulator.addCycles(4);
         return switch (NN) {
@@ -322,12 +342,12 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                 yield HANDLED;
             }
             case 0x0A -> { // FX0A: Get key
-                if (this.emulator.getInstructionCycles() != 0) {
+                if (this.getInstructionCycles() != 0) {
                     if (this.getSoundTimer() != 0) {
                         this.emulator.addCycles(this.emulator.getCyclesLeftInCurrentFrame());
                     } else {
-                        this.emulator.setInstructionCycles(0);
-                        this.emulator.setWaiting(false);
+                        this.setInstructionCycles(0);
+                        this.setWaiting(false);
                         this.emulator.addCycles(10);
                     }
                 } else {
@@ -339,14 +359,14 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                             this.setRegister(getXFromFirstByte(firstByte), waitingKey);
                             keyState.resetWaitingKeypadKey();
                             this.emulator.addCycles(this.emulator.getCyclesLeftInCurrentFrame());
-                            this.emulator.setInstructionCycles(3 * 3668);
+                            this.setInstructionCycles(3 * 3668);
                             this.setSoundTimer(4);
                             this.decrementProgramCounter();
-                            this.emulator.setWaiting(true);
+                            this.setWaiting(true);
                         } else {
                             this.decrementProgramCounter();
                             this.setSoundTimer(4);
-                            this.emulator.setWaiting(true);
+                            this.setWaiting(true);
                         }
                     } else {
                         if (!pressedKeys.isEmpty()) {
@@ -354,7 +374,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                         }
                         this.decrementProgramCounter();
                         this.setSoundTimer(4);
-                        this.emulator.setWaiting(true);
+                        this.setWaiting(true);
                     }
                 }
                 yield HANDLED | GET_KEY_EXECUTED;
@@ -434,7 +454,6 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
         int bitOffset = spriteX & 7;
 
         this.setVF(false);
-
         for (int i = 0; i < N; i++) {
             int sliceY = spriteY + i;
             if (sliceY >= displayHeight) {
