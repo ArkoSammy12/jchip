@@ -28,16 +28,14 @@ public class JChip {
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean reset = new AtomicBoolean(false);
     private final AtomicBoolean stop = new AtomicBoolean(false);
-    private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public JChip(String[] args) throws IOException, InterruptedException, InvocationTargetException {
         SwingUtilities.invokeAndWait(() -> {
             this.mainWindow = new MainWindow(this);
-            this.mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.mainWindow.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    onShutdown();
+                    shutdown();
                 }
             });
             this.mainWindow.setVisible(true);
@@ -126,6 +124,10 @@ public class JChip {
         this.stop.set(true);
     }
 
+    private void shutdown() {
+        this.running.set(false);
+    }
+
     private void handleReset() throws IOException {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
@@ -147,9 +149,6 @@ public class JChip {
     }
 
     private void onShutdown() {
-        if (!shutdown.compareAndSet(false, true)) {
-            return;
-        }
         this.handleStop();
         this.mainWindow.close();
         SoundWriter.close();
