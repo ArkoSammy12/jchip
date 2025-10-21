@@ -21,9 +21,9 @@ import java.util.function.Function;
 
 public class Chip8Database implements SettingsProvider {
 
-    private Hashes hashes;
-    private Platforms platforms;
-    private Programs programs;
+    private final Hashes hashes;
+    private final Platforms platforms;
+    private final Programs programs;
 
     private ProgramEntry programEntry;
     private RomEntry romEntry;
