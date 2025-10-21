@@ -148,7 +148,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return this.execute(memory.readByte(programCounter), memory.readByte(programCounter + 1));
     }
 
-    private int execute(int firstByte, int NN) throws InvalidInstructionException {
+    protected int execute(int firstByte, int NN) throws InvalidInstructionException {
         int flags = switch (firstByte >>> 4) {
             case 0x0 -> execute0Opcode(firstByte, NN);
             case 0x1 -> execute1Opcode(firstByte, NN);

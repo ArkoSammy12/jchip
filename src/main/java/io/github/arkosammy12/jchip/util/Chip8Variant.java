@@ -16,6 +16,14 @@ public enum Chip8Variant implements DisplayNameProvider {
             new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11),
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     ),
+    STRICT_CHIP_8(
+            StrictChip8Emulator::new,
+            "strict-chip-8",
+            "STRICT CHIP-8",
+            new String[]{"originalChip8", "modernChip8"},
+            new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11),
+            new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
+    ),
     CHIP_8X(
             Chip8XEmulator::new,
             "chip-8x",
