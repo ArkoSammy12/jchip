@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.config.EmulatorConfig;
 import io.github.arkosammy12.jchip.cpu.*;
@@ -40,7 +41,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keypad = new Keypad(this.config.getKeyboardLayout());
-            this.soundSystem = this.createSoundSystem(this.chip8Variant);
+            this.soundSystem = this.createSoundSystem(emulatorConfig.getJChip(), this.chip8Variant);
             this.display = this.createDisplay(config, List.of(this.keypad));
             this.memory = this.createMemory(this.config.getRom(), this.chip8Variant);
             this.processor = this.createProcessor();
@@ -81,8 +82,8 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     }
 
     @SuppressWarnings("unchecked")
-    protected S createSoundSystem(Chip8Variant chip8Variant) {
-        return (S) new Chip8SoundSystem(chip8Variant);
+    protected S createSoundSystem(JChip jchip, Chip8Variant chip8Variant) {
+        return (S) new Chip8SoundSystem(jchip, chip8Variant);
     }
 
     public Keypad getKeypad() {

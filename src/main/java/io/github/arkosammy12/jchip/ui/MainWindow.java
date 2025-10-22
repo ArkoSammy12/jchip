@@ -74,7 +74,7 @@ public class MainWindow extends JFrame implements Closeable {
         am.put("volumeDown", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SoundWriter.getInstance().volumeDown();
+                jchip.getSoundWriter().volumeDown();
             }
         });
 
@@ -82,7 +82,7 @@ public class MainWindow extends JFrame implements Closeable {
         am.put("volumeUp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SoundWriter.getInstance().volumeUp();
+                jchip.getSoundWriter().volumeUp();
             }
         });
 

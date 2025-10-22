@@ -24,6 +24,7 @@ public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8
         while (this.machineCycles < nextFrame) {
             this.getProcessor().cycle();
         }
+        this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
     }
 
     @Override
@@ -47,7 +48,6 @@ public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8
     }
 
     private void handleInterrupt() {
-        this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         this.getProcessor().decrementTimers();
         this.getDisplay().flush();
     }

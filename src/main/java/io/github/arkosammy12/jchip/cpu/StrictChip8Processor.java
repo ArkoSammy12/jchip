@@ -9,6 +9,7 @@ import io.github.arkosammy12.jchip.video.Chip8Display;
 
 import java.util.List;
 
+/// Implementation of cycle accurate CHIP-8 generously provided by @gulrak's [Cadmium](https://github.com/gulrak/cadmium)
 public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulator, Chip8Display, Chip8SoundSystem> {
 
     private long instructionCycles;
@@ -30,6 +31,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
         this.waiting = waiting;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isWaiting() {
         return this.waiting;
     }

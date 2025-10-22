@@ -1,9 +1,11 @@
 package io.github.arkosammy12.jchip.sound;
 
+import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 
 public class MegaChipSoundSystem implements SoundSystem {
 
+    private final JChip jchip;
     private final Chip8Memory memory;
 
     private int trackStart;
@@ -14,7 +16,8 @@ public class MegaChipSoundSystem implements SoundSystem {
     private double samplePos;
     private boolean isPlaying;
 
-    public MegaChipSoundSystem(Chip8Memory memory) {
+    public MegaChipSoundSystem(JChip jchip, Chip8Memory memory) {
+        this.jchip = jchip;
         this.memory = memory;
     }
 
@@ -39,7 +42,7 @@ public class MegaChipSoundSystem implements SoundSystem {
     @Override
     public void pushSamples(int soundTimer) {
         if (!this.isPlaying) {
-            SoundWriter.getInstance().silence();
+            this.jchip.getSoundWriter().silence();
             return;
         }
         byte[] data = new byte[SAMPLES_PER_FRAME];
@@ -54,11 +57,11 @@ public class MegaChipSoundSystem implements SoundSystem {
                 data[i] = 0;
             }
         }
-        SoundWriter.getInstance().writeSamples(data);
+        this.jchip.getSoundWriter().writeSamples(data);
     }
 
     @Override
     public void close() {
-        SoundWriter.getInstance().stop();
+        this.jchip.getSoundWriter().stop();
     }
 }

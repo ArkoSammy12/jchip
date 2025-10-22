@@ -24,6 +24,7 @@ public class JChip {
     private MainWindow mainWindow;
     private Chip8Emulator<?, ?> currentEmulator;
     private final Chip8Database database = new Chip8Database();
+    private final SoundWriter soundWriter = new SoundWriter();
 
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean reset = new AtomicBoolean(false);
@@ -69,6 +70,10 @@ public class JChip {
 
     public Chip8Database getDatabase() {
         return this.database;
+    }
+
+    public SoundWriter getSoundWriter() {
+        return this.soundWriter;
     }
 
     public void start() {
@@ -151,7 +156,7 @@ public class JChip {
     private void onShutdown() {
         this.handleStop();
         this.mainWindow.close();
-        SoundWriter.close();
+        this.soundWriter.close();
     }
 
 }

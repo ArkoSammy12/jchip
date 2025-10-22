@@ -20,7 +20,7 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
 
     public MegaChipEmulator(EmulatorConfig emulatorConfig) {
         super(emulatorConfig, false);
-        this.megaChipSoundSystem = new MegaChipSoundSystem(this.getMemory());
+        this.megaChipSoundSystem = new MegaChipSoundSystem(emulatorConfig.getJChip(), this.getMemory());
     }
 
     @Override
