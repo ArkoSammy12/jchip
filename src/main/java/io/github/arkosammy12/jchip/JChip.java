@@ -83,17 +83,21 @@ public class JChip {
                 try {
                     if (this.stop.get()) {
                         this.handleStop();
+                        lastFrameTime = System.nanoTime();
                         continue;
                     }
                     if (this.reset.get()) {
                         this.handleReset();
+                        lastFrameTime = System.nanoTime();
                         continue;
                     }
                     if (this.currentEmulator == null) {
+                        lastFrameTime = System.nanoTime();
                         continue;
                     }
                     if (this.currentEmulator.isTerminated()) {
                         this.stop();
+                        lastFrameTime = System.nanoTime();
                         continue;
                     }
                     long now = System.nanoTime();
