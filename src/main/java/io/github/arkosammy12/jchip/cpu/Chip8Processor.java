@@ -20,6 +20,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     public static final int GET_KEY_EXECUTED = 1 << 4;
     public static final int FONT_SPRITE_POINTER = 1 << 5;
     public static final int CLS_EXECUTED = 1 << 6;
+    public static final int WAITING = 1 << 7;
 
     public static final int BASE_SLICE_MASK_8 = 1 << 7;
 

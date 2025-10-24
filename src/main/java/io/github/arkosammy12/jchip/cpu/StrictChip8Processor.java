@@ -38,10 +38,12 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
 
     @Override
     protected int execute(int firstByte, int NN) throws InvalidInstructionException {
+        int flags = WAITING;
         if (!this.isWaiting()) {
+            flags = 0;
             this.emulator.addCycles((firstByte & 0xF0) != 0 ? 68 : 40);
         }
-        return super.execute(firstByte, NN);
+        return super.execute(firstByte, NN) | flags;
     }
 
     @Override

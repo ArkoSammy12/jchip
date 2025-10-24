@@ -6,10 +6,14 @@ import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 
+import static io.github.arkosammy12.jchip.cpu.Chip8Processor.WAITING;
+import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+
 public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8SoundSystem> {
 
     private long machineCycles;
     private long nextFrame;
+    private int cycleCounter;
 
     public StrictChip8Emulator(EmulatorConfig emulatorConfig) {
         super(emulatorConfig);
@@ -19,12 +23,20 @@ public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8
     }
 
     @Override
+    public int getCurrentInstructionsPerFrame() {
+        int ret = this.cycleCounter;
+        this.cycleCounter = 0;
+        return ret;
+    }
+
+    @Override
     public void tick() {
         long nextFrame = this.nextFrame;
         while (this.machineCycles < nextFrame) {
-            this.getProcessor().cycle();
+            if (!isSet(this.getProcessor().cycle(), WAITING)) {
+                this.cycleCounter++;
+            }
         }
-        this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
     }
 
     @Override
@@ -48,6 +60,7 @@ public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8
     }
 
     private void handleInterrupt() {
+        this.getSoundSystem().pushSamples(this.getProcessor().getSoundTimer());
         this.getProcessor().decrementTimers();
         this.getDisplay().flush();
     }

@@ -92,12 +92,10 @@ public class JChip {
                         continue;
                     }
                     if (this.currentEmulator == null) {
-                        lastFrameTime = System.nanoTime();
                         continue;
                     }
                     if (this.currentEmulator.isTerminated()) {
                         this.stop();
-                        lastFrameTime = System.nanoTime();
                         continue;
                     }
                     long now = System.nanoTime();
