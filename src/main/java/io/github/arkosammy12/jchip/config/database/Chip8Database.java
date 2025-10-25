@@ -46,6 +46,9 @@ public class Chip8Database implements SettingsProvider {
     }
 
     public void fetchDataForRom(byte[] rom) {
+        this.programEntry = null;
+        this.romEntry = null;
+        this.platformEntry = null;
         try {
             String sha1 = getSha1Hash(rom);
             Optional<Integer> indexOptional = this.getHashes().flatMap(hashes -> hashes.getIndexForHash(sha1));
