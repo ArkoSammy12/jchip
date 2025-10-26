@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
@@ -68,14 +68,14 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 }
                 case 0xFE -> HANDLED; // 00FE: Switch to lores mode. Doesn't work when mega mode is on
                 case 0xFF -> HANDLED; // 00FF: Switch to hires mode. Doesn't work when mega mode is on
-                default -> switch (getYFromNN(NN)) {
+                default -> switch (getY(firstByte, NN)) {
                     case 0xB -> { // 00BN: Scroll screen up
-                        display.scrollUp(getNFromNN(NN));
+                        display.scrollUp(getN(firstByte, NN));
                         display.setDisplayUpdateScrollTriggered();
                         yield HANDLED;
                     }
                     case 0xC -> { // 00CN: Scroll screen down
-                        int N = getNFromNN(NN);
+                        int N = getN(firstByte, NN);
                         if (N > 0) {
                             display.scrollDown(N);
                             display.setDisplayUpdateScrollTriggered();
@@ -115,14 +115,14 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 yield HANDLED;
             }
             case 0x06 -> {
-                if (getYFromNN(NN) == 0x0) { // 060N: Play digitized sound
+                if (getY(firstByte, NN) == 0x0) { // 060N: Play digitized sound
                     if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
                         Chip8Memory memory = this.emulator.getMemory();
                         int currentIndexRegister = this.getIndexRegister();
                         megaChipSoundSystem.playTrack(
                                 ((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF,
                                 ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF),
-                                getNFromNN(NN) == 0,
+                                getN(firstByte, NN) == 0,
                                 currentIndexRegister + 6
                         );
                     }
@@ -205,21 +205,21 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         }
 
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorConfig config = this.emulator.getEmulatorConfig();
+        EmulatorInitializer config = this.emulator.getEmulatorConfig();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 
-        int spriteX = this.getRegister(getXFromFirstByte(firstByte)) % displayWidth;
-        int spriteY = this.getRegister(getYFromNN(NN)) % displayHeight;
+        int spriteX = this.getRegister(getX(firstByte, NN)) % displayWidth;
+        int spriteY = this.getRegister(getY(firstByte, NN)) % displayHeight;
 
         this.setVF(false);
 
         if (currentIndexRegister == cachedCharacterFontIndex) {
             // Normal DXYN behavior for font sprites
-            int N = getNFromNN(NN);
+            int N = getN(firstByte, NN);
             int spriteHeight = N < 1 ? 16 : N;
             boolean draw16WideSprite = spriteHeight >= 16;
             int sliceLength;
@@ -335,13 +335,13 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
 
-        int N = getNFromNN(NN);
+        int N = getN(firstByte, NN);
         int spriteHeight = N < 1 ? 16 : N;
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 
-        int spriteX = this.getRegister(getXFromFirstByte(firstByte)) % displayWidth;
-        int spriteY = this.getRegister(getYFromNN(NN)) % displayHeight;
+        int spriteX = this.getRegister(getX(firstByte, NN)) % displayWidth;
+        int spriteY = this.getRegister(getY(firstByte, NN)) % displayHeight;
 
         boolean draw16WideSprite = extendedMode && spriteHeight >= 16;
 

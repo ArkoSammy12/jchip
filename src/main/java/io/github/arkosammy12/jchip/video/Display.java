@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.ui.EmulatorRenderer;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 
 import java.awt.event.*;
 import java.io.Closeable;
@@ -20,7 +20,7 @@ public abstract class Display implements Closeable {
     protected final int imageWidth;
     protected final int imageHeight;
 
-    public Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+    public Display(EmulatorInitializer config, List<KeyAdapter> keyAdapters) {
         this.chip8Variant = config.getVariant();
         this.displayAngle = config.getDisplayAngle();
         this.imageWidth = getImageWidth();

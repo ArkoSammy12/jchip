@@ -6,11 +6,13 @@ import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
@@ -18,9 +20,9 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
 
     private final MegaChipSoundSystem megaChipSoundSystem;
 
-    public MegaChipEmulator(EmulatorConfig emulatorConfig) {
-        super(emulatorConfig, false);
-        this.megaChipSoundSystem = new MegaChipSoundSystem(emulatorConfig.getJChip(), this.getMemory());
+    public MegaChipEmulator(EmulatorInitializer emulatorInitializer, BiFunction<EmulatorInitializer, List<KeyAdapter>, D> displayFactory, Function<EmulatorInitializer, S> soundSystemFactory) {
+        super(emulatorInitializer, displayFactory, soundSystemFactory, false);
+        this.megaChipSoundSystem = new MegaChipSoundSystem(emulatorInitializer, this.getMemory());
     }
 
     @Override
@@ -31,12 +33,6 @@ public class MegaChipEmulator<D extends MegaChipDisplay, S extends SoundSystem> 
     @Override
     protected Chip8Memory createMemory(int[] rom, Chip8Variant chip8Variant) {
         return new Chip8Memory(rom, chip8Variant, 0x200, 0xFFFFFF + 1);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
-        return (D) new MegaChipDisplay(emulatorConfig, keyAdapters);
     }
 
     @Override

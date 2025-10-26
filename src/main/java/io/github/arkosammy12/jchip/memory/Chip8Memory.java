@@ -6,7 +6,6 @@ import io.github.arkosammy12.jchip.util.HexSpriteFont;
 
 public class Chip8Memory {
 
-
     private final int[] bytes;
     private final int memoryBoundsMask;
 
@@ -39,6 +38,8 @@ public class Chip8Memory {
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new EmulatorException("ROM size too big for CHIP-8 variant " + chip8Variant.getDisplayName() + "!");
+        } catch (Exception e) {
+            throw new EmulatorException("Error initializing CHIP-8 memory: ", e);
         }
     }
 

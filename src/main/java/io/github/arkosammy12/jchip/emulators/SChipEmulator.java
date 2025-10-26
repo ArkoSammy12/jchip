@@ -3,11 +3,13 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.SChipProcessor;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
@@ -15,20 +17,14 @@ public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extend
 
     private final boolean isModern;
 
-    public SChipEmulator(EmulatorConfig emulatorConfig, boolean isModern) {
+    public SChipEmulator(EmulatorInitializer emulatorInitializer, BiFunction<EmulatorInitializer, List<KeyAdapter>, D> displayFactory, Function<EmulatorInitializer, S> soundSystemFactory, boolean isModern) {
         this.isModern = isModern;
-        super(emulatorConfig);
+        super(emulatorInitializer, displayFactory, soundSystemFactory);
     }
 
     @Override
     protected Chip8Processor<?, ?, ?> createProcessor() {
         return new SChipProcessor<>(this);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
-        return (D) new SChipDisplay(emulatorConfig, keyAdapters, this.isModern);
     }
 
     public boolean isModern() {

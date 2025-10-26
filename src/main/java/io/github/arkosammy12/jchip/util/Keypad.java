@@ -35,6 +35,16 @@ public class Keypad extends KeyAdapter {
         return this.keys[hex];
     }
 
+    public synchronized List<Integer> getPressedKeypadKeys() {
+        List<Integer> pressedKeys = new ArrayList<>(16);
+        for (int i = 0; i < 16; i++) {
+            if (this.keys[i]) {
+                pressedKeys.add(i);
+            }
+        }
+        return pressedKeys;
+    }
+
     public void setWaitingKeypadKey(int hex) {
         this.waitingKey = hex;
     }
@@ -45,16 +55,6 @@ public class Keypad extends KeyAdapter {
 
     public void resetWaitingKeypadKey() {
         this.waitingKey = -1;
-    }
-
-    public List<Integer> getPressedKeypadKeys() {
-        List<Integer> pressedKeys = new ArrayList<>(16);
-        for (int i = 0; i < 16; i++) {
-            if (this.keys[i]) {
-                pressedKeys.add(i);
-            }
-        }
-        return pressedKeys;
     }
 
     private synchronized void setKeypadKeyPressed(int keyCode) {

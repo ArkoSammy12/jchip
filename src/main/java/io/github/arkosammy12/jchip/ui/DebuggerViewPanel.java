@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.JChip;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 
@@ -173,7 +173,7 @@ public class DebuggerViewPanel extends JPanel {
         }
 
         Chip8Emulator<?, ?> emulator = optionalChip8Emulator.get();
-        EmulatorConfig config = emulator.getEmulatorConfig();
+        EmulatorInitializer config = emulator.getEmulatorConfig();
 
         Chip8Processor<?, ?, ?> processor = emulator.getProcessor();
         int pc = processor.getProgramCounter();

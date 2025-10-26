@@ -1,19 +1,21 @@
 package io.github.arkosammy12.jchip;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import org.tinylog.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
+// TODO: Avoid reading the same rom file if the file path hasn't been changed by the user
+// TODO: When forcing variant quirks, take the variant's default IPF setting into account. Potentially add a force variant quirks into the variant submenu instead.
+// TODO: Update readme.
 public class Main {
 
     public static final int FRAMES_PER_SECOND = 60;
     public static final long FRAME_INTERVAL = 1_000_000_000L / FRAMES_PER_SECOND;
     public static final String VERSION_STRING = "v3.0.0";
 
-    static void main(String[] args) throws IOException, InterruptedException, InvocationTargetException {
+    static void main(String[] args) {
         System.setProperty("flatlaf.menuBarEmbedded", "false");
         FlatLightLaf.setup();
         JFrame.setDefaultLookAndFeelDecorated(true);
@@ -21,7 +23,17 @@ public class Main {
         if (Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported"))) {
             Toolkit.getDefaultToolkit().setDynamicLayout(true);
         }
-        JChip JChip = new JChip(args);
-        JChip.start();
+        JChip jchip = null;
+        try {
+            jchip = new JChip(args);
+            jchip.start();
+        } catch (Throwable t) {
+            Logger.error("jchip has crashed!");
+            throw new RuntimeException(t);
+        } finally {
+            if (jchip != null) {
+                jchip.onShutdown();
+            }
+        }
     }
 }

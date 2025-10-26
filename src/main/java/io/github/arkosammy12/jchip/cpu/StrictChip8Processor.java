@@ -103,7 +103,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     @Override
     protected int execute3Opcode(int firstByte, int NN) {
         int flags = HANDLED;
-        if (NN == this.getRegister(getXFromFirstByte(firstByte))) {
+        if (NN == this.getRegister(getX(firstByte, NN))) {
             flags = set(flags, SKIP_TAKEN);
             this.incrementProgramCounter();
             this.emulator.addCycles(14);
@@ -116,7 +116,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     @Override
     protected int execute4Opcode(int firstByte, int NN) {
         int flags = HANDLED;
-        if (NN != this.getRegister(getXFromFirstByte(firstByte))) {
+        if (NN != this.getRegister(getX(firstByte, NN))) {
             flags = set(flags, SKIP_TAKEN);
             this.incrementProgramCounter();
             this.emulator.addCycles(14);
@@ -128,9 +128,9 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
 
     @Override
     protected int execute5Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        if (getNFromNN(NN) == 0x0) { // 5XY0: Skip if registers equal
+        if (getN(firstByte, NN) == 0x0) { // 5XY0: Skip if registers equal
             int flags = HANDLED;
-            if (this.getRegister(getXFromFirstByte(firstByte)) == this.getRegister(getYFromNN(NN))) {
+            if (this.getRegister(getX(firstByte, NN)) == this.getRegister(getY(firstByte, NN))) {
                 flags = set(flags, SKIP_TAKEN);
                 this.incrementProgramCounter();
                 this.emulator.addCycles(18);
@@ -145,14 +145,14 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
 
     @Override
     protected int execute6Opcode(int firstByte, int NN) {
-        this.setRegister(getXFromFirstByte(firstByte), NN);
+        this.setRegister(getX(firstByte, NN), NN);
         this.emulator.addCycles(6);
         return HANDLED;
     }
 
     @Override
     protected int execute7Opcode(int firstByte, int NN) {
-        int X = getXFromFirstByte(firstByte);
+        int X = getX(firstByte, NN);
         this.setRegister(X, this.getRegister(X) + NN);
         this.emulator.addCycles(10);
         return HANDLED;
@@ -161,70 +161,70 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int execute8Opcode(int firstByte, int NN) {
-        return switch (getNFromNN(NN)) {
+        return switch (getN(firstByte, NN)) {
             case 0x0 -> { // 8XY0: Copy to register
-                this.setRegister(getXFromFirstByte(firstByte), this.getRegister(getYFromNN(NN)));
+                this.setRegister(getX(firstByte, NN), this.getRegister(getY(firstByte, NN)));
                 this.emulator.addCycles(12);
                 yield HANDLED;
             }
             case 0x1 -> { // 8XY1: OR registers
-                int X = getXFromFirstByte(firstByte);
-                this.setRegister(X, this.getRegister(X) | this.getRegister(getYFromNN(NN)));
+                int X = getX(firstByte, NN);
+                this.setRegister(X, this.getRegister(X) | this.getRegister(getY(firstByte, NN)));
                 this.setVF(false);
                 this.emulator.addCycles(44);
                 yield HANDLED;
             }
             case 0x2 -> { // 8XY2: AND registers
-                int X = getXFromFirstByte(firstByte);
-                this.setRegister(X, this.getRegister(X) & this.getRegister(getYFromNN(NN)));
+                int X = getX(firstByte, NN);
+                this.setRegister(X, this.getRegister(X) & this.getRegister(getY(firstByte, NN)));
                 this.setVF(false);
                 this.emulator.addCycles(44);
                 yield HANDLED;
             }
             case 0x3 -> { // 8XY3: XOR registers
-                int X = getXFromFirstByte(firstByte);
-                this.setRegister(X, this.getRegister(X) ^ this.getRegister(getYFromNN(NN)));
+                int X = getX(firstByte, NN);
+                this.setRegister(X, this.getRegister(X) ^ this.getRegister(getY(firstByte, NN)));
                 this.setVF(false);
                 this.emulator.addCycles(44);
                 yield HANDLED;
             }
             case 0x4 -> { // 8XY4: Add registers
-                int X = getXFromFirstByte(firstByte);
-                int value = this.getRegister(X) + this.getRegister(getYFromNN(NN));
+                int X = getX(firstByte, NN);
+                int value = this.getRegister(X) + this.getRegister(getY(firstByte, NN));
                 this.setRegister(X, value);
                 this.setVF(value > 0xFF);
                 this.emulator.addCycles(44);
                 yield HANDLED;
             }
             case 0x5 -> { // 8XY5: Subtract registers
-                int X = getXFromFirstByte(firstByte);
+                int X = getX(firstByte, NN);
                 int vX = this.getRegister(X);
-                int vY = this.getRegister(getYFromNN(NN));
+                int vY = this.getRegister(getY(firstByte, NN));
                 this.setRegister(X, vX - vY);
                 this.setVF(vX >= vY);
                 this.emulator.addCycles(44);
                 yield HANDLED;
             }
             case 0x6 -> { // 8XY6: Shift right register
-                int X = getXFromFirstByte(firstByte);
-                int vY = this.getRegister(getYFromNN(NN));
+                int X = getX(firstByte, NN);
+                int vY = this.getRegister(getY(firstByte, NN));
                 this.setRegister(X, vY >>> 1);
                 this.setVF((vY & 1) != 0);
                 this.emulator.addCycles(44);
                 yield HANDLED;
             }
             case 0x7 -> { // 8XY7: Subtract registers inverse
-                int X = getXFromFirstByte(firstByte);
+                int X = getX(firstByte, NN);
                 int vX = this.getRegister(X);
-                int vY = this.getRegister(getYFromNN(NN));
+                int vY = this.getRegister(getY(firstByte, NN));
                 this.setRegister(X, vY - vX);
                 this.setVF(vY >= vX);
                 this.emulator.addCycles(44);
                 yield HANDLED;
             }
             case 0xE -> { // 8XYE: Shift left register
-                int X = getXFromFirstByte(firstByte);
-                int vY = this.getRegister(getYFromNN(NN));
+                int X = getX(firstByte, NN);
+                int vY = this.getRegister(getY(firstByte, NN));
                 this.setRegister(X, vY << 1);
                 this.setVF((vY & 128) != 0);
                 this.emulator.addCycles(44);
@@ -236,9 +236,9 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
 
     @Override
     protected int execute9Opcode(int firstByte, int NN) {
-        if (getNFromNN(NN) == 0x0) { // 9XY0: Skip if registers not equal
+        if (getN(firstByte, NN) == 0x0) { // 9XY0: Skip if registers not equal
             int flags = HANDLED;
-            if (this.getRegister(getXFromFirstByte(firstByte)) != this.getRegister(getYFromNN(NN))) {
+            if (this.getRegister(getX(firstByte, NN)) != this.getRegister(getY(firstByte, NN))) {
                 flags = set(flags, SKIP_TAKEN);
                 this.incrementProgramCounter();
                 this.emulator.addCycles(18);
@@ -269,7 +269,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
 
     @Override
     protected int executeCOpcode(int firstByte, int NN) {
-        this.setRegister(getXFromFirstByte(firstByte), this.getRandom().nextInt() & NN);
+        this.setRegister(getX(firstByte, NN), this.getRandom().nextInt() & NN);
         this.emulator.addCycles(36);
         return HANDLED;
     }
@@ -281,9 +281,9 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 
-        int spriteX = this.getRegister(getXFromFirstByte(firstByte)) % displayWidth;
-        int spriteY = this.getRegister(getYFromNN(NN)) % displayHeight;
-        int N = getNFromNN(NN);
+        int spriteX = this.getRegister(getX(firstByte, NN)) % displayWidth;
+        int spriteY = this.getRegister(getY(firstByte, NN)) % displayHeight;
+        int N = getN(firstByte, NN);
 
         long cyclesLeftInFrame = this.emulator.getCyclesLeftInCurrentFrame();
         if (!this.isWaiting()) {
@@ -311,7 +311,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
         return switch (NN) {
             case 0x9E -> { // EX9E: Skip if key pressed
                 int flags = HANDLED;
-                if (this.emulator.getKeypad().isKeyPressed(this.getRegister(getXFromFirstByte(firstByte)) & 0xF)) {
+                if (this.emulator.getKeypad().isKeyPressed(this.getRegister(getX(firstByte, NN)) & 0xF)) {
                     flags = set(flags, SKIP_TAKEN);
                     this.incrementProgramCounter();
                     this.emulator.addCycles(18);
@@ -322,7 +322,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
             }
             case 0xA1 -> { // EXA1: Skip if key not pressed
                 int flags = HANDLED;
-                if (!this.emulator.getKeypad().isKeyPressed(this.getRegister(getXFromFirstByte(firstByte)) & 0xF)) {
+                if (!this.emulator.getKeypad().isKeyPressed(this.getRegister(getX(firstByte, NN)) & 0xF)) {
                     flags = set(flags, SKIP_TAKEN);
                     this.incrementProgramCounter();
                     this.emulator.addCycles(18);
@@ -341,7 +341,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     this.emulator.addCycles(4);
         return switch (NN) {
             case 0x07 -> { // FX07: Set register to delay timer
-                this.setRegister(getXFromFirstByte(firstByte), this.getDelayTimer());
+                this.setRegister(getX(firstByte, NN), this.getDelayTimer());
                 this.emulator.addCycles(6);
                 yield HANDLED;
             }
@@ -360,7 +360,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                     int waitingKey = keyState.getWaitingKeypadKey();
                     if (waitingKey >= 0) {
                         if (pressedKeys.isEmpty() || waitingKey != pressedKeys.getFirst()) {
-                            this.setRegister(getXFromFirstByte(firstByte), waitingKey);
+                            this.setRegister(getX(firstByte, NN), waitingKey);
                             keyState.resetWaitingKeypadKey();
                             this.emulator.addCycles(this.emulator.getCyclesLeftInCurrentFrame());
                             this.setInstructionCycles(3 * 3668);
@@ -384,31 +384,31 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                 yield HANDLED | GET_KEY_EXECUTED;
             }
             case 0x15 -> { // FX15: Set delay timer to register
-                this.setDelayTimer(this.getRegister(getXFromFirstByte(firstByte)));
+                this.setDelayTimer(this.getRegister(getX(firstByte, NN)));
                 this.emulator.addCycles(6);
                 yield HANDLED;
             }
             case 0x18 -> { // FX18: Set sound timer to register
-                this.setSoundTimer(this.getRegister(getXFromFirstByte(firstByte)));
+                this.setSoundTimer(this.getRegister(getX(firstByte, NN)));
                 this.emulator.addCycles(6);
                 yield HANDLED;
             }
             case 0x1E -> { // FX1E: Add register to index
                 int currentIndexRegister = this.getIndexRegister();
-                int newIndexRegister = currentIndexRegister + this.getRegister(getXFromFirstByte(firstByte));
+                int newIndexRegister = currentIndexRegister + this.getRegister(getX(firstByte, NN));
                 this.setIndexRegister(newIndexRegister);
                 this.emulator.addCycles((currentIndexRegister & 0xFF00) != (newIndexRegister & 0xFF00) ? 18 : 12);
                 yield HANDLED;
             }
             case 0x29 -> { // FX29: Set index to small font sprite memory location
-                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontSpriteOffset(this.getRegister(getXFromFirstByte(firstByte)) & 0xF));
+                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
                 this.emulator.addCycles(16);
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x33 -> { // FX33: Encode register as BCD
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexPointer = this.getIndexRegister();
-                int vX = this.getRegister(getXFromFirstByte(firstByte));
+                int vX = this.getRegister(getX(firstByte, NN));
                 long hundreds = (vX * 0x51EB851FL) >>> 37;
                 long remainder = vX - hundreds * 100;
                 long tens = (remainder * 0xCCCDL) >>> 19;
@@ -422,7 +422,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
             case 0x55 -> { // FX55: Write registers to memory
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexPointer = this.getIndexRegister();
-                int X = getXFromFirstByte(firstByte);
+                int X = getX(firstByte, NN);
                 this.emulator.addCycles(14);
                 for (int i = 0; i <= X; i++) {
                     memory.writeByte(currentIndexPointer + i, this.getRegister(i));
@@ -434,7 +434,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
             case 0x65 -> { // FX65: Read memory into registers
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
-                int X = getXFromFirstByte(firstByte);
+                int X = getX(firstByte, NN);
                 this.emulator.addCycles(14);
                 for (int i = 0; i <= X; i++) {
                     this.setRegister(i, memory.readByte(currentIndexRegister + i));

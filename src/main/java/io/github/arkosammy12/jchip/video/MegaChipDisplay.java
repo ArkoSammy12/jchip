@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 import java.awt.event.KeyAdapter;
@@ -22,7 +22,7 @@ public class MegaChipDisplay extends SChipDisplay {
     private boolean megaChipModeEnabled = false;
     private boolean scrollTriggered = false;
 
-    public MegaChipDisplay(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+    public MegaChipDisplay(EmulatorInitializer config, List<KeyAdapter> keyAdapters) {
         super(config, keyAdapters, false);
         this.colorPalette[0] = 0x00000000;
         this.colorPalette[255] = 0xFFFFFFFF;

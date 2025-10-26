@@ -41,9 +41,9 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
 
     @Override
     protected int execute5Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        if (getNFromNN(NN) == 0x1) { // 5XY1: Skip if register greater than
+        if (getN(firstByte, NN) == 0x1) { // 5XY1: Skip if register greater than
             int flags = HANDLED;
-            if (this.getRegister(getXFromFirstByte(firstByte)) > this.getRegister(getYFromNN(NN))) {
+            if (this.getRegister(getX(firstByte, NN)) > this.getRegister(getY(firstByte, NN))) {
                 this.incrementProgramCounter();
                 if (this.previousOpcodeWasFX00()) {
                     this.incrementProgramCounter();
@@ -59,17 +59,17 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int execute8Opcode(int firstByte, int NN) {
-        return switch (getNFromNN(NN)) {
+        return switch (getN(firstByte, NN)) {
             case 0xC -> { // 8XYC: Multiply registers
-                int X = getXFromFirstByte(firstByte);
-                int product = this.getRegister(X) * this.getRegister(getYFromNN(NN));
+                int X = getX(firstByte, NN);
+                int product = this.getRegister(X) * this.getRegister(getY(firstByte, NN));
                 this.setRegister(X, product);
                 this.setRegister(0xF, (product & 0xFF00) >>> 8);
                 yield HANDLED;
             }
             case 0xD -> { // 8XYD: Divide registers
-                int X = getXFromFirstByte(firstByte);
-                int vY = this.getRegister(getYFromNN(NN));
+                int X = getX(firstByte, NN);
+                int vY = this.getRegister(getY(firstByte, NN));
                 if (vY == 0) {
                     this.setRegister(X, 0);
                     this.setVF(false);
@@ -81,13 +81,13 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
                 yield HANDLED;
             }
             case 0xF -> { // 8XYF: Divide registers inverse
-                int X = getXFromFirstByte(firstByte);
+                int X = getX(firstByte, NN);
                 int vX = this.getRegister(X);
                 if (vX == 0) {
                     this.setRegister(X, 0);
                     this.setVF(false);
                 } else {
-                    int vY = this.getRegister(getYFromNN(NN));
+                    int vY = this.getRegister(getY(firstByte, NN));
                     this.setRegister(X, vY / vX);
                     this.setRegister(0xF, vY % vX);
                 }
@@ -125,11 +125,11 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator<D, S>, D
             case 0x03 -> { // FX03: Set color of palette X to three byte (24-bit) color from memory at I, I+1, I+2
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
-                this.emulator.getDisplay().setPaletteEntry(getXFromFirstByte(firstByte) & 0xF, (memory.readByte(currentIndexRegister) << 16) | (memory.readByte(currentIndexRegister + 1) << 8) | memory.readByte(currentIndexRegister + 2));
+                this.emulator.getDisplay().setPaletteEntry(getX(firstByte, NN) & 0xF, (memory.readByte(currentIndexRegister) << 16) | (memory.readByte(currentIndexRegister + 1) << 8) | memory.readByte(currentIndexRegister + 2));
                 yield HANDLED;
             }
             case 0x1F -> { // FX1F: Subtract register from index
-                this.setIndexRegister(this.getIndexRegister() - this.getRegister(getXFromFirstByte(firstByte)));
+                this.setIndexRegister(this.getIndexRegister() - this.getRegister(getX(firstByte, NN)));
                 yield HANDLED;
             }
             default -> super.executeFOpcode(firstByte, NN);

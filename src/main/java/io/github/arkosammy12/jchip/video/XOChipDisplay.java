@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -11,7 +11,7 @@ public class XOChipDisplay extends SChipDisplay {
 
     private int selectedBitPlanes = 1;
 
-    public XOChipDisplay(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+    public XOChipDisplay(EmulatorInitializer config, List<KeyAdapter> keyAdapters) {
         super(config, keyAdapters, true);
     }
 

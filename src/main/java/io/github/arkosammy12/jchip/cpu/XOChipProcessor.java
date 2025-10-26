@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
@@ -15,8 +15,8 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
 
     @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        if (firstByte == 0x00 && getYFromNN(NN) == 0xD) { // OODN: Scroll screen up
-            this.emulator.getDisplay().scrollUp(getNFromNN(NN));
+        if (firstByte == 0x00 && getY(firstByte, NN) == 0xD) { // OODN: Scroll screen up
+            this.emulator.getDisplay().scrollUp(getN(firstByte, NN));
             return HANDLED;
         } else {
             return super.execute0Opcode(firstByte, NN);
@@ -42,12 +42,12 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
             }
             return result;
         }
-        return switch (getNFromNN(NN)) {
+        return switch (getN(firstByte, NN)) {
             case 0x2 -> { // 5XY2: Write vX to vY to memory
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
-                int X = getXFromFirstByte(firstByte);
-                int Y = getYFromNN(NN);
+                int X = getX(firstByte, NN);
+                int Y = getY(firstByte, NN);
                 boolean iterateInReverse = X > Y;
                 if (iterateInReverse) {
                     for (int i = X, j = 0; i >= Y; i--, j++) {
@@ -63,8 +63,8 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
             case 0x3 -> { // 5XY3: Read values into vX to vY from memory
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
-                int X = getXFromFirstByte(firstByte);
-                int Y = getYFromNN(NN);
+                int X = getX(firstByte, NN);
+                int Y = getY(firstByte, NN);
                 boolean iterateInReverse = X > Y;
                 if (iterateInReverse) {
                     for (int i = X, j = 0; i >= Y; i--, j++) {
@@ -91,19 +91,19 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
     protected int executeDOpcode(int firstByte, int NN) {
         XOChipDisplay display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorConfig config = this.emulator.getEmulatorConfig();
+        EmulatorInitializer config = this.emulator.getEmulatorConfig();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         int selectedBitPlanes = display.getSelectedBitPlanes();
         boolean doClipping = config.doClipping();
 
-        int N = getNFromNN(NN);
+        int N = getN(firstByte, NN);
         int spriteHeight = N < 1 ? 16 : N;
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 
-        int spriteX = this.getRegister(getXFromFirstByte(firstByte)) % displayWidth;
-        int spriteY = this.getRegister(getYFromNN(NN)) % displayHeight;
+        int spriteX = this.getRegister(getX(firstByte, NN)) % displayWidth;
+        int spriteY = this.getRegister(getY(firstByte, NN)) % displayHeight;
 
         boolean draw16WideSprite = spriteHeight >= 16;
         int sliceLength;
@@ -186,7 +186,7 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
                 }
             }
             case 0x01 -> { // FX01: Set selected bit planes
-                this.emulator.getDisplay().setSelectedBitPlanes(getXFromFirstByte(firstByte));
+                this.emulator.getDisplay().setSelectedBitPlanes(getX(firstByte, NN));
                 yield HANDLED;
             }
             case 0x02 -> {
@@ -203,7 +203,7 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
                 }
             }
             case 0x3A -> { // FX3A: Set audio pattern pitch
-                this.emulator.getSoundSystem().setPitch(this.getRegister(getXFromFirstByte(firstByte)));
+                this.emulator.getSoundSystem().setPitch(this.getRegister(getX(firstByte, NN)));
                 yield HANDLED;
             }
             default -> super.executeFOpcode(firstByte, NN);

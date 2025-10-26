@@ -1,19 +1,19 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.cpu.*;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
@@ -28,21 +28,22 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     private final Keypad keypad;
 
     private final Chip8Variant chip8Variant;
-    private final EmulatorConfig config;
+    private final EmulatorInitializer config;
     private final int targetInstructionsPerFrame;
+
     private int currentInstructionsPerFrame;
     private int waitFrames = 0;
     private boolean isTerminated = false;
 
-    public Chip8Emulator(EmulatorConfig emulatorConfig) {
+    public Chip8Emulator(EmulatorInitializer emulatorInitializer, BiFunction<EmulatorInitializer, List<KeyAdapter>, D> displayFactory, Function<EmulatorInitializer, S> soundSystemFactory) {
         try {
-            this.config = emulatorConfig;
-            this.chip8Variant = emulatorConfig.getVariant();
-            this.targetInstructionsPerFrame = emulatorConfig.getInstructionsPerFrame();
+            this.config = emulatorInitializer;
+            this.chip8Variant = emulatorInitializer.getVariant();
+            this.targetInstructionsPerFrame = emulatorInitializer.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keypad = new Keypad(this.config.getKeyboardLayout());
-            this.soundSystem = this.createSoundSystem(emulatorConfig.getJChip(), this.chip8Variant);
-            this.display = this.createDisplay(config, List.of(this.keypad));
+            this.soundSystem = soundSystemFactory.apply(emulatorInitializer);
+            this.display = displayFactory.apply(config, List.of(this.keypad));
             this.memory = this.createMemory(this.config.getRom(), this.chip8Variant);
             this.processor = this.createProcessor();
         } catch (Exception e) {
@@ -68,22 +69,12 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return this.memory;
     }
 
-    @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
-        return (D) new Chip8Display(emulatorConfig, keyAdapters);
-    }
-
     public D getDisplay() {
         return this.display;
     }
 
     public S getSoundSystem() {
         return this.soundSystem;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected S createSoundSystem(JChip jchip, Chip8Variant chip8Variant) {
-        return (S) new Chip8SoundSystem(jchip, chip8Variant);
     }
 
     public Keypad getKeypad() {
@@ -94,7 +85,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return this.chip8Variant;
     }
 
-    public EmulatorConfig getEmulatorConfig() {
+    public EmulatorInitializer getEmulatorConfig() {
         return this.config;
     }
 
@@ -144,7 +135,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         if (this.config.doDisplayWait()) {
             if (isSet(flags, Chip8Processor.DRAW_EXECUTED)) {
                 return true;
-            } else if (isSet(flags, Chip8Processor.LONG_DRAW_EXECUTED)) {
+            } else if (isSet(flags, Chip8Processor.LONG_INSTRUCTION)) {
                 this.waitFrames = 1;
                 return true;
             }
@@ -161,7 +152,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
                 this.soundSystem.close();
             }
         } catch (Exception e) {
-            System.err.println("Error releasing emulator resources: " + e);
+            throw new EmulatorException("Error releasing current emulator resources: ", e);
         }
     }
 

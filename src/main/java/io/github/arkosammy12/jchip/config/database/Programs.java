@@ -3,17 +3,7 @@ package io.github.arkosammy12.jchip.config.database;
 import java.util.List;
 import java.util.Optional;
 
-class Programs {
-
-    List<ProgramEntry> programEntries;
-
-    public Programs(List<ProgramEntry> programEntries) {
-        this.programEntries = programEntries;
-    }
-
-    public Optional<List<ProgramEntry>> getProgramEntries() {
-        return Optional.ofNullable(this.programEntries);
-    }
+record Programs(List<ProgramEntry> programEntries) {
 
     public Optional<ProgramEntry> getProgramEntryAt(int index) {
         if (this.programEntries == null) {

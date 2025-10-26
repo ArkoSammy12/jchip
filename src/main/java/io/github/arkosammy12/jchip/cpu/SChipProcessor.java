@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
@@ -48,8 +48,8 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                     yield HANDLED;
                 }
                 default -> {
-                    if (getYFromNN(NN) == 0xC) { // 00CN: Scroll screen down
-                        int N = getNFromNN(NN);
+                    if (getY(firstByte, NN) == 0xC) { // 00CN: Scroll screen down
+                        int N = getN(firstByte, NN);
                         if (N == 0x0 && !this.emulator.isModern()) {
                             // 00C0 is invalid on legacy SUPER-CHIP
                             yield super.execute0Opcode(firstByte, NN);
@@ -70,18 +70,18 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
     protected int executeDOpcode(int firstByte, int NN) {
         SChipDisplay display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorConfig config = this.emulator.getEmulatorConfig();
+        EmulatorInitializer config = this.emulator.getEmulatorConfig();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
 
-        int N = getNFromNN(NN);
+        int N = getN(firstByte, NN);
         int spriteHeight = N < 1 ? 16 : N;
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 
-        int spriteX = this.getRegister(getXFromFirstByte(firstByte)) % displayWidth;
-        int spriteY = this.getRegister(getYFromNN(NN)) % displayHeight;
+        int spriteX = this.getRegister(getX(firstByte, NN)) % displayWidth;
+        int spriteY = this.getRegister(getY(firstByte, NN)) % displayHeight;
 
         boolean isModern = this.emulator.isModern();
         boolean draw16WideSprite = (isModern || extendedMode) && spriteHeight >= 16;
@@ -167,15 +167,15 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         return switch (NN) {
             case 0x30 -> { // FX30: Set index to big font sprite memory offset
-                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getBigFontSpriteOffset(this.getRegister(getXFromFirstByte(firstByte)) & 0xF));
+                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getBigFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: Store registers to flags storage
-                this.saveRegistersToFlags(getXFromFirstByte(firstByte));
+                this.saveRegistersToFlags(getX(firstByte, NN));
                 yield HANDLED;
             }
             case 0x85 -> { // FX85: Load registers from flags storage
-                this.loadFlagsToRegisters(getXFromFirstByte(firstByte));
+                this.loadFlagsToRegisters(getX(firstByte, NN));
                 yield HANDLED;
             }
             default -> super.executeFOpcode(firstByte, NN);

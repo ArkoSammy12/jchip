@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;
@@ -14,7 +14,7 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     private final int[] colorPalette = new int[16];
     private DrawingMode drawingMode = DrawingMode.XOR;
 
-    public HyperWaveChip64Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+    public HyperWaveChip64Display(EmulatorInitializer config, List<KeyAdapter> keyAdapters) {
         super(config, keyAdapters);
         Arrays.fill(this.colorPalette, 0xFF000000);
     }

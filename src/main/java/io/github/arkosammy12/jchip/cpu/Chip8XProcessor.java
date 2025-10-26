@@ -24,9 +24,9 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
 
     @Override
     protected int execute5Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        if (getNFromNN(NN) == 0x1) { // 5XY1: Add registers as packed octal digits
-            int X = getXFromFirstByte(firstByte);
-            this.setRegister(X, ((this.getRegister(X) & 0x77) + (this.getRegister(getYFromNN(NN)) & 0x77)) & 0x77);
+        if (getN(firstByte, NN) == 0x1) { // 5XY1: Add registers as packed octal digits
+            int X = getX(firstByte, NN);
+            this.setRegister(X, ((this.getRegister(X) & 0x77) + (this.getRegister(getY(firstByte, NN)) & 0x77)) & 0x77);
             return HANDLED;
         } else {
             return super.execute5Opcode(firstByte, NN);
@@ -37,12 +37,12 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     @Override
     protected int executeBOpcode(int firstByte, int NN) {
         Chip8XDisplay display = this.emulator.getDisplay();
-        int X = getXFromFirstByte(firstByte);
-        int N = getNFromNN(NN);
+        int X = getX(firstByte, NN);
+        int N = getN(firstByte, NN);
 
         int vX = this.getRegister(X);
         int vX1 = this.getRegister((X + 1) % 16);
-        int colorIndex = this.getRegister(getYFromNN(NN)) & 0x7;
+        int colorIndex = this.getRegister(getY(firstByte, NN)) & 0x7;
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
@@ -91,7 +91,7 @@ public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisp
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         return switch (NN) {
             case 0xF8 -> { // FXF8: Output register to IO port
-                this.emulator.getSoundSystem().setPitch(this.getRegister(getXFromFirstByte(firstByte)));
+                this.emulator.getSoundSystem().setPitch(this.getRegister(getX(firstByte, NN)));
                 yield HANDLED;
             }
             case 0xFB -> HANDLED; // FXFB: Wait for input from IO port and load into register. Stubbed

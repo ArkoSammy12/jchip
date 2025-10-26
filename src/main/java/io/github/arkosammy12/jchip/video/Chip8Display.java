@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 import java.awt.event.KeyAdapter;
@@ -13,7 +13,7 @@ public class Chip8Display extends Display {
     protected final ColorPalette colorPalette;
     protected final int[][] bitplaneBuffer;
 
-    public Chip8Display(EmulatorConfig config, List<KeyAdapter> keyAdapters) {
+    public Chip8Display(EmulatorInitializer config, List<KeyAdapter> keyAdapters) {
         super(config, keyAdapters);
         this.bitplaneBuffer = new int[this.getImageWidth()][this.getImageHeight()];
         this.colorPalette = config.getColorPalette();

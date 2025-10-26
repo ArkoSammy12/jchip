@@ -1,7 +1,9 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.emulators.*;
+import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
+import io.github.arkosammy12.jchip.video.*;
 import picocli.CommandLine;
 
 import java.util.function.Function;
@@ -9,7 +11,7 @@ import java.util.function.ToIntFunction;
 
 public enum Chip8Variant implements DisplayNameProvider {
     CHIP_8(
-            Chip8Emulator::new,
+            (config) -> new Chip8Emulator<>(config, Chip8Display::new, Chip8SoundSystem::new),
             "chip-8",
             "CHIP-8",
             new String[]{"originalChip8", "modernChip8"},
@@ -25,7 +27,7 @@ public enum Chip8Variant implements DisplayNameProvider {
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     ),
     CHIP_8X(
-            Chip8XEmulator::new,
+            (config) -> new Chip8XEmulator<>(config, Chip8XDisplay::new, Chip8SoundSystem::new),
             "chip-8x",
             "CHIP-8X",
             new String[]{"chip8x"},
@@ -33,7 +35,7 @@ public enum Chip8Variant implements DisplayNameProvider {
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     ),
     SUPER_CHIP_LEGACY(
-            config -> new SChipEmulator<>(config, false),
+            config -> new SChipEmulator<>(config, (c, adapters) -> new SChipDisplay(c, adapters, false), Chip8SoundSystem::new, false),
             "schip-legacy",
             "SCHIP-1.1",
             new String[]{"superchip1", "superchip"},
@@ -41,7 +43,7 @@ public enum Chip8Variant implements DisplayNameProvider {
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG)
     ),
     SUPER_CHIP_MODERN(
-            config -> new SChipEmulator<>(config, true),
+            config -> new SChipEmulator<>(config, (c, adapters) -> new SChipDisplay(c, adapters, true), Chip8SoundSystem::new, true),
             "schip-modern",
             "SCHIP-MODERN",
             null,
@@ -49,7 +51,7 @@ public enum Chip8Variant implements DisplayNameProvider {
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG)
     ),
     XO_CHIP(
-            XOChipEmulator::new,
+            config -> new XOChipEmulator<>(config, XOChipDisplay::new, Chip8SoundSystem::new),
             "xo-chip",
             "XO-CHIP",
             new String[] {"xochip"},
@@ -57,7 +59,7 @@ public enum Chip8Variant implements DisplayNameProvider {
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG)
     ),
     MEGA_CHIP(
-            MegaChipEmulator::new,
+            config -> new MegaChipEmulator<>(config, MegaChipDisplay::new, Chip8SoundSystem::new),
             "mega-chip",
             "MEGA-CHIP",
             new String[]{"megachip8"},
@@ -65,7 +67,7 @@ public enum Chip8Variant implements DisplayNameProvider {
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.MEGACHIP_8_BIG)
     ),
     HYPERWAVE_CHIP_64(
-            HyperWaveChip64Emulator::new,
+            config -> new HyperWaveChip64Emulator<>(config, HyperWaveChip64Display::new, Chip8SoundSystem::new),
             "hyperwave-chip-64",
             "HyperWaveCHIP-64",
             null,
@@ -73,14 +75,14 @@ public enum Chip8Variant implements DisplayNameProvider {
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG))
     ;
 
-    private final Function<EmulatorConfig, Chip8Emulator<?, ?>> emulatorSupplier;
+    private final Function<EmulatorInitializer, Chip8Emulator<?, ?>> emulatorSupplier;
     private final String identifier;
     private final String displayName;
     private final String[] platformIds;
     private final Quirkset defaultQuirkset;
     private final HexSpriteFont hexSpriteFont;
 
-    Chip8Variant(Function<EmulatorConfig, Chip8Emulator<?, ?>> emulatorSupplier, String identifier, String displayName, String[] platformIds, Quirkset defaultQuirkset, HexSpriteFont hexSpriteFont) {
+    Chip8Variant(Function<EmulatorInitializer, Chip8Emulator<?, ?>> emulatorSupplier, String identifier, String displayName, String[] platformIds, Quirkset defaultQuirkset, HexSpriteFont hexSpriteFont) {
         this.emulatorSupplier = emulatorSupplier;
         this.identifier = identifier;
         this.displayName = displayName;
@@ -89,8 +91,8 @@ public enum Chip8Variant implements DisplayNameProvider {
         this.hexSpriteFont = hexSpriteFont;
     }
 
-    public static Chip8Emulator<?, ?> getEmulator(EmulatorConfig emulatorConfig) {
-        return emulatorConfig.getVariant().emulatorSupplier.apply(emulatorConfig);
+    public static Chip8Emulator<?, ?> getEmulator(EmulatorInitializer emulatorInitializer) {
+        return emulatorInitializer.getVariant().emulatorSupplier.apply(emulatorInitializer);
     }
 
     public static Chip8Variant getVariantForIdentifier(String identifier) {

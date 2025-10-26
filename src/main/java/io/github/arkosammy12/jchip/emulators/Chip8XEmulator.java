@@ -5,16 +5,18 @@ import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class Chip8XEmulator<D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Emulator<D, S> {
 
-    public Chip8XEmulator(EmulatorConfig emulatorConfig) {
-        super(emulatorConfig);
+    public Chip8XEmulator(EmulatorInitializer emulatorInitializer, BiFunction<EmulatorInitializer, List<KeyAdapter>, D> displayFactory, Function<EmulatorInitializer, S> soundSystemFactory) {
+        super(emulatorInitializer, displayFactory, soundSystemFactory);
     }
 
     @Override
@@ -25,12 +27,6 @@ public class Chip8XEmulator<D extends Chip8XDisplay, S extends Chip8SoundSystem>
     @Override
     protected Chip8Memory createMemory(int[] rom, Chip8Variant chip8Variant) {
         return new Chip8Memory(rom, chip8Variant, 0x300, 0xFFF + 1);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected D createDisplay(EmulatorConfig emulatorConfig, List<KeyAdapter> keyAdapters) {
-        return (D) new Chip8XDisplay(emulatorConfig, keyAdapters);
     }
 
 }

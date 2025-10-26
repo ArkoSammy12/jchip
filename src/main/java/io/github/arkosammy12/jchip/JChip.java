@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip;
 
 import io.github.arkosammy12.jchip.config.CommandLineArgs;
-import io.github.arkosammy12.jchip.config.EmulatorConfig;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
@@ -56,7 +56,7 @@ public class JChip {
                 }
             }
             this.mainWindow.getSettingsMenu().initializeSettings(cliArgs);
-            this.currentEmulator = Chip8Variant.getEmulator(new EmulatorConfig(this));
+            this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
         }
     }
 
@@ -76,50 +76,43 @@ public class JChip {
         return this.soundWriter;
     }
 
-    public void start() {
-        try {
-            long lastFrameTime = System.nanoTime();
-            while (this.running.get()) {
-                try {
-                    if (this.stop.get()) {
-                        this.handleStop();
-                        lastFrameTime = System.nanoTime();
-                        continue;
-                    }
-                    if (this.reset.get()) {
-                        this.handleReset();
-                        lastFrameTime = System.nanoTime();
-                        continue;
-                    }
-                    if (this.currentEmulator == null) {
-                        continue;
-                    }
-                    if (this.currentEmulator.isTerminated()) {
-                        this.stop();
-                        continue;
-                    }
-                    long now = System.nanoTime();
-                    long elapsed = now - lastFrameTime;
-                    if (elapsed > 1_000_000_000L) {
-                        lastFrameTime = now;
-                        continue;
-                    }
-                    while (elapsed >= Main.FRAME_INTERVAL) {
-                        this.currentEmulator.tick();
-                        this.mainWindow.update(currentEmulator);
-                        lastFrameTime += Main.FRAME_INTERVAL;
-                        elapsed -= Main.FRAME_INTERVAL;
-                    }
-                } catch (EmulatorException emulatorException) {
-                    Logger.info("Error while running emulator: {}", emulatorException);
-                    this.stop();
+    public void start() throws IOException {
+        long lastFrameTime = System.nanoTime();
+        while (this.running.get()) {
+            try {
+                if (this.stop.get()) {
+                    this.handleStop();
+                    lastFrameTime = System.nanoTime();
+                    continue;
                 }
+                if (this.reset.get()) {
+                    this.handleReset();
+                    lastFrameTime = System.nanoTime();
+                    continue;
+                }
+                if (this.currentEmulator == null) {
+                    continue;
+                }
+                if (this.currentEmulator.isTerminated()) {
+                    this.stop();
+                    continue;
+                }
+                long now = System.nanoTime();
+                long elapsed = now - lastFrameTime;
+                if (elapsed > 1_000_000_000L) {
+                    lastFrameTime = now;
+                    continue;
+                }
+                while (elapsed >= Main.FRAME_INTERVAL) {
+                    this.currentEmulator.tick();
+                    this.mainWindow.update(currentEmulator);
+                    lastFrameTime += Main.FRAME_INTERVAL;
+                    elapsed -= Main.FRAME_INTERVAL;
+                }
+            } catch (EmulatorException emulatorException) {
+                Logger.info("Error while running emulator: {}", emulatorException);
+                this.stop();
             }
-        } catch (Exception e) {
-            Logger.error("jchip has crashed!");
-            throw new RuntimeException(e);
-        } finally {
-            this.onShutdown();
         }
     }
 
@@ -140,7 +133,7 @@ public class JChip {
             this.currentEmulator.close();
             this.mainWindow.setEmulatorRenderer(null);
         }
-        this.currentEmulator = Chip8Variant.getEmulator(new EmulatorConfig(this));
+        this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
         this.reset.set(false);
     }
 
@@ -155,7 +148,7 @@ public class JChip {
         this.reset.set(false);
     }
 
-    private void onShutdown() {
+    public void onShutdown() {
         this.handleStop();
         this.mainWindow.close();
         this.soundWriter.close();
