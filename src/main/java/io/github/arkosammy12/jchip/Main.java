@@ -6,9 +6,6 @@ import org.tinylog.Logger;
 import javax.swing.*;
 import java.awt.*;
 
-// TODO: Avoid reading the same rom file if the file path hasn't been changed by the user
-// TODO: When forcing variant quirks, take the variant's default IPF setting into account. Potentially add a force variant quirks into the variant submenu instead.
-// TODO: Update readme.
 public class Main {
 
     public static final int FRAMES_PER_SECOND = 60;
