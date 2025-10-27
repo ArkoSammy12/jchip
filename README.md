@@ -142,7 +142,7 @@ which corresponds to the variant being used:
 
 - **File** – Load ROM files via file explorer.
 - **Quirks** – Enable/disable or leave quirks unspecified (auto-detected from database or variant).
-- **Variant** – Choose a specific variant or allow auto-detection.
+- **Variant** – Choose a specific variant or leave unspecified, falling back to database or CHIP-8.
 - **Color Palette** – Select from built-in palettes or leave unspecified.
 - **Display Angle** – Set screen rotation (0°, 90°, 180°, 270°) or leave unspecified.
 - **Keyboard Layout** – Choose between `QWERTY`, `DVORAK`, `AZERTY`, and `COLEMAK`.
