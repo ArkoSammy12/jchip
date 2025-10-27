@@ -135,17 +135,16 @@ jchip requires **Java 25 or later** to run or build.
 
 ### Menus
 
-When starting the emulator, you are able to toggle its settings and select a new rom file via the menu bar located at the top of the window.
+Upon startup, a menu bar allows you to adjust all settings interactively:
 
-- **File**: Contains a button to select the ROM file to load and run via a file explorer window.
-- **Quirks**: Contains submenus to enable, disable, or unspecify each quirk. Enabling or disabling a quirk forces the emulator to use the chosen value, while leaving it unspecified allows the emulator to choose its value based on metadata gathered from the database, if found, or default to the setting corresponding to used variant otherwise.
-Additionally, it includes a **Use Variant Quirks** button, which forces the emulator to use the quirks and IPF values corresponding to the variant being used to run the current ROM, regardless of those explicitly chosen settings.
-- **Variant**: Allows you to select or unspecify a variant. Similarly to the quirks menu, specifying a variant forces it to be used, while leaving it unspecified allows the emulator to choose it based on metadata information, or it defaults to the CHIP-8 variant otherwise.
-- **Color Palette**: Select the desired color palette, or leave it unspecified with the same effects as the other unspecified buttons.
-- **Display Angle**: A seemingly weird setting to have, but there is at-least one XO-CHIP game which utilizes a vertical screen rotation. Thus, there are 4 options for display angles, along with an unspecified button.
-- **Keyboard Layout**: Allows you to select a set of keypad keybindings presets based on your current keyboard layout, as jchip currently lacks a way to define keybinds individually. The unspecified button in this menu currently has the same effect as selecting `QWERTY`.
-- **Instructions per frame**: Allows you to set the desired IPF value. Hit enter in order to save the value and clear it in order to leave it unspecified.
-- **Debugger**: Contains a button to toggle the debugger view panel, and a Memory follow mode submenu to choose whether the memory viewer should follow the current address in the index register, program counter, or if it should not follow anything.
+- **File** – Load ROM files via file explorer.
+- **Quirks** – Enable/disable or leave quirks unspecified (auto-detected from database or variant).
+- **Variant** – Choose a specific variant or allow auto-detection.
+- **Color Palette** – Select from built-in palettes or leave unspecified.
+- **Display Angle** – Set screen rotation (0°, 90°, 180°, 270°).
+- **Keyboard Layout** – Choose between `QWERTY`, `DVORAK`, `AZERTY`, and `COLEMAK`.
+- **Instructions per Frame** – Set or clear the IPF value manually.
+- **Debugger** – Toggle the debugger panel and memory follow mode (Index, PC, or None).
 
 ### Command line
 
