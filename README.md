@@ -149,6 +149,8 @@ which corresponds to the variant being used:
 - **Instructions per Frame** – Set the IPF value manually or leave unspecified by clearing the value.
 - **Debugger** – Toggle the debugger panel and memory follow mode (Index, PC, or None).
 
+After changing a setting (except for debugger settings) and/or loading selecting a new ROM file, a restart is required in order to apply the changes.
+
 ### Command line
 
 For convenience, jchip allows users to set starting values and rom file when launching it via the CLI using a set of command line arguments.
