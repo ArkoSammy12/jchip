@@ -118,6 +118,8 @@ jchip comes with a toggleable debugger view, which allows you to see the current
 It displays the current registers, stack contents, and includes a full memory viewer. It updates in real-time at the end of each frame. The current implementation is basic,
 but support for proper debugging features, such as stepping, disassembly view, and breakpoints are planned for the future.
 
+The debugger panel also shows the quirks that are currently being used to run the current ROM. The current IPF and variant can be seen in the window title.
+
 ### Database
 
 jchip includes a ROM metadata database courtesy of the [CHIP-8 Research Facility](https://github.com/chip-8/chip-8-database), which allows for automatic configuration of quirks, color palette, IPF, display orientation.
