@@ -137,15 +137,16 @@ jchip requires **Java 25 or later** to run or build.
 
 ### Menus
 
-Upon startup, a menu bar allows you to adjust all settings interactively:
+Upon startup, a menu bar allows you to adjust all settings interactively. Menus that contain an "Unspecified" button allow for that setting to be set by the emulator, either via the built-in database or by falling back to the default value
+which corresponds to the variant being used:
 
 - **File** – Load ROM files via file explorer.
 - **Quirks** – Enable/disable or leave quirks unspecified (auto-detected from database or variant).
 - **Variant** – Choose a specific variant or allow auto-detection.
 - **Color Palette** – Select from built-in palettes or leave unspecified.
-- **Display Angle** – Set screen rotation (0°, 90°, 180°, 270°).
+- **Display Angle** – Set screen rotation (0°, 90°, 180°, 270°) or leave unspecified.
 - **Keyboard Layout** – Choose between `QWERTY`, `DVORAK`, `AZERTY`, and `COLEMAK`.
-- **Instructions per Frame** – Set or clear the IPF value manually.
+- **Instructions per Frame** – Set the IPF value manually or leave unspecified by clearing the value.
 - **Debugger** – Toggle the debugger panel and memory follow mode (Index, PC, or None).
 
 ### Command line
@@ -187,6 +188,7 @@ The list of commands is as follows:
 | `-V`, `--version`                                                                                    | Shows the current jchip version and exits.                            | N/A                                                                                                     |
 
 Starting the emulator via the CLI will automatically set all settings to those chosen via the CLI arguments, and begin emulation of the selected rom file.
+Note that not specifying a setting, such as a quirk, or IPF, is equivalent to leaving it unspecified in the emulator's settings menu.
 
 ## Building from Source
 

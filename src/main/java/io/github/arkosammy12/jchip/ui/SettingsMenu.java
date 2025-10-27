@@ -48,10 +48,12 @@ public class SettingsMenu extends JMenuBar implements PrimarySettingsProvider {
 
         this.fileMenu = new JMenu("File");
         this.quirksMenu = new JMenu("Quirks");
-        this.variantMenu = new EnumMenu<>("Variant", Chip8Variant.class);
-        this.colorPaletteMenu = new EnumMenu<>("Color Palette", BuiltInColorPalette.class);
-        this.displayAngleMenu = new EnumMenu<>("Display Angle", DisplayAngle.class);
-        this.keyboardLayoutMenu = new EnumMenu<>("Keyboard Layout", KeyboardLayout.class);
+        this.variantMenu = new EnumMenu<>("Variant", Chip8Variant.class, true);
+        this.colorPaletteMenu = new EnumMenu<>("Color Palette", BuiltInColorPalette.class, true);
+        this.displayAngleMenu = new EnumMenu<>("Display Angle", DisplayAngle.class, true);
+        this.keyboardLayoutMenu = new EnumMenu<>("Keyboard Layout", KeyboardLayout.class, false);
+        this.keyboardLayoutMenu.setState(KeyboardLayout.QWERTY);
+
         this.instructionsPerFrameMenu = new JMenu("Instructions per frame");
         this.debuggerMenu = new DebuggerSettingsMenu(jchip);
 

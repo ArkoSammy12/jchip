@@ -7,21 +7,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class EnumMenu<E extends DisplayNameProvider> extends JMenu {
+public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
 
     private final Map<E, JRadioButtonMenuItem> buttonMap = new HashMap<>();
     private final JRadioButtonMenuItem unspecifiedItem;
     private E state;
 
-    public EnumMenu(String name, Class<E> enumClass) {
+    public EnumMenu(String name, Class<E> enumClass, boolean withUnspecifiedOption) {
         super(name);
         ButtonGroup buttonGroup = new ButtonGroup();
-        JRadioButtonMenuItem unspecifiedItem = new JRadioButtonMenuItem("Unspecified");
-        unspecifiedItem.addActionListener(_ -> this.state = null);
-        unspecifiedItem.setSelected(true);
-        buttonGroup.add(unspecifiedItem);
-        this.unspecifiedItem = unspecifiedItem;
-        this.add(unspecifiedItem);
+        if (withUnspecifiedOption) {
+            JRadioButtonMenuItem unspecifiedItem = new JRadioButtonMenuItem("Unspecified");
+            unspecifiedItem.addActionListener(_ -> this.state = null);
+            unspecifiedItem.setSelected(true);
+            buttonGroup.add(unspecifiedItem);
+            this.unspecifiedItem = unspecifiedItem;
+            this.add(unspecifiedItem);
+        } else {
+            this.unspecifiedItem = null;
+        }
         for (E enumConstant : enumClass.getEnumConstants()) {
             JRadioButtonMenuItem item = new JRadioButtonMenuItem(enumConstant.getDisplayName());
             item.addActionListener(_ -> this.state = enumConstant);
@@ -36,8 +40,13 @@ public class EnumMenu<E extends DisplayNameProvider> extends JMenu {
         for (Map.Entry<E, JRadioButtonMenuItem> map : this.buttonMap.entrySet()) {
             map.getValue().setSelected(false);
         }
+        if (this.unspecifiedItem != null) {
+            this.unspecifiedItem.setSelected(false);
+        }
         if (val == null) {
-            this.unspecifiedItem.setSelected(true);
+            if (this.unspecifiedItem != null) {
+                this.unspecifiedItem.setSelected(true);
+            }
             return;
         }
         Optional.ofNullable(this.buttonMap.get(val)).ifPresent(item -> item.setSelected(true));
