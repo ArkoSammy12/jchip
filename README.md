@@ -125,8 +125,13 @@ I currently maintain my [own fork](https://github.com/ArkoSammy12/chip-8-databas
 
 ## Usage
 
-This repository contains executable binaries available in the [Releases section](https://github.com/ArkoSammy12/jchip/releases). jchip requires [**Java 25**](https://adoptium.net/) or later for running or building from source.
-When running a ROM, you can use the `F11` and `F12` keys respectively to decrease or increase the volume. Use the `ESC` key to stop the current emulator, and the `F2` key to reset the emulator, which will load the rom and apply any settings, such as quirks or variant.
+Executable binaries are available in the [Releases](https://github.com/ArkoSammy12/jchip/releases) section.  
+jchip requires **Java 25 or later** to run or build.
+
+**Hotkeys:**
+- `F11` / `F12` – Decrease / increase volume
+- `ESC` – Stop emulation
+- `F2` – Reset and reload the current ROM
 
 ### Menus
 
