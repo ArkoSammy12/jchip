@@ -31,18 +31,9 @@ public class JChip {
     private final AtomicBoolean stop = new AtomicBoolean(false);
 
     public JChip(String[] args) throws IOException, InterruptedException, InvocationTargetException {
-        SwingUtilities.invokeAndWait(() -> {
-            this.mainWindow = new MainWindow(this);
-            this.mainWindow.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    shutdown();
-                }
-            });
-            this.mainWindow.setVisible(true);
-        });
+        CommandLineArgs cliArgs = null;
         if (args.length > 0) {
-            CommandLineArgs cliArgs = new CommandLineArgs();
+            cliArgs = new CommandLineArgs();
             CommandLine cli = new CommandLine(cliArgs);
             CommandLine.ParseResult parseResult = cli.parseArgs(args);
             Integer executeHelpResult = CommandLine.executeHelpRequest(parseResult);
@@ -55,6 +46,18 @@ public class JChip {
                     System.exit(exitCodeOnVersionHelp);
                 }
             }
+        }
+        SwingUtilities.invokeAndWait(() -> {
+            this.mainWindow = new MainWindow(this);
+            this.mainWindow.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    shutdown();
+                }
+            });
+            this.mainWindow.setVisible(true);
+        });
+        if (cliArgs != null) {
             this.mainWindow.getSettingsMenu().initializeSettings(cliArgs);
             this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
         }
