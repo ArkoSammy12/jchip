@@ -1,0 +1,863 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9435d4f1-a159-45cd-8211-196c5eaf74e9" name="Changes" comment="Update README.md">
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/build.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <option name="groupModules" value="false" />
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jchip" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jchip" type="f1a62948:ProjectNode" />
+                <item name="jchip" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jchip" type="f1a62948:ProjectNode" />
+                <item name="jchip" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jchip" type="f1a62948:ProjectNode" />
+                <item name="jchip" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jchip" type="f1a62948:ProjectNode" />
+                <item name="jchip" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="publishing" type="c8890929:TasksNode$1" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Record" />
+        <option value="Interface" />
+        <option value="Exception" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ArkoSammy12&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ArkoSammy12/jchip.git&quot;,
+    &quot;accountId&quot;: &quot;a97042e9-e495-407c-9b00-5bf1269e546e&quot;
+  }
+}</component>
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\james\.gradle\wrapper\dists\gradle-9.1.0-bin\9agqghryom9wkf8r80qlhnts3\gradle-9.1.0" javaHome="C:\Program Files\GraalVM\graalvm-jdk-25+37.1" gradleVersion="9.1.0" />
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.jdks/temurin-21.0.8/lib/src.zip!/java.desktop/java/awt/Frame.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.jdks/temurin-21.0.8/lib/src.zip!/java.desktop/java/awt/event/InputEvent.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.jdks/temurin-21.0.8/lib/src.zip!/java.desktop/java/awt/event/KeyAdapter.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.jdks/temurin-21.0.8/lib/src.zip!/java.desktop/java/awt/event/KeyEvent.java" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="31fOeoVlPVXOSjWVsLLkncV3Dbm" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Application.Main.executor": "Run",
+    "Gradle.Build jchip.executor": "Run",
+    "Gradle.Download Sources.executor": "Run",
+    "Gradle.jchip [:io.github.arkosammy12.jchip.Main.main()].executor": "Run",
+    "Gradle.jchip [build].executor": "Run",
+    "Gradle.jchip [publish].executor": "Run",
+    "Maven.jchip [clean].executor": "Run",
+    "Maven.jchip [package].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/james/Documents/GitHub/jchip/pom.xml",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/james/Documents/GitHub/jchip/src/main/java/io/github/arkosammy12/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "MavenSettings",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\james\Documents\GitHub\jchip\media" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="temurin-25" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="io.github.arkosammy12.jchip.Main" />
+      <module name="jchip" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="io.github.arkosammy12.jchip.sound.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="false" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="jchip [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--stacktrace" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="jchip [publish]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="publish" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Gradle.jchip [publish]" />
+      <item itemvalue="Gradle.jchip [build]" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.jchip [publish]" />
+        <item itemvalue="Gradle.jchip [build]" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.27397.103" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9435d4f1-a159-45cd-8211-196c5eaf74e9" name="Changes" comment="" />
+      <created>1755911760667</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1755911760667</updated>
+      <workItem from="1755911761983" duration="13782000" />
+      <workItem from="1755961740009" duration="2898000" />
+      <workItem from="1755968256708" duration="27209000" />
+      <workItem from="1756085611880" duration="18616000" />
+      <workItem from="1756105015130" duration="654000" />
+      <workItem from="1756170518340" duration="16474000" />
+      <workItem from="1756252841426" duration="26493000" />
+      <workItem from="1756338862078" duration="18999000" />
+      <workItem from="1756361105534" duration="3456000" />
+      <workItem from="1756394264250" duration="853000" />
+      <workItem from="1756396038182" duration="1817000" />
+      <workItem from="1756418670406" duration="14023000" />
+      <workItem from="1756435003112" duration="1000" />
+      <workItem from="1756595429193" duration="33000" />
+      <workItem from="1756595559145" duration="11000" />
+      <workItem from="1756595586269" duration="27000" />
+      <workItem from="1756595649856" duration="48582000" />
+      <workItem from="1756646400715" duration="859000" />
+      <workItem from="1756663787302" duration="34599000" />
+      <workItem from="1756708122333" duration="3377000" />
+      <workItem from="1756768825853" duration="17265000" />
+      <workItem from="1756787709991" duration="254000" />
+      <workItem from="1756865856647" duration="5188000" />
+      <workItem from="1757094112097" duration="15800000" />
+      <workItem from="1757117803902" duration="20879000" />
+      <workItem from="1757165531694" duration="9454000" />
+      <workItem from="1757182081892" duration="17522000" />
+      <workItem from="1757236708328" duration="4000" />
+      <workItem from="1757273921133" duration="11349000" />
+      <workItem from="1757297483042" duration="8968000" />
+      <workItem from="1757466421234" duration="7501000" />
+      <workItem from="1757475964283" duration="117000" />
+      <workItem from="1757476098044" duration="15632000" />
+      <workItem from="1757549258776" duration="16313000" />
+      <workItem from="1757606274856" duration="218000" />
+      <workItem from="1757607898461" duration="163000" />
+      <workItem from="1757632935913" duration="15428000" />
+      <workItem from="1757653144546" duration="3419000" />
+      <workItem from="1757657549019" duration="2225000" />
+      <workItem from="1757697780436" duration="3928000" />
+      <workItem from="1757712831549" duration="21858000" />
+      <workItem from="1757767484441" duration="7024000" />
+      <workItem from="1757788144284" duration="3927000" />
+      <workItem from="1757792783848" duration="729000" />
+      <workItem from="1757794175697" duration="913000" />
+      <workItem from="1757823792853" duration="1742000" />
+      <workItem from="1757867026555" duration="29118000" />
+      <workItem from="1757898494079" duration="1483000" />
+      <workItem from="1757908710415" duration="4433000" />
+      <workItem from="1757994852236" duration="3664000" />
+      <workItem from="1758074018747" duration="19886000" />
+      <workItem from="1758153246765" duration="13329000" />
+      <workItem from="1758225481941" duration="323000" />
+      <workItem from="1758225824391" duration="749000" />
+      <workItem from="1758238581782" duration="13539000" />
+      <workItem from="1758303718892" duration="897000" />
+      <workItem from="1758319283433" duration="8132000" />
+      <workItem from="1758349969895" duration="115000" />
+      <workItem from="1758382354960" duration="10323000" />
+      <workItem from="1758399322487" duration="3676000" />
+      <workItem from="1758403036621" duration="3195000" />
+      <workItem from="1758412948499" duration="30774000" />
+      <workItem from="1758445667356" duration="115000" />
+      <workItem from="1758472189330" duration="9510000" />
+      <workItem from="1758483257114" duration="1038000" />
+      <workItem from="1758492439647" duration="894000" />
+      <workItem from="1758504785614" duration="1307000" />
+      <workItem from="1758545605572" duration="11823000" />
+      <workItem from="1758584693355" duration="15350000" />
+      <workItem from="1758670371525" duration="4103000" />
+      <workItem from="1758843011712" duration="13127000" />
+      <workItem from="1758907041426" duration="2379000" />
+      <workItem from="1758909487027" duration="8132000" />
+      <workItem from="1758920847589" duration="26581000" />
+      <workItem from="1759039855997" duration="468000" />
+      <workItem from="1759116957149" duration="3311000" />
+      <workItem from="1759196773586" duration="642000" />
+      <workItem from="1759360188147" duration="4303000" />
+      <workItem from="1759434924924" duration="1088000" />
+      <workItem from="1759465056159" duration="2358000" />
+      <workItem from="1759511337759" duration="5212000" />
+      <workItem from="1759533562130" duration="1253000" />
+      <workItem from="1759538710066" duration="14727000" />
+      <workItem from="1759554116050" duration="165000" />
+      <workItem from="1759554299339" duration="138000" />
+      <workItem from="1759554475131" duration="206000" />
+      <workItem from="1759554698544" duration="219000" />
+      <workItem from="1759555032571" duration="3748000" />
+      <workItem from="1759558861841" duration="216000" />
+      <workItem from="1759605388374" duration="18416000" />
+      <workItem from="1759687297648" duration="16640000" />
+      <workItem from="1759712357100" duration="20100000" />
+      <workItem from="1759763137805" duration="1967000" />
+      <workItem from="1759793008650" duration="22228000" />
+      <workItem from="1759816558506" duration="50000" />
+      <workItem from="1759880239917" duration="23682000" />
+      <workItem from="1759937610124" duration="168000" />
+      <workItem from="1759969814206" duration="9859000" />
+      <workItem from="1760031687888" duration="966000" />
+      <workItem from="1760032800497" duration="46000" />
+      <workItem from="1760040738465" duration="6092000" />
+      <workItem from="1760051921279" duration="3484000" />
+      <workItem from="1760058325455" duration="181000" />
+      <workItem from="1760058523878" duration="139000" />
+      <workItem from="1760075055998" duration="3684000" />
+      <workItem from="1760128952929" duration="2059000" />
+      <workItem from="1760142495200" duration="5792000" />
+      <workItem from="1760208347427" duration="42146000" />
+      <workItem from="1760256112359" duration="280000" />
+      <workItem from="1760290472476" duration="40878000" />
+      <workItem from="1760340642705" duration="5124000" />
+      <workItem from="1760394220385" duration="27017000" />
+      <workItem from="1760498902006" duration="15132000" />
+      <workItem from="1760568466155" duration="31409000" />
+      <workItem from="1760639705748" duration="3338000" />
+      <workItem from="1760643661066" duration="4327000" />
+      <workItem from="1760658891695" duration="54000" />
+      <workItem from="1760658986529" duration="21570000" />
+      <workItem from="1760682745845" duration="2126000" />
+      <workItem from="1760684926612" duration="150000" />
+      <workItem from="1760685171443" duration="326000" />
+      <workItem from="1760721930399" duration="70000" />
+      <workItem from="1760722021382" duration="3563000" />
+      <workItem from="1760741303868" duration="15685000" />
+      <workItem from="1760766999296" duration="95000" />
+      <workItem from="1760767118087" duration="7000" />
+      <workItem from="1760767224387" duration="350000" />
+      <workItem from="1760812516377" duration="9018000" />
+      <workItem from="1760910686963" duration="25238000" />
+      <workItem from="1761002943528" duration="18220000" />
+      <workItem from="1761053955103" duration="653000" />
+      <workItem from="1761091890024" duration="19671000" />
+      <workItem from="1761174165563" duration="12252000" />
+      <workItem from="1761239487180" duration="1182000" />
+      <workItem from="1761252086031" duration="2435000" />
+      <workItem from="1761263293795" duration="9360000" />
+      <workItem from="1761326824215" duration="6539000" />
+      <workItem from="1761343010828" duration="1861000" />
+      <workItem from="1761374058406" duration="43000" />
+      <workItem from="1761413296982" duration="15474000" />
+      <workItem from="1761499972233" duration="12836000" />
+      <workItem from="1761518351486" duration="105000" />
+      <workItem from="1761524827371" duration="14291000" />
+      <workItem from="1761575252371" duration="2761000" />
+      <workItem from="1761616290558" duration="1118000" />
+      <workItem from="1761617465582" duration="965000" />
+      <workItem from="1761618459663" duration="1826000" />
+    </task>
+    <task id="LOCAL-00161" summary="Add decoding check for 060N for the mega-chip variant and fix its comment">
+      <option name="closed" value="true" />
+      <created>1759793608868</created>
+      <option name="number" value="00161" />
+      <option name="presentableId" value="LOCAL-00161" />
+      <option name="project" value="LOCAL" />
+      <updated>1759793608869</updated>
+    </task>
+    <task id="LOCAL-00162" summary="Continue to refactor">
+      <option name="closed" value="true" />
+      <created>1759811850346</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
+      <option name="project" value="LOCAL" />
+      <updated>1759811850347</updated>
+    </task>
+    <task id="LOCAL-00163" summary="Properly set default pattern playback for the xo-chip and hyperwave-chip-64 variants">
+      <option name="closed" value="true" />
+      <created>1759813455007</created>
+      <option name="number" value="00163" />
+      <option name="presentableId" value="LOCAL-00163" />
+      <option name="project" value="LOCAL" />
+      <updated>1759813455007</updated>
+    </task>
+    <task id="LOCAL-00164" summary="Add back missing double skip check for the xo-chip variant when 5XY0 is executed">
+      <option name="closed" value="true" />
+      <created>1759814895604</created>
+      <option name="number" value="00164" />
+      <option name="presentableId" value="LOCAL-00164" />
+      <option name="project" value="LOCAL" />
+      <updated>1759814895604</updated>
+    </task>
+    <task id="LOCAL-00165" summary="Fix comment for the 00E1 instruction for the hyperwave-chip-64 variant">
+      <option name="closed" value="true" />
+      <created>1759816597573</created>
+      <option name="number" value="00165" />
+      <option name="presentableId" value="LOCAL-00165" />
+      <option name="project" value="LOCAL" />
+      <updated>1759816597574</updated>
+    </task>
+    <task id="LOCAL-00166" summary="Implement reset, volume up, volume down buttons.">
+      <option name="closed" value="true" />
+      <created>1759998950648</created>
+      <option name="number" value="00166" />
+      <option name="presentableId" value="LOCAL-00166" />
+      <option name="project" value="LOCAL" />
+      <updated>1759998950648</updated>
+    </task>
+    <task id="LOCAL-00167" summary="Switch to AbstractMap.SimpleEntry for adding controllers with the EmulatorController.Builder class">
+      <option name="closed" value="true" />
+      <created>1759999370080</created>
+      <option name="number" value="00167" />
+      <option name="presentableId" value="LOCAL-00167" />
+      <option name="project" value="LOCAL" />
+      <updated>1759999370080</updated>
+    </task>
+    <task id="LOCAL-00168" summary="Fix sprite origin wrapping on DXYN for the mega-chip variant when Mega mode is off">
+      <option name="closed" value="true" />
+      <created>1760032834929</created>
+      <option name="number" value="00168" />
+      <option name="presentableId" value="LOCAL-00168" />
+      <option name="project" value="LOCAL" />
+      <updated>1760032834929</updated>
+    </task>
+    <task id="LOCAL-00169" summary="Forcefully enable clipping and disable row copying when drawing and on mega mode off for the mega-chip variant. Only check for lores when doing display wait on the schip-legacy variant. Document quirk setting exceptions in the README.md">
+      <option name="closed" value="true" />
+      <created>1760044045791</created>
+      <option name="number" value="00169" />
+      <option name="presentableId" value="LOCAL-00169" />
+      <option name="project" value="LOCAL" />
+      <updated>1760044045791</updated>
+    </task>
+    <task id="LOCAL-00170" summary="Do not print the stacktrace when emulator crashes">
+      <option name="closed" value="true" />
+      <created>1760057711622</created>
+      <option name="number" value="00170" />
+      <option name="presentableId" value="LOCAL-00170" />
+      <option name="project" value="LOCAL" />
+      <updated>1760057711623</updated>
+    </task>
+    <task id="LOCAL-00171" summary="Small refactors">
+      <option name="closed" value="true" />
+      <created>1760078712693</created>
+      <option name="number" value="00171" />
+      <option name="presentableId" value="LOCAL-00171" />
+      <option name="project" value="LOCAL" />
+      <updated>1760078712693</updated>
+    </task>
+    <task id="LOCAL-00172" summary="Small code tweaks">
+      <option name="closed" value="true" />
+      <created>1760166949170</created>
+      <option name="number" value="00172" />
+      <option name="presentableId" value="LOCAL-00172" />
+      <option name="project" value="LOCAL" />
+      <updated>1760166949171</updated>
+    </task>
+    <task id="LOCAL-00173" summary="Update the bundled chip8 database and add superchip database id for the legacy superchip variant">
+      <option name="closed" value="true" />
+      <created>1760215498690</created>
+      <option name="number" value="00173" />
+      <option name="presentableId" value="LOCAL-00173" />
+      <option name="project" value="LOCAL" />
+      <updated>1760215498690</updated>
+    </task>
+    <task id="LOCAL-00174" summary="Refactor database handling code and add UI settings chooser when no cli args are specified. Add --help and --version cli args">
+      <option name="closed" value="true" />
+      <created>1760255507372</created>
+      <option name="number" value="00174" />
+      <option name="presentableId" value="LOCAL-00174" />
+      <option name="project" value="LOCAL" />
+      <updated>1760255507373</updated>
+    </task>
+    <task id="LOCAL-00175" summary="Add variant detection test link in README.md">
+      <option name="closed" value="true" />
+      <created>1760255675936</created>
+      <option name="number" value="00175" />
+      <option name="presentableId" value="LOCAL-00175" />
+      <option name="project" value="LOCAL" />
+      <updated>1760255675937</updated>
+    </task>
+    <task id="LOCAL-00176" summary="Small formatting change">
+      <option name="closed" value="true" />
+      <created>1760290647552</created>
+      <option name="number" value="00176" />
+      <option name="presentableId" value="LOCAL-00176" />
+      <option name="project" value="LOCAL" />
+      <updated>1760290647552</updated>
+    </task>
+    <task id="LOCAL-00177" summary="Offload rendering to secondary thread. Add support for window resizing">
+      <option name="closed" value="true" />
+      <created>1760331588745</created>
+      <option name="number" value="00177" />
+      <option name="presentableId" value="LOCAL-00177" />
+      <option name="project" value="LOCAL" />
+      <updated>1760331588745</updated>
+    </task>
+    <task id="LOCAL-00178" summary="Add missing synchronized method annotations">
+      <option name="closed" value="true" />
+      <created>1760337168807</created>
+      <option name="number" value="00178" />
+      <option name="presentableId" value="LOCAL-00178" />
+      <option name="project" value="LOCAL" />
+      <updated>1760337168807</updated>
+    </task>
+    <task id="LOCAL-00179" summary="Improve thread safety performance by utilizing a new render buffer and lock. Do not call join() on the render thread when closing">
+      <option name="closed" value="true" />
+      <created>1760345718017</created>
+      <option name="number" value="00179" />
+      <option name="presentableId" value="LOCAL-00179" />
+      <option name="project" value="LOCAL" />
+      <updated>1760345718018</updated>
+    </task>
+    <task id="LOCAL-00180" summary="Begin work on proper a proper minimalistic UI for jchip. Still a lot to polish and fix">
+      <option name="closed" value="true" />
+      <created>1760426237165</created>
+      <option name="number" value="00180" />
+      <option name="presentableId" value="LOCAL-00180" />
+      <option name="project" value="LOCAL" />
+      <updated>1760426237165</updated>
+    </task>
+    <task id="LOCAL-00181" summary="Continue work on proper frontend/backend separation. Add placeholder live debugger panel">
+      <option name="closed" value="true" />
+      <created>1760515863736</created>
+      <option name="number" value="00181" />
+      <option name="presentableId" value="LOCAL-00181" />
+      <option name="project" value="LOCAL" />
+      <updated>1760515863736</updated>
+    </task>
+    <task id="LOCAL-00182" summary="Implement debugger viewer with current settings, single registers, registers, and stack. Begin work on memory viewer">
+      <option name="closed" value="true" />
+      <created>1760602032347</created>
+      <option name="number" value="00182" />
+      <option name="presentableId" value="LOCAL-00182" />
+      <option name="project" value="LOCAL" />
+      <updated>1760602032347</updated>
+    </task>
+    <task id="LOCAL-00183" summary="Finalize memory viewer on debugger panel. Continue clean up. Fix proper termination of render thread when closing an EmulatorRenderer instance. Add button for hiding and showing the debugger panel">
+      <option name="closed" value="true" />
+      <created>1760685059954</created>
+      <option name="number" value="00183" />
+      <option name="presentableId" value="LOCAL-00183" />
+      <option name="project" value="LOCAL" />
+      <updated>1760685059955</updated>
+    </task>
+    <task id="LOCAL-00184" summary="Prioritize chosen color palette over database color palette, if selected in the settings menu">
+      <option name="closed" value="true" />
+      <created>1760722926389</created>
+      <option name="number" value="00184" />
+      <option name="presentableId" value="LOCAL-00184" />
+      <option name="project" value="LOCAL" />
+      <updated>1760722926390</updated>
+    </task>
+    <task id="LOCAL-00185" summary="Bump version in gradle.properties">
+      <option name="closed" value="true" />
+      <created>1760746672909</created>
+      <option name="number" value="00185" />
+      <option name="presentableId" value="LOCAL-00185" />
+      <option name="project" value="LOCAL" />
+      <updated>1760746672910</updated>
+    </task>
+    <task id="LOCAL-00186" summary="UI tweaks">
+      <option name="closed" value="true" />
+      <created>1760750132163</created>
+      <option name="number" value="00186" />
+      <option name="presentableId" value="LOCAL-00186" />
+      <option name="project" value="LOCAL" />
+      <updated>1760750132163</updated>
+    </task>
+    <task id="LOCAL-00187" summary="Add keyboard layout submenu">
+      <option name="closed" value="true" />
+      <created>1760760804452</created>
+      <option name="number" value="00187" />
+      <option name="presentableId" value="LOCAL-00187" />
+      <option name="project" value="LOCAL" />
+      <updated>1760760804452</updated>
+    </task>
+    <task id="LOCAL-00188" summary="Add use variant quirks setting and cli arg">
+      <option name="closed" value="true" />
+      <created>1760767541509</created>
+      <option name="number" value="00188" />
+      <option name="presentableId" value="LOCAL-00188" />
+      <option name="project" value="LOCAL" />
+      <updated>1760767541509</updated>
+    </task>
+    <task id="LOCAL-00189" summary=" Implement proper global volume control. (Hopefully) fix audio desync and UI lag upon stopping, waiting for a bit, and then resetting. Initialize Swing components in EDT.">
+      <option name="closed" value="true" />
+      <created>1760937824567</created>
+      <option name="number" value="00189" />
+      <option name="presentableId" value="LOCAL-00189" />
+      <option name="project" value="LOCAL" />
+      <updated>1760937824568</updated>
+    </task>
+    <task id="LOCAL-00190" summary="Utilize &quot;running&quot; atomic boolean flag for shutting down from the EDT thread. Remove default close operation of EXIT_ON_CLOSE for the main window and let the program exit naturally">
+      <option name="closed" value="true" />
+      <created>1761013143232</created>
+      <option name="number" value="00190" />
+      <option name="presentableId" value="LOCAL-00190" />
+      <option name="project" value="LOCAL" />
+      <updated>1761013143232</updated>
+    </task>
+    <task id="LOCAL-00191" summary="Make Chip8Database database fields final">
+      <option name="closed" value="true" />
+      <created>1761021871883</created>
+      <option name="number" value="00191" />
+      <option name="presentableId" value="LOCAL-00191" />
+      <option name="project" value="LOCAL" />
+      <updated>1761021871883</updated>
+    </task>
+    <task id="LOCAL-00192" summary="Add cycle accurate chip8 variant named &quot;STRICT CHIP-8&quot;. Missing proper IPF counting">
+      <option name="closed" value="true" />
+      <created>1761030552378</created>
+      <option name="number" value="00192" />
+      <option name="presentableId" value="LOCAL-00192" />
+      <option name="project" value="LOCAL" />
+      <updated>1761030552378</updated>
+    </task>
+    <task id="LOCAL-00193" summary="Properly take into account the time needed by the cosmac-vip to set things up before it can begin execution of the ROM, for the strict-chip-8 variant">
+      <option name="closed" value="true" />
+      <created>1761054358256</created>
+      <option name="number" value="00193" />
+      <option name="presentableId" value="LOCAL-00193" />
+      <option name="project" value="LOCAL" />
+      <updated>1761054358256</updated>
+    </task>
+    <task id="LOCAL-00194" summary="Only push samples once per frame for the strict-chip-8 emulator core">
+      <option name="closed" value="true" />
+      <created>1761110429125</created>
+      <option name="number" value="00194" />
+      <option name="presentableId" value="LOCAL-00194" />
+      <option name="project" value="LOCAL" />
+      <updated>1761110429125</updated>
+    </task>
+    <task id="LOCAL-00195" summary="Reduce the number of written samples if the sound buffer is overfilled">
+      <option name="closed" value="true" />
+      <created>1761197058054</created>
+      <option name="number" value="00195" />
+      <option name="presentableId" value="LOCAL-00195" />
+      <option name="project" value="LOCAL" />
+      <updated>1761197058055</updated>
+    </task>
+    <task id="LOCAL-00196" summary="Properly keep lastFrameTime variable updated while the emulator is stopped, preventing a huge catch-up frames when stopping and resetting, with almost a second in-between.">
+      <option name="closed" value="true" />
+      <created>1761240571854</created>
+      <option name="number" value="00196" />
+      <option name="presentableId" value="LOCAL-00196" />
+      <option name="project" value="LOCAL" />
+      <updated>1761240571855</updated>
+    </task>
+    <task id="LOCAL-00197" summary="Take StrictChip8's cycle counter into account for the IPF display">
+      <option name="closed" value="true" />
+      <created>1761285859477</created>
+      <option name="number" value="00197" />
+      <option name="presentableId" value="LOCAL-00197" />
+      <option name="project" value="LOCAL" />
+      <updated>1761285859478</updated>
+    </task>
+    <task id="LOCAL-00198" summary="Reset fetched rom metadata upon consuming a new rom">
+      <option name="closed" value="true" />
+      <created>1761414533414</created>
+      <option name="number" value="00198" />
+      <option name="presentableId" value="LOCAL-00198" />
+      <option name="project" value="LOCAL" />
+      <updated>1761414533414</updated>
+    </task>
+    <task id="LOCAL-00199" summary="Miscellaneous refactors and make 00E0 also take 2 frames on the regular chip8 variant">
+      <option name="closed" value="true" />
+      <created>1761513655513</created>
+      <option name="number" value="00199" />
+      <option name="presentableId" value="LOCAL-00199" />
+      <option name="project" value="LOCAL" />
+      <updated>1761513655514</updated>
+    </task>
+    <task id="LOCAL-00200" summary="Remove unused utility class">
+      <option name="closed" value="true" />
+      <created>1761528988324</created>
+      <option name="number" value="00200" />
+      <option name="presentableId" value="LOCAL-00200" />
+      <option name="project" value="LOCAL" />
+      <updated>1761528988324</updated>
+    </task>
+    <task id="LOCAL-00201" summary="Update README.md and do not start the emulator window when -h or -V are used when running jchip from the CLI">
+      <option name="closed" value="true" />
+      <created>1761539054359</created>
+      <option name="number" value="00201" />
+      <option name="presentableId" value="LOCAL-00201" />
+      <option name="project" value="LOCAL" />
+      <updated>1761539054359</updated>
+    </task>
+    <task id="LOCAL-00202" summary="Update README.md">
+      <option name="closed" value="true" />
+      <created>1761539258317</created>
+      <option name="number" value="00202" />
+      <option name="presentableId" value="LOCAL-00202" />
+      <option name="project" value="LOCAL" />
+      <updated>1761539258317</updated>
+    </task>
+    <task id="LOCAL-00203" summary="Update README.md">
+      <option name="closed" value="true" />
+      <created>1761539641827</created>
+      <option name="number" value="00203" />
+      <option name="presentableId" value="LOCAL-00203" />
+      <option name="project" value="LOCAL" />
+      <updated>1761539641827</updated>
+    </task>
+    <task id="LOCAL-00204" summary="Update README.md">
+      <option name="closed" value="true" />
+      <created>1761539695046</created>
+      <option name="number" value="00204" />
+      <option name="presentableId" value="LOCAL-00204" />
+      <option name="project" value="LOCAL" />
+      <updated>1761539695046</updated>
+    </task>
+    <task id="LOCAL-00205" summary="Update README.md">
+      <option name="closed" value="true" />
+      <created>1761539923583</created>
+      <option name="number" value="00205" />
+      <option name="presentableId" value="LOCAL-00205" />
+      <option name="project" value="LOCAL" />
+      <updated>1761539923584</updated>
+    </task>
+    <task id="LOCAL-00206" summary="Update README.md and remove unspecified option from the keyboard layout setting menu">
+      <option name="closed" value="true" />
+      <created>1761576555951</created>
+      <option name="number" value="00206" />
+      <option name="presentableId" value="LOCAL-00206" />
+      <option name="project" value="LOCAL" />
+      <updated>1761576555951</updated>
+    </task>
+    <task id="LOCAL-00207" summary="Update README.md">
+      <option name="closed" value="true" />
+      <created>1761576657689</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
+      <option name="project" value="LOCAL" />
+      <updated>1761576657689</updated>
+    </task>
+    <task id="LOCAL-00208" summary="Update README.md">
+      <option name="closed" value="true" />
+      <created>1761576741637</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
+      <option name="project" value="LOCAL" />
+      <updated>1761576741637</updated>
+    </task>
+    <task id="LOCAL-00209" summary="Update README.md">
+      <option name="closed" value="true" />
+      <created>1761576948717</created>
+      <option name="number" value="00209" />
+      <option name="presentableId" value="LOCAL-00209" />
+      <option name="project" value="LOCAL" />
+      <updated>1761576948717</updated>
+    </task>
+    <option name="localTasksCounter" value="210" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Improve thread safety performance by utilizing a new render buffer and lock. Do not call join() on the render thread when closing" />
+    <MESSAGE value="Begin work on proper a proper minimalistic UI for jchip. Still a lot to polish and fix" />
+    <MESSAGE value="Continue work on proper frontend/backend separation. Add placeholder live debugger panel" />
+    <MESSAGE value="Implement debugger viewer with current settings, single registers, registers, and stack. Begin work on memory viewer" />
+    <MESSAGE value="Finalize memory viewer on debugger panel. Continue clean up. Fix proper termination of render thread when closing an EmulatorRenderer instance. Add button for hiding and showing the debugger panel" />
+    <MESSAGE value="Prioritize chosen color palette over database color palette, if selected in the settings menu" />
+    <MESSAGE value="Bump version in gradle.properties" />
+    <MESSAGE value="UI tweaks" />
+    <MESSAGE value="Add keyboard layout submenu" />
+    <MESSAGE value="Add use variant quirks setting and cli arg" />
+    <MESSAGE value=" Implement proper global volume control. (Hopefully) fix audio desync and UI lag upon stopping, waiting for a bit, and then resetting. Initialize Swing components in EDT." />
+    <MESSAGE value="Utilize &quot;running&quot; atomic boolean flag for shutting down from the EDT thread. Remove default close operation of EXIT_ON_CLOSE for the main window and let the program exit naturally" />
+    <MESSAGE value="Make Chip8Database database fields final" />
+    <MESSAGE value="Add cycle accurate chip8 variant named &quot;STRICT CHIP-8&quot;. Missing proper IPF counting" />
+    <MESSAGE value="Properly take into account the time needed by the cosmac-vip to set things up before it can begin execution of the ROM, for the strict-chip-8 variant" />
+    <MESSAGE value="Only push samples once per frame for the strict-chip-8 emulator core" />
+    <MESSAGE value="Reduce the number of written samples if the sound buffer is overfilled" />
+    <MESSAGE value="Properly keep lastFrameTime variable updated while the emulator is stopped, preventing a huge catch-up frames when stopping and resetting, with almost a second in-between." />
+    <MESSAGE value="Take StrictChip8's cycle counter into account for the IPF display" />
+    <MESSAGE value="Reset fetched rom metadata upon consuming a new rom" />
+    <MESSAGE value="Miscellaneous refactors and make 00E0 also take 2 frames on the regular chip8 variant" />
+    <MESSAGE value="Remove unused utility class" />
+    <MESSAGE value="Update README.md and do not start the emulator window when -h or -V are used when running jchip from the CLI" />
+    <MESSAGE value="Update README.md and remove unspecified option from the keyboard layout setting menu" />
+    <MESSAGE value="Update README.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update README.md" />
+  </component>
+  <component name="XDebuggerManager">
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="io.github.arkosammy12.jchip.util.ColorPalette" memberName="awtColors" />
+        <PinnedItemInfo parentTag="io.github.arkosammy12.jchip.util.ColorPalette" memberName="textCharacterColors" />
+        <PinnedItemInfo parentTag="com.google.gson.JsonObject" memberName="members" />
+      </pinned-members>
+    </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="GradleRunConfiguration">
+        <watch expression="buffer[255]" />
+        <watch expression="this.emulatorController" language="JAVA" />
+      </configuration>
+      <inline-watch fileUrl="file://$PROJECT_DIR$/src/main/java/io/github/arkosammy12/jchip/video/Chip8Display.java" line="13">
+        <watch expression="this.bitplaneBuffer" language="JAVA" custom="io.github.arkosammy12.jchip.video.Chip8Display" />
+      </inline-watch>
+    </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/jchip$Main.ic" NAME="Main Coverage Results" MODIFIED="1760669911765" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>io.github.arkosammy12.jchip.sound.*</FILTER>
+    </SUITE>
+  </component>
+</project>
