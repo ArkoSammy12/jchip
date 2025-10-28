@@ -29,17 +29,13 @@ A multi-variant CHIP-8 interpreter written in Java.
 
 ## Introduction
 
-In my endeavor to explore other areas of programming, I decided to give the world of emulation a shot. I discovered that the first system recommended for beginners to
-emulate is called CHIP-8. CHIP-8 is not actually real hardware, but originally existed in the form of an interpreter for the [COSMAC-VIP](https://en.wikipedia.org/wiki/COSMAC_VIP) computer from the late 1970s,
-which allowed user to easily program games for it via a compact and easy to understand instruction set.
+After branching out to other areas of programming, I came across the world of emulation. I discovered that the first system recommended for beginners is called CHIP-8.
+CHIP-8 was originally a virtual console ran by an interpreter developed for the [COSMAC-VIP](https://en.wikipedia.org/wiki/COSMAC_VIP) computer from the late 1970s, which allowed its user to program games for it with a small and easy to understand instruction set.
 
-Unlike most people who use CHIP-8 as a stepping stone to emulate actual hardware such as the Game Boy or NES, I found myself captivated
-by this niche but interesting corner of emulation. I discovered that CHIP-8 is, in fact, the first of several variations of the same specification, as newer implementations were made for more modern hardware as time passed.
-I also discovered that game jams for this virtual console, called [OctoJams](https://johnearnest.github.io/chip8Archive/?sort=platform), were hosted for this platform and its newer extensions.
+Unlike most people who use CHIP-8 as a stepping stone to building actual emulators for systems like the Game Boy or NES, I found myself captivated by this small but interesting platform.
+I found out that CHIP-8 is just the first of a family of variants all building off of the same foundation. CHIP-8 as a platform has remained relatively alive via more modern implementations that add new features, which allowed for game jams to be hosted for it, called [OctoJams](https://johnearnest.github.io/chip8Archive/?sort=platform).
 
-Thus, **jchip** evolved from a rudimentary bare-bones interpreter into what has become my first gateway into both emulation and proper application development. My love for CHIP-8 and its community is therefore shown by taking the time to
-emulate as many variants as accurately as possible, with extra features such as a debugger panel and, in the future, a built-in assembler to load ROMs directly from source files using the pseudo-assembly language called [Octo](https://github.com/JohnEarnest/Octo), which allows modern
-CHIP-8 enthusiasts to write games using a syntax with convenient features.
+Thus, **jchip** has evolved from a rudimentary bare-bones interpreter into my first gateway into emulation and proper application development. My appreciation for CHIP-8 and its community is demonstrated by implementing as many variants as accurately as possible, while providing extra convenience features for customization, debugging, and ease of use.
 
 ## Features
 
@@ -49,59 +45,60 @@ Any small details were clarified to me by the more experienced people on the `#c
 
 ### Variants
 
-As mentioned, CHIP-8 comprises a family of variants all based on the same fundamental specifications. Most variants add new instructions and functionality on top of CHIP-8,
+As mentioned, CHIP-8 comprises a family of variants all based on the same fundamental specification. Most variants add new instructions and functionality on top of CHIP-8,
 and others alter or completely replace the behavior of existing opcodes. The full list of supported variants is the following:
 
 1. `CHIP-8`: An implementation of the original CHIP-8 interpreter for the COSMAC-VIP, as developed by Joseph Weisbecker. A complete documentation of CHIP-8's usage as well as its implementation on the VIP
 can be found in the [RCA COSMAC VIP CDP18S711 Instruction Manual](https://storage.googleapis.com/wzukusers/user-34724694/documents/130d458901764787969269f48aeeee2a/VIP_Manual.pdf).
 2. `STRICT-CHIP-8`: A cycle accurate implementation of CHIP-8, modeling interrupt timings for audio, video, and timer updates. An accurate memory mapping and utilization emulation is planned for this variant.
 Note that this variant cannot run hybrid CHIP-8 roms, which are those that utilize instruction `0NNN` in order to call native subroutines belonging to the COSMAC-VIP itself. Running these roms requires complete emulation
-of the COSMAC-VIP computer which is outside the scope of this project. It is important to mention that this variant ignores any user configured quirks or IPF, as it strictly adheres to the original implementation and timings. The implementation of this core is heavily based on [Cadmium's](https://github.com/gulrak/cadmium) `chip8-strict` core. Many thanks to [@Gulrak](https://github.com/gulrak) for letting me borrow his implementation.
-3. `CHIP-8X`: An official extension of CHIP-8 by RCA which adds support for low and high resolution color modes for a total of 4 background colors and 8 foreground colors. Additionally, it added instructions for communicating with I/O devices, support for a second keypad, and an octal addition instruction.
+of the COSMAC-VIP computer which is outside the scope of this project. Note that this variant ignores any user configured quirks or IPF, as it strictly adheres to the original implementation and timings. The implementation of this core is heavily based on [Cadmium's](https://github.com/gulrak/cadmium) `chip8-strict` core. Many thanks to [@Gulrak](https://github.com/gulrak) for letting me borrow his implementation.
+3. `CHIP-8X`: An official extension of CHIP-8 by RCA which adds support for low and high resolution color modes for a total of 4 background colors and 8 foreground colors. It also added instructions for communicating with I/O devices, support for a second keypad, and an octal addition instruction.
 Note that the second keypad and I/O instructions are stubbed except for `FXF8`, where `vX` is used to set the pitch of the buzzer. 
-4. `SUPER-CHIP-LEGACY`: The SUPER-CHIP-LEGACY variant is actually an emulator for the SUPER-CHIP 1.1 extension. It belongs to a subset of extensions that were made for the HP 48, and subsequently the HP 48S and HP 48SX calculators.
-CHIP-48 was originally developed by Andreas Gustaffson and changed the implementation of `BNNN`, thus giving birth to the first significant "quirk" among CHIP-8 variants. Other quirks also arose from this reimplementation and later extensions that built off of this one retained these quirks.
-SUPER-CHIP 1.0 then came for the aforementioned HP 48S and HP 48SX calculators and added the first significant changes compared to its predecessor. In came a high resolution mode toggleable within the program code, which expands the display's resolution to 128 pixels wide and 64 pixels tall.
-Fittingly, it adds the ability to draw larger 16 by 16 sprites, the ability to save to and load from registers to an external persistent flags registers that remain across runs.
-Finally, SUPER-CHIP 1.1 was an extension developed by Erik Bryntse and adds new scrolling instructions, and a new instruction to point `I` to a new built-in big character font set to take advantage of the bigger resolution.
-This extension is what was chosen to represent "legacy" SUPER-CHIP across the general CHIP-8 community and is what most people implement as their SUPER-CHIP emulator.
-5. `SUPER-CHIP-MODERN`: This variant corresponds specifically to [Octo's](https://github.com/JohnEarnest/Octo) implementation of SUPER-CHIP within its development environment. The main thing that differentiates it from legacy SUPER-CHIP is that
-its quirks are slightly different, the way `vF` is set during a `DXYN` mirrors the original behavior instead of counting clipped rows, there is no artifacting due to row copying or not clearing the display upon resolution mode change, and other minor differences.
+4. `SUPER-CHIP-LEGACY`: The name of this variant was chosen for the SUPER-CHIP 1.1 extension, which is the last in a subset of extensions made for the HP 48 calculators. Starting with CHIP-48, which was purely a reimplementation of the original interpreter, it failed to reproduce the original behavior of several instructions, giving rise to the first quirks.
+SUPER-CHIP 1.0 was released for newer models of the calculator, and added a high and low resolution modes, the former expanding the display resolution to 128 by 64 pixels, the ability to draw 16 by 16 sprites, and a feature to persist the scratchpad registers onto a set of flags register which retain their values across emulator restarts.
+Finally, SUPER-CHIP 1.1 was an extension developed by Erik Brynste and added new scrolling instructions and an instruction to point the index register to one of the new big font sprites now built into the interpreter.
+5. `SUPER-CHIP-MODERN`: This variant corresponds to [Octo's](https://github.com/JohnEarnest/Octo) generic implementation of the SUPER-CHIP extension. This variant differs from its legacy counterpart as it doesn't fully emulate certain quirks, visual artifacts, and collision detection handling during execution of a `DXYN` instruction.
+As such, it is considered its own separate variant that is similar enough to SUPER-CHIP-LEGACY to fall into the SUPER-CHIP category. Note that developers using Octo that wish to target SUPER-CHIP will be using this "modern" variation instead.
 Developers who have selected SUPER-CHIP as their targeted platform when developing games in Octo were using this "modern" implementation which is not fully faithful to the original implementation, but it is still similar enough to fall within the SUPER-CHIP category.
-6. `XO-CHIP`: XO-CHIP, developed by John Earnest, debuted alongside Octo as the most popular modernized version of CHIP-8 which most newcomers target when they start developing in Octo. Bringing a host of new features, including bit-plane based color support,
-an expanded addressable range of 64KB, allowing ROMs to store many more data such as sprites and audio, support for audio in the form of square wave audio samples as well as controllable pitch, and new instructions for more convenient memory manipulation.
+6. `XO-CHIP`: Developed by John Earnest, it debuted alongside Octo as the most popular modernized version of CHIP-8 which most newcomers target when they start developing in Octo. Bringing a host of new features, including bit-plane based color support,
+an expanded addressable range of 64KB, allowing ROMs to store much more data such as sprites and audio, support for audio in the form of square wave audio samples as well as controllable pitch, and new instructions for more convenient memory manipulation.
 Many newer games were made for this variant thanks to Octo and the Octojams hosted by John Earnest, and although Octojams are no longer being hosted, these games, along with many other programs, showcase the capability of this limited but fun fantasy console and, in my opinion, serves as a great way to
-learn assembly-like languages.
-7. `MEGA-CHIP`: This mostly obscure variant was developed as an extension to SUPER-CHIP. Published by Revival Studios in 2007, this variant has only a handful of ROMs made for it, most of which can be found in the [CHIP-8 archive](https://dn721905.ca.archive.org/0/items/chip-8-games/chip8-database.png).
-This variant remains mostly in the dark when it comes to its implementation, as Revival Studios failed to produce a complete implementation of its specification, leaving many unclarified details about it as a result. Further re-implementations, such as Ready4Next's [Mega8](https://github.com/Ready4Next/Mega8) also fail
-to properly implement certain specifics of this variant. This leaves modern CHIP-8 developers looking to implement this variant with the option to fill in the gaps as they please, although most key details have been agreed upon by those who have implemented it.
-MEGA-CHIP is initially just a half-broken implementation of SUPER-CHIP-LEGACY, but it adds a new instruction to enable a so called "mega mode". Mega mode on enables all of this variant's new features, which include an expanded screen resolution of 256 by 192 pixels, full AARRGGBB color support for drawing sprites,
-the ability to play raw 8 bit synthesized audio samples, an expanded addressable range of 16MB giving room to sprite and audio assets, support for color blending modes and setting the screen alpha value (this was never properly defined). The way the screen is updated also changes, as it now relies on the execution of CLS (`00E0`), or
-GET KEY (`FX0A`) in order to update the contents of the display. This variant is pretty interesting and cool in its own right, though its obscurity and lack of well-defined specification prevents it from gaining popularity among CHIP-8 developers. Nevertheless, it exists, and has a couple of test ROMs and demos made for it, and as such, I deemed it worthy to implement this variant.
+get into assembly-like languages.
+7. `MEGA-CHIP`: Published by Revival Studios in 2007, this variant is relatively obscure within the community. Due to the fact that Revival Studios failed to deliver a complete implementation, many areas of the specification remain unclarified.
+   As such, developers looking to implement this variant are free to fill in the gaps as they please, although most of the key details have been agreed upon by the community. At first, it behaves like a half-broken implementation of SUPER-CHIP. However, it adds new instructions to enable and disable a new "mega mode", which when enabled, actives MEGA-CHIP's features.
+   It expands the display resolution to 256 by 192 pixels, supports loading ARGB color palettes for sprite drawing along with blending modes and an alpha value (the latter being undefined in its implementation), adds the ability to play raw 8 bit synthesized audio samples, and expands the addressable range to 16MB for even more sprite and audio data.
+   The way screen updates and scrolling also changes, and this notably becomes a huge point of confusion for new developers looking to implement this variant. Nevertheless, due to its interesting features and the handful of demos that exist for it, I decided to include this variant in my emulator, in the hopes that it may gain more popularity in the future.
 8. `HYPERWAVE-CHIP-64`: A newer and even lesser known variant developed by [@NinjaWeedle](https://github.com/NinjaWeedle/HyperWaveCHIP-64). Being an extension of XO-CHIP, this variant includes new multiplication and division instructions, three new instructions to take advantage of the expanded memory size for actual code instead of just assets, and the ability for ROMs to load their own bit-plane based color palette,
 instead of relying on the host emulator to supply the colors. This variant only has a few ROMs made mostly by the variant's developer and doesn't seem to have gained much traction. However, in the spirit of supporting newer extensions, I decided to implement it as a way to show support for possible new improvements to XO-CHIP, in the hopes that it will become more popular in the future.
+
+
 
 ### Configurable quirks
 
 Due to intentional or unintentional failure to replicate the original implementation of certain instructions of the CHIP-8 interpreter, small but significant differences arise in the behavior and side effects after executing some instructions.
 The collection of all these small differences across variants have come to be known as "quirks". jchip currently allows the individual configuration of the following quirks:
 
-- **VF Reset**: Determines whether the scratchpad register `vF` is reset to 0 when executing `8XY1`, `8XY2` or `8XY3`. Present on the CHIP-8 and CHIP-8X variants.
+- **VF Reset**: Determines whether the scratchpad register `vF` is reset to `0` when executing `8XY1`, `8XY2` or `8XY3`. Present on the CHIP-8 and CHIP-8X variants.
 - **Increment Index**: Determines whether the index register `I` is incremented by `X + 1` upon executing `FX55` or `FX65`. Present on the CHIP-8, CHIP-8X, XO-CHIP and HYPERWAVE-CHIP-64 variants.
 - **Display Wait**: Mostly a side effect of executing a `DXYN` instruction on the original CHIP-8, this quirk determines whether the mentioned instruction makes the emulator wait for the next frame to resume execution of instructions once a draw instruction has been executed.
-  The reason for this quirk comes down to technical reasons due to the way the COSMAC-VIP worked, mostly related to the COSMAC-VIP having to wait until the current frame has finished drawing in order to supply new display data to the video chip. In any case, this quirk is present on the original CHIP-8 as well as the LEGACY-SUPER-CHIP, with the latter only being active when in lores mode.
-  For all other variants except STRICT-CHIP-8 and MEGA-CHIP (when in mega mode on), this quirk takes effect when set as enabled.
+The reason for this quirk comes down to technical reasons due to the way the COSMAC-VIP worked, mostly related to the COSMAC-VIP having to wait until the current frame has finished drawing in order to supply new display data to the video chip.
+Present on the CHIP-8, CHIP-8X and SUPER-CHIP-LEGACY variants.
+  - On the STRICT-CHIP-8 variant, this quirk is ignored, as the cycle accurate nature of this emulator forcefully produces the effect that enabling this quirk would have, while being more accurate. 
+  - On the SUPER-CHIP-LEGACY variant, if the quirk is enabled, it only applies this behavior when on lores mode.
+  - On the MEGA-CHIP variant, when mega mode is on, this quirk is ignored, as the frame is only finished early upon a screen clear.
 - **Clipping**: Determines whether sprites drawn near the right or bottom edges of the display get cut off instead of wrapping around to the other side. Present on the CHIP-8, CHIP-8X, SUPER-CHIP-LEGACY and SUPER-CHIP-MODERN variants.
-Note that on the MEGA-CHIP variant, if mega mode is off, clipping is done always.
+    - On the MEGA-CHIP variant, when mega mode is off, this quirk is ignored and always performs draws with clipping.
 - **Shift VX In Place**: Determines whether `8XY6` and `8XYE` utilize `vX` or `vY` as their operands, with the former behavior if the quirk is enabled. Present on the SUPER-CHIP-LEGACY, SUPER-CHIP-MODERN and MEGA-CHIP variants.
 - **Jump with VX**: Modifies the implementation of `BNNN` to behave as `BXNN` instead, with the former jumping to address `NNN` plus the offset specified by the byte in `v0`, and the latter jumping to address `XNN` plus the offset specified by `vX`. Present on the SUPER-CHIP-LEGACY and SUPER-CHIP-MODERN. This quirk has no effect for the CHIP-8X variant as it completely replaces the implementation of `BNNN` to do something completely unrelated.
 
-Additionally, while not generally considered a "quirk", jchip also allows a configurable "IPF" (instructions per frame) value, which basically determines the "clock speed" of the CHIP-8 processor.
-Higher IPF values allow the emulator to execute more instructions per frame. For ROMs that do not sync themselves to 60 frames per second, this results in higher execution speed of the ROM, equivalent to fastforwarding emulation, while keeping timer updates to 60 times per second.
-For more modern ROMs that take advantage of the delay timer to sync themselves to the emulator's framerate, they can take advantage of a higher IPF to execute heavier workloads per frame, achieving better performance while increasing game complexity. This is a technique primarily used by XO-CHIP games,
-whose ROMs can require anywhere between 1000 and 200000 instructions per frame values to run appropriately.
+Additionally, while not generally considered a quirk per-se, jchip also allows a configurable "IPF" (instructions per frame) value, which basically determines the "clock speed" of the emulator's "processor".
+For most ROMs, this results in faster emulation speed, which ends up looking like the emulator is being fastforwarded, even if timers are still decremented 60 times per second.
+However, for ROMs that utilize the delay timer in order to sync themselves to the 60 fps framerate of CHIP-8, it results in the abiltiy to execute heavier workloads per program loop, which allows for greater game complexity and performance from the ROM's perspective.
+This technique is mainly used by modern games, primarily those targetting the XO-CHIP variant, which can benefit greatly from being able to execute more instructions per frame.
 
-The reason I consider this a "quirk" is because this value largely depends on the host emulator, as CHIP-8 is not hardware, but an interpreter that runs on hardware. Thus, the faster the host system is, the faster the interpreter can run.
+The reason I consider this a "quirk" is because this value is not strictly defined across variants as it entirely depends on the host system. The original CHIP-8 interpreter was able to execute
+approximately 11 instructions per frame, although this is merely a result of the COSMAC-VIP's performance, and not because the interpreter was locked to run at that particular execution rate.
 The default values for the different variants are:
 
 | Variant                                 | Default IPF                 |
@@ -114,8 +111,8 @@ This value can also be individually configured like the rest of the quirks, thou
 
 ### Debugger
 
-jchip comes with a toggleable debugger view, which allows you to see the current state of the emulator via a panel located to the right side of the panel.
-It displays the current registers, stack contents, and includes a full memory viewer. It updates in real-time at the end of each frame. The current implementation is basic,
+jchip comes with a toggleable debugger view, which allows the user to see the current state of the emulator via a panel located to the right side of the emulator window.
+It displays the current registers, stack contents, and includes a full memory viewer, and updates in real-time at the end of each frame. The current implementation is basic,
 but support for proper debugging features, such as stepping, disassembly view, and breakpoints are planned for the future.
 
 The debugger panel also shows the quirks that are currently being used to run the current ROM. The current IPF and variant can be seen in the window title.
@@ -123,7 +120,7 @@ The debugger panel also shows the quirks that are currently being used to run th
 ### Database
 
 jchip includes a ROM metadata database courtesy of the [CHIP-8 Research Facility](https://github.com/chip-8/chip-8-database), which allows for automatic configuration of quirks, color palette, IPF, display orientation.
-I currently maintain my [own fork](https://github.com/ArkoSammy12/chip-8-database) to add more obscure rom entries, mostly comprising of unknown test roms and modifications to existing entries to include updated information.
+I currently maintain my [own fork](https://github.com/ArkoSammy12/chip-8-database) to add more obscure rom entries, whose additions mostly comprise unknown test roms and modifications to existing entries to include updated information.
 
 ## Usage
 
@@ -141,7 +138,7 @@ Upon startup, a menu bar allows you to adjust all settings interactively. Menus 
 which corresponds to the variant being used:
 
 - **File** – Load ROM files via file explorer.
-- **Quirks** – Enable/disable or leave quirks unspecified (auto-detected from database or variant).
+- **Quirks** – Enable/disable or leave quirks unspecified.
 - **Variant** – Choose a specific variant or leave unspecified, falling back to database or CHIP-8.
 - **Color Palette** – Select from built-in palettes or leave unspecified.
 - **Display Angle** – Set screen rotation (0°, 90°, 180°, 270°) or leave unspecified.
@@ -165,7 +162,7 @@ Where `x.y.z` is the numeric version embedded in the JAR file’s name.
 - Example:
 
 ```bash
-java -jar jchip-2.2.0.jar -r roms/PONG.ch8 -v chip-8 -c pico8
+java -jar jchip-3.0.0.jar -r roms/PONG.ch8 -v chip-8 -c pico8
 ```
 
 The list of commands is as follows:
@@ -198,13 +195,23 @@ You will at least Java `25` in order to compile and/or run this application.
 If you currently don't have a Java Runtime environment installed,
 you may get the latest LTS version from the [Adoptium website](https://adoptium.net/).
 
-Clone this repository and run:
+jchip uses [Maven](https://maven.apache.org/) as its dependency management and build solution.
+
+To build from source, clone this repository and run:
 
 ```bash
 ./mvnw clean package
 ```
 
-The built JAR will be located in the `target` directory`.
+or just 
+
+```
+mvnw clean package
+```
+
+if you are on Windows.
+
+The built JAR will be located in the `target` directory.
 You may also get pre-compiled JARs from the [releases page](https://github.com/ArkoSammy12/jchip/releases).
 
 ## Libraries Used
