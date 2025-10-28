@@ -5,7 +5,6 @@ import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class MegaChipDisplay extends SChipDisplay {
 
@@ -236,53 +235,6 @@ public class MegaChipDisplay extends SChipDisplay {
 
     }
 
-    @Override
-    protected Consumer<int[][]> getRenderBufferUpdater() {
-        return renderBuffer -> {
-            if (this.isMegaChipModeEnabled()) {
-                for (int y = 0; y < imageHeight; y++) {
-                    for (int x = 0; x < imageWidth; x++) {
-                        int pixel = 0xFF000000;
-                        if (scrollTriggered) {
-                            int back = this.backBuffer[x][y];
-                            if ((back & 0xFF000000) != 0) {
-                                pixel = back;
-                            }
-                        }
-                        int front = this.frontBuffer[x][y];
-                        if ((front & 0xFF000000) != 0) {
-                            pixel = front;
-                        }
-                        renderBuffer[x][y] = pixel;
-                    }
-                }
-            } else {
-                for (int y = 0; y < imageHeight; y++) {
-                    for (int x = 0; x < imageWidth; x++) {
-                        renderBuffer[x][y] = 0xFF000000;
-                    }
-                }
-                int displayWidth = super.getImageWidth();
-                int displayHeight = super.getImageHeight();
-                int xScale = 2;
-                int yScale = 2;
-                int yOffset = (this.imageHeight - displayHeight * yScale) / 2;
-                for (int sy = 0; sy < displayHeight; sy++) {
-                    int baseY = yOffset + sy * yScale;
-                    for (int sx = 0; sx < displayWidth; sx++) {
-                        int color = super.colorPalette.getColorARGB(this.bitplaneBuffer[sx][sy] & 0xF);
-                        int baseX = sx * xScale;
-                        for (int dy = 0; dy < yScale; dy++) {
-                            for (int dx = 0; dx < xScale; dx++) {
-                                renderBuffer[baseX + dx][baseY + dy] = color;
-                            }
-                        }
-                    }
-                }
-            }
-        };
-    }
-
     public void flushBackBuffer() {
         this.scrollTriggered = false;
         for (int i = 0; i < this.backBuffer.length; i++) {
@@ -290,6 +242,49 @@ public class MegaChipDisplay extends SChipDisplay {
         }
     }
 
+    protected void populateRenderBuffer(int[][] renderBuffer) {
+        if (this.isMegaChipModeEnabled()) {
+            for (int y = 0; y < imageHeight; y++) {
+                for (int x = 0; x < imageWidth; x++) {
+                    int pixel = 0xFF000000;
+                    if (scrollTriggered) {
+                        int back = this.backBuffer[x][y];
+                        if ((back & 0xFF000000) != 0) {
+                            pixel = back;
+                        }
+                    }
+                    int front = this.frontBuffer[x][y];
+                    if ((front & 0xFF000000) != 0) {
+                        pixel = front;
+                    }
+                    renderBuffer[x][y] = pixel;
+                }
+            }
+        } else {
+            for (int y = 0; y < imageHeight; y++) {
+                for (int x = 0; x < imageWidth; x++) {
+                    renderBuffer[x][y] = 0xFF000000;
+                }
+            }
+            int displayWidth = super.getImageWidth();
+            int displayHeight = super.getImageHeight();
+            int xScale = 2;
+            int yScale = 2;
+            int yOffset = (this.imageHeight - displayHeight * yScale) / 2;
+            for (int sy = 0; sy < displayHeight; sy++) {
+                int baseY = yOffset + sy * yScale;
+                for (int sx = 0; sx < displayWidth; sx++) {
+                    int color = super.colorPalette.getColorARGB(this.bitplaneBuffer[sx][sy] & 0xF);
+                    int baseX = sx * xScale;
+                    for (int dy = 0; dy < yScale; dy++) {
+                        for (int dx = 0; dx < xScale; dx++) {
+                            renderBuffer[baseX + dx][baseY + dy] = color;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public void clear() {

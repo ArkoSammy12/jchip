@@ -6,7 +6,6 @@ import io.github.arkosammy12.jchip.util.DisplayAngle;
 import java.awt.event.KeyAdapter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class Chip8Display extends Display {
 
@@ -60,15 +59,12 @@ public class Chip8Display extends Display {
         };
     }
 
-    @Override
-    protected Consumer<int[][]> getRenderBufferUpdater() {
-        return renderBuffer -> {
-            for (int y = 0; y < imageHeight; y++) {
-                for (int x = 0; x < imageWidth; x++) {
-                    renderBuffer[x][y] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
-                }
+    protected void populateRenderBuffer(int[][] renderBuffer) {
+        for (int y = 0; y < imageHeight; y++) {
+            for (int x = 0; x < imageWidth; x++) {
+                renderBuffer[x][y] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
             }
-        };
+        }
     }
 
 }

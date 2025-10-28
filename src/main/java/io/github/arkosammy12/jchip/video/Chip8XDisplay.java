@@ -4,7 +4,6 @@ import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class Chip8XDisplay extends Chip8Display {
 
@@ -51,32 +50,29 @@ public class Chip8XDisplay extends Chip8Display {
         this.extendedColorDraw = extendedColorDraw;
     }
 
-    @Override
-    protected Consumer<int[][]> getRenderBufferUpdater() {
-        return renderBuffer -> {
-            if (this.extendedColorDraw) {
-                for (int y = 0; y < imageHeight; y++) {
-                    for (int x = 0; x < imageWidth; x++) {
-                        renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
-                    }
+    protected void populateRenderBuffer(int[][] renderBuffer) {
+        if (this.extendedColorDraw) {
+            for (int y = 0; y < imageHeight; y++) {
+                for (int x = 0; x < imageWidth; x++) {
+                    renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
                 }
-            } else {
-                for (int i = 0; i < 8; i++) {
-                    int zoneY = i * 4;
-                    for (int j = 0; j < 8; j++) {
-                        int zoneX = j * 8;
-                        int zoneColorIndex = this.foregroundColorIndexes[zoneX][zoneY];
-                        for (int dy = 0; dy < 4; dy++) {
-                            int y = zoneY + dy;
-                            for (int dx = 0; dx < 8; dx++) {
-                                int x = zoneX + dx;
-                                renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[zoneColorIndex] : BACKGROUND_COLORS[this.backgroundColorIndex];
-                            }
+            }
+        } else {
+            for (int i = 0; i < 8; i++) {
+                int zoneY = i * 4;
+                for (int j = 0; j < 8; j++) {
+                    int zoneX = j * 8;
+                    int zoneColorIndex = this.foregroundColorIndexes[zoneX][zoneY];
+                    for (int dy = 0; dy < 4; dy++) {
+                        int y = zoneY + dy;
+                        for (int dx = 0; dx < 8; dx++) {
+                            int x = zoneX + dx;
+                            renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[zoneColorIndex] : BACKGROUND_COLORS[this.backgroundColorIndex];
                         }
                     }
                 }
             }
-        };
+        }
     }
 
 }

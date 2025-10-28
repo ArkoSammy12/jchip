@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.ui.EmulatorRenderer;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -9,7 +8,6 @@ import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import java.awt.event.*;
 import java.io.Closeable;
 import java.util.List;
-import java.util.function.Consumer;
 
 public abstract class Display implements Closeable {
 
@@ -25,7 +23,7 @@ public abstract class Display implements Closeable {
         this.displayAngle = config.getDisplayAngle();
         this.imageWidth = getImageWidth();
         this.imageHeight = getImageHeight();
-        this.emulatorRenderer = new EmulatorRenderer(config.getJChip(), this, this.getRenderBufferUpdater(), keyAdapters, config.getProgramTitle());
+        this.emulatorRenderer = new EmulatorRenderer(config.getJChip(), this, keyAdapters, config.getProgramTitle());
     }
 
     public Chip8Variant getChip8Variant() {
@@ -50,7 +48,7 @@ public abstract class Display implements Closeable {
 
     public abstract int getImageScale(DisplayAngle displayAngle);
 
-    protected abstract Consumer<int[][]> getRenderBufferUpdater();
+    protected abstract void populateRenderBuffer(int[][] renderBuffer);
 
     public abstract void clear();
 

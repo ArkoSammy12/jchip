@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.sound.SoundWriter;
+import io.github.arkosammy12.jchip.video.EmulatorRenderer;
 import org.tinylog.Logger;
 
 import javax.swing.*;

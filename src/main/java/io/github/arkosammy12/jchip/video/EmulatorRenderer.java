@@ -1,9 +1,8 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import io.github.arkosammy12.jchip.video.Display;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,14 +14,13 @@ import java.awt.image.DataBufferInt;
 import java.io.Closeable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import static io.github.arkosammy12.jchip.util.DisplayAngle.*;
 
 public class EmulatorRenderer extends Canvas implements Closeable {
 
+    private final Display display;
     private final int[][] renderBuffer;
-    private final Consumer<int[][]> renderBufferUpdater;
 
     private final int displayWidth;
     private final int displayHeight;
@@ -44,7 +42,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final Object renderLock = new Object();
     protected final Object renderBufferLock = new Object();
 
-    public EmulatorRenderer(JChip jchip, Display display, Consumer<int[][]> renderBufferUpdater, List<KeyAdapter> keyAdapters, String romTitle) {
+    public EmulatorRenderer(JChip jchip, Display display, List<KeyAdapter> keyAdapters, String romTitle) {
         super();
         this.romTitle = romTitle == null ? "" : " | " + romTitle;
         this.displayWidth = display.getImageWidth();
@@ -53,7 +51,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         this.initialScale = display.getImageScale(this.displayAngle);
         this.chip8Variant = display.getChip8Variant();
         this.renderBuffer = new int[displayWidth][displayHeight];
-        this.renderBufferUpdater = renderBufferUpdater;
+        this.display = display;
 
         this.bufferedImage = new BufferedImage(displayWidth, displayHeight, BufferedImage.TYPE_INT_ARGB);
         this.rotationTransform = new AffineTransform();
@@ -70,7 +68,6 @@ public class EmulatorRenderer extends Canvas implements Closeable {
                 this.rotationTransform.translate(0, displayWidth);
                 this.rotationTransform.rotate(Math.toRadians(270));
             }
-            default -> {}
         }
 
         int windowWidth = displayWidth * initialScale;
@@ -80,8 +77,8 @@ public class EmulatorRenderer extends Canvas implements Closeable {
             this.setPreferredSize(new Dimension(windowWidth, windowHeight));
             keyAdapters.forEach(this::addKeyListener);
             this.setFocusable(true);
+            jchip.getMainWindow().setEmulatorRenderer(this);
         });
-        jchip.getMainWindow().setEmulatorRenderer(this);
     }
 
     public int getDisplayWidth() {
@@ -104,15 +101,15 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         return this.romTitle;
     }
 
-     public void requestFrame() {
+    public void requestFrame() {
         synchronized (this.renderBufferLock) {
-            this.renderBufferUpdater.accept(this.renderBuffer);
+            this.display.populateRenderBuffer(this.renderBuffer);
         }
         synchronized (this.renderLock) {
             this.frameRequested.set(true);
             this.renderLock.notify();
         }
-     }
+    }
 
     @Override
     public void addNotify() {
