@@ -157,8 +157,15 @@ public class JChip {
     }
 
     public void onShutdown() {
-        this.handleStop();
-        this.mainWindow.close();
+        if (this.currentEmulator != null) {
+            this.currentEmulator.close();
+            this.currentEmulator = null;
+        }
+        if (this.mainWindow != null) {
+            this.mainWindow.setEmulatorRenderer(null);
+            this.mainWindow.onStopped();
+            this.mainWindow.close();
+        }
         this.soundWriter.close();
     }
 
