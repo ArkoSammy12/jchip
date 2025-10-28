@@ -4,18 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9435d4f1-a159-45cd-8211-196c5eaf74e9" name="Changes" comment="Update README.md">
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/build.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" />
+    <list default="true" id="9435d4f1-a159-45cd-8211-196c5eaf74e9" name="Changes" comment="Update build.yml">
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -398,23 +388,7 @@
       <workItem from="1761575252371" duration="2761000" />
       <workItem from="1761616290558" duration="1118000" />
       <workItem from="1761617465582" duration="965000" />
-      <workItem from="1761618459663" duration="1826000" />
-    </task>
-    <task id="LOCAL-00161" summary="Add decoding check for 060N for the mega-chip variant and fix its comment">
-      <option name="closed" value="true" />
-      <created>1759793608868</created>
-      <option name="number" value="00161" />
-      <option name="presentableId" value="LOCAL-00161" />
-      <option name="project" value="LOCAL" />
-      <updated>1759793608869</updated>
-    </task>
-    <task id="LOCAL-00162" summary="Continue to refactor">
-      <option name="closed" value="true" />
-      <created>1759811850346</created>
-      <option name="number" value="00162" />
-      <option name="presentableId" value="LOCAL-00162" />
-      <option name="project" value="LOCAL" />
-      <updated>1759811850347</updated>
+      <workItem from="1761618459663" duration="2420000" />
     </task>
     <task id="LOCAL-00163" summary="Properly set default pattern playback for the xo-chip and hyperwave-chip-64 variants">
       <option name="closed" value="true" />
@@ -792,7 +766,23 @@
       <option name="project" value="LOCAL" />
       <updated>1761576948717</updated>
     </task>
-    <option name="localTasksCounter" value="210" />
+    <task id="LOCAL-00210" summary="Migrate to Maven">
+      <option name="closed" value="true" />
+      <created>1761620439335</created>
+      <option name="number" value="00210" />
+      <option name="presentableId" value="LOCAL-00210" />
+      <option name="project" value="LOCAL" />
+      <updated>1761620439336</updated>
+    </task>
+    <task id="LOCAL-00211" summary="Update build.yml">
+      <option name="closed" value="true" />
+      <created>1761620543401</created>
+      <option name="number" value="00211" />
+      <option name="presentableId" value="LOCAL-00211" />
+      <option name="project" value="LOCAL" />
+      <updated>1761620543401</updated>
+    </task>
+    <option name="localTasksCounter" value="212" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -810,8 +800,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Improve thread safety performance by utilizing a new render buffer and lock. Do not call join() on the render thread when closing" />
-    <MESSAGE value="Begin work on proper a proper minimalistic UI for jchip. Still a lot to polish and fix" />
     <MESSAGE value="Continue work on proper frontend/backend separation. Add placeholder live debugger panel" />
     <MESSAGE value="Implement debugger viewer with current settings, single registers, registers, and stack. Begin work on memory viewer" />
     <MESSAGE value="Finalize memory viewer on debugger panel. Continue clean up. Fix proper termination of render thread when closing an EmulatorRenderer instance. Add button for hiding and showing the debugger panel" />
@@ -835,7 +823,9 @@
     <MESSAGE value="Update README.md and do not start the emulator window when -h or -V are used when running jchip from the CLI" />
     <MESSAGE value="Update README.md and remove unspecified option from the keyboard layout setting menu" />
     <MESSAGE value="Update README.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update README.md" />
+    <MESSAGE value="Migrate to Maven" />
+    <MESSAGE value="Update build.yml" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update build.yml" />
   </component>
   <component name="XDebuggerManager">
     <pin-to-top-manager>
