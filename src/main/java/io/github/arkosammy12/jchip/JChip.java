@@ -31,35 +31,40 @@ public class JChip {
     private final AtomicBoolean stop = new AtomicBoolean(false);
 
     public JChip(String[] args) throws IOException, InterruptedException, InvocationTargetException {
-        CommandLineArgs cliArgs = null;
-        if (args.length > 0) {
-            cliArgs = new CommandLineArgs();
-            CommandLine cli = new CommandLine(cliArgs);
-            CommandLine.ParseResult parseResult = cli.parseArgs(args);
-            Integer executeHelpResult = CommandLine.executeHelpRequest(parseResult);
-            int exitCodeOnUsageHelp = cli.getCommandSpec().exitCodeOnUsageHelp();
-            int exitCodeOnVersionHelp = cli.getCommandSpec().exitCodeOnVersionHelp();
-            if (executeHelpResult != null) {
-                if (executeHelpResult == exitCodeOnUsageHelp) {
-                    System.exit(exitCodeOnUsageHelp);
-                } else if (executeHelpResult == exitCodeOnVersionHelp) {
-                    System.exit(exitCodeOnVersionHelp);
+        try {
+            CommandLineArgs cliArgs = null;
+            if (args.length > 0) {
+                cliArgs = new CommandLineArgs();
+                CommandLine cli = new CommandLine(cliArgs);
+                CommandLine.ParseResult parseResult = cli.parseArgs(args);
+                Integer executeHelpResult = CommandLine.executeHelpRequest(parseResult);
+                int exitCodeOnUsageHelp = cli.getCommandSpec().exitCodeOnUsageHelp();
+                int exitCodeOnVersionHelp = cli.getCommandSpec().exitCodeOnVersionHelp();
+                if (executeHelpResult != null) {
+                    if (executeHelpResult == exitCodeOnUsageHelp) {
+                        System.exit(exitCodeOnUsageHelp);
+                    } else if (executeHelpResult == exitCodeOnVersionHelp) {
+                        System.exit(exitCodeOnVersionHelp);
+                    }
                 }
             }
-        }
-        SwingUtilities.invokeAndWait(() -> {
-            this.mainWindow = new MainWindow(this);
-            this.mainWindow.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    shutdown();
-                }
+            SwingUtilities.invokeAndWait(() -> {
+                this.mainWindow = new MainWindow(this);
+                this.mainWindow.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        shutdown();
+                    }
+                });
+                this.mainWindow.setVisible(true);
             });
-            this.mainWindow.setVisible(true);
-        });
-        if (cliArgs != null) {
-            this.mainWindow.getSettingsMenu().initializeSettings(cliArgs);
-            this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
+            if (cliArgs != null) {
+                this.mainWindow.getSettingsMenu().initializeSettings(cliArgs);
+                this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
+            }
+        } catch (Exception e) {
+            this.onShutdown();
+            throw new RuntimeException(e);
         }
     }
 
