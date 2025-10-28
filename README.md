@@ -201,10 +201,10 @@ you may get the latest LTS version from the [Adoptium website](https://adoptium.
 Clone this repository and run:
 
 ```bash
-./gradlew build
+./mvnw clean package
 ```
 
-The built JAR will be located in `build/libs`.
+The built JAR will be located in the `target` directory`.
 You may also get pre-compiled JARs from the [releases page](https://github.com/ArkoSammy12/jchip/releases).
 
 ## Libraries Used
