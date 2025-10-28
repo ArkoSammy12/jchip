@@ -227,6 +227,7 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 - [mattmikolay – *Mastering CHIP-8*](https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908)
 - [mattmikolay - Viper Magazines](https://github.com/mattmikolay/viper/tree/master)
 - [Laurence Scotford – COSMAC VIP Sprite Drawing](https://www.laurencescotford.net/2020/07/19/chip-8-on-the-cosmac-vip-drawing-sprites/)
+- [Chromatophore - HP48-Superchip investigations](https://github.com/Chromatophore/HP48-Superchip/tree/master/investigations)
 - [John Earnest’s chip8archive](https://johnearnest.github.io/chip8Archive/)
 - [Janitor Raus – Legacy SuperCHIP Display Spec](https://github.com/janitor-raus/CubeChip/blob/master/guides/Legacy%20(Original)%20SuperCHIP%20Display%20Specification.md)
 - [Janitor Raus - CubeChip](https://github.com/janitor-raus/CubeChip)
