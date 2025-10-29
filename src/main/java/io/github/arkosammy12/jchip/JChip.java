@@ -162,7 +162,6 @@ public class JChip {
         }
         this.mainWindow.onStopped();
         this.stop.set(false);
-        this.reset.set(false);
     }
 
     public void onShutdown() {
