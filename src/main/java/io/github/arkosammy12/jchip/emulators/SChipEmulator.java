@@ -34,9 +34,9 @@ public class SChipEmulator<D extends SChipDisplay, S extends SoundSystem> extend
     @Override
     protected boolean waitFrameEnd(int flags) {
         if (this.isModern) {
-            return this.getEmulatorConfig().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED);
+            return this.getEmulatorInitializer().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED);
         } else {
-            return this.getEmulatorConfig().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isExtendedMode();
+            return this.getEmulatorInitializer().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isExtendedMode();
         }
     }
 

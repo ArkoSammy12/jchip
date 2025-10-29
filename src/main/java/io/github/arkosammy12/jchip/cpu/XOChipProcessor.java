@@ -91,7 +91,7 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
     protected int executeDOpcode(int firstByte, int NN) {
         XOChipDisplay display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorInitializer config = this.emulator.getEmulatorConfig();
+        EmulatorInitializer config = this.emulator.getEmulatorInitializer();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         int selectedBitPlanes = display.getSelectedBitPlanes();

@@ -28,7 +28,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     private final Keypad keypad;
 
     private final Chip8Variant chip8Variant;
-    private final EmulatorInitializer config;
+    private final EmulatorInitializer initializer;
     private final int targetInstructionsPerFrame;
 
     private int currentInstructionsPerFrame;
@@ -37,14 +37,14 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
 
     public Chip8Emulator(EmulatorInitializer emulatorInitializer, BiFunction<EmulatorInitializer, List<KeyAdapter>, D> displayFactory, Function<EmulatorInitializer, S> soundSystemFactory) {
         try {
-            this.config = emulatorInitializer;
+            this.initializer = emulatorInitializer;
             this.chip8Variant = emulatorInitializer.getVariant();
             this.targetInstructionsPerFrame = emulatorInitializer.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
-            this.keypad = new Keypad(this.config.getKeyboardLayout());
+            this.keypad = new Keypad(this.initializer.getKeyboardLayout());
             this.soundSystem = soundSystemFactory.apply(emulatorInitializer);
-            this.display = displayFactory.apply(config, List.of(this.keypad));
-            this.memory = this.createMemory(this.config.getRom(), this.chip8Variant);
+            this.display = displayFactory.apply(initializer, List.of(this.keypad));
+            this.memory = this.createMemory(this.initializer.getRom(), this.chip8Variant);
             this.processor = this.createProcessor();
         } catch (Exception e) {
             this.close();
@@ -85,8 +85,8 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return this.chip8Variant;
     }
 
-    public EmulatorInitializer getEmulatorConfig() {
-        return this.config;
+    public EmulatorInitializer getEmulatorInitializer() {
+        return this.initializer;
     }
 
     public int getCurrentInstructionsPerFrame() {
@@ -132,7 +132,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     }
 
     protected boolean waitFrameEnd(int flags) {
-        if (this.config.doDisplayWait()) {
+        if (this.initializer.doDisplayWait()) {
             if (isSet(flags, Chip8Processor.DRAW_EXECUTED)) {
                 return true;
             } else if (isSet(flags, Chip8Processor.LONG_INSTRUCTION)) {

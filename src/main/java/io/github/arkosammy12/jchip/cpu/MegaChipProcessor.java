@@ -205,7 +205,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         }
 
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorInitializer config = this.emulator.getEmulatorConfig();
+        EmulatorInitializer config = this.emulator.getEmulatorInitializer();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
 

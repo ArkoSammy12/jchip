@@ -173,7 +173,7 @@ public class DebuggerViewPanel extends JPanel {
         }
 
         Chip8Emulator<?, ?> emulator = optionalChip8Emulator.get();
-        EmulatorInitializer config = emulator.getEmulatorConfig();
+        EmulatorInitializer config = emulator.getEmulatorInitializer();
 
         Chip8Processor<?, ?, ?> processor = emulator.getProcessor();
         int pc = processor.getProgramCounter();

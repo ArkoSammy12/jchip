@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.cpu;
 
+import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
@@ -70,7 +71,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
     protected int executeDOpcode(int firstByte, int NN) {
         SChipDisplay display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorInitializer config = this.emulator.getEmulatorConfig();
+        EmulatorInitializer config = this.emulator.getEmulatorInitializer();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
@@ -171,11 +172,19 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: Store registers to flags storage
-                this.saveRegistersToFlags(getX(firstByte, NN));
+                JChip jchip = this.emulator.getEmulatorInitializer().getJChip();
+                int X = getX(firstByte, NN);
+                for (int i = 0; i <= X; i++) {
+                    jchip.setFlagRegister(i, this.getRegister(i));
+                }
                 yield HANDLED;
             }
             case 0x85 -> { // FX85: Load registers from flags storage
-                this.loadFlagsToRegisters(getX(firstByte, NN));
+                JChip jchip = this.emulator.getEmulatorInitializer().getJChip();
+                int X = getX(firstByte, NN);
+                for (int i = 0; i <= X; i++) {
+                    this.setRegister(i, jchip.getFlagRegister(i));
+                }
                 yield HANDLED;
             }
             default -> super.executeFOpcode(firstByte, NN);

@@ -25,6 +25,7 @@ public class JChip {
     private Chip8Emulator<?, ?> currentEmulator;
     private final Chip8Database database = new Chip8Database();
     private final SoundWriter soundWriter = new SoundWriter();
+    private final int[] flagsStorage = new int[16];
 
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final AtomicBoolean reset = new AtomicBoolean(false);
@@ -82,6 +83,14 @@ public class JChip {
 
     public SoundWriter getSoundWriter() {
         return this.soundWriter;
+    }
+
+    public void setFlagRegister(int index, int value) {
+        this.flagsStorage[index] = value;
+    }
+
+    public int getFlagRegister(int index) {
+        return this.flagsStorage[index];
     }
 
     public void start() throws IOException {
