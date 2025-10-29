@@ -60,7 +60,6 @@ SUPER-CHIP 1.0 was released for newer models of the calculator, and added a high
 Finally, SUPER-CHIP 1.1 was an extension developed by Erik Brynste and added new scrolling instructions and an instruction to point the index register to one of the new big font sprites now built into the interpreter.
 5. `SUPER-CHIP-MODERN`: This variant corresponds to [Octo's](https://github.com/JohnEarnest/Octo) generic implementation of the SUPER-CHIP extension. This variant differs from its legacy counterpart as it doesn't fully emulate certain quirks, visual artifacts, and collision detection handling during execution of a `DXYN` instruction.
 As such, it is considered its own separate variant that is similar enough to SUPER-CHIP-LEGACY to fall into the SUPER-CHIP category. Note that developers using Octo that wish to target SUPER-CHIP will be using this "modern" variation instead.
-Developers who have selected SUPER-CHIP as their targeted platform when developing games in Octo were using this "modern" implementation which is not fully faithful to the original implementation, but it is still similar enough to fall within the SUPER-CHIP category.
 6. `XO-CHIP`: Developed by John Earnest, it debuted alongside Octo as the most popular modernized version of CHIP-8 which most newcomers target when they start developing in Octo. Bringing a host of new features, including bit-plane based color support,
 an expanded addressable range of 64KB, allowing ROMs to store much more data such as sprites and audio, support for audio in the form of square wave audio samples as well as controllable pitch, and new instructions for more convenient memory manipulation.
 Many newer games were made for this variant thanks to Octo and the Octojams hosted by John Earnest, and although Octojams are no longer being hosted, these games, along with many other programs, showcase the capability of this limited but fun fantasy console and, in my opinion, serves as a great way to
@@ -255,8 +254,8 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 
 Special thanks to:
 
-- **Steffen Schümann (@gulrak)**, for offering significant help during my CHIP-8 emulation journey, serving as my primary guide and advisor. He has also generously lent me his STRICT-CHIP-8 implementation.
-- **@Janitor Raus**: For offering general help and guidance during development, as well as providing help for general application development.
+- **Steffen Schümann ([@gulrak](https://github.com/gulrak))**, for offering significant help during my CHIP-8 emulation journey, serving as my primary guide and advisor. He has also generously lent me his STRICT-CHIP-8 implementation.
+- **@Janitor Raus ([@janitor-raus](https://github.com/janitor-raus))**: For offering general help and guidance during development, as well as providing help for general application development.
 
 …and the `#chip-8` channel on the EmuDev Discord for their guidance during my first emulation project.
 
