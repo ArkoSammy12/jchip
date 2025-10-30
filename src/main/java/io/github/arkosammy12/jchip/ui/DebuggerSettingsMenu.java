@@ -13,9 +13,7 @@ public class DebuggerSettingsMenu extends JMenu {
         super("Debugger");
 
         this.showDebuggerButton = new JRadioButtonMenuItem("Show");
-        this.showDebuggerButton.addActionListener(_ -> {
-            jchip.getMainWindow().setDebuggerViewEnabled(showDebuggerButton.isSelected());
-        });
+        this.showDebuggerButton.addActionListener(_ -> jchip.getMainWindow().setDebuggerViewEnabled(showDebuggerButton.isSelected()));
 
         JMenu memoryFollowModeMenu = new JMenu("Memory follow mode");
 

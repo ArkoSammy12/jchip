@@ -123,11 +123,10 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
             if ((bitPlaneMask & selectedBitPlanes) == 0) {
                 continue;
             }
-            for (int i = 0; i < spriteHeight; i++) {
+            for (int i = 0; i < spriteHeight; i++, planeIterator++) {
                 int sliceY = spriteY + i;
                 if (sliceY >= displayHeight) {
                     if (doClipping) {
-                        planeIterator++;
                         continue;
                     } else {
                         sliceY %= displayHeight;
@@ -149,17 +148,16 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
                         continue;
                     }
                     if (extendedMode) {
-                        collided |= display.togglePixelAtBitPlanes(sliceX, sliceY, bitPlaneMask);
+                        collided |= display.flipPixelAtBitPlanes(sliceX, sliceY, bitPlaneMask);
                     } else {
                         int scaledSliceX = sliceX * 2;
                         int scaledSliceY = sliceY * 2;
-                        collided |= display.togglePixelAtBitPlanes(scaledSliceX, scaledSliceY, bitPlaneMask);
-                        collided |= display.togglePixelAtBitPlanes(scaledSliceX + 1, scaledSliceY, bitPlaneMask);
-                        display.togglePixelAtBitPlanes(scaledSliceX, scaledSliceY + 1, bitPlaneMask);
-                        display.togglePixelAtBitPlanes(scaledSliceX + 1, scaledSliceY + 1, bitPlaneMask);
+                        collided |= display.flipPixelAtBitPlanes(scaledSliceX, scaledSliceY, bitPlaneMask);
+                        collided |= display.flipPixelAtBitPlanes(scaledSliceX + 1, scaledSliceY, bitPlaneMask);
+                        display.flipPixelAtBitPlanes(scaledSliceX, scaledSliceY + 1, bitPlaneMask);
+                        display.flipPixelAtBitPlanes(scaledSliceX + 1, scaledSliceY + 1, bitPlaneMask);
                     }
                 }
-                planeIterator++;
             }
         }
         this.setVF(collided);

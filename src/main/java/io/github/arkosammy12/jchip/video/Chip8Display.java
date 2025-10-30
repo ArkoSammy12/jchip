@@ -38,10 +38,9 @@ public class Chip8Display extends Display {
         return 32;
     }
 
-    public boolean togglePixel(int column, int row) {
-        int current = this.bitplaneBuffer[column][row];
+    public boolean flipPixel(int column, int row) {
         this.bitplaneBuffer[column][row] ^= 1;
-        return current != 0;
+        return this.bitplaneBuffer[column][row] == 0;
     }
 
     @Override

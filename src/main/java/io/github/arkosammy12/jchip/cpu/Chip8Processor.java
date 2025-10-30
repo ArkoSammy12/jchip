@@ -388,7 +388,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                 if ((slice & sliceMask) == 0) {
                     continue;
                 }
-                collided |= display.togglePixel(sliceX, sliceY);
+                collided |= display.flipPixel(sliceX, sliceY);
             }
         }
         this.setVF(collided);

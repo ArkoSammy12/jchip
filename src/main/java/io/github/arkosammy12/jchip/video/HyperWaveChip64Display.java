@@ -27,7 +27,7 @@ public class HyperWaveChip64Display extends XOChipDisplay {
     }
 
     @Override
-    public boolean togglePixelAtBitPlanes(int column, int row, int bitPlaneMask) {
+    public boolean flipPixelAtBitPlanes(int column, int row, int bitPlaneMask) {
         boolean collision = (this.bitplaneBuffer[column][row] & bitPlaneMask) != 0;
         switch (this.drawingMode) {
             case OR -> this.bitplaneBuffer[column][row] |= bitPlaneMask;

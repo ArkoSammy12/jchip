@@ -375,14 +375,14 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                     continue;
                 }
                 if (extendedMode) {
-                    collided |= display.togglePixel(sliceX, sliceY);
+                    collided |= display.flipPixel(sliceX, sliceY);
                 } else {
                     int scaledSliceX = sliceX * 2;
                     int scaledSliceY = sliceY * 2;
-                    collided |= display.togglePixel(scaledSliceX, scaledSliceY);
-                    collided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
-                    display.togglePixel(scaledSliceX, scaledSliceY + 1);
-                    display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
+                    collided |= display.flipPixel(scaledSliceX, scaledSliceY);
+                    collided |= display.flipPixel(scaledSliceX + 1, scaledSliceY);
+                    display.flipPixel(scaledSliceX, scaledSliceY + 1);
+                    display.flipPixel(scaledSliceX + 1, scaledSliceY + 1);
                 }
             }
         }

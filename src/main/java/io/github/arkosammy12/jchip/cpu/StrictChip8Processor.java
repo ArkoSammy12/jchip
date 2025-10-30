@@ -475,14 +475,13 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                 if ((slice & sliceMask) == 0) {
                     continue;
                 }
-                boolean pixelCollided = display.togglePixel(sliceX, sliceY);
-                collided |= pixelCollided;
-                if (pixelCollided) {
+                if (display.flipPixel(sliceX, sliceY)) {
                     if (j + bitOffset < 8) {
                         col1 = true;
                     } else {
                         col2 = true;
                     }
+                    collided = true;
                 }
             }
             drawTime += 34 + (col1 ? 4 : 0) + (spriteX < 56 ? 16 : 0) + (col2 ? 4 : 0);

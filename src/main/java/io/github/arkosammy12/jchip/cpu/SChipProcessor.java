@@ -131,14 +131,14 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                     continue;
                 }
                 if (extendedMode) {
-                    rowCollided |= display.togglePixel(sliceX, sliceY);
+                    rowCollided |= display.flipPixel(sliceX, sliceY);
                 } else {
                     int scaledSliceX = sliceX * 2;
                     int scaledSliceY = sliceY * 2;
-                    rowCollided |= display.togglePixel(scaledSliceX, scaledSliceY);
-                    rowCollided |= display.togglePixel(scaledSliceX + 1, scaledSliceY);
-                    display.togglePixel(scaledSliceX, scaledSliceY + 1);
-                    display.togglePixel(scaledSliceX + 1, scaledSliceY + 1);
+                    rowCollided |= display.flipPixel(scaledSliceX, scaledSliceY);
+                    rowCollided |= display.flipPixel(scaledSliceX + 1, scaledSliceY);
+                    display.flipPixel(scaledSliceX, scaledSliceY + 1);
+                    display.flipPixel(scaledSliceX + 1, scaledSliceY + 1);
                 }
             }
             if (!isModern) {
