@@ -155,6 +155,17 @@ public class MainWindow extends JFrame implements Closeable {
         });
     }
 
+    public void showExceptionDialog(Exception e) {
+        SwingUtilities.invokeLater(() -> {
+           JOptionPane.showMessageDialog(
+                   this,
+                    e.getClass().getSimpleName() + ": " + e.getMessage(),
+                    "Emulation has stopped unexpectedly!",
+                   JOptionPane.ERROR_MESSAGE
+           );
+        });
+    }
+
     private void updateWindowTitle(int currentInstructionsPerFrame) {
         this.ifEmulatorRendererSet(renderer -> {
             this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;

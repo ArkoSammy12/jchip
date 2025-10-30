@@ -64,6 +64,9 @@ public class JChip {
                 this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
             }
         } catch (Exception e) {
+            if (this.mainWindow != null) {
+                this.mainWindow.showExceptionDialog(e);
+            }
             this.onShutdown();
             throw new RuntimeException(e);
         }
@@ -128,6 +131,7 @@ public class JChip {
                 }
             } catch (EmulatorException emulatorException) {
                 Logger.info("Error while running emulator: {}", emulatorException);
+                this.mainWindow.showExceptionDialog(emulatorException);
                 this.stop();
             }
         }
