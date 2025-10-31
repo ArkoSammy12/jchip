@@ -153,7 +153,7 @@ public class Chip8Database implements SettingsProvider {
     public Optional<Chip8Variant> getChip8Variant() {
         return Optional.ofNullable(this.platformEntry)
                 .flatMap(PlatformEntry::getId)
-                .map(Chip8Variant::getVariantForPlatformId);
+                .flatMap(Chip8Variant::getVariantForPlatformId);
     }
 
     @Override

@@ -2,11 +2,12 @@ package io.github.arkosammy12.jchip.util;
 
 import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.emulators.*;
-import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.video.*;
+import org.tinylog.Logger;
 import picocli.CommandLine;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
@@ -105,7 +106,7 @@ public enum Chip8Variant implements DisplayNameProvider {
         throw new IllegalArgumentException("Unknown CHIP-8 variant: " + identifier);
     }
 
-    public static Chip8Variant getVariantForPlatformId(String id) {
+    public static Optional<Chip8Variant> getVariantForPlatformId(String id) {
         for (Chip8Variant variant : Chip8Variant.values()) {
             String[] platformIds = variant.platformIds;
             if (platformIds == null) {
@@ -113,11 +114,12 @@ public enum Chip8Variant implements DisplayNameProvider {
             }
             for (String platformId : platformIds) {
                 if (platformId.equals(id)) {
-                    return variant;
+                    return Optional.of(variant);
                 }
             }
         }
-        throw new EmulatorException("Unsupported CHIP-8 variant: " + id);
+        Logger.warn("Unsupported CHIP-8 variant: {}", id);
+        return Optional.empty();
     }
 
     @Override
