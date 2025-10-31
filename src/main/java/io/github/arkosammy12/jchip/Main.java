@@ -10,7 +10,7 @@ public class Main {
 
     public static final int FRAMES_PER_SECOND = 60;
     public static final long FRAME_INTERVAL = 1_000_000_000L / FRAMES_PER_SECOND;
-    public static final String VERSION_STRING = "v3.0.0";
+    public static final String VERSION_STRING = "v3.0.1";
 
     static void main(String[] args) {
         System.setProperty("flatlaf.menuBarEmbedded", "false");
