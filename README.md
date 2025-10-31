@@ -128,7 +128,7 @@ jchip requires **Java 25 or later** to run or build.
 **Hotkeys:**
 - `F11` / `F12` – Decrease / increase volume
 - `ESC` – Stop emulation
-- `F2` – Reset and reload the current ROM
+- `F2` – Reset, reload the current ROM and apply emulator setting changes.
 
 ### Menus
 
