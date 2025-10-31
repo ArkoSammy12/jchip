@@ -125,7 +125,7 @@ public class JChip {
                     elapsed -= Main.FRAME_INTERVAL;
                 }
             } catch (EmulatorException emulatorException) {
-                Logger.info("Error while running emulator: {}", emulatorException);
+                Logger.error("Error while running emulator: {}", emulatorException);
                 this.mainWindow.showExceptionDialog(emulatorException);
                 this.stop();
             }
