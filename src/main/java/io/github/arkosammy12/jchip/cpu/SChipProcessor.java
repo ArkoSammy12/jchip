@@ -51,8 +51,8 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
                 default -> {
                     if (getY(firstByte, NN) == 0xC) { // 00CN: Scroll screen down
                         int N = getN(firstByte, NN);
+                        // 00C0 is invalid on legacy SUPER-CHIP
                         if (N == 0x0 && !this.emulator.isModern()) {
-                            // 00C0 is invalid on legacy SUPER-CHIP
                             yield super.execute0Opcode(firstByte, NN);
                         }
                         this.emulator.getDisplay().scrollDown(N);

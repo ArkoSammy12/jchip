@@ -101,7 +101,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         return this.romTitle;
     }
 
-    public void requestFrame() {
+    protected void requestFrame() {
         synchronized (this.renderBufferLock) {
             this.display.populateRenderBuffer(this.renderBuffer);
         }

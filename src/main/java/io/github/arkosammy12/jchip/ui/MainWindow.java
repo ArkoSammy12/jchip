@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
+import io.github.arkosammy12.jchip.video.Display;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
 import org.tinylog.Logger;
 
@@ -12,7 +13,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 public class MainWindow extends JFrame implements Closeable {
 
@@ -28,7 +28,6 @@ public class MainWindow extends JFrame implements Closeable {
     private int framesSinceLastUpdate = 0;
     private long totalIpfSinceLastUpdate = 0;
     private double totalFrameTimeSinceLastUpdate = 0;
-    private final StringBuilder stringBuilder = new StringBuilder(128);
 
     public MainWindow(JChip jchip) {
         super();
@@ -103,9 +102,9 @@ public class MainWindow extends JFrame implements Closeable {
 
     public void update(Chip8Emulator<?, ?> emulator) {
         if (this.showingDebuggerView.get()) {
-            this.debuggerViewPanel.update();
+            this.debuggerViewPanel.update(emulator);
         }
-        this.updateWindowTitle(emulator.getCurrentInstructionsPerFrame());
+        this.updateWindowTitle(emulator);
     }
 
     public void onStopped() {
@@ -166,49 +165,41 @@ public class MainWindow extends JFrame implements Closeable {
         });
     }
 
-    private void updateWindowTitle(int currentInstructionsPerFrame) {
-        this.ifEmulatorRendererSet(renderer -> {
-            this.totalIpfSinceLastUpdate += currentInstructionsPerFrame;
-            long now = System.nanoTime();
-            double lastFrameDuration = now - lastFrameTime;
-            lastFrameTime = now;
-            totalFrameTimeSinceLastUpdate += lastFrameDuration;
-            framesSinceLastUpdate++;
+    private void updateWindowTitle(Chip8Emulator<?, ?> emulator) {
+        this.totalIpfSinceLastUpdate += emulator.getCurrentInstructionsPerFrame();
+        long now = System.nanoTime();
+        double lastFrameDuration = now - lastFrameTime;
+        lastFrameTime = now;
+        totalFrameTimeSinceLastUpdate += lastFrameDuration;
+        framesSinceLastUpdate++;
 
-            long deltaTime = now - lastWindowTitleUpdate;
-            if (deltaTime < 1_000_000_000L) {
-                return;
-            }
-
-            double fps = framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
-            long averageIpf = totalIpfSinceLastUpdate / framesSinceLastUpdate;
-            double averageFrameTimeMs = (totalFrameTimeSinceLastUpdate / framesSinceLastUpdate) / 1_000_000.0;
-            double mips = (averageIpf * fps) / 1_000_000.0;
-
-            framesSinceLastUpdate = 0;
-            totalIpfSinceLastUpdate = 0;
-            totalFrameTimeSinceLastUpdate = 0;
-            lastWindowTitleUpdate = now;
-
-            stringBuilder.append(DEFAULT_TITLE)
-                    .append(" | ").append(renderer.getChip8Variant().getDisplayName())
-                    .append(renderer.getRomTitle())
-                    .append(" | IPF: ").append(averageIpf)
-                    .append(" | MIPS: ").append(String.format("%.2f", mips))
-                    .append(" | Frame Time: ").append(String.format("%.2f ms", averageFrameTimeMs))
-                    .append(" | FPS: ").append(String.format("%.2f", fps));
-
-            String title = stringBuilder.toString();
-            stringBuilder.setLength(0);
-
-            SwingUtilities.invokeLater(() -> this.setTitle(title));
-        });
-    }
-
-    private void ifEmulatorRendererSet(Consumer<EmulatorRenderer> consumer) {
-        if (this.emulatorRenderer != null) {
-            consumer.accept(this.emulatorRenderer);
+        long deltaTime = now - lastWindowTitleUpdate;
+        if (deltaTime < 1_000_000_000L) {
+            return;
         }
+
+        double fps = framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
+        long averageIpf = totalIpfSinceLastUpdate / framesSinceLastUpdate;
+        double averageFrameTimeMs = (totalFrameTimeSinceLastUpdate / framesSinceLastUpdate) / 1_000_000.0;
+        double mips = (averageIpf * fps) / 1_000_000.0;
+
+        framesSinceLastUpdate = 0;
+        totalIpfSinceLastUpdate = 0;
+        totalFrameTimeSinceLastUpdate = 0;
+        lastWindowTitleUpdate = now;
+
+        Display display = emulator.getDisplay();
+        EmulatorRenderer renderer = display.getEmulatorRenderer();
+        String title = DEFAULT_TITLE;
+        title += " | " + display.getChip8Variant().getDisplayName();
+        title += renderer.getRomTitle();
+        title += " | IPF: " + averageIpf;
+        title += " | MIPS: " + String.format("%.2f", mips);
+        title += " | Frame Time: " + String.format("%.2f ms", averageFrameTimeMs);
+        title += " | FPS: " + String.format("%.2f", fps);
+
+        String finalTitle = title;
+        SwingUtilities.invokeLater(() -> this.setTitle(finalTitle));
     }
 
     @Override

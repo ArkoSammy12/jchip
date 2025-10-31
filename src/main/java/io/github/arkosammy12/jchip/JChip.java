@@ -16,7 +16,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JChip {
@@ -70,10 +69,6 @@ public class JChip {
             this.onShutdown();
             throw new RuntimeException(e);
         }
-    }
-
-    public Optional<Chip8Emulator<?, ?>> getCurrentEmulator() {
-        return Optional.ofNullable(this.currentEmulator);
     }
 
     public MainWindow getMainWindow() {
@@ -166,6 +161,7 @@ public class JChip {
         }
         this.mainWindow.onStopped();
         this.stop.set(false);
+        this.reset.set(false);
     }
 
     public void onShutdown() {

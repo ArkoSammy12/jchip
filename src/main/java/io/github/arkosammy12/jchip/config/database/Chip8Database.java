@@ -41,7 +41,7 @@ public class Chip8Database implements SettingsProvider {
             Type platformListType = new TypeToken<List<PlatformEntry>>() {}.getType();
             this.platforms = new Platforms(gson.fromJson(loadJsonFromResources("/database/platforms.json"), platformListType));
         } catch (Exception e) {
-            throw new EmulatorException("Failed to initialize CHIP-8 metadata database ", e);
+            throw new IllegalStateException("Failed to initialize CHIP-8 metadata database ", e);
         }
     }
 
@@ -53,23 +53,28 @@ public class Chip8Database implements SettingsProvider {
             String sha1 = getSha1Hash(rom);
             Optional<Integer> indexOptional = this.getHashes().flatMap(hashes -> hashes.getIndexForHash(sha1));
             if (indexOptional.isEmpty()) {
-                throw new EmulatorException("Unable to obtain program entry index from hashes database!");
+                Logger.warn("Hash for ROM not found in database. Emulator will use default or specified settings.");
+                return;
             }
             int index = indexOptional.get();
 
             Optional<ProgramEntry> programEntryOptional = this.getPrograms().flatMap(programs -> programs.getProgramEntryAt(index));
             if (programEntryOptional.isEmpty()) {
-                throw new EmulatorException("Unable to obtain program entry from programs database!");
+                Logger.warn("Loaded ROM not found in programs database. Emulator will use default or specified settings.");
+                return;
             }
-
             this.programEntry = programEntryOptional.get();
-            this.romEntry = this.programEntry.getRomEntries()
-                    .flatMap(romEntries -> Optional.ofNullable(romEntries.get(sha1)))
-                    .orElseThrow(() ->  new EmulatorException("Unable to obtain rom entry from program entry!"));
+
+            Optional<RomEntry> romEntryOptional = this.programEntry.getRomEntries().flatMap(romEntries -> Optional.ofNullable(romEntries.get(sha1)));
+            if (romEntryOptional.isEmpty()) {
+                Logger.warn("Loaded ROM not found in programs database. Emulator will use default or specified settings.");
+                return;
+            }
+            this.romEntry = romEntryOptional.get();
 
             Optional<List<PlatformEntry>> platformsOptional = this.getPlatforms().flatMap(Platforms::getPlatformEntries);
             if (platformsOptional.isEmpty()) {
-                throw new EmulatorException("Unable to read platforms database!");
+                throw new EmulatorException("Missing platform entries database!");
             }
 
             List<PlatformEntry> platformEntryList = platformsOptional.get();

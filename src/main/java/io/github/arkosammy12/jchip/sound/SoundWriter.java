@@ -90,4 +90,5 @@ public final class SoundWriter implements Closeable {
         }
         return Math.max(idealLength - diff, 0);
     }
+
 }

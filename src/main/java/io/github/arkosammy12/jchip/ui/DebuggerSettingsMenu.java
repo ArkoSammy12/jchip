@@ -17,8 +17,6 @@ public class DebuggerSettingsMenu extends JMenu {
 
         JMenu memoryFollowModeMenu = new JMenu("Memory follow mode");
 
-        ButtonGroup memoryFollowModeButtonGroup = new ButtonGroup();
-
         JRadioButtonMenuItem noFollowButton = new JRadioButtonMenuItem("No Follow");
         noFollowButton.addActionListener(_ -> this.currentMemoryFollowMode = MemoryFollowMode.NO_FOLLOW);
 
@@ -26,9 +24,10 @@ public class DebuggerSettingsMenu extends JMenu {
         followPcButton.addActionListener(_ -> this.currentMemoryFollowMode = MemoryFollowMode.FOLLOW_PC);
 
         JRadioButtonMenuItem followIButton = new JRadioButtonMenuItem("Follow I");
-        followIButton.setSelected(true);
         followIButton.addActionListener(_ -> this.currentMemoryFollowMode = MemoryFollowMode.FOLLOW_I);
+        followIButton.setSelected(true);
 
+        ButtonGroup memoryFollowModeButtonGroup = new ButtonGroup();
         memoryFollowModeButtonGroup.add(noFollowButton);
         memoryFollowModeButtonGroup.add(followPcButton);
         memoryFollowModeButtonGroup.add(followIButton);

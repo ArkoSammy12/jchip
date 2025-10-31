@@ -14,8 +14,6 @@ public class QuirkSubMenu extends JMenu {
     public QuirkSubMenu(String name) {
         super(name);
 
-        ButtonGroup buttonGroup = new ButtonGroup();
-
         this.unspecifiedItem = new JRadioButtonMenuItem("Unspecified");
         this.enabledItem = new JRadioButtonMenuItem("Enabled");
         this.disabledItem = new JRadioButtonMenuItem("Disabled");
@@ -26,6 +24,7 @@ public class QuirkSubMenu extends JMenu {
         enabledItem.addActionListener(_ -> this.setState(true));
         disabledItem.addActionListener(_ -> this.setState(false));
 
+        ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(this.unspecifiedItem);
         buttonGroup.add(this.enabledItem);
         buttonGroup.add(this.disabledItem);
@@ -33,7 +32,6 @@ public class QuirkSubMenu extends JMenu {
         this.add(this.unspecifiedItem);
         this.add(this.enabledItem);
         this.add(this.disabledItem);
-
     }
 
     public void setState(Boolean val) {

@@ -26,6 +26,10 @@ public abstract class Display implements Closeable {
         this.emulatorRenderer = new EmulatorRenderer(config.getJChip(), this, keyAdapters, config.getProgramTitle());
     }
 
+    public EmulatorRenderer getEmulatorRenderer() {
+        return this.emulatorRenderer;
+    }
+
     public Chip8Variant getChip8Variant() {
         return this.chip8Variant;
     }
@@ -50,7 +54,7 @@ public abstract class Display implements Closeable {
 
     protected abstract void populateRenderBuffer(int[][] renderBuffer);
 
-    public abstract void clear();
+    protected abstract void clear();
 
     public void flush() {
         this.emulatorRenderer.requestFrame();

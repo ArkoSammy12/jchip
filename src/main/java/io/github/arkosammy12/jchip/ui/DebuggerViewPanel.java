@@ -9,7 +9,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class DebuggerViewPanel extends JPanel {
 
@@ -166,13 +165,7 @@ public class DebuggerViewPanel extends JPanel {
         });
     }
 
-    public void update() {
-        Optional<Chip8Emulator<?, ?>> optionalChip8Emulator = this.jchip.getCurrentEmulator();
-        if (optionalChip8Emulator.isEmpty()) {
-            return;
-        }
-
-        Chip8Emulator<?, ?> emulator = optionalChip8Emulator.get();
+    public void update(Chip8Emulator<?, ?> emulator) {
         EmulatorInitializer config = emulator.getEmulatorInitializer();
 
         Chip8Processor<?, ?, ?> processor = emulator.getProcessor();

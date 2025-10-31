@@ -26,8 +26,8 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
 
     protected final E emulator;
     private final Random random = new Random();
-    protected boolean shouldTerminate;
     private final int memoryBoundsMask;
+    protected boolean shouldTerminate;
 
     private final int[] registers = new int[16];
     private final int[] stack = new int[16];

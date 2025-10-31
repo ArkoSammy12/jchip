@@ -21,7 +21,6 @@ A multi-variant CHIP-8 interpreter written in Java.
   * [Menus](#menus)
   * [Command line](#command-line)
 * [Building from Source](#building-from-source)
-* [Automatic Database Configuration](#automatic-database-configuration)
 * [Libraries used](#libraries-used)
 * [Resources and general links](#resources-and-general-links)
 * [Credits](#credits)
@@ -68,7 +67,7 @@ get into assembly-like languages.
    As such, developers looking to implement this variant are free to fill in the gaps as they please, although most of the key details have been agreed upon by the community. At first, it behaves like a half-broken implementation of SUPER-CHIP. However, it adds new instructions to enable and disable a new "mega mode", which when enabled, actives MEGA-CHIP's features.
    It expands the display resolution to 256 by 192 pixels, supports loading ARGB color palettes for sprite drawing along with blending modes and an alpha value (the latter being undefined in its implementation), adds the ability to play raw 8 bit synthesized audio samples, and expands the addressable range to 16MB for even more sprite and audio data.
    The way screen updates and scrolling also changes, and this notably becomes a huge point of confusion for new developers looking to implement this variant. Nevertheless, due to its interesting features and the handful of demos that exist for it, I decided to include this variant in my emulator, in the hopes that it may gain more popularity in the future.
-8. `HYPERWAVE-CHIP-64`: A newer and even lesser known variant developed by [@NinjaWeedle](https://github.com/NinjaWeedle/HyperWaveCHIP-64). Being an extension of XO-CHIP, this variant includes new multiplication and division instructions, three new instructions to take advantage of the expanded memory size for actual code instead of just assets, and the ability for ROMs to load their own bit-plane based color palette,
+8. `HYPERWAVE-CHIP-64`: A newer and even lesser known variant developed by [@NinjaWeedle](https://github.com/NinjaWeedle/HyperWaveCHIP-64). Being an extension of XO-CHIP, this variant includes new multiplication and division instructions, three new instructions to take advantage of the expanded memory size for actual code instead of just assets, new drawing modes for more convenient display manipulation, and the ability for ROMs to load their own bit-plane based color palette,
 instead of relying on the host emulator to supply the colors. This variant only has a few ROMs made mostly by the variant's developer and doesn't seem to have gained much traction. However, in the spirit of supporting newer extensions, I decided to implement it as a way to show support for possible new improvements to XO-CHIP, in the hopes that it will become more popular in the future.
 
 

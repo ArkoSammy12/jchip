@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.util;
 
 import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.emulators.*;
+import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.video.*;
 import picocli.CommandLine;
@@ -101,7 +102,7 @@ public enum Chip8Variant implements DisplayNameProvider {
                 return variant;
             }
         }
-        throw new IllegalArgumentException("Unknown chip-8 variant: " + identifier);
+        throw new IllegalArgumentException("Unknown CHIP-8 variant: " + identifier);
     }
 
     public static Chip8Variant getVariantForPlatformId(String id) {
@@ -116,7 +117,7 @@ public enum Chip8Variant implements DisplayNameProvider {
                 }
             }
         }
-        throw new IllegalArgumentException("Unsupported chip-8 variant: " + id);
+        throw new EmulatorException("Unsupported CHIP-8 variant: " + id);
     }
 
     @Override
