@@ -3,14 +3,17 @@ package io.github.arkosammy12.jchip.ui;
 import io.github.arkosammy12.jchip.JChip;
 
 import javax.swing.*;
+import java.awt.event.KeyEvent;
 
-public class DebuggerSettingsMenu extends JMenu {
+public class DebuggerMenu extends JMenu {
 
     private final JRadioButtonMenuItem showDebuggerButton;
     private MemoryFollowMode currentMemoryFollowMode = MemoryFollowMode.FOLLOW_I;
 
-    public DebuggerSettingsMenu(JChip jchip) {
+    public DebuggerMenu(JChip jchip) {
         super("Debugger");
+
+        this.setMnemonic(KeyEvent.VK_D);
 
         this.showDebuggerButton = new JRadioButtonMenuItem("Show");
         this.showDebuggerButton.addActionListener(_ -> jchip.getMainWindow().setDebuggerViewEnabled(showDebuggerButton.isSelected()));

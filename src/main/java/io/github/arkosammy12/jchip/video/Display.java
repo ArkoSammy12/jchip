@@ -57,7 +57,7 @@ public abstract class Display implements Closeable {
     protected abstract void clear();
 
     public void flush() {
-        this.emulatorRenderer.requestFrame();
+        this.emulatorRenderer.updateRenderBuffer();
     }
 
     @Override

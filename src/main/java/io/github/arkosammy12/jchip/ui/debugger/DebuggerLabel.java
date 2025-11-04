@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.debugger;
 
 import javax.swing.*;
 import java.util.function.Function;

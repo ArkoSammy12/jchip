@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui;
 
 import javax.swing.*;
+import java.awt.event.KeyEvent;
 import java.util.Optional;
 
 public class QuirkSubMenu extends JMenu {
@@ -21,8 +22,13 @@ public class QuirkSubMenu extends JMenu {
         unspecifiedItem.setSelected(true);
 
         unspecifiedItem.addActionListener(_ -> this.setState(null));
+        unspecifiedItem.setMnemonic(KeyEvent.VK_U);
+
         enabledItem.addActionListener(_ -> this.setState(true));
+        enabledItem.setMnemonic(KeyEvent.VK_E);
+
         disabledItem.addActionListener(_ -> this.setState(false));
+        disabledItem.setMnemonic(KeyEvent.VK_D);
 
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(this.unspecifiedItem);

@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.EmulatorInitializer;
@@ -113,7 +113,7 @@ public class DebuggerViewPanel extends JPanel {
 
         this.memoryTable = new MemoryTable();
 
-        this.setBackground(Color.WHITE);
+        this.setPreferredSize(new Dimension(230, 0));
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true), "Live Debugger", 0, 0));
 

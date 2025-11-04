@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 
@@ -6,7 +6,7 @@ import javax.swing.*;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 
-import static io.github.arkosammy12.jchip.ui.MemoryTableModel.BYTES_PER_ROW;
+import static io.github.arkosammy12.jchip.ui.debugger.MemoryTableModel.BYTES_PER_ROW;
 
 public class MemoryTable extends JTable {
 

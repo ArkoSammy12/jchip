@@ -3,10 +3,9 @@ package io.github.arkosammy12.jchip.config;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.ui.SettingsMenu;
+import io.github.arkosammy12.jchip.ui.SettingsBar;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import io.github.arkosammy12.jchip.util.KeyboardLayout;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
 import io.github.arkosammy12.jchip.video.ColorPalette;
 
@@ -22,7 +21,6 @@ public class EmulatorInitializer {
     private final JChip jchip;
 
     private final Chip8Variant chip8Variant;
-    private final KeyboardLayout keyboardLayout;
     private final ColorPalette colorPalette;
     private final DisplayAngle displayAngle;
     private final int instructionsPerFrame;
@@ -36,7 +34,7 @@ public class EmulatorInitializer {
     public EmulatorInitializer(JChip jchip) throws IOException {
         this.jchip = jchip;
 
-        SettingsMenu settings = this.jchip.getMainWindow().getSettingsMenu();
+        SettingsBar settings = this.jchip.getMainWindow().getSettingsMenu();
         Path romPath = settings.getRomPath();
         if (romPath == null) {
             throw new EmulatorException("ROM path cannot be null!");
@@ -50,7 +48,6 @@ public class EmulatorInitializer {
         database.fetchDataForRom(rawRom);
 
         this.romTitle = database.getProgramTitle().orElse(romPath.getFileName().toString());
-        this.keyboardLayout = settings.getKeyboardLayout().orElse(KeyboardLayout.QWERTY);
         this.colorPalette = settings.getColorPalette().orElse(database.getColorPalette().orElse(BuiltInColorPalette.CADMIUM));
         this.displayAngle = settings.getDisplayAngle().orElse(database.getDisplayAngle().orElse(DisplayAngle.DEG_0));
 
@@ -95,10 +92,6 @@ public class EmulatorInitializer {
 
     public ColorPalette getColorPalette() {
         return this.colorPalette;
-    }
-
-    public KeyboardLayout getKeyboardLayout() {
-        return this.keyboardLayout;
     }
 
     public DisplayAngle getDisplayAngle() {

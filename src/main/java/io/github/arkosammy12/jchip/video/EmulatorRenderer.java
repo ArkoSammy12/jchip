@@ -44,7 +44,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
 
     public EmulatorRenderer(JChip jchip, Display display, List<KeyAdapter> keyAdapters, String romTitle) {
         super();
-        this.romTitle = romTitle == null ? "" : " | " + romTitle;
+        this.romTitle = romTitle == null ? "" : romTitle;
         this.displayWidth = display.getImageWidth();
         this.displayHeight = display.getImageHeight();
         this.displayAngle = display.getDisplayAngle();
@@ -101,10 +101,13 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         return this.romTitle;
     }
 
-    protected void requestFrame() {
+    protected void updateRenderBuffer() {
         synchronized (this.renderBufferLock) {
             this.display.populateRenderBuffer(this.renderBuffer);
         }
+    }
+
+    public void requestFrame() {
         synchronized (this.renderLock) {
             this.frameRequested.set(true);
             this.renderLock.notify();

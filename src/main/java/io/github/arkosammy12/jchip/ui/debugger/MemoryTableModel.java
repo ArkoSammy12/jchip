@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 

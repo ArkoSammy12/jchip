@@ -14,6 +14,7 @@ public final class SoundWriter implements Closeable {
 
     private static final byte[] EMPTY_SAMPLES = new byte[SAMPLES_PER_FRAME];
 
+    private boolean enabled;
     private final SourceDataLine audioLine;
     private final FloatControl volumeControl;
     private int volume = 75;
@@ -40,6 +41,9 @@ public final class SoundWriter implements Closeable {
         if (!this.audioLine.isRunning() && this.audioLine.isOpen()) {
             this.audioLine.start();
         }
+        if (!this.enabled) {
+            return;
+        }
         if (!this.soundHasPlayed) {
             if (this.audioLine.available() < this.audioLine.getBufferSize()) {
                 this.audioLine.flush();
@@ -49,9 +53,16 @@ public final class SoundWriter implements Closeable {
         this.soundHasPlayed = true;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public void silence() {
         if (!this.audioLine.isRunning() && this.audioLine.isOpen()) {
             this.audioLine.start();
+        }
+        if (!this.enabled) {
+            return;
         }
         if (this.soundHasPlayed) {
             this.audioLine.write(EMPTY_SAMPLES, 0, Math.min(this.getBytesToWrite(EMPTY_SAMPLES.length), this.audioLine.available()));

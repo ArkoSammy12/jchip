@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip;
 
-import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
 import org.tinylog.Logger;
 
 import javax.swing.*;
@@ -14,7 +14,7 @@ public class Main {
 
     static void main(String[] args) {
         System.setProperty("flatlaf.menuBarEmbedded", "false");
-        FlatLightLaf.setup();
+        FlatDarkLaf.setup();
         JFrame.setDefaultLookAndFeelDecorated(true);
         System.setProperty("sun.awt.noerasebackground", "true");
         if (Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported"))) {

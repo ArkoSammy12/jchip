@@ -3,14 +3,11 @@ package io.github.arkosammy12.jchip.ui;
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
-import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.video.Display;
+import io.github.arkosammy12.jchip.ui.debugger.DebuggerViewPanel;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
-import org.tinylog.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -19,15 +16,12 @@ public class MainWindow extends JFrame implements Closeable {
     private static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
     private EmulatorRenderer emulatorRenderer;
-    private final SettingsMenu settingsMenu;
+    private final SettingsBar settingsBar;
     private final DebuggerViewPanel debuggerViewPanel;
-    private final AtomicBoolean showingDebuggerView = new AtomicBoolean(false);
+    private final InfoPanel infoPanel;
 
-    private long lastWindowTitleUpdate = 0;
-    private long lastFrameTime = System.nanoTime();
-    private int framesSinceLastUpdate = 0;
-    private long totalIpfSinceLastUpdate = 0;
-    private double totalFrameTimeSinceLastUpdate = 0;
+    private final AtomicBoolean showingDebuggerPanel = new AtomicBoolean(false);
+    private final AtomicBoolean showingInfoPanel = new AtomicBoolean(true);
 
     public MainWindow(JChip jchip) {
         super();
@@ -42,77 +36,38 @@ public class MainWindow extends JFrame implements Closeable {
 
         this.getContentPane().setLayout(new BorderLayout());
 
-        InputMap im = this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap am = this.getRootPane().getActionMap();
+        this.settingsBar = new SettingsBar(jchip);
+        this.setJMenuBar(this.settingsBar);
 
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "resetEmulator");
-        am.put("resetEmulator", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    jchip.reset();
-                } catch (EmulatorException cause) {
-                    Logger.info("Error resetting emulator: {}", cause);
-                }
-            }
-        });
-
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "stopEmulator");
-        am.put("stopEmulator", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    jchip.stop();
-                } catch (EmulatorException cause) {
-                    Logger.info("Error stopping emulator: {}", cause);
-                }
-            }
-        });
-
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0), "volumeDown");
-        am.put("volumeDown", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                jchip.getSoundWriter().volumeDown();
-            }
-        });
-
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0), "volumeUp");
-        am.put("volumeUp", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                jchip.getSoundWriter().volumeUp();
-            }
-        });
+        this.infoPanel = new InfoPanel();
+        this.infoPanel.setVisible(true);
+        this.getContentPane().add(this.infoPanel, BorderLayout.SOUTH);
 
         this.debuggerViewPanel = new DebuggerViewPanel(jchip);
-        this.debuggerViewPanel.setPreferredSize(new Dimension(230, 0));
-
-        this.settingsMenu = new SettingsMenu(jchip);
-        this.setJMenuBar(this.settingsMenu);
+        this.debuggerViewPanel.setVisible(false);
+        this.getContentPane().add(this.debuggerViewPanel, BorderLayout.EAST);
 
         this.setTitle(DEFAULT_TITLE);
         this.requestFocusInWindow();
         this.setResizable(true);
     }
 
-    public SettingsMenu getSettingsMenu() {
-        return this.settingsMenu;
+    public SettingsBar getSettingsMenu() {
+        return this.settingsBar;
     }
 
-    public void update(Chip8Emulator<?, ?> emulator) {
-        if (this.showingDebuggerView.get()) {
+    public void onFrame(Chip8Emulator<?, ?> emulator) {
+        if (this.showingDebuggerPanel.get()) {
             this.debuggerViewPanel.update(emulator);
         }
-        this.updateWindowTitle(emulator);
+        if (this.showingInfoPanel.get()) {
+            this.infoPanel.update(emulator);
+        }
+        emulator.getDisplay().getEmulatorRenderer().requestFrame();
     }
 
     public void onStopped() {
-        lastWindowTitleUpdate = 0;
-        lastFrameTime = System.nanoTime();
-        framesSinceLastUpdate = 0;
-        totalIpfSinceLastUpdate = 0;
-        totalFrameTimeSinceLastUpdate = 0;
+        this.infoPanel.clear();
         this.debuggerViewPanel.clear();
     }
 
@@ -142,64 +97,29 @@ public class MainWindow extends JFrame implements Closeable {
     }
 
     public void setDebuggerViewEnabled(boolean enabled) {
-        this.showingDebuggerView.set(enabled);
+        this.showingDebuggerPanel.set(enabled);
         SwingUtilities.invokeLater(() -> {
-            if (enabled) {
-                this.getContentPane().add(this.debuggerViewPanel, BorderLayout.EAST);
-            } else {
-                this.getContentPane().remove(this.debuggerViewPanel);
+            this.debuggerViewPanel.setVisible(enabled);
+        });
+    }
+
+    public void setInfoPanelEnabled(boolean enabled) {
+        this.showingInfoPanel.set(enabled);
+        SwingUtilities.invokeLater(() -> {
+            if (!enabled) {
+                this.infoPanel.clear();
             }
-            this.getContentPane().revalidate();
-            this.getContentPane().repaint();
+            this.infoPanel.setVisible(enabled);
         });
     }
 
     public void showExceptionDialog(Exception e) {
-        SwingUtilities.invokeLater(() -> {
-           JOptionPane.showMessageDialog(
-                   this,
-                    e.getClass().getSimpleName() + ": " + e.getMessage(),
-                    "Emulation has stopped unexpectedly!",
-                   JOptionPane.ERROR_MESSAGE
-           );
-        });
-    }
-
-    private void updateWindowTitle(Chip8Emulator<?, ?> emulator) {
-        this.totalIpfSinceLastUpdate += emulator.getCurrentInstructionsPerFrame();
-        long now = System.nanoTime();
-        double lastFrameDuration = now - lastFrameTime;
-        lastFrameTime = now;
-        totalFrameTimeSinceLastUpdate += lastFrameDuration;
-        framesSinceLastUpdate++;
-
-        long deltaTime = now - lastWindowTitleUpdate;
-        if (deltaTime < 1_000_000_000L) {
-            return;
-        }
-
-        double fps = framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
-        long averageIpf = totalIpfSinceLastUpdate / framesSinceLastUpdate;
-        double averageFrameTimeMs = (totalFrameTimeSinceLastUpdate / framesSinceLastUpdate) / 1_000_000.0;
-        double mips = (averageIpf * fps) / 1_000_000.0;
-
-        framesSinceLastUpdate = 0;
-        totalIpfSinceLastUpdate = 0;
-        totalFrameTimeSinceLastUpdate = 0;
-        lastWindowTitleUpdate = now;
-
-        Display display = emulator.getDisplay();
-        EmulatorRenderer renderer = display.getEmulatorRenderer();
-        String title = DEFAULT_TITLE;
-        title += " | " + display.getChip8Variant().getDisplayName();
-        title += renderer.getRomTitle();
-        title += " | IPF: " + averageIpf;
-        title += " | MIPS: " + String.format("%.2f", mips);
-        title += " | Frame Time: " + String.format("%.2f ms", averageFrameTimeMs);
-        title += " | FPS: " + String.format("%.2f", fps);
-
-        String finalTitle = title;
-        SwingUtilities.invokeLater(() -> this.setTitle(finalTitle));
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+                this,
+                 e.getClass().getSimpleName() + ": " + e.getMessage(),
+                 "Emulation has stopped unexpectedly!",
+                JOptionPane.ERROR_MESSAGE
+        ));
     }
 
     @Override

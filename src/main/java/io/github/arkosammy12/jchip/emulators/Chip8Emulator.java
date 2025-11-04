@@ -31,9 +31,9 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     private final EmulatorInitializer initializer;
     private final int targetInstructionsPerFrame;
 
+    private long instructionCounter;
     private int currentInstructionsPerFrame;
     private int waitFrames = 0;
-    private boolean isTerminated = false;
 
     public Chip8Emulator(EmulatorInitializer emulatorInitializer, BiFunction<EmulatorInitializer, List<KeyAdapter>, D> displayFactory, Function<EmulatorInitializer, S> soundSystemFactory) {
         try {
@@ -41,7 +41,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
             this.chip8Variant = emulatorInitializer.getVariant();
             this.targetInstructionsPerFrame = emulatorInitializer.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
-            this.keypad = new Keypad(this.initializer.getKeyboardLayout());
+            this.keypad = new Keypad(this.initializer);
             this.soundSystem = soundSystemFactory.apply(emulatorInitializer);
             this.display = displayFactory.apply(initializer, List.of(this.keypad));
             this.memory = this.createMemory(this.initializer.getRom(), this.chip8Variant);
@@ -94,14 +94,10 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     }
 
     protected void terminate() {
-        this.isTerminated = true;
+        this.getEmulatorInitializer().getJChip().stop();
     }
 
-    public boolean isTerminated() {
-        return this.isTerminated;
-    }
-
-    public void tick() throws InvalidInstructionException {
+    public void executeFrame() throws InvalidInstructionException {
         long startOfFrame = System.nanoTime();
         this.runInstructionLoop();
         this.getDisplay().flush();

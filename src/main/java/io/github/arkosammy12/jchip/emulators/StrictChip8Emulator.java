@@ -30,7 +30,7 @@ public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8
     }
 
     @Override
-    public void tick() {
+    public void executeFrame() {
         long nextFrame = this.nextFrame;
         while (this.machineCycles < nextFrame) {
             if (!isSet(this.getProcessor().cycle(), WAITING)) {
