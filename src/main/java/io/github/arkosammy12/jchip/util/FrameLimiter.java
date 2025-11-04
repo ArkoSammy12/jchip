@@ -3,6 +3,8 @@ package io.github.arkosammy12.jchip.util;
 /// Frame pacer implementation generously provided by @janitor-raus via [his implementation](https://github.com/janitor-raus/CubeChip/blob/master/include/components/FrameLimiter.hpp)
 public final class FrameLimiter {
 
+    private static final double SPIN_THRESHOLD = 2.3E+6;
+
     private boolean doneFirstRunSetup;
     private boolean forceInitialFrame;
     private final boolean allowMissedFrames;
@@ -29,7 +31,7 @@ public final class FrameLimiter {
         if (this.hasTargetPeriodElapsed()) {
             return true;
         }
-        if (lazy || this.getRemainderToTarget() >= 2.3E+6) {
+        if ((lazy && targetFramePeriod >= SPIN_THRESHOLD) || (this.getRemainderToTarget() >= SPIN_THRESHOLD)) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException ignored) {}
