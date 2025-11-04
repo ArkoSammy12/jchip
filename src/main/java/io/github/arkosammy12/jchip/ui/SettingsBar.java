@@ -20,7 +20,6 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
     private final DebuggerMenu debuggerMenu;
     private final HelpMenu helpMenu;
 
-
     public SettingsBar(JChip jchip) {
         super();
 
@@ -50,10 +49,16 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
         this.fileMenu.initializeSettings(primarySettingsProvider);
         this.emulatorMenu.initializeSettings(primarySettingsProvider);
+        this.settingsMenu.initializeSettings(primarySettingsProvider);
     }
 
     @Override
-    public Path getRomPath() {
+    public Optional<byte[]> getRawRom() {
+        return this.fileMenu.getRawRom();
+    }
+
+    @Override
+    public Optional<Path> getRomPath() {
         return this.fileMenu.getRomPath();
     }
 

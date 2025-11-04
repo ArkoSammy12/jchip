@@ -1,18 +1,23 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.KeyEvent;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FileMenu extends JMenu {
 
     private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8"};
 
     private Path romPath;
+    private final AtomicReference<byte[]> rawRom = new AtomicReference<>(null);
 
     public FileMenu(JChip jchip) {
         super("File");
@@ -27,20 +32,29 @@ public class FileMenu extends JMenu {
             details.actionPerformed(null);
             if (chooser.showOpenDialog(this.getParent()) == JFileChooser.APPROVE_OPTION) {
                 this.romPath = chooser.getSelectedFile().toPath().toAbsolutePath();
+                this.rawRom.set(EmulatorInitializer.getRawRom(this.romPath));
             }
         });
         openItem.setToolTipText("Load binary ROM data from a file.");
 
         this.add(openItem);
-
     }
 
-    public Path getRomPath() {
-        return romPath;
+    public Optional<Path> getRomPath() {
+        return Optional.ofNullable(romPath);
+    }
+
+    public Optional<byte[]> getRawRom() {
+        byte[] val = this.rawRom.get();
+        if (val == null) {
+            return Optional.empty();
+        }
+        return Optional.of(Arrays.copyOf(val, val.length));
     }
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        this.romPath = primarySettingsProvider.getRomPath();
+        Optional<byte[]> rawRomOptional = primarySettingsProvider.getRawRom();
+        rawRomOptional.ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
     }
 
 }

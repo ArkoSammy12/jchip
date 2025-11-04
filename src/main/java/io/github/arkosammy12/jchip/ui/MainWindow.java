@@ -52,7 +52,7 @@ public class MainWindow extends JFrame implements Closeable {
         this.setResizable(true);
     }
 
-    public SettingsBar getSettingsMenu() {
+    public SettingsBar getSettingsBar() {
         return this.settingsBar;
     }
 

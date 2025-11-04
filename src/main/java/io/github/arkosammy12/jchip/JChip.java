@@ -62,7 +62,7 @@ public class JChip {
                 this.mainWindow.setVisible(true);
             });
             if (cliArgs != null) {
-                this.mainWindow.getSettingsMenu().initializeSettings(cliArgs);
+                this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
                 this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
             }
         } catch (Exception e) {

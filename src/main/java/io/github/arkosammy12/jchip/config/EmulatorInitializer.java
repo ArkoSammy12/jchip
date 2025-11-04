@@ -34,20 +34,22 @@ public class EmulatorInitializer {
     public EmulatorInitializer(JChip jchip) throws IOException {
         this.jchip = jchip;
 
-        SettingsBar settings = this.jchip.getMainWindow().getSettingsMenu();
-        Path romPath = settings.getRomPath();
-        if (romPath == null) {
-            throw new EmulatorException("ROM path cannot be null!");
+        SettingsBar settings = this.jchip.getMainWindow().getSettingsBar();
+        Optional<byte[]> rawRomOptional = settings.getRawRom();
+
+        if (rawRomOptional.isEmpty()) {
+            throw new EmulatorException("Must select a ROM before starting emulation!");
         }
-        byte[] rawRom = Files.readAllBytes(romPath);
-        this.rom = new int[rawRom.length];
-        for (int i = 0; i < rom.length; i++) {
-            this.rom[i] = rawRom[i] & 0xFF;
-        }
+
+        byte[] rawRom = rawRomOptional.get();
+
+        int[] rom = loadRom(rawRom);
+        this.rom = Arrays.copyOf(rom, rom.length);
+
         Chip8Database database = jchip.getDatabase();
         database.fetchDataForRom(rawRom);
 
-        this.romTitle = database.getProgramTitle().orElse(romPath.getFileName().toString());
+        this.romTitle = database.getProgramTitle().orElse(settings.getRomPath().map(path -> path.getFileName().toString()).orElse(null));
         this.colorPalette = settings.getColorPalette().orElse(database.getColorPalette().orElse(BuiltInColorPalette.CADMIUM));
         this.displayAngle = settings.getDisplayAngle().orElse(database.getDisplayAngle().orElse(DisplayAngle.DEG_0));
 
@@ -124,6 +126,22 @@ public class EmulatorInitializer {
 
     public boolean doJumpWithVX() {
         return this.doJumpWithVX;
+    }
+
+    public static int[] loadRom(byte[] rawRom) {
+        int[] rom = new int[rawRom.length];
+        for (int i = 0; i < rom.length; i++) {
+            rom[i] = rawRom[i] & 0xFF;
+        }
+        return rom;
+    }
+
+    public static byte[] getRawRom(Path path) {
+        try {
+            return Files.readAllBytes(path);
+        } catch (Exception e) {
+            throw new EmulatorException(e);
+        }
     }
 
 }

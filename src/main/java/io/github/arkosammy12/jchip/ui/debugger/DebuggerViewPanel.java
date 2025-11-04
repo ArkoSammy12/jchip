@@ -198,7 +198,7 @@ public class DebuggerViewPanel extends JPanel {
                 this.stackLabels.get(i).setState(this.shownStack[i]);
             }
 
-            switch (this.jchip.getMainWindow().getSettingsMenu().getDebuggerSettingsMenu().getCurrentMemoryFollowMode()) {
+            switch (this.jchip.getMainWindow().getSettingsBar().getDebuggerSettingsMenu().getCurrentMemoryFollowMode()) {
                 case FOLLOW_PC -> this.memoryTable.scrollToAddress(pc);
                 case FOLLOW_I -> this.memoryTable.scrollToAddress(I);
             }

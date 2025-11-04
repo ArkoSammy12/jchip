@@ -122,8 +122,13 @@ public class CommandLineArgs implements PrimarySettingsProvider {
     private Optional<Boolean> doJumpWithVX;
 
     @Override
-    public Path getRomPath() {
-        return convertToAbsolutePathIfNeeded(romPath);
+    public Optional<byte[]> getRawRom() {
+        return Optional.of(EmulatorInitializer.getRawRom(convertToAbsolutePathIfNeeded(romPath)));
+    }
+
+    @Override
+    public Optional<Path> getRomPath() {
+        return Optional.of(convertToAbsolutePathIfNeeded(romPath));
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class  Keypad extends KeyAdapter {
+public class Keypad extends KeyAdapter {
 
     private final JChip jchip;
     private final boolean[] keys = new boolean[16];
@@ -20,7 +20,7 @@ public class  Keypad extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        int hex = this.jchip.getMainWindow().getSettingsMenu().getKeyboardLayout().orElse(KeyboardLayout.QWERTY).getKeypadHexForKeyCode(e.getKeyCode());
+        int hex = this.jchip.getMainWindow().getSettingsBar().getKeyboardLayout().orElse(KeyboardLayout.QWERTY).getKeypadHexForKeyCode(e.getKeyCode());
         if (hex > -1) {
             this.setKeypadKeyPressed(hex);
         }
@@ -28,7 +28,7 @@ public class  Keypad extends KeyAdapter {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        int hex = this.jchip.getMainWindow().getSettingsMenu().getKeyboardLayout().orElse(KeyboardLayout.QWERTY).getKeypadHexForKeyCode(e.getKeyCode());
+        int hex = this.jchip.getMainWindow().getSettingsBar().getKeyboardLayout().orElse(KeyboardLayout.QWERTY).getKeypadHexForKeyCode(e.getKeyCode());
         if (hex > -1) {
             this.setKeypadKeyUnpressed(hex);
         }
