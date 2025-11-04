@@ -29,21 +29,27 @@ public class InfoPanel extends JPanel {
 
         JPanel variantPanel = new JPanel(new GridLayout(1, 0, 0, 0));
         variantPanel.add(this.variantLabel);
+        variantPanel.setToolTipText("The CHIP-8 being used to run the current ROM.");
 
         JPanel romTitlePanel = new JPanel(new GridLayout(1, 0, 0, 0));
         romTitlePanel.add(this.romTitleLabel);
+        romTitlePanel.setToolTipText("The name of the running ROM, or the file name.");
 
         JPanel ipfPanel = new JPanel(new GridLayout(1, 0, 0, 0));
         ipfPanel.add(this.ipfLabel);
+        ipfPanel.setToolTipText("The current IPF value average.");
 
         JPanel mipsPanel = new JPanel(new GridLayout(1, 0, 0, 0));
         mipsPanel.add(mipsLabel);
+        mipsPanel.setToolTipText("The current MIPS (millions of instructions per second) value average.");
 
         JPanel frameTimePanel = new JPanel(new GridLayout(1, 0, 0, 0));
         frameTimePanel.add(frameTimeLabel);
+        frameTimePanel.setToolTipText("The current frame time value average, in miliseconds.");
 
         JPanel fpsPanel = new JPanel(new GridLayout(1, 0, 0, 0));
         fpsPanel.add(fpsLabel);
+        fpsPanel.setToolTipText("The current frames per second value average.");
 
         this.setPreferredSize(new Dimension(100, 20));
 

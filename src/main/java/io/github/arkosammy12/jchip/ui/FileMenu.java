@@ -29,6 +29,7 @@ public class FileMenu extends JMenu {
                 this.romPath = chooser.getSelectedFile().toPath().toAbsolutePath();
             }
         });
+        openItem.setToolTipText("Load binary ROM data from a file.");
 
         this.add(openItem);
 

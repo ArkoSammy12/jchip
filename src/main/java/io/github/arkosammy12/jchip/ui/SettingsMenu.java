@@ -25,14 +25,17 @@ public class SettingsMenu extends JMenu {
         this.volumeDownButton = new JMenuItem("Volume Down");
         this.volumeDownButton.addActionListener(_ -> jchip.getSoundWriter().volumeDown());
         this.volumeDownButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, InputEvent.CTRL_DOWN_MASK));
+        this.volumeDownButton.setToolTipText("Decrease the sound volume of the emulator.");
 
         this.volumeUpButton = new JMenuItem("Volume Up");
         this.volumeUpButton.addActionListener(_ -> jchip.getSoundWriter().volumeUp());
         this.volumeUpButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, InputEvent.CTRL_DOWN_MASK));
+        this.volumeUpButton.setToolTipText("Increase the sound volume of the emulator.");
 
         this.keyboardLayoutMenu = new EnumMenu<>("Keyboard Layout", KeyboardLayout.class, false);
         this.keyboardLayoutMenu.setState(KeyboardLayout.QWERTY);
         this.keyboardLayoutMenu.setMnemonic(KeyEvent.VK_K);
+        this.keyboardLayoutMenu.setToolTipText("Select the desired keyboard layout configuration for using the CHIP-8 keypad.");
 
         this.showInfoPanelButton = new JRadioButtonMenuItem("Show Info Bar");
         this.showInfoPanelButton.setSelected(true);

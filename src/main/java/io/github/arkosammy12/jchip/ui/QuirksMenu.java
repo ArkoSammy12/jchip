@@ -22,6 +22,7 @@ public class QuirksMenu extends JMenu {
         super("Quirks");
 
         this.setMnemonic(KeyEvent.VK_Q);
+        this.setToolTipText("Configure the emulator's quirk settings.");
 
         this.forceVariantQuirksButton = new JRadioButtonMenuItem("Force Variant Quirks");
         this.forceVariantQuirksButton.addActionListener(_ -> this.forceVariantQuirks = forceVariantQuirksButton.isSelected());
@@ -30,21 +31,27 @@ public class QuirksMenu extends JMenu {
 
         this.doVFResetMenu = new QuirkSubMenu("VF Reset");
         this.doVFResetMenu.setMnemonic(KeyEvent.VK_V);
+        this.doVFResetMenu.setToolTipText("Toggle the VF Reset quirk or leave unspecified.");
 
         this.doIncrementIndexMenu = new QuirkSubMenu("Increment Index");
         this.doIncrementIndexMenu.setMnemonic(KeyEvent.VK_I);
+        this.doIncrementIndexMenu.setToolTipText("Toggle the Increment Index quirk or leave unspecified.");
 
         this.doDisplayWaitMenu = new QuirkSubMenu("Display Wait");
         this.doDisplayWaitMenu.setMnemonic(KeyEvent.VK_D);
+        this.doDisplayWaitMenu.setToolTipText("Toggle the Display Wait quirk or leave unspecified.");
 
         this.doClippingMenu = new QuirkSubMenu("Clipping");
         this.doClippingMenu.setMnemonic(KeyEvent.VK_C);
+        this.doClippingMenu.setToolTipText("Toggle the Clipping quirk or leave unspecified.");
 
         this.doShiftVXInPlaceMenu = new QuirkSubMenu("Shift VX In Place");
         this.doShiftVXInPlaceMenu.setMnemonic(KeyEvent.VK_S);
+        this.doShiftVXInPlaceMenu.setToolTipText("Toggle the Shift VX in Place quirk or leave unspecified.");
 
         this.doJumpWithVXMenu = new QuirkSubMenu("Jump With VX");
         this.doJumpWithVXMenu.setMnemonic(KeyEvent.VK_J);
+        this.doJumpWithVXMenu.setToolTipText("Toggle the Jump with VX quirk or leave unspecified.");
 
         this.add(this.forceVariantQuirksButton);
         this.add(this.doVFResetMenu);

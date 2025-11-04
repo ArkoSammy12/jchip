@@ -17,8 +17,10 @@ public class DebuggerMenu extends JMenu {
 
         this.showDebuggerButton = new JRadioButtonMenuItem("Show");
         this.showDebuggerButton.addActionListener(_ -> jchip.getMainWindow().setDebuggerViewEnabled(showDebuggerButton.isSelected()));
+        this.showDebuggerButton.setToolTipText("Toggle the debugger view panel.");
 
         JMenu memoryFollowModeMenu = new JMenu("Memory follow mode");
+        memoryFollowModeMenu.setToolTipText("Make the memory viewer automatically scroll to the desired address, if any.");
 
         JRadioButtonMenuItem noFollowButton = new JRadioButtonMenuItem("No Follow");
         noFollowButton.addActionListener(_ -> this.currentMemoryFollowMode = MemoryFollowMode.NO_FOLLOW);

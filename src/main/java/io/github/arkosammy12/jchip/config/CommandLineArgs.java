@@ -15,47 +15,110 @@ import java.util.Optional;
         name = "jchip",
         mixinStandardHelpOptions = true,
         version = Main.VERSION_STRING,
-        description = "Runs a CHIP-8 rom with various configurable options."
+        description = "Initializes jchip with the desired configurations and starts emulation."
 )
 public class CommandLineArgs implements PrimarySettingsProvider {
 
-    @CommandLine.Option(names = {"--rom", "-r"}, required = true)
+    @CommandLine.Option(
+            names = {"--rom", "-r"},
+            required = true,
+            description = "The path of the file containing the raw binary ROM data."
+    )
     private Path romPath;
 
-    @CommandLine.Option(names = {"--variant", "-v"}, converter = Chip8Variant.Converter.class, defaultValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = {"--variant", "-v"},
+            converter = Chip8Variant.Converter.class,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Select the desired CHIP-8 variant or leave unspecified."
+    )
     private Optional<Chip8Variant> chip8Variant;
 
-    @CommandLine.Option(names = {"--instructions-per-frame", "-i"}, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = {"--instructions-per-frame", "-i"},
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Set the desired IPF or leave unspecified.."
+    )
     private Optional<Integer> instructionsPerFrame;
 
-    @CommandLine.Option(names = {"--color-palette", "-c"}, converter = BuiltInColorPalette.Converter.class, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = {"--color-palette", "-c"},
+            converter = BuiltInColorPalette.Converter.class,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Select the desired display color palette or leave unspecified."
+    )
     private Optional<ColorPalette> colorPalette;
 
-    @CommandLine.Option(names = {"--keyboard-layout", "-k"}, defaultValue = "qwerty", converter = KeyboardLayout.Converter.class, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = {"--keyboard-layout", "-k"},
+            defaultValue = "qwerty",
+            converter = KeyboardLayout.Converter.class,
+            description = "Select the desired keyboard layout configuration for using the CHIP-8 keypad."
+    )
     private Optional<KeyboardLayout> keyboardLayout;
 
-    @CommandLine.Option(names = "--use-variant-quirks", negatable = true, defaultValue = "false")
+    @CommandLine.Option(
+            names = "--use-variant-quirks",
+            negatable = true,
+            defaultValue = "false",
+            description = "Force the used quirks to be of the variant used to run the current ROM."
+    )
     private Boolean useVariantQuirks;
 
-    @CommandLine.Option(names = {"-a", "--angle"}, converter = DisplayAngle.Converter.class, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = {"-a", "--angle"},
+            converter = DisplayAngle.Converter.class,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Select the screen rotation or leave unspecified."
+    )
     private Optional<DisplayAngle> displayAngle;
 
-    @CommandLine.Option(names = "--vf-reset", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = "--vf-reset",
+            negatable = true,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Toggle the VF Reset quirk or leave unspecified."
+    )
     private Optional<Boolean> doVFReset;
 
-    @CommandLine.Option(names = "--increment-i", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = "--increment-i",
+            negatable = true,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Toggle the Increment Index quirk or leave unspecified."
+    )
     private Optional<Boolean> doIncrementIndex;
 
-    @CommandLine.Option(names = "--display-wait", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = "--display-wait",
+            negatable = true,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Toggle the Display Wait quirk or leave unspecified."
+    )
     private Optional<Boolean> doDisplayWait;
 
-    @CommandLine.Option(names = "--clipping", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = "--clipping",
+            negatable = true,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Toggle the Clipping quirk or leave unspecified."
+    )
     private Optional<Boolean> doClipping;
 
-    @CommandLine.Option(names = "--shift-vx-in-place", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = "--shift-vx-in-place",
+            negatable = true,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Toggle the Shift VX in Place quirk or leave unspecified."
+    )
     private Optional<Boolean> doShiftVXInPlace;
 
-    @CommandLine.Option(names = "--jump-with-vx", negatable = true, fallbackValue = CommandLine.Option.NULL_VALUE)
+    @CommandLine.Option(
+            names = "--jump-with-vx",
+            negatable = true,
+            defaultValue = CommandLine.Option.NULL_VALUE,
+            description = "Toggle the Jump with VX quirk or leave unspecified."
+    )
     private Optional<Boolean> doJumpWithVX;
 
     @Override
