@@ -48,6 +48,13 @@ public class EmulatorMenu extends JMenu {
         this.resetButton.addActionListener(_ -> {
             jchip.reset();
             this.pauseButton.setEnabled(true);
+            this.pauseButton.setSelected(false);
+
+            this.stepFrameButton.setEnabled(false);
+            this.stepFrameButton.setSelected(false);
+
+            this.stepCycleButton.setEnabled(false);
+            this.stepFrameButton.setSelected(false);
         });
         this.resetButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
         this.resetButton.setToolTipText("Apply any emulator setting changes, reload the ROM and begin emulation from scratch.");
@@ -57,6 +64,12 @@ public class EmulatorMenu extends JMenu {
             jchip.stop();
             this.pauseButton.setSelected(false);
             this.pauseButton.setEnabled(false);
+
+            this.stepFrameButton.setEnabled(false);
+            this.stepFrameButton.setSelected(false);
+
+            this.stepCycleButton.setEnabled(false);
+            this.stepFrameButton.setSelected(false);
         });
         this.stopButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
         this.stopButton.setToolTipText("Stop emulation of the currently running ROM.");
