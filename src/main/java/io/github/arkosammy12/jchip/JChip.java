@@ -97,7 +97,7 @@ public class JChip {
     public void start() throws IOException {
         while (this.running.get()) {
             try {
-                if (!this.pacer.checkTime()) {
+                if (!this.pacer.isFrameReady(false)) {
                     continue;
                 }
                 switch (this.currentState.get()) {

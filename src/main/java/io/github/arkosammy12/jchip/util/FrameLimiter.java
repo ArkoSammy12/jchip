@@ -10,7 +10,7 @@ public final class FrameLimiter {
 
     private double targetFramePeriod;
     private double elapsedOverTarget;
-    private double previousTimeDelta;
+    private double elapsedTimePeriod;
 
     private long previousFrameTime;
     private long validFrameCount;
@@ -25,11 +25,11 @@ public final class FrameLimiter {
         this.targetFramePeriod = 1_000_000_000L / Math.clamp(frameRate, 0.5, 1000);
     }
 
-    public boolean checkTime() {
-        if (this.hasPeriodElapsed()) {
+    public boolean isFrameReady(boolean lazy) {
+        if (this.hasTargetPeriodElapsed()) {
             return true;
         }
-        if (this.getRemainder() >= 2.3E+6) {
+        if (lazy || this.getRemainderToTarget() >= 2.3E+6) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException ignored) {}
@@ -39,7 +39,7 @@ public final class FrameLimiter {
         return false;
     }
 
-    private boolean hasPeriodElapsed() {
+    private boolean hasTargetPeriodElapsed() {
         long currentTimePoint = System.nanoTime();
 
         if (!this.doneFirstRunSetup) {
@@ -53,17 +53,18 @@ public final class FrameLimiter {
             return true;
         }
 
-        this.previousTimeDelta = this.elapsedOverTarget + (currentTimePoint - this.previousFrameTime);
+        this.elapsedTimePeriod = this.elapsedOverTarget + (currentTimePoint - this.previousFrameTime);
 
-        if (this.previousTimeDelta < this.targetFramePeriod) {
+        if (this.elapsedTimePeriod < this.targetFramePeriod) {
             return false;
         }
 
         if (this.allowMissedFrames) {
-            this.previousFrameSkip = this.previousTimeDelta >= this.targetFramePeriod + 50000;
-            this.elapsedOverTarget = this.previousTimeDelta % this.targetFramePeriod;
+            this.previousFrameSkip = this.elapsedTimePeriod >= this.targetFramePeriod + 50000;
+            this.elapsedOverTarget = this.elapsedTimePeriod % this.targetFramePeriod;
         } else {
-            this.elapsedOverTarget = this.previousTimeDelta - this.targetFramePeriod;
+            // Without frameskip, we carry over frame debt until caught up
+            this.elapsedOverTarget = this.elapsedTimePeriod - this.targetFramePeriod;
         }
 
         this.previousFrameTime = currentTimePoint;
@@ -71,8 +72,8 @@ public final class FrameLimiter {
         return true;
     }
 
-    private double getRemainder() {
-        return this.targetFramePeriod - this.previousTimeDelta;
+    private double getRemainderToTarget() {
+        return this.targetFramePeriod - this.elapsedTimePeriod;
     }
 
 }
