@@ -33,7 +33,7 @@ public class MemoryTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int row, int col) {
         if (col == 0) {
-            return String.format("%04X", row * BYTES_PER_ROW);
+            return String.format("%06X", row * BYTES_PER_ROW);
         } else {
             int idx = row * BYTES_PER_ROW + (col - 1);
             return idx < memoryView.length ? String.format("%02X", memoryView[idx]) : "";

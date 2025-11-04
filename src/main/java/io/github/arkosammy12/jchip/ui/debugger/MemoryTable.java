@@ -10,8 +10,8 @@ import static io.github.arkosammy12.jchip.ui.debugger.MemoryTableModel.BYTES_PER
 
 public class MemoryTable extends JTable {
 
-    private static final int MEMORY_COLUMN_WIDTH = 20;
-    private static final int ADDRESS_COLUMN_WIDTH = 35;
+    private static final int MEMORY_COLUMN_WIDTH = 24;
+    private static final int ADDRESS_COLUMN_WIDTH = 60;
 
     private final MemoryTableModel memoryTableModel;
 
@@ -20,8 +20,8 @@ public class MemoryTable extends JTable {
         super(memoryTableModel);
         this.memoryTableModel = memoryTableModel;
         this.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        this.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        this.setRowHeight(11);
+        this.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+        this.setRowHeight(15);
         this.getTableHeader().setReorderingAllowed(false);
         this.getTableHeader().setResizingAllowed(false);
         this.setFocusable(false);

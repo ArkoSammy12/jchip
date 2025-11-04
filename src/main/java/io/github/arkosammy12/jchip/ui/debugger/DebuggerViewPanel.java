@@ -48,23 +48,23 @@ public class DebuggerViewPanel extends JPanel {
 
         this.programCounterLabel = new DebuggerLabel<>("PC");
         this.programCounterLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
-        this.programCounterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        this.programCounterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         this.indexRegisterLabel = new DebuggerLabel<>("I");
         this.indexRegisterLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
-        this.indexRegisterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        this.indexRegisterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         this.delayTimerLabel = new DebuggerLabel<>("DT");
         this.delayTimerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
-        this.delayTimerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        this.delayTimerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         this.soundTimerLabel = new DebuggerLabel<>("ST");
         this.soundTimerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
-        this.soundTimerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        this.soundTimerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         this.stackPointerLabel = new DebuggerLabel<>("SP");
         this.stackPointerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
-        this.stackPointerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        this.stackPointerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         for (int i = 0; i < 16; i++) {
             String hexDigit = Integer.toHexString(i).toUpperCase();
@@ -74,8 +74,8 @@ public class DebuggerViewPanel extends JPanel {
             registerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
             stackLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
 
-            registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-            stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+            registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+            stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
             this.registerLabels.add(registerLabel);
             this.stackLabels.add(stackLabel);
@@ -96,48 +96,60 @@ public class DebuggerViewPanel extends JPanel {
         singleRegistersPanel.add(this.soundTimerLabel);
         singleRegistersPanel.add(this.stackPointerLabel);
 
-        JPanel registersPanel = new JPanel(new GridLayout(0, 4, 5, 1));
+        JPanel registersPanel = new JPanel(new GridLayout(0, 2, 5, 1));
         JPanel stackPanel = new JPanel(new GridLayout(0, 2, 5, 1));
 
-        for (int i = 0; i < 16; i++) {
-            registersPanel.add(this.registerLabels.get(i));
-        }
-
         int numRows = 8;
+
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < 2; col++) {
                 int index = col * numRows + row;
+                registersPanel.add(this.registerLabels.get(index));
                 stackPanel.add(this.stackLabels.get(index));
             }
         }
 
         this.memoryTable = new MemoryTable();
 
-        this.setPreferredSize(new Dimension(230, 0));
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true), "Live Debugger", 0, 0));
+        this.setPreferredSize(new Dimension(500, this.getSize().height));
+        this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Live Debugger", 0, 0));
 
         JScrollPane currentQuirksScrollPane = new JScrollPane(currentQuirksPanel);
+        currentQuirksScrollPane.setPreferredSize(new Dimension(200, 20));
         currentQuirksScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Current Quirks", 0, 0));
 
         JScrollPane singleRegisterScrollPane = new JScrollPane(singleRegistersPanel);
+        singleRegisterScrollPane.setPreferredSize(new Dimension(200, 10));
         singleRegisterScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Single Registers", 0, 0));
 
         JScrollPane registersScrollPane = new JScrollPane(registersPanel);
+        registersScrollPane.setPreferredSize(new Dimension(200, 130));
         registersScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Registers", 0, 0));
 
         JScrollPane stackScrollPane = new JScrollPane(stackPanel);
+        stackScrollPane.setPreferredSize(new Dimension(200, 130));
         stackScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Stack", 0, 0));
 
         JScrollPane memoryScrollPane = new JScrollPane(memoryTable);
         memoryScrollPane.setPreferredSize(new Dimension(memoryScrollPane.getSize().width, 280));
         memoryScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Memory", 0, 0));
 
-        this.add(currentQuirksScrollPane);
-        this.add(singleRegisterScrollPane);
-        this.add(registersScrollPane);
-        this.add(stackScrollPane);
-        this.add(memoryScrollPane);
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        leftPanel.setPreferredSize(new Dimension(150, leftPanel.getSize().height));
+        leftPanel.add(currentQuirksScrollPane);
+        leftPanel.add(singleRegisterScrollPane);
+        leftPanel.add(registersScrollPane);
+        leftPanel.add(stackScrollPane);
+
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setPreferredSize(new Dimension(215 ,rightPanel.getSize().height));
+        rightPanel.add(memoryScrollPane);
+
+        this.add(leftPanel);
+        this.add(rightPanel);
     }
 
     public void clear() {

@@ -237,6 +237,7 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 - [Gulrak - CHIP‑8 1dcell.ch8 Emulator Benchmarks](https://chip8.gulrak.net/1dcell)
 - [Gulrak - Chiplet](https://github.com/gulrak/chiplet?tab=readme-ov-file)
 - [LordZorgath - MOSES](https://github.com/LordZorgath/MOSES)
+- [ZXDunny - ZX-Chip8](https://github.com/ZXDunny/ZX-Chip8)
 - [XO-CHIP Specifications](https://johnearnest.github.io/Octo/docs/XO-ChipSpecification.html)
 - [CHIP-8 Games Archive](https://archive.org/details/chip-8-games)
 - [CHIP-8 Metadata Database](https://github.com/chip-8/chip-8-database)
