@@ -33,9 +33,14 @@ public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8
     public void executeFrame() {
         long nextFrame = this.nextFrame;
         while (this.machineCycles < nextFrame) {
-            if (!isSet(this.getProcessor().cycle(), WAITING)) {
-                this.cycleCounter++;
-            }
+            this.executeSingleCycle();
+        }
+    }
+
+    @Override
+    public void executeSingleCycle() {
+        if (!isSet(this.getProcessor().cycle(), WAITING)) {
+            this.cycleCounter++;
         }
     }
 

@@ -103,6 +103,7 @@ public class JChip {
                 switch (this.currentState.get()) {
                     case IDLE, PAUSED -> this.soundWriter.setEnabled(false);
                     case STEPPING_FRAME -> onSteppingFrame();
+                    case STEPPING_CYCLE -> onSteppingCycle();
                     case RUNNING -> onRunning();
                     case RESETTING -> onResetting();
                     case STOPPING -> onStopping();
@@ -138,6 +139,10 @@ public class JChip {
         this.currentState.set(State.STEPPING_FRAME);
     }
 
+    public void stepCycle() {
+        this.currentState.set(State.STEPPING_CYCLE);
+    }
+
     private void shutdown() {
         this.running.set(false);
     }
@@ -155,6 +160,14 @@ public class JChip {
             return;
         }
         this.currentEmulator.executeFrame();
+        this.currentState.set(State.PAUSED);
+    }
+
+    private void onSteppingCycle() {
+        if (this.currentEmulator == null) {
+            return;
+        }
+        this.currentEmulator.executeSingleCycle();
         this.currentState.set(State.PAUSED);
     }
 
@@ -196,6 +209,7 @@ public class JChip {
         RESETTING,
         PAUSED,
         STEPPING_FRAME,
+        STEPPING_CYCLE,
         IDLE
     }
 

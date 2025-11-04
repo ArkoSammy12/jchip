@@ -17,6 +17,7 @@ public class EmulatorMenu extends JMenu {
     private final JMenuItem resetButton = new JMenuItem("Reset");
     private final JRadioButtonMenuItem pauseButton = new JRadioButtonMenuItem("Pause");
     private final JMenuItem stepFrameButton = new JMenuItem("Step Frame");
+    private final JMenuItem stepCycleButton = new JMenuItem("Step Cycle");
     private final JMenuItem stopButton = new JMenuItem("Stop");
 
     private final QuirksMenu quirksMenu;
@@ -37,6 +38,7 @@ public class EmulatorMenu extends JMenu {
         this.pauseButton.addActionListener(_ -> {
             jchip.setPaused(pauseButton.isSelected());
             this.stepFrameButton.setEnabled(pauseButton.isSelected());
+            this.stepCycleButton.setEnabled(pauseButton.isSelected());
         });
         this.pauseButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK));
         this.pauseButton.setEnabled(false);
@@ -63,6 +65,16 @@ public class EmulatorMenu extends JMenu {
             jchip.stepFrame();
         });
         this.stepFrameButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+        this.stepFrameButton.setEnabled(false);
+
+        this.stepCycleButton.addActionListener(_ -> {
+            if (!this.pauseButton.isEnabled()) {
+                return;
+            }
+            jchip.stepCycle();
+        });
+        this.stepCycleButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
+        this.stepCycleButton.setEnabled(false);
 
         this.quirksMenu = new QuirksMenu();
         this.variantMenu = new EnumMenu<>("Variant", Chip8Variant.class, true);
@@ -110,6 +122,7 @@ public class EmulatorMenu extends JMenu {
         this.add(pauseButton);
         this.add(stopButton);
         this.add(stepFrameButton);
+        this.add(stepCycleButton);
 
         this.addSeparator();
 
@@ -155,6 +168,7 @@ public class EmulatorMenu extends JMenu {
             this.instructionsPerFrame = val;
             this.instructionsPerFrameField.setText(String.valueOf(val));
         });
+        this.resetButton.doClick();
     }
 
 }

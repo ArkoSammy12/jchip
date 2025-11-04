@@ -98,6 +98,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
     }
 
     public void executeFrame() throws InvalidInstructionException {
+        this.instructionCounter = 0;
         long startOfFrame = System.nanoTime();
         this.runInstructionLoop();
         this.getDisplay().flush();
@@ -127,6 +128,18 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         }
     }
 
+    public void executeSingleCycle() {
+        if (this.instructionCounter % this.currentInstructionsPerFrame == 0) {
+            this.processor.decrementTimers();
+        }
+        this.processor.cycle();
+        if (this.processor.shouldTerminate()) {
+            this.terminate();
+        }
+        this.getDisplay().flush();
+        this.instructionCounter++;
+    }
+
     protected boolean waitFrameEnd(int flags) {
         if (this.initializer.doDisplayWait()) {
             if (isSet(flags, Chip8Processor.DRAW_EXECUTED)) {
@@ -139,6 +152,7 @@ public class Chip8Emulator<D extends Chip8Display, S extends SoundSystem> implem
         return false;
     }
 
+    @Override
     public void close() {
         try {
             if (this.display != null) {
