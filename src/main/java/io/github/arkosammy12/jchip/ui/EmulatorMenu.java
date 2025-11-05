@@ -44,7 +44,7 @@ public class EmulatorMenu extends JMenu {
             this.stepFrameButton.setEnabled(false);
             this.stepCycleButton.setEnabled(false);
         });
-        this.resetButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
+        this.resetButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK, true));
         this.resetButton.setToolTipText("Apply any emulator setting changes, reload the ROM and begin emulation from scratch.");
         this.resetButton.setEnabled(true);
 
@@ -54,7 +54,7 @@ public class EmulatorMenu extends JMenu {
             this.stepFrameButton.setEnabled(isSelected);
             this.stepCycleButton.setEnabled(isSelected);
         });
-        this.pauseButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK));
+        this.pauseButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK, true));
         this.pauseButton.setToolTipText("Pause execution of the emulator.");
         this.pauseButton.setEnabled(false);
         this.pauseButton.setSelected(false);
@@ -68,7 +68,7 @@ public class EmulatorMenu extends JMenu {
             this.stepFrameButton.setEnabled(false);
             this.stepCycleButton.setEnabled(false);
         });
-        this.stopButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+        this.stopButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK, true));
         this.stopButton.setToolTipText("Stop emulation of the currently running ROM.");
         this.stopButton.setEnabled(false);
 
@@ -78,7 +78,7 @@ public class EmulatorMenu extends JMenu {
             }
             jchip.stepFrame();
         });
-        this.stepFrameButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+        this.stepFrameButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK, true));
         this.stepFrameButton.setToolTipText("Makes the emulator execute one frame's worth of instructions.");
         this.stepFrameButton.setEnabled(false);
 
@@ -88,7 +88,7 @@ public class EmulatorMenu extends JMenu {
             }
             jchip.stepCycle();
         });
-        this.stepCycleButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
+        this.stepCycleButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK, true));
         this.stepCycleButton.setToolTipText("Makes the emulator execute one processor cycle, which can either be a full instruction, or a part of an instruction depending on the variant.");
         this.stepCycleButton.setEnabled(false);
 

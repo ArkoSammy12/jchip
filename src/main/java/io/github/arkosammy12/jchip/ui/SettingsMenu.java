@@ -26,12 +26,12 @@ public class SettingsMenu extends JMenu {
 
         this.volumeDownButton = new JMenuItem("Volume Down");
         this.volumeDownButton.addActionListener(_ -> jchip.getSoundWriter().volumeDown());
-        this.volumeDownButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, InputEvent.CTRL_DOWN_MASK));
+        this.volumeDownButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, InputEvent.CTRL_DOWN_MASK, true));
         this.volumeDownButton.setToolTipText("Decrease the sound volume of the emulator.");
 
         this.volumeUpButton = new JMenuItem("Volume Up");
         this.volumeUpButton.addActionListener(_ -> jchip.getSoundWriter().volumeUp());
-        this.volumeUpButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, InputEvent.CTRL_DOWN_MASK));
+        this.volumeUpButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, InputEvent.CTRL_DOWN_MASK, true));
         this.volumeUpButton.setToolTipText("Increase the sound volume of the emulator.");
 
         this.keyboardLayoutMenu = new EnumMenu<>("Keyboard Layout", KeyboardLayout.class, false);
