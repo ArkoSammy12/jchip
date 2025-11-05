@@ -16,9 +16,9 @@ public class EmulatorMenu extends JMenu {
 
     private final JMenuItem resetButton = new JMenuItem("Reset");
     private final JRadioButtonMenuItem pauseButton = new JRadioButtonMenuItem("Pause");
+    private final JMenuItem stopButton = new JMenuItem("Stop");
     private final JMenuItem stepFrameButton = new JMenuItem("Step Frame");
     private final JMenuItem stepCycleButton = new JMenuItem("Step Cycle");
-    private final JMenuItem stopButton = new JMenuItem("Stop");
 
     private final QuirksMenu quirksMenu;
     private final EnumMenu<Chip8Variant> variantMenu;
@@ -35,6 +35,18 @@ public class EmulatorMenu extends JMenu {
 
         this.setMnemonic(KeyEvent.VK_E);
 
+        this.resetButton.addActionListener(_ -> {
+            jchip.reset();
+            this.pauseButton.setEnabled(true);
+            this.pauseButton.setSelected(false);
+
+            this.stopButton.setEnabled(true);
+            this.stepFrameButton.setEnabled(false);
+            this.stepCycleButton.setEnabled(false);
+        });
+        this.resetButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
+        this.resetButton.setToolTipText("Apply any emulator setting changes, reload the ROM and begin emulation from scratch.");
+
         this.pauseButton.addActionListener(_ -> {
             jchip.setPaused(pauseButton.isSelected());
             this.stepFrameButton.setEnabled(pauseButton.isSelected());
@@ -45,20 +57,6 @@ public class EmulatorMenu extends JMenu {
         this.pauseButton.setSelected(false);
         this.pauseButton.setToolTipText("Pause execution of the emulator.");
 
-        this.resetButton.addActionListener(_ -> {
-            jchip.reset();
-            this.pauseButton.setEnabled(true);
-            this.pauseButton.setSelected(false);
-
-            this.stepFrameButton.setEnabled(false);
-            this.stepFrameButton.setSelected(false);
-
-            this.stepCycleButton.setEnabled(false);
-            this.stepFrameButton.setSelected(false);
-        });
-        this.resetButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
-        this.resetButton.setToolTipText("Apply any emulator setting changes, reload the ROM and begin emulation from scratch.");
-
         this.stopButton.addActionListener(_ -> {
             jchip.setPaused(false);
             jchip.stop();
@@ -66,13 +64,11 @@ public class EmulatorMenu extends JMenu {
             this.pauseButton.setEnabled(false);
 
             this.stepFrameButton.setEnabled(false);
-            this.stepFrameButton.setSelected(false);
-
             this.stepCycleButton.setEnabled(false);
-            this.stepFrameButton.setSelected(false);
         });
         this.stopButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
         this.stopButton.setToolTipText("Stop emulation of the currently running ROM.");
+        this.stopButton.setEnabled(false);
 
         this.stepFrameButton.addActionListener(_ -> {
             if (!this.pauseButton.isEnabled()) {
@@ -81,8 +77,8 @@ public class EmulatorMenu extends JMenu {
             jchip.stepFrame();
         });
         this.stepFrameButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
-        this.stepFrameButton.setEnabled(false);
         this.stepFrameButton.setToolTipText("Makes the emulator execute one frame's worth of instructions.");
+        this.stepFrameButton.setEnabled(false);
 
         this.stepCycleButton.addActionListener(_ -> {
             if (!this.pauseButton.isEnabled()) {
@@ -91,8 +87,8 @@ public class EmulatorMenu extends JMenu {
             jchip.stepCycle();
         });
         this.stepCycleButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
-        this.stepCycleButton.setEnabled(false);
         this.stepCycleButton.setToolTipText("Makes the emulator execute one processor cycle, which can either be a full instruction, or a part of an instruction depending on the variant.");
+        this.stepCycleButton.setEnabled(false);
 
         this.quirksMenu = new QuirksMenu();
         this.variantMenu = new EnumMenu<>("Variant", Chip8Variant.class, true);
@@ -191,6 +187,16 @@ public class EmulatorMenu extends JMenu {
             this.instructionsPerFrameField.setText(String.valueOf(val));
         });
         this.resetButton.doClick();
+    }
+
+    public void onStopped() {
+        this.pauseButton.setEnabled(false);
+        this.pauseButton.setSelected(false);
+
+        this.stopButton.setEnabled(false);
+
+        this.stepFrameButton.setEnabled(false);
+        this.stepCycleButton.setEnabled(false);
     }
 
 }

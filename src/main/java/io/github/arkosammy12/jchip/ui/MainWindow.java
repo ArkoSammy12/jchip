@@ -69,6 +69,7 @@ public class MainWindow extends JFrame implements Closeable {
     public void onStopped() {
         this.infoPanel.clear();
         this.debuggerViewPanel.clear();
+        this.settingsBar.onStopped();
     }
 
     public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
