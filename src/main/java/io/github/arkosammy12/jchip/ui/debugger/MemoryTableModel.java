@@ -6,6 +6,7 @@ import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MemoryTableModel extends AbstractTableModel {
@@ -42,8 +43,9 @@ public class MemoryTableModel extends AbstractTableModel {
     }
 
     public void update(Chip8Emulator<?, ?> emulator) {
-        if (this.memory == null) {
-            this.memory = emulator.getMemory();
+        Chip8Memory memory = emulator.getMemory();
+        if (!Objects.equals(memory, this.memory)) {
+            this.memory = memory;
             this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) BYTES_PER_ROW);
         }
         SwingUtilities.invokeLater(this::fireTableDataChanged);
