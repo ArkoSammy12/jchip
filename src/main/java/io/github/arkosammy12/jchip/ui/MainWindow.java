@@ -99,9 +99,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     public void setDebuggerViewEnabled(boolean enabled) {
         this.showingDebuggerPanel.set(enabled);
-        SwingUtilities.invokeLater(() -> {
-            this.debuggerViewPanel.setVisible(enabled);
-        });
+        SwingUtilities.invokeLater(() -> this.debuggerViewPanel.setVisible(enabled));
     }
 
     public void setInfoPanelEnabled(boolean enabled) {

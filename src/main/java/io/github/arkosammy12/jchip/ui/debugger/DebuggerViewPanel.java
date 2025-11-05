@@ -110,6 +110,7 @@ public class DebuggerViewPanel extends JPanel {
         }
 
         this.memoryTable = new MemoryTable();
+
         JScrollPane currentQuirksScrollPane = new JScrollPane(currentQuirksPanel);
         currentQuirksScrollPane.setPreferredSize(new Dimension(currentQuirksScrollPane.getSize().width, 20));
         currentQuirksScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Current Quirks", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));

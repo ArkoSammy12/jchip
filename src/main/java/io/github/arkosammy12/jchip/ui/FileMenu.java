@@ -55,8 +55,7 @@ public class FileMenu extends JMenu {
     }
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        Optional<byte[]> rawRomOptional = primarySettingsProvider.getRawRom();
-        rawRomOptional.ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
+        primarySettingsProvider.getRawRom().ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
     }
 
 }

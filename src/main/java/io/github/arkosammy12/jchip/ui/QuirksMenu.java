@@ -92,15 +92,14 @@ public class QuirksMenu extends JMenu {
     }
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
+        this.forceVariantQuirks = primarySettingsProvider.useVariantQuirks();
+        this.forceVariantQuirksButton.setSelected(this.forceVariantQuirks);
         primarySettingsProvider.doVFReset().ifPresent(this.doVFResetMenu::setState);
         primarySettingsProvider.doIncrementIndex().ifPresent(this.doIncrementIndexMenu::setState);
         primarySettingsProvider.doDisplayWait().ifPresent(this.doDisplayWaitMenu::setState);
         primarySettingsProvider.doClipping().ifPresent(this.doClippingMenu::setState);
         primarySettingsProvider.doShiftVXInPlace().ifPresent(this.doShiftVXInPlaceMenu::setState);
         primarySettingsProvider.doJumpWithVX().ifPresent(this.doJumpWithVXMenu::setState);
-        this.forceVariantQuirks = primarySettingsProvider.useVariantQuirks();
-        this.forceVariantQuirksButton.setSelected(this.forceVariantQuirks);
-
     }
 
 }
