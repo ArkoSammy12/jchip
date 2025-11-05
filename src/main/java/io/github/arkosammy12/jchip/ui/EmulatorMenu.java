@@ -46,16 +46,18 @@ public class EmulatorMenu extends JMenu {
         });
         this.resetButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
         this.resetButton.setToolTipText("Apply any emulator setting changes, reload the ROM and begin emulation from scratch.");
+        this.resetButton.setEnabled(true);
 
         this.pauseButton.addActionListener(_ -> {
-            jchip.setPaused(pauseButton.isSelected());
-            this.stepFrameButton.setEnabled(pauseButton.isSelected());
-            this.stepCycleButton.setEnabled(pauseButton.isSelected());
+            boolean isSelected = pauseButton.isSelected();
+            jchip.setPaused(isSelected);
+            this.stepFrameButton.setEnabled(isSelected);
+            this.stepCycleButton.setEnabled(isSelected);
         });
         this.pauseButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK));
+        this.pauseButton.setToolTipText("Pause execution of the emulator.");
         this.pauseButton.setEnabled(false);
         this.pauseButton.setSelected(false);
-        this.pauseButton.setToolTipText("Pause execution of the emulator.");
 
         this.stopButton.addActionListener(_ -> {
             jchip.setPaused(false);

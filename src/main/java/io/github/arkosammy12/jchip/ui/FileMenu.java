@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
+import com.formdev.flatlaf.icons.FlatFileViewFloppyDriveIcon;
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
@@ -35,6 +36,7 @@ public class FileMenu extends JMenu {
                 this.rawRom.set(EmulatorInitializer.getRawRom(this.romPath));
             }
         });
+        openItem.setIcon(new FlatFileViewFloppyDriveIcon());
         openItem.setToolTipText("Load binary ROM data from a file.");
 
         this.add(openItem);
