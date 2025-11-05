@@ -8,9 +8,11 @@ public class Chip8Memory {
 
     private final int[] bytes;
     private final int memoryBoundsMask;
+    private final int memorySize;
 
     public Chip8Memory(int[] rom, Chip8Variant chip8Variant, int programStart, int memorySize) {
         try {
+            this.memorySize = memorySize;
             this.memoryBoundsMask = memorySize - 1;
             this.bytes = new int[memorySize];
             chip8Variant.getSpriteFont().getSmallFont().ifPresent(smallFont -> {
@@ -43,6 +45,10 @@ public class Chip8Memory {
         }
     }
 
+    public int getMemorySize() {
+        return this.memorySize;
+    }
+
     public int getMemoryBoundsMask() {
         return this.memoryBoundsMask;
     }
@@ -55,10 +61,6 @@ public class Chip8Memory {
     public final void writeByte(int address, int value) {
         // Writing to memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
         this.bytes[address & this.memoryBoundsMask] = value;
-    }
-
-    public final void getMemoryView(int[] ret) {
-        System.arraycopy(this.bytes, 0, ret, 0, Math.min(ret.length, this.bytes.length));
     }
 
 }
