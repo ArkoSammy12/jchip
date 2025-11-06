@@ -5,16 +5,15 @@ import io.github.arkosammy12.jchip.memory.Chip8Memory;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MemoryTableModel extends AbstractTableModel {
 
     public static final int BYTES_PER_ROW = 8;
+    private static final int MAX_SHOWN_BYTES = 0xFFFFFF + 1;
 
     private Chip8Memory memory;
-    private int rowCount = (int) Math.ceil(0xFFFFFF + 1 / (double) BYTES_PER_ROW);
+    private int rowCount = (int) Math.ceil(MAX_SHOWN_BYTES / (double) BYTES_PER_ROW);
 
     public MemoryTableModel() {
         super();
