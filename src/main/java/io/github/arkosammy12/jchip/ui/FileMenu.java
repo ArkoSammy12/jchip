@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ public class FileMenu extends JMenu {
                 this.rawRom.set(EmulatorInitializer.getRawRom(this.romPath));
             }
         });
+        openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK, true));
         openItem.setIcon(new FlatFileViewFileIcon());
         openItem.setToolTipText("Load binary ROM data from a file.");
 
