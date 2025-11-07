@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.imgur.com/vkzzG8F.png" alt="jchip emulator screenshot" width="600"/>
+  <img src="https://i.imgur.com/8ltzY7g.png" alt="jchip emulator screenshot" width="600"/>
 </p>
 
 # jchip
@@ -70,8 +70,6 @@ get into assembly-like languages.
 8. `HYPERWAVE-CHIP-64`: A newer and even lesser known variant developed by [@NinjaWeedle](https://github.com/NinjaWeedle/HyperWaveCHIP-64). Being an extension of XO-CHIP, this variant includes new multiplication and division instructions, three new instructions to take advantage of the expanded memory size for actual code instead of just assets, new drawing modes for more convenient display manipulation, and the ability for ROMs to load their own bit-plane based color palette,
 instead of relying on the host emulator to supply the colors. This variant only has a few ROMs made mostly by the variant's developer and doesn't seem to have gained much traction. However, in the spirit of supporting newer extensions, I decided to implement it as a way to show support for possible new improvements to XO-CHIP, in the hopes that it will become more popular in the future.
 
-
-
 ### Configurable quirks
 
 Due to intentional or unintentional failure to replicate the original implementation of certain instructions of the CHIP-8 interpreter, small but significant differences arise in the behavior and side effects after executing some instructions.
@@ -126,9 +124,19 @@ Executable binaries are available in the [Releases](https://github.com/ArkoSammy
 jchip requires **Java 25 or later** to run or build.
 
 **Hotkeys:**
-- `F11` / `F12` – Decrease / increase volume
-- `ESC` – Stop emulation
-- `F2` – Reset, reload the current ROM and apply emulator setting changes.
+
+For now, it is required to press and release the corresponding key shortcuts in order to trigger their functions.
+
+| Function   | Shortcut                        |
+|------------|---------------------------------|
+| Load ROM   | <kbd>Cntrl</kbd> + <kbd>L</kbd> |
+| Reset      | <kbd>Cntrl</kbd> + <kbd>R</kbd> |
+| Stop       | <kbd>Cntrl</kbd> + <kbd>S</kbd> |
+| Pause      | <kbd>Cntrl</kbd> + <kbd>P</kbd> |
+| Step Frame | <kbd>Cntrl</kbd> + <kbd>F</kbd> |
+| Step Cycle | <kbd>Cntrl</kbd> + <kbd>C</kbd> |
+
+Resetting the emulator is necessary to apply eny emulator settings changes.
 
 ### Menus
 
