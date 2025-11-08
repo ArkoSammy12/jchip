@@ -141,7 +141,7 @@ Resetting the emulator is necessary to apply eny emulator settings changes.
 ### Menus
 
 Upon startup, a menu bar allows you to adjust all settings interactively. Menus that contain an "Unspecified" button allow for that setting to be set by the emulator, either via the built-in database or by falling back to the default value
-which corresponds to the variant being used:
+which corresponds to the variant being used. Starting from the "Quirks" menu, these can be found under the "Emulator" menu:
 
 - **File** – Load ROM files via file explorer.
 - **Quirks** – Enable/disable or leave quirks unspecified.
