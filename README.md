@@ -238,6 +238,7 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 - [John Earnest’s chip8archive](https://johnearnest.github.io/chip8Archive/)
 - [Janitor Raus – Legacy SuperCHIP Display Spec](https://github.com/janitor-raus/CubeChip/blob/master/guides/Legacy%20(Original)%20SuperCHIP%20Display%20Specification.md)
 - [Janitor Raus - CubeChip](https://github.com/janitor-raus/CubeChip)
+- [Janitor Raus - CubeChip's Test Roms](https://github.com/janitor-raus/CubeChip/tree/master/test_roms)
 - [Gulrak – Opcode & Quirks Table](https://chip8.gulrak.net/)
 - [Gulrak – Cadmium Emulator](https://github.com/gulrak/cadmium)
 - [Gulrak - Cadmium Web Version](https://games.gulrak.net/cadmium-wip/)
