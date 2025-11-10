@@ -30,7 +30,19 @@ public class StrictChip8Memory extends Chip8Memory {
 
     @Override
     public void writeByte(int address, int value) {
-        super.writeByte(address, value & 0xFF);
+        if (address < 0 || address >= this.bytes.length) {
+            return;
+        }
+        this.bytes[address] = value & 0xFF;
+    }
+
+    @Override
+    public int readByte(int address) {
+        if (address < 0 || address >= this.bytes.length) {
+            // Bus pull up resistors ensure all lines are high
+            return 0xFF;
+        }
+        return this.bytes[address];
     }
 
     public void drawDisplayPixel(int column, int row) {
