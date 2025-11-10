@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.ui;
 
 import com.formdev.flatlaf.icons.*;
 import io.github.arkosammy12.jchip.JChip;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 
 import javax.swing.*;
@@ -34,7 +34,7 @@ public class FileMenu extends JMenu {
             details.actionPerformed(null);
             if (chooser.showOpenDialog(this.getParent()) == JFileChooser.APPROVE_OPTION) {
                 this.romPath = chooser.getSelectedFile().toPath().toAbsolutePath();
-                this.rawRom.set(EmulatorInitializer.getRawRom(this.romPath));
+                this.rawRom.set(EmulatorSettings.getRawRom(this.romPath));
             }
         });
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK, true));

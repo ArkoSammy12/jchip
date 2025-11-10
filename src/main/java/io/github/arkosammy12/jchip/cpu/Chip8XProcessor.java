@@ -1,15 +1,15 @@
 package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.memory.Chip8XMemory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
-public class Chip8XProcessor<E extends Chip8Emulator<D, S>, D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Processor<E, D, S> {
+public class Chip8XProcessor<E extends Chip8Emulator<M, D, S>, M extends Chip8XMemory, D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Processor<E, M, D, S> {
 
     public Chip8XProcessor(E emulator) {
         super(emulator);
-        this.setProgramCounter(0x300);
     }
 
     @Override

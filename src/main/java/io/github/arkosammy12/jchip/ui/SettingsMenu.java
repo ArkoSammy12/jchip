@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.JChip;
-import io.github.arkosammy12.jchip.config.CommandLineArgs;
+import io.github.arkosammy12.jchip.config.CLIArgs;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 
@@ -56,7 +56,7 @@ public class SettingsMenu extends JMenu {
     }
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        if (primarySettingsProvider instanceof CommandLineArgs cliArgs) {
+        if (primarySettingsProvider instanceof CLIArgs cliArgs) {
             cliArgs.getKeyboardLayout().ifPresent(this.keyboardLayoutMenu::setState);
         }
     }

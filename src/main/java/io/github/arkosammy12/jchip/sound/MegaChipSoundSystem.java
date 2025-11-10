@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.sound;
 
 import io.github.arkosammy12.jchip.JChip;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 
 public class MegaChipSoundSystem implements SoundSystem {
@@ -17,8 +17,8 @@ public class MegaChipSoundSystem implements SoundSystem {
     private double samplePos;
     private boolean isPlaying;
 
-    public MegaChipSoundSystem(EmulatorInitializer emulatorInitializer, Chip8Memory memory) {
-        this.jchip = emulatorInitializer.getJChip();
+    public MegaChipSoundSystem(EmulatorSettings emulatorSettings, Chip8Memory memory) {
+        this.jchip = emulatorSettings.getJChip();
         this.memory = memory;
     }
 

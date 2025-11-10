@@ -1,23 +1,26 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
+import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.video.Chip8Display;
+import io.github.arkosammy12.jchip.video.StrictChip8Display;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.WAITING;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8SoundSystem> {
+public final class StrictChip8Emulator extends Chip8Emulator<StrictChip8Memory, StrictChip8Display, Chip8SoundSystem> {
 
     private long machineCycles;
     private long nextFrame;
     private int cycleCounter;
 
-    public StrictChip8Emulator(EmulatorInitializer emulatorInitializer) {
-        super(emulatorInitializer, Chip8Display::new, Chip8SoundSystem::new);
+    public StrictChip8Emulator(EmulatorSettings emulatorSettings) {
+        super(emulatorSettings, StrictChip8Memory::new, StrictChip8Display::new, Chip8SoundSystem::new);
         // Amount of cycles the COSMAC-VIP needs to set things up before beginning execution of the ROM
+        this.getDisplay().setMemory(this.getMemory());
         this.machineCycles = 3250;
         this.nextFrame = this.calculateNextFrame();
     }
@@ -45,10 +48,9 @@ public final class StrictChip8Emulator extends Chip8Emulator<Chip8Display, Chip8
     }
 
     @Override
-    protected Chip8Processor<?, ?, ?> createProcessor() {
+    protected Chip8Processor<?, ?, ?, ?> createProcessor() {
         return new StrictChip8Processor(this);
     }
-
 
     public void addCycles(long cycles) {
         this.machineCycles += cycles;

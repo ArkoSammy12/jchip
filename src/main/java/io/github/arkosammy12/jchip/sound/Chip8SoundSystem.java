@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.sound;
 
 import io.github.arkosammy12.jchip.JChip;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 
 import java.util.Arrays;
@@ -23,9 +23,9 @@ public class Chip8SoundSystem implements SoundSystem {
             0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0
     };
 
-    public Chip8SoundSystem(EmulatorInitializer emulatorInitializer) {
-        this.jchip = emulatorInitializer.getJChip();
-        Chip8Variant chip8Variant = emulatorInitializer.getVariant();
+    public Chip8SoundSystem(EmulatorSettings emulatorSettings) {
+        this.jchip = emulatorSettings.getJChip();
+        Chip8Variant chip8Variant = emulatorSettings.getVariant();
         if (chip8Variant != Chip8Variant.XO_CHIP && chip8Variant != Chip8Variant.HYPERWAVE_CHIP_64) {
             System.arraycopy(DEFAULT_PATTERN_2, 0, this.patternBuffer, 0, DEFAULT_PATTERN_2.length);
             this.setPitch(175);

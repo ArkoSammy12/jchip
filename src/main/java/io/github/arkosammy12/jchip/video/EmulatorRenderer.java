@@ -26,7 +26,6 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final int displayHeight;
     private final int initialScale;
     private final DisplayAngle displayAngle;
-    private final Chip8Variant chip8Variant;
     private final String romTitle;
 
     private final BufferedImage bufferedImage;
@@ -49,7 +48,6 @@ public class EmulatorRenderer extends Canvas implements Closeable {
         this.displayHeight = display.getImageHeight();
         this.displayAngle = display.getDisplayAngle();
         this.initialScale = display.getImageScale(this.displayAngle);
-        this.chip8Variant = display.getChip8Variant();
         this.renderBuffer = new int[displayWidth][displayHeight];
         this.display = display;
 
@@ -91,10 +89,6 @@ public class EmulatorRenderer extends Canvas implements Closeable {
 
     public int getInitialScale() {
         return this.initialScale;
-    }
-
-    public Chip8Variant getChip8Variant() {
-        return this.chip8Variant;
     }
 
     public String getRomTitle() {

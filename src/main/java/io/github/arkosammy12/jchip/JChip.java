@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip;
 
-import io.github.arkosammy12.jchip.config.CommandLineArgs;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.CLIArgs;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class JChip {
 
     private MainWindow mainWindow;
-    private Chip8Emulator<?, ?> currentEmulator;
+    private Chip8Emulator<?, ?, ?> currentEmulator;
     private final Chip8Database database = new Chip8Database();
     private final SoundWriter soundWriter = new SoundWriter();
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
@@ -35,9 +35,9 @@ public class JChip {
 
     public JChip(String[] args) throws IOException, InterruptedException, InvocationTargetException {
         try {
-            CommandLineArgs cliArgs = null;
+            CLIArgs cliArgs = null;
             if (args.length > 0) {
-                cliArgs = new CommandLineArgs();
+                cliArgs = new CLIArgs();
                 CommandLine cli = new CommandLine(cliArgs);
                 CommandLine.ParseResult parseResult = cli.parseArgs(args);
                 Integer executeHelpResult = CommandLine.executeHelpRequest(parseResult);
@@ -63,7 +63,7 @@ public class JChip {
             });
             if (cliArgs != null) {
                 this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
-                this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
+                this.currentEmulator = Chip8Variant.getEmulator(new EmulatorSettings(this));
             }
         } catch (Exception e) {
             if (this.mainWindow != null) {
@@ -186,7 +186,7 @@ public class JChip {
             this.currentEmulator.close();
             this.mainWindow.setEmulatorRenderer(null);
         }
-        this.currentEmulator = Chip8Variant.getEmulator(new EmulatorInitializer(this));
+        this.currentEmulator = Chip8Variant.getEmulator(new EmulatorSettings(this));
         this.currentState.set(State.RUNNING);
     }
 

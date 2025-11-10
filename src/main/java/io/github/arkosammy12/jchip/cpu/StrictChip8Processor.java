@@ -3,14 +3,16 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.emulators.StrictChip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8Display;
+import io.github.arkosammy12.jchip.video.StrictChip8Display;
 
 import java.util.List;
 
 /// Implementation of cycle accurate CHIP-8 generously provided by @gulrak's [Cadmium](https://github.com/gulrak/cadmium)
-public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulator, Chip8Display, Chip8SoundSystem> {
+public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulator, StrictChip8Memory, StrictChip8Display, Chip8SoundSystem> {
 
     private long instructionCycles;
     private boolean waiting;
@@ -34,6 +36,33 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isWaiting() {
         return this.waiting;
+    }
+
+    protected void push(int value) {
+        this.emulator.getMemory().writeStackWord(this.stackPointer, value);
+        if (this.stackPointer >= 0 && this.stackPointer < this.stack.length) {
+            this.stack[stackPointer] = value;
+        }
+        this.stackPointer = (this.stackPointer + 1) & 0xFF;
+    }
+
+    protected int pop() {
+        this.stackPointer = (this.stackPointer - 1) & 0xFF;
+        return this.emulator.getMemory().readStackWord(this.stackPointer);
+    }
+
+    protected void setRegister(int register, int value) {
+        this.emulator.getMemory().setRegister(register, value);
+        super.setRegister(register, value);
+    }
+
+    protected void setVF(boolean value) {
+        this.emulator.getMemory().setRegister(0xF, value ? 1 : 0);
+        super.setVF(value);
+    }
+
+    protected int getRegister(int register) {
+        return this.emulator.getMemory().getRegister(register);
     }
 
     @Override
@@ -161,6 +190,13 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int execute8Opcode(int firstByte, int NN) {
+        if ((NN & 0xF) != 0) {
+            int word = (0xF0 + ((firstByte << 8 | NN) & 0xF)) << 8 | 0xD3;
+            if (this.stackPointer >= 0 && this.stackPointer < this.stack.length) {
+                this.stack[this.stackPointer] = word;
+            }
+            this.emulator.getMemory().writeStackWord(this.stackPointer, word);
+        }
         return switch (getN(firstByte, NN)) {
             case 0x0 -> { // 8XY0: Copy to register
                 this.setRegister(getX(firstByte, NN), this.getRegister(getY(firstByte, NN)));
@@ -401,7 +437,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                 yield HANDLED;
             }
             case 0x29 -> { // FX29: Set index to small font sprite memory location
-                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
+                this.setIndexRegister(this.emulator.getChip8Variant().getSpriteFont().getSmallFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
                 this.emulator.addCycles(16);
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
@@ -448,8 +484,8 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     }
 
     private void drawSprite(int spriteX, int spriteY, int currentIndexRegister, int N) {
-        Chip8Display display = this.emulator.getDisplay();
-        Chip8Memory memory = this.emulator.getMemory();
+        StrictChip8Display display = this.emulator.getDisplay();
+        StrictChip8Memory memory = this.emulator.getMemory();
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 
@@ -467,6 +503,9 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
             boolean col2 = false;
 
             int slice = memory.readByte(currentIndexRegister + i);
+            memory.writeByte(memory.getMemorySize() - 0x130 + i * 2, slice >>> bitOffset);
+            memory.writeByte(memory.getMemorySize() - 0x130 + i * 2 + 1, bitOffset != 0 ? slice << (8 - bitOffset) : 0);
+
             for (int j = 0, sliceMask = BASE_SLICE_MASK_8; j < 8; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= displayWidth) {

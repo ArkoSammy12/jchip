@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8Display;
@@ -11,7 +11,7 @@ import io.github.arkosammy12.jchip.video.Chip8Display;
 import java.util.List;
 import java.util.Random;
 
-public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Display, S extends SoundSystem> {
+public class Chip8Processor<E extends Chip8Emulator<M, D, S>, M extends Chip8Memory, D extends Chip8Display, S extends SoundSystem> {
 
     public static final int HANDLED = 1;
     public static final int SKIP_TAKEN = 1 << 1;
@@ -30,15 +30,16 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     protected boolean shouldTerminate;
 
     private final int[] registers = new int[16];
-    private final int[] stack = new int[16];
-    private int programCounter = 0x200;
+    protected final int[] stack = new int[16];
+    private int programCounter;
     private int indexRegister;
-    private int stackPointer;
+    protected int stackPointer;
     private int delayTimer;
     private int soundTimer;
 
     public Chip8Processor(E emulator) {
         this.emulator = emulator;
+        this.programCounter = emulator.getMemory().getProgramStart();
         this.memoryBoundsMask = emulator.getMemory().getMemoryBoundsMask();
     }
 
@@ -66,12 +67,12 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         return this.indexRegister;
     }
 
-    protected final void push(int value) {
+    protected void push(int value) {
         this.stack[stackPointer] = value;
         this.stackPointer = (this.stackPointer + 1) & 0xF;
     }
 
-    protected final int pop() {
+    protected int pop() {
         this.stackPointer = (this.stackPointer - 1) & 0xF;
         return this.stack[stackPointer];
     }
@@ -109,15 +110,15 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
         }
     }
 
-    protected final void setRegister(int register, int value) {
+    protected void setRegister(int register, int value) {
         this.registers[register] = value & 0xFF;
     }
 
-    protected final void setVF(boolean value) {
+    protected void setVF(boolean value) {
         this.registers[0xF] = value ? 1 : 0;
     }
 
-    protected final int getRegister(int register) {
+    protected int getRegister(int register) {
         return this.registers[register];
     }
 
@@ -352,7 +353,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
     protected int executeDOpcode(int firstByte, int NN) {
         Chip8Display display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorInitializer config = this.emulator.getEmulatorInitializer();
+        EmulatorSettings config = this.emulator.getEmulatorInitializer();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
 
@@ -459,7 +460,7 @@ public class Chip8Processor<E extends Chip8Emulator<D, S>, D extends Chip8Displa
                 yield HANDLED;
             }
             case 0x29 -> { // FX29: Set index to small font sprite memory location
-                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getSmallFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
+                this.setIndexRegister(this.emulator.getChip8Variant().getSpriteFont().getSmallFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x33 -> { // FX33: Encode register as BCD

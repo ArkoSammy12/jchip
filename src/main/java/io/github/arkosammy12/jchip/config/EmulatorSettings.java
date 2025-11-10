@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class EmulatorInitializer {
+public class EmulatorSettings {
 
     private final int[] rom;
     private final String romTitle;
@@ -31,7 +31,7 @@ public class EmulatorInitializer {
     private final boolean doShiftVXInPlace;
     private final boolean doJumpWithVX;
 
-    public EmulatorInitializer(JChip jchip) throws IOException {
+    public EmulatorSettings(JChip jchip) throws IOException {
         this.jchip = jchip;
 
         SettingsBar settings = this.jchip.getMainWindow().getSettingsBar();

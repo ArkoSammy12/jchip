@@ -62,7 +62,7 @@ public class InfoPanel extends JPanel {
 
     }
 
-    public void update(Chip8Emulator<?, ?> emulator) {
+    public void update(Chip8Emulator<?, ?, ?> emulator) {
         this.totalIpfSinceLastUpdate += emulator.getCurrentInstructionsPerFrame();
         long now = System.nanoTime();
         double lastFrameDuration = now - lastFrameTime;
@@ -89,7 +89,7 @@ public class InfoPanel extends JPanel {
         EmulatorRenderer renderer = display.getEmulatorRenderer();
 
         SwingUtilities.invokeLater(() -> {
-            this.variantLabel.setText(display.getChip8Variant().getDisplayName());
+            this.variantLabel.setText(emulator.getChip8Variant().getDisplayName());
             this.romTitleLabel.setText(renderer.getRomTitle());
             this.ipfLabel.setText("IPF: " + averageIpf);
             this.mipsLabel.setText("MIPS: " + String.format("%.2f", mips));

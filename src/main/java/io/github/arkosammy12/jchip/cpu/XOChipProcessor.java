@@ -2,12 +2,13 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.XOChipMemory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
-public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDisplay, S extends Chip8SoundSystem> extends SChipProcessor<E, D, S> {
+public class XOChipProcessor<E extends XOChipEmulator<M, D, S>, M extends XOChipMemory, D extends XOChipDisplay, S extends Chip8SoundSystem> extends SChipProcessor<E, M, D, S> {
 
     public XOChipProcessor(E emulator) {
         super(emulator);
@@ -91,7 +92,7 @@ public class XOChipProcessor<E extends XOChipEmulator<D, S>, D extends XOChipDis
     protected int executeDOpcode(int firstByte, int NN) {
         XOChipDisplay display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorInitializer config = this.emulator.getEmulatorInitializer();
+        EmulatorSettings config = this.emulator.getEmulatorInitializer();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         int selectedBitPlanes = display.getSelectedBitPlanes();

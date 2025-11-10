@@ -6,16 +6,44 @@ import io.github.arkosammy12.jchip.util.HexSpriteFont;
 
 public class Chip8Memory {
 
-    private final int[] bytes;
-    private final int memoryBoundsMask;
-    private final int memorySize;
+    private static final int MEMORY_BOUNDS_MASK = 0xFFF;
+    private static final int MEMORY_SIZE = MEMORY_BOUNDS_MASK + 1;
+    private static final int PROGRAM_START = 0x200;
 
-    public Chip8Memory(int[] rom, Chip8Variant chip8Variant, int programStart, int memorySize) {
+    protected final int[] bytes;
+    protected final int memoryBoundsMask;
+
+    public Chip8Memory(int[] rom) {
         try {
-            this.memorySize = memorySize;
-            this.memoryBoundsMask = memorySize - 1;
-            this.bytes = new int[memorySize];
-            chip8Variant.getSpriteFont().getSmallFont().ifPresent(smallFont -> {
+            this.memoryBoundsMask = this.getMemoryBoundsMask();
+            this.bytes = new int[this.getMemorySize()];
+            int programStart = this.getProgramStart();
+            for (int i = 0; i < rom.length; i++) {
+                this.bytes[i + programStart] = rom[i] & 0xFF;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new EmulatorException("ROM size too big for selected CHIP-8 variant! ");
+        } catch (Exception e) {
+            throw new EmulatorException("Error initializing CHIP-8 memory: ", e);
+        }
+
+    }
+
+    public int getMemorySize() {
+        return MEMORY_SIZE;
+    }
+
+    public int getMemoryBoundsMask() {
+        return MEMORY_BOUNDS_MASK;
+    }
+
+    public int getProgramStart() {
+        return PROGRAM_START;
+    }
+
+    public void loadFont(HexSpriteFont spriteFont) {
+        try {
+            spriteFont.getSmallFont().ifPresent(smallFont -> {
                 for (int i = 0; i < smallFont.length; i++) {
                     int[] slice = smallFont[i];
                     int sliceLength = slice.length;
@@ -25,7 +53,7 @@ public class Chip8Memory {
                     }
                 }
             });
-            chip8Variant.getSpriteFont().getBigFont().ifPresent(bigFont -> {
+            spriteFont.getBigFont().ifPresent(bigFont -> {
                 for (int i = 0; i < bigFont.length; i++) {
                     int[] slice = bigFont[i];
                     int sliceLength = slice.length;
@@ -35,22 +63,9 @@ public class Chip8Memory {
                     }
                 }
             });
-            for (int i = 0; i < rom.length; i++) {
-                this.bytes[i + programStart] = rom[i] & 0xFF;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new EmulatorException("ROM size too big for CHIP-8 variant " + chip8Variant.getDisplayName() + "!");
         } catch (Exception e) {
             throw new EmulatorException("Error initializing CHIP-8 memory: ", e);
         }
-    }
-
-    public int getMemorySize() {
-        return this.memorySize;
-    }
-
-    public int getMemoryBoundsMask() {
-        return this.memoryBoundsMask;
     }
 
     public final int readByte(int address) {
@@ -58,7 +73,7 @@ public class Chip8Memory {
         return this.bytes[address & this.memoryBoundsMask];
     }
 
-    public final void writeByte(int address, int value) {
+    public void writeByte(int address, int value) {
         // Writing to memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
         this.bytes[address & this.memoryBoundsMask] = value;
     }

@@ -232,7 +232,7 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 - [CHIP-8 Research Facility](https://chip-8.github.io/)
 - [mattmikolay – *Mastering CHIP-8*](https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908)
 - [mattmikolay - Viper Magazines](https://github.com/mattmikolay/viper/tree/master)
-- [Laurence Scotford – COSMAC VIP Sprite Drawing](https://www.laurencescotford.net/2020/07/19/chip-8-on-the-cosmac-vip-drawing-sprites/)
+- [Laurence Scotford – Chip-8 on the COSMAC VIP: Index](https://www.laurencescotford.net/2020/07/25/chip-8-on-the-cosmac-vip-index/)
 - [Chromatophore - HP48-Superchip investigations](https://github.com/Chromatophore/HP48-Superchip/tree/master/investigations)
 - [John Earnest – Octo IDE](https://github.com/JohnEarnest/Octo)
 - [John Earnest’s chip8archive](https://johnearnest.github.io/chip8Archive/)

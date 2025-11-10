@@ -17,7 +17,7 @@ import java.util.Optional;
         version = Main.VERSION_STRING,
         description = "Initializes jchip with the desired configurations and starts emulation."
 )
-public class CommandLineArgs implements PrimarySettingsProvider {
+public class CLIArgs implements PrimarySettingsProvider {
 
     @CommandLine.Option(
             names = {"--rom", "-r"},
@@ -123,7 +123,7 @@ public class CommandLineArgs implements PrimarySettingsProvider {
 
     @Override
     public Optional<byte[]> getRawRom() {
-        return Optional.of(EmulatorInitializer.getRawRom(convertToAbsolutePathIfNeeded(romPath)));
+        return Optional.of(EmulatorSettings.getRawRom(convertToAbsolutePathIfNeeded(romPath)));
     }
 
     @Override

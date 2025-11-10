@@ -4,11 +4,11 @@ import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
-public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDisplay, S extends SoundSystem> extends Chip8Processor<E, D, S> {
+public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Memory, D extends SChipDisplay, S extends SoundSystem> extends Chip8Processor<E, M, D, S> {
 
     public static final int BASE_SLICE_MASK_16 = 1 << 15;
 
@@ -71,7 +71,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
     protected int executeDOpcode(int firstByte, int NN) {
         SChipDisplay display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorInitializer config = this.emulator.getEmulatorInitializer();
+        EmulatorSettings config = this.emulator.getEmulatorInitializer();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
@@ -168,7 +168,7 @@ public class SChipProcessor<E extends SChipEmulator<D, S>, D extends SChipDispla
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         return switch (NN) {
             case 0x30 -> { // FX30: Set index to big font sprite memory offset
-                this.setIndexRegister(this.emulator.getDisplay().getCharacterSpriteFont().getBigFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
+                this.setIndexRegister(this.emulator.getChip8Variant().getSpriteFont().getBigFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: Store registers to flags storage

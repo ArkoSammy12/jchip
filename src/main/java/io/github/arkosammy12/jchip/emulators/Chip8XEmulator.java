@@ -2,10 +2,9 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
+import io.github.arkosammy12.jchip.memory.Chip8XMemory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
 import java.awt.event.KeyAdapter;
@@ -13,20 +12,15 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class Chip8XEmulator<D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Emulator<D, S> {
+public class Chip8XEmulator<M extends Chip8XMemory, D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Emulator<M, D, S> {
 
-    public Chip8XEmulator(EmulatorInitializer emulatorInitializer, BiFunction<EmulatorInitializer, List<KeyAdapter>, D> displayFactory, Function<EmulatorInitializer, S> soundSystemFactory) {
-        super(emulatorInitializer, displayFactory, soundSystemFactory);
+    public Chip8XEmulator(EmulatorSettings emulatorSettings, Function<int[], M> memoryFactory, BiFunction<EmulatorSettings, List<KeyAdapter>, D> displayFactory, Function<EmulatorSettings, S> soundSystemFactory) {
+        super(emulatorSettings, memoryFactory, displayFactory, soundSystemFactory);
     }
 
     @Override
-    protected Chip8Processor<?, ?, ?> createProcessor() {
+    protected Chip8Processor<?, ?, ?, ?> createProcessor() {
         return new Chip8XProcessor<>(this);
-    }
-
-    @Override
-    protected Chip8Memory createMemory(int[] rom, Chip8Variant chip8Variant) {
-        return new Chip8Memory(rom, chip8Variant, 0x300, 0xFFF + 1);
     }
 
 }

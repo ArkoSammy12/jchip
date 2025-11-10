@@ -1,17 +1,18 @@
 package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.MegaChipMemory;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
-import io.github.arkosammy12.jchip.config.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
-public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaChipDisplay, S extends SoundSystem> extends SChipProcessor<E, D, S> {
+public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends MegaChipMemory, D extends MegaChipDisplay, S extends SoundSystem> extends SChipProcessor<E, M, D, S> {
 
-    private int cachedCharacterFontIndex;
+    private int cachedFontSpriteIndex;
 
     public MegaChipProcessor(E emulator) {
         super(emulator);
@@ -205,7 +206,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
         }
 
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorInitializer config = this.emulator.getEmulatorInitializer();
+        EmulatorSettings config = this.emulator.getEmulatorInitializer();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
 
@@ -217,7 +218,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
 
         this.setVF(false);
 
-        if (currentIndexRegister == cachedCharacterFontIndex) {
+        if (currentIndexRegister == cachedFontSpriteIndex) {
             // Normal DXYN behavior for font sprites
             int N = getN(firstByte, NN);
             int spriteHeight = N < 1 ? 16 : N;
@@ -310,7 +311,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<D, S>, D extends MegaC
                 this.emulator.getDisplay().flushBackBuffer();
             }
             if (isSet(result, FONT_SPRITE_POINTER)) {
-                this.cachedCharacterFontIndex = this.getIndexRegister();
+                this.cachedFontSpriteIndex = this.getIndexRegister();
             }
         }
         return result;
