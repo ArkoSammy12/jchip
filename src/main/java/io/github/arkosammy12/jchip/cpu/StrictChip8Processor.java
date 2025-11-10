@@ -38,16 +38,36 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
         return this.waiting;
     }
 
+    @Override
+    protected void setProgramCounter(int programCounter) {
+        this.programCounter = programCounter & 0xFFFF;
+    }
+
+    @Override
+    protected void incrementProgramCounter() {
+        this.programCounter = (programCounter + 2) & 0xFFFF;
+    }
+
+    @Override
+    protected void decrementProgramCounter() {
+        this.programCounter = (programCounter - 2) & 0xFFFF;
+    }
+
+    @Override
+    protected void setIndexRegister(int indexRegister) {
+        this.indexRegister = indexRegister & 0xFFFF;
+    }
+
     protected void push(int value) {
         this.emulator.getMemory().writeStackWord(this.stackPointer, value);
         if (this.stackPointer >= 0 && this.stackPointer < this.stack.length) {
             this.stack[stackPointer] = value;
         }
-        this.stackPointer = (this.stackPointer + 1) & 0xFF;
+        this.stackPointer = (this.stackPointer + 1) & 0xFFFF;
     }
 
     protected int pop() {
-        this.stackPointer = (this.stackPointer - 1) & 0xFF;
+        this.stackPointer = (this.stackPointer - 1) & 0xFFFF;
         return this.emulator.getMemory().readStackWord(this.stackPointer);
     }
 
@@ -191,7 +211,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     @SuppressWarnings("DuplicatedCode")
     protected int execute8Opcode(int firstByte, int NN) {
         if ((NN & 0xF) != 0) {
-            int word = (0xF0 + ((firstByte << 8 | NN) & 0xF)) << 8 | 0xD3;
+            int word = (0xF0 + (NN & 0xF)) << 8 | 0xD3;
             if (this.stackPointer >= 0 && this.stackPointer < this.stack.length) {
                 this.stack[this.stackPointer] = word;
             }
@@ -503,8 +523,10 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
             boolean col2 = false;
 
             int slice = memory.readByte(currentIndexRegister + i);
-            memory.writeByte(memory.getMemorySize() - 0x130 + i * 2, slice >>> bitOffset);
-            memory.writeByte(memory.getMemorySize() - 0x130 + i * 2 + 1, bitOffset != 0 ? slice << (8 - bitOffset) : 0);
+
+            int workAreaAddressOffset = memory.getMemorySize() - 0x130 + i * 2;
+            memory.writeByte(workAreaAddressOffset, slice >>> bitOffset);
+            memory.writeByte(workAreaAddressOffset + 1, bitOffset != 0 ? slice << (8 - bitOffset) : 0);
 
             for (int j = 0, sliceMask = BASE_SLICE_MASK_8; j < 8; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;

@@ -31,8 +31,8 @@ public class Chip8Processor<E extends Chip8Emulator<M, D, S>, M extends Chip8Mem
 
     private final int[] registers = new int[16];
     protected final int[] stack = new int[16];
-    private int programCounter;
-    private int indexRegister;
+    protected int programCounter;
+    protected int indexRegister;
     protected int stackPointer;
     private int delayTimer;
     private int soundTimer;
@@ -43,15 +43,15 @@ public class Chip8Processor<E extends Chip8Emulator<M, D, S>, M extends Chip8Mem
         this.memoryBoundsMask = emulator.getMemory().getMemoryBoundsMask();
     }
 
-    protected final void setProgramCounter(int programCounter) {
+    protected void setProgramCounter(int programCounter) {
         this.programCounter = programCounter & this.memoryBoundsMask;
     }
 
-    protected final void incrementProgramCounter() {
+    protected void incrementProgramCounter() {
         this.programCounter = (programCounter + 2) & this.memoryBoundsMask;
     }
 
-    protected final void decrementProgramCounter() {
+    protected void decrementProgramCounter() {
         this.programCounter = (programCounter - 2) & this.memoryBoundsMask;
     }
 
@@ -59,7 +59,7 @@ public class Chip8Processor<E extends Chip8Emulator<M, D, S>, M extends Chip8Mem
         return this.programCounter;
     }
 
-    protected final void setIndexRegister(int indexRegister) {
+    protected void setIndexRegister(int indexRegister) {
         this.indexRegister = indexRegister & this.memoryBoundsMask;
     }
 

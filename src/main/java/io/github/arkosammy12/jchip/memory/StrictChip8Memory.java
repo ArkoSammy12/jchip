@@ -20,12 +20,27 @@ public class StrictChip8Memory extends Chip8Memory {
     }
 
     public void writeStackWord(int index, int value) {
-        this.writeByte(this.getMemorySize() - 0x130 - index * 2 - 2, (value & 0xFF00) >>> 8);
-        this.writeByte(this.getMemorySize() - 0x130 - index * 2 - 1, value & 0xFF);
+        int stackWordOffset = this.getMemorySize() - 0x130 - index * 2;
+        this.writeByte(stackWordOffset - 2, (value & 0xFF00) >>> 8);
+        this.writeByte(stackWordOffset - 1, value & 0xFF);
     }
 
     public int readStackWord(int index) {
-        return (this.readByte(this.getMemorySize() - 0x130 - index * 2 - 2) << 8) | this.readByte(this.getMemorySize() - 0x130 - index * 2 - 1);
+        int stackWordOffset = this.getMemorySize() - 0x130 - index * 2;
+        return (this.readByte(stackWordOffset - 2) << 8) | this.readByte(stackWordOffset - 1);
+    }
+
+    public void drawDisplayPixel(int column, int row) {
+        int mask = 0x80 >>> (column & 7);
+        int offset = (row << 3) + (column >>> 3);
+        int address = DISPLAY_OFFSET + offset;
+        this.writeByte(address, this.readByte(address) ^ mask);
+    }
+
+    public boolean getDisplayPixel(int column, int row) {
+        int mask = 0x80 >>> (column & 7);
+        int offset = (row << 3) + (column >>> 3);
+        return (this.readByte(DISPLAY_OFFSET + offset) & mask) != 0;
     }
 
     @Override
@@ -43,18 +58,6 @@ public class StrictChip8Memory extends Chip8Memory {
             return 0xFF;
         }
         return this.bytes[address];
-    }
-
-    public void drawDisplayPixel(int column, int row) {
-        int mask = 0x80 >>> (column & 7);
-        int offset = (row << 3) + (column >>> 3);
-        this.writeByte(DISPLAY_OFFSET + offset, this.readByte(DISPLAY_OFFSET + offset) ^ mask);
-    }
-
-    public boolean getDisplayPixel(int column, int row) {
-        int mask = 0x80 >>> (column & 7);
-        int offset = (row << 3) + (column >>> 3);
-        return (this.readByte(DISPLAY_OFFSET + offset) & mask) != 0;
     }
 
 }
