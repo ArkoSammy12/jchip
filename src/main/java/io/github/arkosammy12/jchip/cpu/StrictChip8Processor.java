@@ -145,7 +145,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     protected int execute2Opcode(int firstByte, int NN) {
         this.push(this.getProgramCounter());
         this.setProgramCounter(getNNN(firstByte, NN));
-         this.emulator.addCycles(26);
+        this.emulator.addCycles(26);
         return HANDLED;
     }
 
