@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.memory.Chip8Memory;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -56,15 +57,15 @@ public class DebuggerViewPanel extends JPanel {
         this.indexRegisterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         this.delayTimerLabel = new DebuggerLabel<>("DT");
-        this.delayTimerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
+        this.delayTimerLabel.setToStringFunction(val -> String.format("%02X", val));
         this.delayTimerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         this.soundTimerLabel = new DebuggerLabel<>("ST");
-        this.soundTimerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
+        this.soundTimerLabel.setToStringFunction(val -> String.format("%02X", val));
         this.soundTimerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         this.stackPointerLabel = new DebuggerLabel<>("SP");
-        this.stackPointerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
+        this.stackPointerLabel.setToStringFunction(val -> String.format("%02X", val));
         this.stackPointerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 
         for (int i = 0; i < 16; i++) {
@@ -72,8 +73,8 @@ public class DebuggerViewPanel extends JPanel {
             DebuggerLabel<Integer> registerLabel = new DebuggerLabel<>("V" + hexDigit);
             DebuggerLabel<Integer> stackLabel = new DebuggerLabel<>(hexDigit);
 
-            registerLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
-            stackLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
+            registerLabel.setToStringFunction(val -> String.format("%02X", val));
+            stackLabel.setToStringFunction(val -> String.format("%02X", val));
 
             registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
             stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
@@ -188,6 +189,7 @@ public class DebuggerViewPanel extends JPanel {
         int sp = processor.getStackPointer();
         processor.getRegisterView(this.shownRegisters);
         processor.getStackView(this.shownStack);
+        Chip8Memory memory = emulator.getMemory();
         this.memoryTable.update(emulator);
 
         SwingUtilities.invokeLater(() -> {
@@ -199,14 +201,22 @@ public class DebuggerViewPanel extends JPanel {
             this.doShiftVXInPlaceLabel.setState(config.doShiftVXInPlace());
             this.doJumpWithVXLabel.setState(config.doJumpWithVX());
 
+            String formatSpecifier = "%0" + hexDigitCount(memory.getMemoryBoundsMask()) + "X";
+
+            this.programCounterLabel.setToStringFunction(val -> String.format(formatSpecifier, val));
             this.programCounterLabel.setState(pc);
+
+            this.indexRegisterLabel.setToStringFunction(val -> String.format(formatSpecifier, val));
             this.indexRegisterLabel.setState(I);
+
             this.delayTimerLabel.setState(dt);
             this.soundTimerLabel.setState(st);
             this.stackPointerLabel.setState(sp);
 
             for (int i = 0; i < 16; i++) {
                 this.registerLabels.get(i).setState(this.shownRegisters[i]);
+
+                this.stackLabels.get(i).setToStringFunction(val -> String.format(formatSpecifier, val));
                 this.stackLabels.get(i).setState(this.shownStack[i]);
             }
 
@@ -217,6 +227,13 @@ public class DebuggerViewPanel extends JPanel {
 
         });
 
+    }
+
+    private static int hexDigitCount(int x) {
+        if (x == 0) {
+            return 1;
+        }
+        return (32 - Integer.numberOfLeadingZeros(x) + 3) >>> 2;
     }
 
 }
