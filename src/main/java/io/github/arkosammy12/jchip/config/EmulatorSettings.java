@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.config;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.ui.SettingsBar;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
@@ -34,7 +33,7 @@ public class EmulatorSettings {
     public EmulatorSettings(JChip jchip) throws IOException {
         this.jchip = jchip;
 
-        SettingsBar settings = this.jchip.getMainWindow().getSettingsBar();
+        PrimarySettingsProvider settings = this.jchip.getMainWindow().getSettingsBar();
         Optional<byte[]> rawRomOptional = settings.getRawRom();
 
         if (rawRomOptional.isEmpty()) {
@@ -42,7 +41,6 @@ public class EmulatorSettings {
         }
 
         byte[] rawRom = rawRomOptional.get();
-
         int[] rom = loadRom(rawRom);
         this.rom = Arrays.copyOf(rom, rom.length);
 

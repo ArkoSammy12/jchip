@@ -13,7 +13,6 @@ import java.util.Optional;
 
 public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
 
-
     private final FileMenu fileMenu;
     private final EmulatorMenu emulatorMenu;
     private final SettingsMenu settingsMenu;

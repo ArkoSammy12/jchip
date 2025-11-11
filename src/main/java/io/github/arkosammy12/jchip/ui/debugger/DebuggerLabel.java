@@ -1,12 +1,13 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
 import javax.swing.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public class DebuggerLabel<T> extends JLabel {
 
     private final String name;
-    private T state;
+    private final AtomicReference<T> state = new AtomicReference<>(null);
     private Function<T, String> toStringFunction;
 
     public DebuggerLabel(String name) {
@@ -22,11 +23,11 @@ public class DebuggerLabel<T> extends JLabel {
         if (val == null) {
             if (this.state != null) {
                 this.setText(this.name);
-                this.state = null;
+                this.state.set(null);
             }
             return;
         }
-        this.state = val;
+        this.state.set(val);
         String str = this.toStringFunction != null ? this.toStringFunction.apply(val) : val.toString();
         this.setText(this.name + ": " + str);
     }

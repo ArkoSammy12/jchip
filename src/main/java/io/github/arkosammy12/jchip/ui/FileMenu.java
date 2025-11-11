@@ -18,7 +18,7 @@ public class FileMenu extends JMenu {
 
     private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8"};
 
-    private Path romPath;
+    private final AtomicReference<Path> romPath = new AtomicReference<>(null);
     private final AtomicReference<byte[]> rawRom = new AtomicReference<>(null);
 
     public FileMenu(JChip jchip) {
@@ -33,8 +33,8 @@ public class FileMenu extends JMenu {
             Action details = chooser.getActionMap().get("viewTypeDetails");
             details.actionPerformed(null);
             if (chooser.showOpenDialog(this.getParent()) == JFileChooser.APPROVE_OPTION) {
-                this.romPath = chooser.getSelectedFile().toPath().toAbsolutePath();
-                this.rawRom.set(EmulatorSettings.getRawRom(this.romPath));
+                this.romPath.set(chooser.getSelectedFile().toPath().toAbsolutePath());
+                this.rawRom.set(EmulatorSettings.getRawRom(this.romPath.get()));
             }
         });
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK, true));
@@ -45,7 +45,7 @@ public class FileMenu extends JMenu {
     }
 
     public Optional<Path> getRomPath() {
-        return Optional.ofNullable(romPath);
+        return Optional.ofNullable(this.romPath.get());
     }
 
     public Optional<byte[]> getRawRom() {

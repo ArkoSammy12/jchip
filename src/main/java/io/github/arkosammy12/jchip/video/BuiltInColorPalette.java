@@ -95,6 +95,7 @@ public enum BuiltInColorPalette implements ColorPalette, DisplayNameProvider {
         public BuiltInColorPalette convert(String value) {
             return getBuiltInColorPaletteForIdentifier(value);
         }
+
     }
 
 }

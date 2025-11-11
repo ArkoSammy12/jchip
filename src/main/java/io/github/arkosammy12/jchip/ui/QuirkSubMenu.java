@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.ui;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class QuirkSubMenu extends JMenu {
 
@@ -10,7 +11,7 @@ public class QuirkSubMenu extends JMenu {
     private final JRadioButtonMenuItem enabledItem;
     private final JRadioButtonMenuItem disabledItem;
 
-    private Boolean state;
+    private final AtomicReference<Boolean> state = new AtomicReference<>(null);
 
     public QuirkSubMenu(String name) {
         super(name);
@@ -41,7 +42,7 @@ public class QuirkSubMenu extends JMenu {
     }
 
     public void setState(Boolean val) {
-        this.state = val;
+        this.state.set(val);
         this.unspecifiedItem.setSelected(false);
         this.enabledItem.setSelected(false);
         this.disabledItem.setSelected(false);
@@ -55,7 +56,7 @@ public class QuirkSubMenu extends JMenu {
     }
 
      public Optional<Boolean> getState() {
-        return Optional.ofNullable(this.state);
+        return Optional.ofNullable(this.state.get());
      }
 
 }

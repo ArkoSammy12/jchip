@@ -14,7 +14,7 @@ public class Chip8XProcessor<E extends Chip8Emulator<M, D, S>, M extends Chip8XM
 
     @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
-         if (firstByte == 0x02 && NN == 0xA0) { // 02A0: Cycle background color (blue, black, green, red)
+         if (firstByte == 0x02 && NN == 0xA0) { // 02A0: cycle-bgcol
              this.emulator.getDisplay().cycleBackgroundColor();
              return HANDLED;
          } else {
@@ -24,7 +24,7 @@ public class Chip8XProcessor<E extends Chip8Emulator<M, D, S>, M extends Chip8XM
 
     @Override
     protected int execute5Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        if (getN(firstByte, NN) == 0x1) { // 5XY1: Add registers as packed octal digits
+        if (getN(firstByte, NN) == 0x1) { // 5XY1: 0x5X 0xY1. Add as packed octal digits.
             int X = getX(firstByte, NN);
             this.setRegister(X, ((this.getRegister(X) & 0x77) + (this.getRegister(getY(firstByte, NN)) & 0x77)) & 0x77);
             return HANDLED;
@@ -33,7 +33,8 @@ public class Chip8XProcessor<E extends Chip8Emulator<M, D, S>, M extends Chip8XM
         }
     }
 
-    // BXYN: Set foreground color
+    // BXYN: col-high X Y N
+    // BXY0: col-low X Y
     @Override
     protected int executeBOpcode(int firstByte, int NN) {
         Chip8XDisplay display = this.emulator.getDisplay();
@@ -81,8 +82,8 @@ public class Chip8XProcessor<E extends Chip8Emulator<M, D, S>, M extends Chip8XM
         //Keypad keyState = this.emulator.getKeyState();
         //int hexKey = this.getRegister(secondNibble) & 0xF;
         return switch (NN) {
-            case 0xF2 -> HANDLED; // EXF2: Skip if key on keypad 2 is pressed. Stubbed
-            case 0xF5 -> HANDLED; // EXF5: Skip if key on keypad 2 is not pressed. Stubbed
+            case 0xF2 -> HANDLED; // EXF2: 0xeX 0xf2. Skip if key on keypad 2 is pressed. Stubbed
+            case 0xF5 -> HANDLED; // EXF5: 0xeX 0xf5. Skip if key on keypad 2 is not pressed. Stubbed
             default -> super.executeEOpcode(firstByte, NN);
         };
     }
@@ -90,11 +91,11 @@ public class Chip8XProcessor<E extends Chip8Emulator<M, D, S>, M extends Chip8XM
     @Override
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         return switch (NN) {
-            case 0xF8 -> { // FXF8: Output register to IO port
+            case 0xF8 -> { // FXF8: 0xfX 0xf8. Output register to IO port
                 this.emulator.getSoundSystem().setPitch(this.getRegister(getX(firstByte, NN)));
                 yield HANDLED;
             }
-            case 0xFB -> HANDLED; // FXFB: Wait for input from IO port and load into register. Stubbed
+            case 0xFB -> HANDLED; // FXFB: 0xfX 0xfb. Wait for input from IO port and load into register. Stubbed
             default -> super.executeFOpcode(firstByte, NN);
         };
     }

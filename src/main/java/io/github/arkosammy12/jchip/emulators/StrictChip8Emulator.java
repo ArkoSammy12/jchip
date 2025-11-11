@@ -5,7 +5,6 @@ import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
 import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.video.Chip8Display;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.WAITING;
@@ -19,8 +18,8 @@ public final class StrictChip8Emulator extends Chip8Emulator<StrictChip8Memory, 
 
     public StrictChip8Emulator(EmulatorSettings emulatorSettings) {
         super(emulatorSettings, StrictChip8Memory::new, StrictChip8Display::new, Chip8SoundSystem::new);
-        // Amount of cycles the COSMAC-VIP needs to set things up before beginning execution of the ROM
         this.getDisplay().setMemory(this.getMemory());
+        // Amount of cycles the COSMAC-VIP needs to set things up before beginning execution of the ROM
         this.machineCycles = 3250;
         this.nextFrame = this.calculateNextFrame();
     }

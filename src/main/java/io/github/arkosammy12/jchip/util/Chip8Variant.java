@@ -17,69 +17,69 @@ import java.util.function.ToIntFunction;
 
 public enum Chip8Variant implements DisplayNameProvider {
     CHIP_8(
-            (config) -> new Chip8Emulator<>(config, Chip8Memory::new, Chip8Display::new, Chip8SoundSystem::new),
             "chip-8",
             "CHIP-8",
             new String[]{"originalChip8", "modernChip8"},
+            (config) -> new Chip8Emulator<>(config, Chip8Memory::new, Chip8Display::new, Chip8SoundSystem::new),
             new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11),
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     ),
     STRICT_CHIP_8(
-            StrictChip8Emulator::new,
             "strict-chip-8",
             "STRICT CHIP-8",
             new String[]{"originalChip8", "modernChip8"},
+            StrictChip8Emulator::new,
             new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11),
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     ),
     CHIP_8X(
-            (config) -> new Chip8XEmulator<>(config, Chip8XMemory::new, Chip8XDisplay::new, Chip8SoundSystem::new),
             "chip-8x",
             "CHIP-8X",
             new String[]{"chip8x"},
+            (config) -> new Chip8XEmulator<>(config, Chip8XMemory::new, Chip8XDisplay::new, Chip8SoundSystem::new),
             new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11),
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     ),
     SUPER_CHIP_LEGACY(
-            config -> new SChipEmulator<>(config, Chip8Memory::new, (c, adapters) -> new SChipDisplay(c, adapters, false), Chip8SoundSystem::new, false),
             "schip-legacy",
             "SCHIP-1.1",
             new String[]{"superchip1", "superchip"},
+            config -> new SChipEmulator<>(config, Chip8Memory::new, (c, adapters) -> new SChipDisplay(c, adapters, false), Chip8SoundSystem::new, false),
             new Quirkset(false, false, true, true, true, true, _ -> 30),
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG)
     ),
     SUPER_CHIP_MODERN(
-            config -> new SChipEmulator<>(config, Chip8Memory::new, (c, adapters) -> new SChipDisplay(c, adapters, true), Chip8SoundSystem::new, true),
             "schip-modern",
             "SCHIP-MODERN",
             null,
+            config -> new SChipEmulator<>(config, Chip8Memory::new, (c, adapters) -> new SChipDisplay(c, adapters, true), Chip8SoundSystem::new, true),
             new Quirkset(false, false, false, true, true, true, _ -> 30),
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG)
     ),
     XO_CHIP(
-            config -> new XOChipEmulator<>(config, XOChipMemory::new, XOChipDisplay::new, Chip8SoundSystem::new),
             "xo-chip",
             "XO-CHIP",
             new String[] {"xochip"},
+            config -> new XOChipEmulator<>(config, XOChipMemory::new, XOChipDisplay::new, Chip8SoundSystem::new),
             new Quirkset(false, true, false, false, false, false, _ -> 1000),
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG)
     ),
     MEGA_CHIP(
-            config -> new MegaChipEmulator<>(config, MegaChipMemory::new, MegaChipDisplay::new, Chip8SoundSystem::new),
             "mega-chip",
             "MEGA-CHIP",
             new String[]{"megachip8"},
+            config -> new MegaChipEmulator<>(config, MegaChipMemory::new, MegaChipDisplay::new, Chip8SoundSystem::new),
             new Quirkset(false, false, false, false, true, false, _ -> 1000),
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.MEGACHIP_8_BIG)
     ),
     HYPERWAVE_CHIP_64(
-            config -> new HyperWaveChip64Emulator<>(config, XOChipMemory::new, HyperWaveChip64Display::new, Chip8SoundSystem::new),
             "hyperwave-chip-64",
             "HyperWaveCHIP-64",
             null,
+            config -> new HyperWaveChip64Emulator<>(config, XOChipMemory::new, HyperWaveChip64Display::new, Chip8SoundSystem::new),
             new Quirkset(false, true, false, false, false, false, _ -> 1000),
-            new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG))
-    ;
+            new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG)
+    );
 
     private final Function<EmulatorSettings, Chip8Emulator<?, ?, ?>> emulatorSupplier;
     private final String identifier;
@@ -88,7 +88,7 @@ public enum Chip8Variant implements DisplayNameProvider {
     private final Quirkset defaultQuirkset;
     private final HexSpriteFont hexSpriteFont;
 
-    Chip8Variant(Function<EmulatorSettings, Chip8Emulator<?, ?, ?>> emulatorSupplier, String identifier, String displayName, String[] platformIds, Quirkset defaultQuirkset, HexSpriteFont hexSpriteFont) {
+    Chip8Variant(String identifier, String displayName, String[] platformIds, Function<EmulatorSettings, Chip8Emulator<?, ?, ?>> emulatorSupplier, Quirkset defaultQuirkset, HexSpriteFont hexSpriteFont) {
         this.emulatorSupplier = emulatorSupplier;
         this.identifier = identifier;
         this.displayName = displayName;

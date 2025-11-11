@@ -16,7 +16,7 @@ public class XOChipProcessor<E extends XOChipEmulator<M, D, S>, M extends XOChip
 
     @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        if (firstByte == 0x00 && getY(firstByte, NN) == 0xD) { // OODN: Scroll screen up
+        if (firstByte == 0x00 && getY(firstByte, NN) == 0xD) { // OODN: scroll-up N
             this.emulator.getDisplay().scrollUp(getN(firstByte, NN));
             return HANDLED;
         } else {
@@ -44,7 +44,7 @@ public class XOChipProcessor<E extends XOChipEmulator<M, D, S>, M extends XOChip
             return result;
         }
         return switch (getN(firstByte, NN)) {
-            case 0x2 -> { // 5XY2: Write vX to vY to memory
+            case 0x2 -> { // 5XY2: save vX - vY
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
                 int X = getX(firstByte, NN);
@@ -61,7 +61,7 @@ public class XOChipProcessor<E extends XOChipEmulator<M, D, S>, M extends XOChip
                 }
                 yield HANDLED;
             }
-            case 0x3 -> { // 5XY3: Read values into vX to vY from memory
+            case 0x3 -> { // 5XY3: load vX - vY
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
                 int X = getX(firstByte, NN);
@@ -174,7 +174,7 @@ public class XOChipProcessor<E extends XOChipEmulator<M, D, S>, M extends XOChip
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         return switch (NN) {
             case 0x00 -> {
-                if (firstByte == 0xF0) { // F000 NNNN: Set index register to 16-bit address
+                if (firstByte == 0xF0) { // F000 NNNN: i := long NNNN
                     Chip8Memory memory = this.emulator.getMemory();
                     int currentProgramCounter = this.getProgramCounter();
                     this.setIndexRegister((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
@@ -184,12 +184,12 @@ public class XOChipProcessor<E extends XOChipEmulator<M, D, S>, M extends XOChip
                     yield super.executeFOpcode(firstByte, NN);
                 }
             }
-            case 0x01 -> { // FX01: Set selected bit planes
+            case 0x01 -> { // FX01: plane X
                 this.emulator.getDisplay().setSelectedBitPlanes(getX(firstByte, NN));
                 yield HANDLED;
             }
             case 0x02 -> {
-                if (firstByte == 0xF0) { // F002: Load audio pattern
+                if (firstByte == 0xF0) { // F002: audio
                     Chip8Memory memory = this.emulator.getMemory();
                     Chip8SoundSystem soundSystem = this.emulator.getSoundSystem();
                     int currentIndexRegister = this.getIndexRegister();
@@ -201,7 +201,7 @@ public class XOChipProcessor<E extends XOChipEmulator<M, D, S>, M extends XOChip
                     yield super.executeFOpcode(firstByte, NN);
                 }
             }
-            case 0x3A -> { // FX3A: Set audio pattern pitch
+            case 0x3A -> { // FX3A: pitch := vX
                 this.emulator.getSoundSystem().setPitch(this.getRegister(getX(firstByte, NN)));
                 yield HANDLED;
             }

@@ -34,11 +34,11 @@ public abstract class Display implements Closeable {
 
     public abstract int getHeight();
 
-    public abstract int getImageWidth();
+    protected abstract int getImageWidth();
 
-    public abstract int getImageHeight();
+    protected abstract int getImageHeight();
 
-    public abstract int getImageScale(DisplayAngle displayAngle);
+    protected abstract int getImageScale(DisplayAngle displayAngle);
 
     protected abstract void populateRenderBuffer(int[][] renderBuffer);
 

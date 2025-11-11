@@ -20,19 +20,19 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
         if (firstByte == 0x00) {
             return switch (NN) {
-                case 0xFB -> { // 00FB: Scroll screen right
+                case 0xFB -> { // 00FB: scroll-right
                     this.emulator.getDisplay().scrollRight();
                     yield HANDLED;
                 }
-                case 0xFC -> { // 00FC: Scroll screen left
+                case 0xFC -> { // 00FC: scroll-left
                     this.emulator.getDisplay().scrollLeft();
                     yield HANDLED;
                 }
-                case 0xFD -> { // 00FD: Exit interpreter
+                case 0xFD -> { // 00FD: exit
                     this.shouldTerminate = true;
                     yield HANDLED;
                 }
-                case 0xFE -> { // 00FE: Set lores mode
+                case 0xFE -> { // 00FE: lores
                     SChipDisplay display = this.emulator.getDisplay();
                     display.setExtendedMode(false);
                     if (this.emulator.isModern()) {
@@ -40,7 +40,7 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
                     }
                     yield HANDLED;
                 }
-                case 0xFF -> { // 00FF: Set hires mode
+                case 0xFF -> { // 00FF: hires
                     SChipDisplay display = this.emulator.getDisplay();
                     display.setExtendedMode(true);
                     if (this.emulator.isModern()) {
@@ -49,10 +49,10 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
                     yield HANDLED;
                 }
                 default -> {
-                    if (getY(firstByte, NN) == 0xC) { // 00CN: Scroll screen down
+                    if (getY(firstByte, NN) == 0xC) { // 00CN: scroll-down N
                         int N = getN(firstByte, NN);
-                        // 00C0 is invalid on legacy SUPER-CHIP
                         if (N == 0x0 && !this.emulator.isModern()) {
+                            // 00C0 is invalid on legacy SUPER-CHIP
                             yield super.execute0Opcode(firstByte, NN);
                         }
                         this.emulator.getDisplay().scrollDown(N);
@@ -167,11 +167,11 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
     @Override
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         return switch (NN) {
-            case 0x30 -> { // FX30: Set index to big font sprite memory offset
+            case 0x30 -> { // FX30: i := bighex vX
                 this.setIndexRegister(this.emulator.getChip8Variant().getSpriteFont().getBigFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
-            case 0x75 -> { // FX75: Store registers to flags storage
+            case 0x75 -> { // FX75: saveflags vX
                 JChip jchip = this.emulator.getEmulatorInitializer().getJChip();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
@@ -179,7 +179,7 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
                 }
                 yield HANDLED;
             }
-            case 0x85 -> { // FX85: Load registers from flags storage
+            case 0x85 -> { // FX85: loadflags vX
                 JChip jchip = this.emulator.getEmulatorInitializer().getJChip();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {

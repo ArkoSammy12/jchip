@@ -97,10 +97,6 @@ public class Chip8Emulator<M extends Chip8Memory, D extends Chip8Display, S exte
         return this.currentInstructionsPerFrame;
     }
 
-    protected void terminate() {
-        this.getEmulatorInitializer().getJChip().stop();
-    }
-
     public void executeFrame() throws InvalidInstructionException {
         this.instructionCounter = 0;
         long startOfFrame = System.nanoTime();
@@ -154,6 +150,10 @@ public class Chip8Emulator<M extends Chip8Memory, D extends Chip8Display, S exte
             }
         }
         return false;
+    }
+
+    protected void terminate() {
+        this.getEmulatorInitializer().getJChip().stop();
     }
 
     @Override

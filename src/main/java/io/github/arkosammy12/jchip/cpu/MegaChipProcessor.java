@@ -25,11 +25,11 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
         if (firstByte == 0x00) {
             // Do not clear the frame buffer of the display we are switching into as per original Mega8 behavior
             handled = switch (NN) {
-                case 0x10 -> { // 0010: Disable megachip mode
+                case 0x10 -> { // 0010: megaoff
                     display.setMegaChipMode(false);
                     yield true;
                 }
-                case 0x11 -> { // 0011: Enable megachip mode
+                case 0x11 -> { // 0011: megaon
                     display.setMegaChipMode(true);
                     yield true;
                 }
@@ -44,38 +44,38 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
         }
         return switch (firstByte) {
             case 0x00 -> switch (NN) {
-                case 0xE0 -> { // 00E0: Clear the screen
+                case 0xE0 -> { // 00E0: clear
                     display.flushBackBuffer();
                     display.clear();
                     yield HANDLED | CLS_EXECUTED;
                 }
-                case 0xEE -> { // 00EE: Return from subroutine
+                case 0xEE -> { // 00EE: return
                     this.setProgramCounter(this.pop());
                     yield HANDLED;
                 }
-                case 0xFB -> { // 00FB: Scroll screen right
+                case 0xFB -> { // 00FB: scroll-right
                     display.scrollRight();
                     display.setDisplayUpdateScrollTriggered();
                     yield HANDLED;
                 }
-                case 0xFC -> { // 00FC: Scroll screen left
+                case 0xFC -> { // 00FC: scroll-left
                     display.scrollLeft();
                     display.setDisplayUpdateScrollTriggered();
                     yield HANDLED;
                 }
-                case 0xFD -> { // 00FD: Exit interpreter
+                case 0xFD -> { // 00FD: exit
                     this.shouldTerminate = true;
                     yield HANDLED;
                 }
-                case 0xFE -> HANDLED; // 00FE: Switch to lores mode. Doesn't work when mega mode is on
-                case 0xFF -> HANDLED; // 00FF: Switch to hires mode. Doesn't work when mega mode is on
+                case 0xFE -> HANDLED; // 00FE: lores. Doesn't work when mega mode is on
+                case 0xFF -> HANDLED; // 00FF: hires. Doesn't work when mega mode is on
                 default -> switch (getY(firstByte, NN)) {
-                    case 0xB -> { // 00BN: Scroll screen up
+                    case 0xB -> { // 00BN: scroll_up N
                         display.scrollUp(getN(firstByte, NN));
                         display.setDisplayUpdateScrollTriggered();
                         yield HANDLED;
                     }
-                    case 0xC -> { // 00CN: Scroll screen down
+                    case 0xC -> { // 00CN: scroll-down N
                         int N = getN(firstByte, NN);
                         if (N > 0) {
                             display.scrollDown(N);
@@ -88,14 +88,14 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
                     default -> 0;
                 };
             };
-            case 0x01 -> { // 01NN NNNN: Set index to immediate 24-bit address
+            case 0x01 -> { // 01NN NNNN: ldhi NNNNNN
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentProgramCounter = this.getProgramCounter();
                 this.setIndexRegister((NN << 16) | (memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
                 this.incrementProgramCounter();
                 yield HANDLED;
             }
-            case 0x02 -> { // 02NN: Load color palette entries
+            case 0x02 -> { // 02NN: ldpal NN
                 Chip8Memory memory = this.emulator.getMemory();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i < NN; i++) {
@@ -103,20 +103,20 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
                 }
                 yield HANDLED;
             }
-            case 0x03 -> { // 03NN: Set sprite width
+            case 0x03 -> { // 03NN: sprw NN
                 display.setSpriteWidth(NN);
                 yield HANDLED;
             }
-            case 0x04 -> { // 04NN: Set sprite height
+            case 0x04 -> { // 04NN: sprh NN
                 display.setSpriteHeight(NN);
                 yield HANDLED;
             }
-            case 0x05 -> { // 05NN: Set screen alpha
+            case 0x05 -> { // 05NN: alpha NN
                 display.setScreenAlpha(NN);
                 yield HANDLED;
             }
             case 0x06 -> {
-                if (getY(firstByte, NN) == 0x0) { // 060N: Play digitized sound
+                if (getY(firstByte, NN) == 0x0) { // 060N: digisnd N
                     if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
                         Chip8Memory memory = this.emulator.getMemory();
                         int currentIndexRegister = this.getIndexRegister();
@@ -133,7 +133,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
                 }
             }
             case 0x07 -> {
-                if (NN == 0x00) { // 0700: Stop digitized sound
+                if (NN == 0x00) { // 0700: stopsnd
                     if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
                         megaChipSoundSystem.stopTrack();
                     }
@@ -142,7 +142,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
                     yield 0;
                 }
             }
-            case 0x08 -> switch (NN) { // 080N: Set draw blend mode
+            case 0x08 -> switch (NN) { // 080N: bmode N
                 case 0x00 -> {
                     display.setBlendMode(MegaChipDisplay.BlendMode.BLEND_NORMAL);
                     yield HANDLED;
@@ -169,7 +169,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
                 }
                 default -> 0;
             };
-            case 0x09 -> { // 09NN: Set collision color index
+            case 0x09 -> { // 09NN: ccol NN
                 display.setCollisionIndex(NN);
                 yield HANDLED;
             }

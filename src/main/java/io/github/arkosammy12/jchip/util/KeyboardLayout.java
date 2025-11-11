@@ -112,9 +112,11 @@ public enum KeyboardLayout implements DisplayNameProvider {
     }
 
     public static class Converter implements CommandLine.ITypeConverter<KeyboardLayout> {
+
         @Override
         public KeyboardLayout convert(String value) {
             return getKeyboardLayoutForIdentifier(value);
         }
+
     }
 }
