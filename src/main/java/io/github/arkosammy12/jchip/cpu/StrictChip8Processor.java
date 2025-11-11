@@ -443,7 +443,6 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                             keyState.setWaitingKeypadKey(pressedKeys.getFirst());
                         }
                         this.decrementProgramCounter();
-                        this.setSoundTimer(4);
                         this.setWaiting(true);
                     }
                 }
