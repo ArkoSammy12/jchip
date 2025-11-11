@@ -234,6 +234,7 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 - [mattmikolay - Viper Magazines](https://github.com/mattmikolay/viper/tree/master)
 - [Laurence Scotford – Chip-8 on the COSMAC VIP: Index](https://www.laurencescotford.net/2020/07/25/chip-8-on-the-cosmac-vip-index/)
 - [Chromatophore - HP48-Superchip investigations](https://github.com/Chromatophore/HP48-Superchip/tree/master/investigations)
+- [etxmato - emma_02](https://github.com/etxmato/emma_02?tab=readme-ov-file)
 - [John Earnest – Octo IDE](https://github.com/JohnEarnest/Octo)
 - [John Earnest’s chip8archive](https://johnearnest.github.io/chip8Archive/)
 - [Janitor Raus – Legacy SuperCHIP Display Spec](https://github.com/janitor-raus/CubeChip/blob/master/guides/Legacy%20(Original)%20SuperCHIP%20Display%20Specification.md)
