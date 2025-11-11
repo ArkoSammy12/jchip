@@ -1,5 +1,7 @@
 package io.github.arkosammy12.jchip.memory;
 
+import io.github.arkosammy12.jchip.util.HexSpriteFont;
+
 public class StrictChip8Memory extends Chip8Memory {
 
     public static final int STACK_OFFSET = 0xEA0;
@@ -76,6 +78,11 @@ public class StrictChip8Memory extends Chip8Memory {
 
     public StrictChip8Memory(int[] rom) {
         super(rom);
+    }
+
+    @Override
+    public void loadFont(HexSpriteFont spriteFont) {
+        // Loading font data to RAM not required for COSMAC-VIP based CHIP-8 core
     }
 
     public void setRegister(int index, int value) {
