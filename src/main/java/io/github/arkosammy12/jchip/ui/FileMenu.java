@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.nio.file.Path;
@@ -29,6 +30,7 @@ public class FileMenu extends JMenu {
         JMenuItem openItem = new JMenuItem("Load ROM");
         openItem.addActionListener(_ -> {
             JFileChooser chooser = new JFileChooser();
+            chooser.setPreferredSize(new Dimension(700, 400));
             chooser.setFileFilter(new FileNameExtensionFilter("CHIP-8 ROMs", FILE_EXTENSIONS));
             Action details = chooser.getActionMap().get("viewTypeDetails");
             details.actionPerformed(null);
