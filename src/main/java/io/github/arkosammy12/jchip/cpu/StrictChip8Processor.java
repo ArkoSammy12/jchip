@@ -466,7 +466,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                 yield HANDLED;
             }
             case 0x29 -> { // FX29: i := hex vX
-                this.setIndexRegister(this.emulator.getChip8Variant().getSpriteFont().getSmallFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
+                this.setIndexRegister(StrictChip8Memory.getFontDigitOffset(this.getRegister(getX(firstByte, NN))));
                 this.emulator.addCycles(16);
                 yield HANDLED | FONT_SPRITE_POINTER;
             }

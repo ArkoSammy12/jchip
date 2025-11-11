@@ -67,12 +67,10 @@ public class Chip8Memory {
     }
 
     public int readByte(int address) {
-        // Reading from memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
         return this.bytes[address & this.memoryBoundsMask];
     }
 
     public void writeByte(int address, int value) {
-        // Writing to memory beyond valid addressing range is undefined behavior. Chosen action is to overflow the offset
         this.bytes[address & this.memoryBoundsMask] = value;
     }
 
