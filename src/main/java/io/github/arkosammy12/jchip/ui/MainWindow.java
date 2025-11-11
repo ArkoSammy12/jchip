@@ -31,7 +31,7 @@ public class MainWindow extends JFrame implements Closeable {
         this.setIgnoreRepaint(false);
         this.pack();
         this.setSize((int) (screenSize.getWidth() / 2), (int) (screenSize.getHeight() / 2));
-        this.setLocation((screenSize.width - this.getWidth()) / 2, ((screenSize.height - this.getHeight()) / 2) - 15);
+        this.setLocationRelativeTo(null);
         this.setMaximumSize(screenSize);
 
         this.getContentPane().setLayout(new BorderLayout());

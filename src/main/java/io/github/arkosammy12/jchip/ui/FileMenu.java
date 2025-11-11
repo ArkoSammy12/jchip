@@ -32,7 +32,7 @@ public class FileMenu extends JMenu {
             chooser.setFileFilter(new FileNameExtensionFilter("CHIP-8 ROMs", FILE_EXTENSIONS));
             Action details = chooser.getActionMap().get("viewTypeDetails");
             details.actionPerformed(null);
-            if (chooser.showOpenDialog(this.getParent()) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.showOpenDialog(SwingUtilities.getWindowAncestor(this)) == JFileChooser.APPROVE_OPTION) {
                 this.romPath.set(chooser.getSelectedFile().toPath().toAbsolutePath());
                 this.rawRom.set(EmulatorSettings.getRawRom(this.romPath.get()));
             }
