@@ -1,27 +1,43 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
 import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.WAITING;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public final class StrictChip8Emulator extends Chip8Emulator<StrictChip8Memory, StrictChip8Display, Chip8SoundSystem> {
+public final class StrictChip8Emulator extends Chip8Emulator {
+
+    private StrictChip8Processor processor;
+    private StrictChip8Memory memory;
+    private StrictChip8Display display;
 
     private long machineCycles;
     private long nextFrame;
     private int cycleCounter;
 
     public StrictChip8Emulator(EmulatorSettings emulatorSettings) {
-        super(emulatorSettings, StrictChip8Memory::new, StrictChip8Display::new, Chip8SoundSystem::new);
-        this.getDisplay().setMemory(this.getMemory());
+        super(emulatorSettings);
         // Amount of cycles the COSMAC-VIP needs to set things up before beginning execution of the ROM
         this.machineCycles = 3250;
         this.nextFrame = this.calculateNextFrame();
+    }
+
+    @Override
+    public StrictChip8Processor getProcessor() {
+        return this.processor;
+    }
+
+    @Override
+    public StrictChip8Memory getMemory() {
+        return this.memory;
+    }
+
+    @Override
+    public StrictChip8Display getDisplay() {
+        return this.display;
     }
 
     @Override
@@ -46,9 +62,17 @@ public final class StrictChip8Emulator extends Chip8Emulator<StrictChip8Memory, 
         }
     }
 
-    @Override
-    protected Chip8Processor<?, ?, ?, ?> createProcessor() {
-        return new StrictChip8Processor(this);
+    protected void initializeDisplay() {
+        this.display = new StrictChip8Display(this);
+    }
+
+    protected void initializeMemory() {
+        this.memory = new StrictChip8Memory(this);
+        this.memory.loadFont(this.getChip8Variant().getSpriteFont());
+    }
+
+    protected void initializeProcessor() {
+        this.processor = new StrictChip8Processor(this);
     }
 
     public void addCycles(long cycles) {

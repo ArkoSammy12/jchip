@@ -62,7 +62,7 @@ public class InfoPanel extends JPanel {
 
     }
 
-    public void update(Chip8Emulator<?, ?, ?> emulator) {
+    public void update(Chip8Emulator emulator) {
         this.totalIpfSinceLastUpdate += emulator.getCurrentInstructionsPerFrame();
         long now = System.nanoTime();
         double lastFrameDuration = now - lastFrameTime;
@@ -85,7 +85,7 @@ public class InfoPanel extends JPanel {
         totalFrameTimeSinceLastUpdate = 0;
         lastWindowTitleUpdate = now;
 
-        Display display = emulator.getDisplay();
+        Display<?> display = emulator.getDisplay();
         EmulatorRenderer renderer = display.getEmulatorRenderer();
 
         SwingUtilities.invokeLater(() -> {

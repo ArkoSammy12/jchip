@@ -1,9 +1,10 @@
 package io.github.arkosammy12.jchip.memory;
 
+import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 
-public class Chip8Memory {
+public class Chip8Memory implements Memory {
 
     private static final int MEMORY_BOUNDS_MASK = 0xFFF;
     private static final int MEMORY_SIZE = MEMORY_BOUNDS_MASK + 1;
@@ -13,6 +14,22 @@ public class Chip8Memory {
     protected final int memoryBoundsMask;
 
     public Chip8Memory(int[] rom) {
+        try {
+            this.memoryBoundsMask = this.getMemoryBoundsMask();
+            int programStart = this.getProgramStart();
+            this.bytes = new int[this.getMemorySize()];
+            for (int i = 0; i < rom.length; i++) {
+                this.bytes[i + programStart] = rom[i] & 0xFF;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new EmulatorException("ROM size too big for selected CHIP-8 variant!");
+        } catch (Exception e) {
+            throw new EmulatorException("Error initializing CHIP-8 memory: ", e);
+        }
+    }
+
+    public Chip8Memory(Chip8Emulator emulator) {
+        int[] rom = emulator.getEmulatorSettings().getRom();
         try {
             this.memoryBoundsMask = this.getMemoryBoundsMask();
             int programStart = this.getProgramStart();
@@ -66,10 +83,12 @@ public class Chip8Memory {
         }
     }
 
+    @Override
     public int readByte(int address) {
         return this.bytes[address & this.memoryBoundsMask];
     }
 
+    @Override
     public void writeByte(int address, int value) {
         this.bytes[address & this.memoryBoundsMask] = value;
     }

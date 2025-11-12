@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class JChip {
 
     private MainWindow mainWindow;
-    private Chip8Emulator<?, ?, ?> currentEmulator;
+    private Chip8Emulator currentEmulator;
     private final Chip8Database database = new Chip8Database();
     private final SoundWriter soundWriter = new SoundWriter();
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);

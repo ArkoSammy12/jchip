@@ -56,7 +56,7 @@ public class MainWindow extends JFrame implements Closeable {
         return this.settingsBar;
     }
 
-    public void onFrame(Chip8Emulator<?, ?, ?> emulator) {
+    public void onFrame(Chip8Emulator emulator) {
         if (this.showingDebuggerPanel.get()) {
             this.debuggerViewPanel.update(emulator);
         }

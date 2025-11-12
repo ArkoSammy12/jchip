@@ -4,15 +4,13 @@ import io.github.arkosammy12.jchip.emulators.StrictChip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.util.Keypad;
-import io.github.arkosammy12.jchip.video.Chip8Display;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
 
 import java.util.List;
 
 // Implementation of cycle accurate CHIP-8 generously provided by @gulrak's [Cadmium](https://github.com/gulrak/cadmium)
-public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulator, StrictChip8Memory, StrictChip8Display, Chip8SoundSystem> {
+public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulator> {
 
     private long instructionCycles;
     private boolean waiting;
@@ -343,7 +341,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int executeDOpcode(int firstByte, int NN) {
-        Chip8Display display = this.emulator.getDisplay();
+        StrictChip8Display display = this.emulator.getDisplay();
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 

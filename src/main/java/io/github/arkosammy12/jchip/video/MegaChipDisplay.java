@@ -1,12 +1,9 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
+import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
-import java.awt.event.KeyAdapter;
-import java.util.List;
-
-public class MegaChipDisplay extends SChipDisplay {
+public class MegaChipDisplay<E extends MegaChipEmulator> extends SChipDisplay<E> {
 
     private final int[][] backBuffer = new int[256][256];
     private final int[][] indexBuffer = new int[256][256];
@@ -18,18 +15,18 @@ public class MegaChipDisplay extends SChipDisplay {
     private int collisionIndex = 0;
     private BlendMode blendMode = BlendMode.BLEND_NORMAL;
 
-    private boolean megaChipModeEnabled = false;
+    //private boolean megaChipModeEnabled = false;
     private boolean scrollTriggered = false;
 
-    public MegaChipDisplay(EmulatorSettings config, List<KeyAdapter> keyAdapters) {
-        super(config, keyAdapters, false);
+    public MegaChipDisplay(E emulator) {
+        super(emulator, false);
         this.colorPalette[0] = 0x00000000;
         this.colorPalette[255] = 0xFFFFFFFF;
     }
 
     @Override
     public int getWidth() {
-        if (!this.isMegaChipModeEnabled()) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
             return super.getWidth();
         }
         return 256;
@@ -37,7 +34,7 @@ public class MegaChipDisplay extends SChipDisplay {
 
     @Override
     public int getHeight() {
-        if (!this.isMegaChipModeEnabled()) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
             return super.getHeight();
         }
         return 256;
@@ -108,6 +105,7 @@ public class MegaChipDisplay extends SChipDisplay {
         return this.indexBuffer[column][row];
     }
 
+    /*
     public void setMegaChipMode(boolean value) {
         this.megaChipModeEnabled = value;
     }
@@ -116,13 +114,15 @@ public class MegaChipDisplay extends SChipDisplay {
         return this.megaChipModeEnabled;
     }
 
+     */
+
     public void setDisplayUpdateScrollTriggered() {
         this.scrollTriggered = true;
     }
 
     @Override
     public void setPixel(int column, int row, int val) {
-        if (!this.isMegaChipModeEnabled()) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
             super.setPixel(column, row, val);
             return;
         }
@@ -164,7 +164,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     public void scrollDown(int scrollAmount) {
-        if (!isMegaChipModeEnabled()) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
             super.scrollDown(scrollAmount);
             return;
         }
@@ -187,7 +187,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     public void scrollRight() {
-        if (!isMegaChipModeEnabled()) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
             super.scrollRight();
             return;
         }
@@ -210,7 +210,7 @@ public class MegaChipDisplay extends SChipDisplay {
 
     @SuppressWarnings("DuplicatedCode")
     public void scrollLeft() {
-        if (!isMegaChipModeEnabled()) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
             super.scrollLeft();
             return;
         }
@@ -243,7 +243,7 @@ public class MegaChipDisplay extends SChipDisplay {
     }
 
     protected void populateRenderBuffer(int[][] renderBuffer) {
-        if (this.isMegaChipModeEnabled()) {
+        if (this.emulator.getProcessor().isMegaModeOn()) {
             for (int y = 0; y < imageHeight; y++) {
                 for (int x = 0; x < imageWidth; x++) {
                     int pixel = 0xFF000000;
@@ -288,7 +288,7 @@ public class MegaChipDisplay extends SChipDisplay {
 
     @Override
     public void clear() {
-        if (!isMegaChipModeEnabled()) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
             super.clear();
             return;
         }

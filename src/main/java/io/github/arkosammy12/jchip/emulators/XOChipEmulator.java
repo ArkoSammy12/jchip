@@ -1,26 +1,46 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
 import io.github.arkosammy12.jchip.memory.XOChipMemory;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
-import java.awt.event.KeyAdapter;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+public class XOChipEmulator extends SChipEmulator {
 
-public class XOChipEmulator<M extends XOChipMemory, D extends XOChipDisplay, S extends Chip8SoundSystem> extends SChipEmulator<M, D, S> {
+    private XOChipProcessor<?> processor;
+    private XOChipMemory memory;
+    private XOChipDisplay<?> display;
 
-    public XOChipEmulator(EmulatorSettings emulatorSettings, Function<int[], M> memoryFactory, BiFunction<EmulatorSettings, List<KeyAdapter>, D> displayFactory, Function<EmulatorSettings, S> soundSystemFactory) {
-        super(emulatorSettings, memoryFactory, displayFactory, soundSystemFactory, true);
+    public XOChipEmulator(EmulatorSettings emulatorSettings) {
+        super(emulatorSettings, true);
     }
 
     @Override
-    protected Chip8Processor<?, ?, ?, ?> createProcessor() {
-        return new XOChipProcessor<>(this);
+    public XOChipProcessor<?> getProcessor() {
+        return this.processor;
+    }
+
+    @Override
+    public XOChipMemory getMemory() {
+        return this.memory;
+    }
+
+    @Override
+    public XOChipDisplay<?> getDisplay() {
+        return this.display;
+    }
+
+    protected void initializeDisplay() {
+        this.display = new XOChipDisplay<>(this);
+    }
+
+    protected void initializeMemory() {
+        this.memory = new XOChipMemory(this);
+        this.memory.loadFont(this.getChip8Variant().getSpriteFont());
+    }
+
+    protected void initializeProcessor() {
+        this.processor = new XOChipProcessor<>(this);
     }
 
 }

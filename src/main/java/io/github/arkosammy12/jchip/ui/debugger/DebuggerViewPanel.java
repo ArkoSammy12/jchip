@@ -178,10 +178,10 @@ public class DebuggerViewPanel extends JPanel {
         });
     }
 
-    public void update(Chip8Emulator<?, ?, ?> emulator) {
-        EmulatorSettings config = emulator.getEmulatorInitializer();
+    public void update(Chip8Emulator emulator) {
+        EmulatorSettings config = emulator.getEmulatorSettings();
 
-        Chip8Processor<?, ?, ?, ?> processor = emulator.getProcessor();
+        Chip8Processor<?> processor = emulator.getProcessor();
         int pc = processor.getProgramCounter();
         int I = processor.getIndexRegister();
         int dt = processor.getDelayTimer();

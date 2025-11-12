@@ -1,26 +1,48 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
 import io.github.arkosammy12.jchip.memory.Chip8XMemory;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
-import java.awt.event.KeyAdapter;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+public class Chip8XEmulator extends Chip8Emulator {
 
-public class Chip8XEmulator<M extends Chip8XMemory, D extends Chip8XDisplay, S extends Chip8SoundSystem> extends Chip8Emulator<M, D, S> {
+    private Chip8XProcessor<?> processor;
+    private Chip8XMemory memory;
+    private Chip8XDisplay<?> display;
 
-    public Chip8XEmulator(EmulatorSettings emulatorSettings, Function<int[], M> memoryFactory, BiFunction<EmulatorSettings, List<KeyAdapter>, D> displayFactory, Function<EmulatorSettings, S> soundSystemFactory) {
-        super(emulatorSettings, memoryFactory, displayFactory, soundSystemFactory);
+    public Chip8XEmulator(EmulatorSettings emulatorSettings) {
+        super(emulatorSettings);
     }
 
     @Override
-    protected Chip8Processor<?, ?, ?, ?> createProcessor() {
-        return new Chip8XProcessor<>(this);
+    public Chip8XProcessor<?> getProcessor() {
+        return this.processor;
+    }
+
+    @Override
+    public Chip8XMemory getMemory() {
+        return this.memory;
+    }
+
+    @Override
+    public Chip8XDisplay<?> getDisplay() {
+        return this.display;
+    }
+
+    @Override
+    protected void initializeDisplay() {
+        this.display = new Chip8XDisplay<>(this);
+    }
+
+    @Override
+    protected void initializeMemory() {
+        this.memory = new Chip8XMemory(this);
+    }
+
+    @Override
+    protected void initializeProcessor() {
+        this.processor = new Chip8XProcessor<>(this);
     }
 
 }

@@ -1,11 +1,8 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
+import io.github.arkosammy12.jchip.emulators.Chip8XEmulator;
 
-import java.awt.event.KeyAdapter;
-import java.util.List;
-
-public class Chip8XDisplay extends Chip8Display {
+public class Chip8XDisplay<E extends Chip8XEmulator> extends Chip8Display<E> {
 
     private static final int[] BACKGROUND_COLORS = {
             0xFF000080,
@@ -29,8 +26,8 @@ public class Chip8XDisplay extends Chip8Display {
     private int backgroundColorIndex = 0;
     private boolean extendedColorDraw = false;
 
-    public Chip8XDisplay(EmulatorSettings config, List<KeyAdapter> keyAdapters) {
-        super(config, keyAdapters);
+    public Chip8XDisplay(E emulator) {
+        super(emulator);
 
         // CHIP-8X self color test on startup
         for (int i = 0; i < 8; i++) {

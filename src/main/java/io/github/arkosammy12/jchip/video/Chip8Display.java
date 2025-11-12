@@ -1,21 +1,19 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
+import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
-import java.awt.event.KeyAdapter;
 import java.util.Arrays;
-import java.util.List;
 
-public class Chip8Display extends Display {
+public class Chip8Display<E extends Chip8Emulator> extends Display<E> {
 
     protected final ColorPalette colorPalette;
     protected final int[][] bitplaneBuffer;
 
-    public Chip8Display(EmulatorSettings config, List<KeyAdapter> keyAdapters) {
-        super(config, keyAdapters);
+    public Chip8Display(E emulator) {
+        super(emulator);
         this.bitplaneBuffer = new int[this.getImageWidth()][this.getImageHeight()];
-        this.colorPalette = config.getColorPalette();
+        this.colorPalette = emulator.getEmulatorSettings().getColorPalette();
     }
 
     @Override

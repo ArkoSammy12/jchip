@@ -1,13 +1,13 @@
 package io.github.arkosammy12.jchip.sound;
 
 import io.github.arkosammy12.jchip.JChip;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
+import io.github.arkosammy12.jchip.memory.MegaChipMemory;
 
-public class MegaChipSoundSystem implements SoundSystem {
+public class MegaChipSoundSystem extends Chip8SoundSystem {
 
     private final JChip jchip;
-    private final Chip8Memory memory;
+    private final MegaChipEmulator emulator;
 
     private int trackStart;
     private int trackSize;
@@ -17,12 +17,16 @@ public class MegaChipSoundSystem implements SoundSystem {
     private double samplePos;
     private boolean isPlaying;
 
-    public MegaChipSoundSystem(EmulatorSettings emulatorSettings, Chip8Memory memory) {
-        this.jchip = emulatorSettings.getJChip();
-        this.memory = memory;
+    public MegaChipSoundSystem(MegaChipEmulator emulator) {
+        super(emulator);
+        this.emulator = emulator;
+        this.jchip = emulator.getEmulatorSettings().getJChip();
     }
 
     public void playTrack(int trackSampleRate, int trackSize, boolean loop, int trackStart) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
+            return;
+        }
         this.step = (double) trackSampleRate / SAMPLE_RATE;
         this.trackSize = trackSize;
         this.trackStart = trackStart;
@@ -32,6 +36,9 @@ public class MegaChipSoundSystem implements SoundSystem {
     }
 
     public void stopTrack() {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
+            return;
+        }
         this.trackStart = 0;
         this.trackSize = 0;
         this.loop = false;
@@ -42,10 +49,15 @@ public class MegaChipSoundSystem implements SoundSystem {
 
     @Override
     public void pushSamples(int soundTimer) {
+        if (!this.emulator.getProcessor().isMegaModeOn()) {
+            super.pushSamples(soundTimer);
+            return;
+        }
         if (!this.isPlaying) {
             this.jchip.getSoundWriter().silence();
             return;
         }
+        MegaChipMemory memory = this.emulator.getMemory();
         byte[] data = new byte[SAMPLES_PER_FRAME];
         for (int i = 0; i < data.length; i++) {
             if (loop && this.samplePos >= this.trackSize) {

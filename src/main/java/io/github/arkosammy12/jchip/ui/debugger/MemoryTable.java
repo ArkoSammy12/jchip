@@ -43,7 +43,7 @@ public class MemoryTable extends JTable {
 
     }
 
-    public void update(Chip8Emulator<?, ?, ?> emulator) {
+    public void update(Chip8Emulator emulator) {
         this.memoryTableModel.update(emulator);
     }
 

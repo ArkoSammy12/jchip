@@ -2,13 +2,12 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
-import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
-public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Memory, D extends SChipDisplay, S extends SoundSystem> extends Chip8Processor<E, M, D, S> {
+public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
 
     public static final int BASE_SLICE_MASK_16 = 1 << 15;
 
@@ -33,7 +32,7 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
                     yield HANDLED;
                 }
                 case 0xFE -> { // 00FE: lores
-                    SChipDisplay display = this.emulator.getDisplay();
+                    SChipDisplay<?> display = this.emulator.getDisplay();
                     display.setExtendedMode(false);
                     if (this.emulator.isModern()) {
                         display.clear();
@@ -41,7 +40,7 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
                     yield HANDLED;
                 }
                 case 0xFF -> { // 00FF: hires
-                    SChipDisplay display = this.emulator.getDisplay();
+                    SChipDisplay<?> display = this.emulator.getDisplay();
                     display.setExtendedMode(true);
                     if (this.emulator.isModern()) {
                         display.clear();
@@ -69,9 +68,9 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
 
     @SuppressWarnings("DuplicatedCode")
     protected int executeDOpcode(int firstByte, int NN) {
-        SChipDisplay display = this.emulator.getDisplay();
+        SChipDisplay<?> display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorSettings config = this.emulator.getEmulatorInitializer();
+        EmulatorSettings config = this.emulator.getEmulatorSettings();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
@@ -172,7 +171,7 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: saveflags vX
-                JChip jchip = this.emulator.getEmulatorInitializer().getJChip();
+                JChip jchip = this.emulator.getEmulatorSettings().getJChip();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
                     jchip.setFlagRegister(i, this.getRegister(i));
@@ -180,7 +179,7 @@ public class SChipProcessor<E extends SChipEmulator<M, D, S>, M extends Chip8Mem
                 yield HANDLED;
             }
             case 0x85 -> { // FX85: loadflags vX
-                JChip jchip = this.emulator.getEmulatorInitializer().getJChip();
+                JChip jchip = this.emulator.getEmulatorSettings().getJChip();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
                     this.setRegister(i, jchip.getFlagRegister(i));

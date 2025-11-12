@@ -1,36 +1,42 @@
 package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
-import io.github.arkosammy12.jchip.memory.MegaChipMemory;
-import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
-import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
-public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends MegaChipMemory, D extends MegaChipDisplay, S extends SoundSystem> extends SChipProcessor<E, M, D, S> {
+public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcessor<E> {
 
+    private boolean megaModeOn;
     private int cachedFontSpriteIndex;
 
     public MegaChipProcessor(E emulator) {
         super(emulator);
     }
 
+    private void setMegaMode(boolean on) {
+        this.megaModeOn = on;
+    }
+
+    public boolean isMegaModeOn() {
+        return this.megaModeOn;
+    }
+
     @Override
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
-        MegaChipDisplay display = this.emulator.getDisplay();
+        MegaChipDisplay<?> display = this.emulator.getDisplay();
         boolean handled = false;
         if (firstByte == 0x00) {
             // Do not clear the frame buffer of the display we are switching into as per original Mega8 behavior
             handled = switch (NN) {
                 case 0x10 -> { // 0010: megaoff
-                    display.setMegaChipMode(false);
+                    this.setMegaMode(false);
                     yield true;
                 }
                 case 0x11 -> { // 0011: megaon
-                    display.setMegaChipMode(true);
+                    this.setMegaMode(true);
                     yield true;
                 }
                 default -> false;
@@ -39,7 +45,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
         if (handled) {
             return HANDLED;
         }
-        if (!display.isMegaChipModeEnabled()) {
+        if (!this.isMegaModeOn()) {
             return super.execute0Opcode(firstByte, NN);
         }
         return switch (firstByte) {
@@ -117,16 +123,14 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
             }
             case 0x06 -> {
                 if (getY(firstByte, NN) == 0x0) { // 060N: digisnd N
-                    if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
-                        Chip8Memory memory = this.emulator.getMemory();
-                        int currentIndexRegister = this.getIndexRegister();
-                        megaChipSoundSystem.playTrack(
-                                ((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF,
-                                ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF),
-                                getN(firstByte, NN) == 0,
-                                currentIndexRegister + 6
-                        );
-                    }
+                    Chip8Memory memory = this.emulator.getMemory();
+                    int currentIndexRegister = this.getIndexRegister();
+                    this.emulator.getSoundSystem().playTrack(
+                            ((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF,
+                            ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF),
+                            getN(firstByte, NN) == 0,
+                            currentIndexRegister + 6
+                    );
                     yield HANDLED;
                 } else {
                     yield 0;
@@ -134,9 +138,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
             }
             case 0x07 -> {
                 if (NN == 0x00) { // 0700: stopsnd
-                    if (this.emulator.getSoundSystem() instanceof MegaChipSoundSystem megaChipSoundSystem) {
-                        megaChipSoundSystem.stopTrack();
-                    }
+                    this.emulator.getSoundSystem().stopTrack();
                     yield HANDLED;
                 } else {
                     yield 0;
@@ -200,13 +202,13 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int executeDOpcode(int firstByte, int NN) {
-        MegaChipDisplay display = this.emulator.getDisplay();
-        if (!display.isMegaChipModeEnabled()) {
+        MegaChipDisplay<?> display = this.emulator.getDisplay();
+        if (!this.isMegaModeOn()) {
             return this.handleMegaOffDraw(firstByte, NN);
         }
 
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorSettings config = this.emulator.getEmulatorInitializer();
+        EmulatorSettings config = this.emulator.getEmulatorSettings();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
 
@@ -306,7 +308,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
     @Override
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         int result = super.executeFOpcode(firstByte, NN);
-        if (this.emulator.getDisplay().isMegaChipModeEnabled()) {
+        if (this.isMegaModeOn()) {
             if (isSet(result, GET_KEY_EXECUTED)) {
                 this.emulator.getDisplay().flushBackBuffer();
             }
@@ -330,7 +332,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator<M, D, S>, M extends Me
 
     @SuppressWarnings("DuplicatedCode")
     private int handleMegaOffDraw(int firstByte, int NN) {
-        SChipDisplay display = this.emulator.getDisplay();
+        SChipDisplay<?> display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
 
         boolean extendedMode = display.isExtendedMode();

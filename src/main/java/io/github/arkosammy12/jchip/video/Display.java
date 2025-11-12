@@ -1,25 +1,26 @@
 package io.github.arkosammy12.jchip.video;
 
+import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 
 import java.awt.event.*;
 import java.io.Closeable;
-import java.util.List;
 
-public abstract class Display implements Closeable {
+public abstract class Display<E extends Emulator> implements Closeable {
 
+    protected final E emulator;
     private final EmulatorRenderer emulatorRenderer;
 
     private final DisplayAngle displayAngle;
     protected final int imageWidth;
     protected final int imageHeight;
 
-    public Display(EmulatorSettings emulatorSettings, List<KeyAdapter> keyAdapters) {
-        this.displayAngle = emulatorSettings.getDisplayAngle();
+    public Display(E emulator) {
+        this.emulator = emulator;
+        this.displayAngle = emulator.getEmulatorSettings().getDisplayAngle();
         this.imageWidth = getImageWidth();
         this.imageHeight = getImageHeight();
-        this.emulatorRenderer = new EmulatorRenderer(emulatorSettings.getJChip(), this, keyAdapters, emulatorSettings.getProgramTitle());
+        this.emulatorRenderer = new EmulatorRenderer(emulator.getEmulatorSettings().getJChip(), this, emulator.getKeyAdapters(), emulator.getEmulatorSettings().getProgramTitle());
     }
 
     public EmulatorRenderer getEmulatorRenderer() {

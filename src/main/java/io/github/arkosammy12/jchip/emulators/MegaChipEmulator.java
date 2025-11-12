@@ -1,47 +1,69 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.memory.MegaChipMemory;
-import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
-import java.awt.event.KeyAdapter;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public class MegaChipEmulator<M extends MegaChipMemory, D extends MegaChipDisplay, S extends SoundSystem> extends SChipEmulator<M, D, S> {
+public class MegaChipEmulator extends SChipEmulator {
 
-    private final MegaChipSoundSystem megaChipSoundSystem;
+    private MegaChipProcessor<?> processor;
+    private MegaChipMemory memory;
+    private MegaChipDisplay<?> display;
+    private MegaChipSoundSystem soundSystem;
 
-    public MegaChipEmulator(EmulatorSettings emulatorSettings, Function<int[], M> memoryFactory, BiFunction<EmulatorSettings, List<KeyAdapter>, D> displayFactory, Function<EmulatorSettings, S> soundSystemFactory) {
-        super(emulatorSettings, memoryFactory, displayFactory, soundSystemFactory, false);
-        this.megaChipSoundSystem = new MegaChipSoundSystem(emulatorSettings, this.getMemory());
+    public MegaChipEmulator(EmulatorSettings emulatorSettings) {
+        super(emulatorSettings, false);
     }
 
     @Override
-    protected Chip8Processor<?, ?, ?, ?> createProcessor() {
-        return new MegaChipProcessor<>(this);
+    public MegaChipProcessor<?> getProcessor() {
+        return this.processor;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public S getSoundSystem() {
-        if (this.getDisplay().isMegaChipModeEnabled()) {
-            return (S) this.megaChipSoundSystem;
-        } else {
-            return super.getSoundSystem();
-        }
+    public MegaChipMemory getMemory() {
+        return this.memory;
     }
+
+    @Override
+    public MegaChipDisplay<?> getDisplay() {
+        return this.display;
+    }
+
+    @Override
+    public MegaChipSoundSystem getSoundSystem() {
+        return this.soundSystem;
+    }
+
+    @Override
+    protected void initializeSoundSystem() {
+        this.soundSystem = new MegaChipSoundSystem(this);
+    }
+
+    @Override
+    protected void initializeDisplay() {
+        this.display = new MegaChipDisplay<>(this);
+    }
+
+    @Override
+    protected void initializeMemory() {
+        this.memory = new MegaChipMemory(this);
+    }
+
+    @Override
+    protected void initializeProcessor() {
+        this.processor = new MegaChipProcessor<>(this);
+    }
+
 
     @Override
     protected boolean waitFrameEnd(int flags) {
-        if (!this.getDisplay().isMegaChipModeEnabled()) {
+        if (!this.getProcessor().isMegaModeOn()) {
             return super.waitFrameEnd(flags);
         }
         return isSet(flags, Chip8Processor.CLS_EXECUTED);

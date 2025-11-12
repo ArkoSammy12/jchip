@@ -41,7 +41,7 @@ public class MemoryTableModel extends AbstractTableModel {
         }
     }
 
-    public void update(Chip8Emulator<?, ?, ?> emulator) {
+    public void update(Chip8Emulator emulator) {
         Chip8Memory memory = emulator.getMemory();
         if (!Objects.equals(memory, this.memory)) {
             this.memory = memory;

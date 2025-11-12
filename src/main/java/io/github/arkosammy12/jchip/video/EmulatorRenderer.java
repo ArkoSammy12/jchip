@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.JChip;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 import javax.swing.*;
@@ -19,7 +18,7 @@ import static io.github.arkosammy12.jchip.util.DisplayAngle.*;
 
 public class EmulatorRenderer extends Canvas implements Closeable {
 
-    private final Display display;
+    private final Display<?> display;
     private final int[][] renderBuffer;
 
     private final int displayWidth;
@@ -41,7 +40,7 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final Object renderLock = new Object();
     protected final Object renderBufferLock = new Object();
 
-    public EmulatorRenderer(JChip jchip, Display display, List<KeyAdapter> keyAdapters, String romTitle) {
+    public EmulatorRenderer(JChip jchip, Display<?> display, List<KeyAdapter> keyAdapters, String romTitle) {
         super();
         this.romTitle = romTitle == null ? "" : romTitle;
         this.displayWidth = display.getImageWidth();
