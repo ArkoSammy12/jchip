@@ -138,12 +138,9 @@ public class CosmacVipEmulator implements Emulator {
         for (int i = 0; i < CYCLES_PER_FRAME; i++) {
             this.processor.cycle();
             this.display.cycle();
-
             this.processor.nextState();
         }
-
         this.display.flush();
-
     }
 
     @Override

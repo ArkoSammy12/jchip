@@ -239,6 +239,15 @@ public class CDP1802 implements Processor {
         int code = memory.readByte(getRegister(getP()));
         setI((code & 0xF0) >>> 4);
         setN(code & 0x0F);
+        /*
+        String regs = "D: " + Integer.toHexString(getD()).toUpperCase() + " ";
+        for (int i = 0; i < 16; i++) {
+            regs += " R" + Integer.toHexString(i).toUpperCase() + ": " + Integer.toHexString(this.registers[i]).toUpperCase() + " ";
+        }
+
+
+        Logger.info("PC: " + Integer.toHexString(getRegister(getP())).toUpperCase() + ". Instruction: " + Integer.toHexString(getI()).toUpperCase() + Integer.toHexString(getN()).toUpperCase() + " " + regs);
+         */
         setRegister(getP(), getRegister(getP()) + 1);
     }
 
