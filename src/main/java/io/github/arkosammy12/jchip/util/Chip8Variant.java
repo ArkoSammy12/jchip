@@ -2,7 +2,6 @@ package io.github.arkosammy12.jchip.util;
 
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.*;
-import io.github.arkosammy12.jchip.video.*;
 import org.tinylog.Logger;
 import picocli.CommandLine;
 
@@ -74,16 +73,24 @@ public enum Chip8Variant implements DisplayNameProvider {
             HyperWaveChip64Emulator::new,
             new Quirkset(false, true, false, false, false, false, _ -> 1000),
             new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG)
+    ),
+    HYBRID_CHIP_8(
+            "hybrid-chip-8",
+            "Hybrid CHIP-8",
+            null,
+            (emulatorSettings) -> new CosmacVipEmulator(emulatorSettings, true),
+            new Quirkset(false, false, false, false, false, false, _ -> 1),
+            new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     );
 
-    private final Function<EmulatorSettings, Chip8Emulator> emulatorSupplier;
+    private final Function<EmulatorSettings, Emulator> emulatorSupplier;
     private final String identifier;
     private final String displayName;
     private final String[] platformIds;
     private final Quirkset defaultQuirkset;
     private final HexSpriteFont hexSpriteFont;
 
-    Chip8Variant(String identifier, String displayName, String[] platformIds, Function<EmulatorSettings, Chip8Emulator> emulatorSupplier, Quirkset defaultQuirkset, HexSpriteFont hexSpriteFont) {
+    Chip8Variant(String identifier, String displayName, String[] platformIds, Function<EmulatorSettings, Emulator> emulatorSupplier, Quirkset defaultQuirkset, HexSpriteFont hexSpriteFont) {
         this.emulatorSupplier = emulatorSupplier;
         this.identifier = identifier;
         this.displayName = displayName;
@@ -92,7 +99,7 @@ public enum Chip8Variant implements DisplayNameProvider {
         this.hexSpriteFont = hexSpriteFont;
     }
 
-    public static Chip8Emulator getEmulator(EmulatorSettings emulatorSettings) {
+    public static Emulator getEmulator(EmulatorSettings emulatorSettings) {
         return emulatorSettings.getVariant().emulatorSupplier.apply(emulatorSettings);
     }
 

@@ -14,7 +14,7 @@ public class Main {
     // Increment this here, in pom.xml and in the version tag in the README.
     public static final String VERSION_STRING = "v3.1.0";
 
-    static void main(String[] args) {
+    static void main(String[] args) throws Exception {
         FlatDarculaLaf.setup();
         System.setProperty("flatlaf.menuBarEmbedded", "false");
         UIManager.put("Component.hideMnemonics", false);

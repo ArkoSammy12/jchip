@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.config.CLIArgs;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.sound.SoundWriter;
 import io.github.arkosammy12.jchip.ui.MainWindow;
@@ -23,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class JChip {
 
     private MainWindow mainWindow;
-    private Chip8Emulator currentEmulator;
+    private Emulator currentEmulator;
     private final Chip8Database database = new Chip8Database();
     private final SoundWriter soundWriter = new SoundWriter();
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
@@ -33,7 +34,7 @@ public class JChip {
 
     private final AtomicBoolean running = new AtomicBoolean(true);
 
-    public JChip(String[] args) throws IOException, InterruptedException, InvocationTargetException {
+    public JChip(String[] args) throws Exception {
         try {
             CLIArgs cliArgs = null;
             if (args.length > 0) {
@@ -94,7 +95,7 @@ public class JChip {
         return this.flagsStorage[index];
     }
 
-    public void start() throws IOException {
+    public void start() throws Exception {
         while (this.running.get()) {
             try {
                 if (!this.pacer.isFrameReady(true)) {
@@ -171,7 +172,7 @@ public class JChip {
         this.currentState.set(State.PAUSED);
     }
 
-    private void onStopping() {
+    private void onStopping() throws Exception {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
             this.currentEmulator = null;
@@ -181,7 +182,7 @@ public class JChip {
         this.currentState.set(State.IDLE);
     }
 
-    private void onResetting() throws IOException {
+    private void onResetting() throws Exception {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
             this.mainWindow.setEmulatorRenderer(null);
@@ -190,7 +191,7 @@ public class JChip {
         this.currentState.set(State.RUNNING);
     }
 
-    public void onShutdown() {
+    public void onShutdown() throws Exception {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
             this.currentEmulator = null;

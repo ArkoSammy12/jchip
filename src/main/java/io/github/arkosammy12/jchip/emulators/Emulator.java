@@ -26,4 +26,10 @@ public interface Emulator extends AutoCloseable {
 
     List<KeyAdapter> getKeyAdapters();
 
+    void executeFrame();
+
+    void executeSingleCycle();
+
+    int getCurrentInstructionsPerFrame();
+
 }

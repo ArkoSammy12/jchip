@@ -15,7 +15,7 @@ import java.util.List;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public class Chip8Emulator implements Emulator, AutoCloseable {
+public class Chip8Emulator implements Emulator {
 
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
@@ -115,6 +115,7 @@ public class Chip8Emulator implements Emulator, AutoCloseable {
         return this.currentInstructionsPerFrame;
     }
 
+    @Override
     public void executeFrame() throws InvalidInstructionException {
         this.instructionCounter = 0;
         long startOfFrame = System.nanoTime();
@@ -146,6 +147,7 @@ public class Chip8Emulator implements Emulator, AutoCloseable {
         }
     }
 
+    @Override
     public void executeSingleCycle() {
         if (this.instructionCounter % this.currentInstructionsPerFrame == 0) {
             this.getProcessor().decrementTimers();

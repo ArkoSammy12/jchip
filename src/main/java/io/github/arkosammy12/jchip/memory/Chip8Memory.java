@@ -13,21 +13,6 @@ public class Chip8Memory implements Memory {
     protected final int[] bytes;
     protected final int memoryBoundsMask;
 
-    public Chip8Memory(int[] rom) {
-        try {
-            this.memoryBoundsMask = this.getMemoryBoundsMask();
-            int programStart = this.getProgramStart();
-            this.bytes = new int[this.getMemorySize()];
-            for (int i = 0; i < rom.length; i++) {
-                this.bytes[i + programStart] = rom[i] & 0xFF;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new EmulatorException("ROM size too big for selected CHIP-8 variant!");
-        } catch (Exception e) {
-            throw new EmulatorException("Error initializing CHIP-8 memory: ", e);
-        }
-    }
-
     public Chip8Memory(Chip8Emulator emulator) {
         int[] rom = emulator.getEmulatorSettings().getRom();
         try {

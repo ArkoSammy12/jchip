@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.ui;
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerViewPanel;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
 
@@ -56,7 +57,7 @@ public class MainWindow extends JFrame implements Closeable {
         return this.settingsBar;
     }
 
-    public void onFrame(Chip8Emulator emulator) {
+    public void onFrame(Emulator emulator) {
         if (this.showingDebuggerPanel.get()) {
             this.debuggerViewPanel.update(emulator);
         }

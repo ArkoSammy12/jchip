@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.video.Display;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
 
@@ -62,7 +63,7 @@ public class InfoPanel extends JPanel {
 
     }
 
-    public void update(Chip8Emulator emulator) {
+    public void update(Emulator emulator) {
         this.totalIpfSinceLastUpdate += emulator.getCurrentInstructionsPerFrame();
         long now = System.nanoTime();
         double lastFrameDuration = now - lastFrameTime;

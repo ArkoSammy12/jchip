@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 
 import javax.swing.*;
@@ -178,9 +179,10 @@ public class DebuggerViewPanel extends JPanel {
         });
     }
 
-    public void update(Chip8Emulator emulator) {
+    public void update(Emulator emulator) {
         EmulatorSettings config = emulator.getEmulatorSettings();
 
+        /*
         Chip8Processor<?> processor = emulator.getProcessor();
         int pc = processor.getProgramCounter();
         int I = processor.getIndexRegister();
@@ -226,6 +228,8 @@ public class DebuggerViewPanel extends JPanel {
             }
 
         });
+
+         */
 
     }
 
