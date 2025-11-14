@@ -101,6 +101,16 @@ public class CosmacVipMemory implements Memory {
     }
 
     @Override
+    public int getMemorySize() {
+        return 4096;
+    }
+
+    @Override
+    public int getMemoryBoundsMask() {
+        return 0xFFF;
+    }
+
+    @Override
     public int readByte(int address) {
         int actualAddress = this.ma7Latched ? address | 0x8000 : address;
         if (actualAddress >= 0x8000) {
@@ -118,7 +128,7 @@ public class CosmacVipMemory implements Memory {
         this.bytes[actualAddress & 0xFFF] = value & 0xFF;
     }
 
-    public void setMA7Latched(boolean value) {
+    public void setRomShadowed(boolean value) {
         this.ma7Latched = value;
     }
 

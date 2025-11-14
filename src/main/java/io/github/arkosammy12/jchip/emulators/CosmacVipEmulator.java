@@ -2,14 +2,13 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
-import io.github.arkosammy12.jchip.cpu.Processor;
+import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
-import io.github.arkosammy12.jchip.memory.Memory;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.ui.IODevice;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.CosmacVIPKeypad;
 import io.github.arkosammy12.jchip.video.CDP1861;
-import io.github.arkosammy12.jchip.video.Display;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -27,22 +26,21 @@ public class CosmacVipEmulator implements Emulator {
     private final CDP1802 processor;
     private final CosmacVipMemory memory;
     private final CDP1861<?> display;
-    private final List<IODevice> ioDevices;
+    private final CosmacVIPKeypad keypad;
+    private final  IODevice[] ioDevices = new IODevice[8];
 
     private final boolean withChip8Interpreter;
-
-    private long machineCycleCount;
 
     public CosmacVipEmulator(EmulatorSettings emulatorSettings, boolean withChip8Interpreter) {
         this.settings = emulatorSettings;
         this.withChip8Interpreter = withChip8Interpreter;
         this.chip8Variant = emulatorSettings.getVariant();
-
+        this.keypad = new CosmacVIPKeypad(this.settings, this);
         this.processor = new CDP1802(this);
         this.memory = new CosmacVipMemory(this);
         this.display = new CDP1861<>(this);
-
-        this.ioDevices = List.of(this.display);
+        this.ioDevices[0] = this.display;
+        this.ioDevices[1] = this.keypad;
     }
 
 
@@ -78,32 +76,39 @@ public class CosmacVipEmulator implements Emulator {
 
     @Override
     public List<KeyAdapter> getKeyAdapters() {
-        return List.of();
+        return List.of(this.keypad);
     }
 
-    public long getRelativeMachineCycleCount() {
-        return this.machineCycleCount % CYCLES_PER_FRAME;
-    }
-
-    public long getAbsoluteMachineCycleCount() {
-        return this.machineCycleCount;
-    }
-
-    public IODevice getIODevice(int ioCommandNumber) {
-        int index = ioCommandNumber - 1;
-        if (index < 0 || index >= this.ioDevices.size()) {
-            return null;
+    public int dispatchInput(int ioIndex) {
+        IODevice ioDevice = this.ioDevices[(ioIndex - 1) & 0xF];
+        if (ioDevice == null) {
+            return 0;
         }
-        return this.ioDevices.get(index);
+        return ioDevice.onInput();
+    }
+
+    public void dispatchOutput(int ioIndex, int value) {
+        if (ioIndex >= 4) {
+            this.memory.setRomShadowed(false);
+            return;
+        }
+        IODevice ioDevice = this.ioDevices[(ioIndex - 1) & 0xF];
+        if (ioDevice == null) {
+            return;
+        }
+        ioDevice.onOutput(value);
     }
 
     public boolean isWithChip8Interpreter() {
         return this.withChip8Interpreter;
     }
 
-    public IODevice.DmaStatus getHighestDmaStatus() {
+    public IODevice.DmaStatus getDmaStatus() {
         IODevice.DmaStatus highestStatus = IODevice.DmaStatus.NONE;
         for (IODevice ioDevice : this.ioDevices) {
+            if (ioDevice == null) {
+                continue;
+            }
             switch (ioDevice.getDmaStatus()) {
                 case IN -> highestStatus = IN;
                 case OUT -> {
@@ -126,6 +131,9 @@ public class CosmacVipEmulator implements Emulator {
 
     public boolean anyInterrupting() {
         for (IODevice ioDevice : this.ioDevices) {
+            if (ioDevice == null) {
+                continue;
+            }
             if (ioDevice.isInterrupting()) {
                 return true;
             }
@@ -138,6 +146,7 @@ public class CosmacVipEmulator implements Emulator {
         for (int i = 0; i < CYCLES_PER_FRAME; i++) {
             this.processor.cycle();
             this.display.cycle();
+            this.keypad.cycle();
             this.processor.nextState();
         }
         this.display.flush();
@@ -145,16 +154,28 @@ public class CosmacVipEmulator implements Emulator {
 
     @Override
     public void executeSingleCycle() {
-
+        this.processor.cycle();
+        this.display.cycle();
+        this.processor.nextState();
+        this.display.flush();
     }
 
     @Override
     public int getCurrentInstructionsPerFrame() {
-        return 0;
+        return CYCLES_PER_FRAME;
     }
 
     @Override
     public void close() throws Exception {
-
+        try {
+            if (this.getDisplay() != null) {
+                this.getDisplay().close();
+            }
+            if (this.getSoundSystem() != null) {
+                this.getSoundSystem().close();
+            }
+        } catch (Exception e) {
+            throw new EmulatorException("Error releasing current emulator resources: ", e);
+        }
     }
 }

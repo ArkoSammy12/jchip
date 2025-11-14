@@ -36,24 +36,23 @@ public class Chip8Display<E extends Chip8Emulator> extends Display<E> {
         return 32;
     }
 
-    public boolean flipPixel(int column, int row) {
-        this.bitplaneBuffer[column][row] ^= 1;
-        return this.bitplaneBuffer[column][row] == 0;
-    }
-
-    @Override
-    public void clear() {
-        for (int[] ints : this.bitplaneBuffer) {
-            Arrays.fill(ints, 0);
-        }
-    }
-
     @Override
     public int getImageScale(DisplayAngle displayAngle) {
         return switch (displayAngle) {
             case DEG_90, DEG_270 -> 11;
             default -> 20;
         };
+    }
+
+    public boolean flipPixel(int column, int row) {
+        this.bitplaneBuffer[column][row] ^= 1;
+        return this.bitplaneBuffer[column][row] == 0;
+    }
+
+    public void clear() {
+        for (int[] ints : this.bitplaneBuffer) {
+            Arrays.fill(ints, 0);
+        }
     }
 
     protected void populateRenderBuffer(int[][] renderBuffer) {

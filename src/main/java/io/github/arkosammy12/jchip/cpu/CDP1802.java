@@ -1,14 +1,14 @@
 package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
+import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
-import io.github.arkosammy12.jchip.ui.IODevice;
-import io.github.arkosammy12.jchip.video.CDP1861;
 import org.tinylog.Logger;
 
 import java.util.Arrays;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.HANDLED;
+import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isHandled;
 
 public class CDP1802 implements Processor {
 
@@ -17,23 +17,22 @@ public class CDP1802 implements Processor {
     private boolean longInstruction = false;
     private boolean idling = false;
 
-    private int accumulator; // 8 bits
-    private boolean dataFlagRegister; // 1 bit
-    private int auxiliaryHoldingRegister; // 8 bits
-    private final int[] registers = new int[16]; // 16 bits
-    private int programCounterIndex; // 4 bits
-    private int dataPointerIndex; // 4 bits
-    private int lowOrderInstructionDigit; // 4 bits
-    private int highOrderInstructionDigit; // 4 bits
-    private int temporaryRegister; // 8 bits
-    private boolean interruptEnable; // 1 bit
-    private boolean outputFlipFlop;
+    private int accumulator; // D
+    private boolean dataFlagRegister; // DF
+    private int auxiliaryHoldingRegister; // B
+    private final int[] registers = new int[16]; // R(N | X | P)
+    private int programCounterIndex; // P
+    private int dataPointerIndex; // X
+    private int lowOrderInstructionDigit; // N
+    private int highOrderInstructionDigit; // I
+    private int temporaryRegister; // T
+    private boolean interruptEnable; // IE
+    private boolean outputFlipFlop; // Q
 
     private final boolean[] externalFlagInputs = new boolean[4];
 
     public CDP1802(CosmacVipEmulator emulator) {
         this.emulator = emulator;
-
     }
 
     public State getCurrentState() {
@@ -156,8 +155,7 @@ public class CDP1802 implements Processor {
 
     @Override
     public int cycle() {
-
-        switch (currentState) {
+        int flags = switch (currentState) {
             case S1_RESET -> onReset();
             case S1_INIT -> onInit();
             case S0_FETCH -> onFetch();
@@ -165,15 +163,17 @@ public class CDP1802 implements Processor {
             case S2_DMA_IN -> onDmaIn();
             case S2_DMA_OUT -> onDmaOut();
             case S3_INTERRUPT -> onInterrupt();
+        };
+        if (!isHandled(flags)) {
+            throw new InvalidInstructionException(getI(), getN(), this.emulator.getChip8Variant());
         }
-
-        return 0;
+        return flags;
     }
 
     public void nextState() {
         this.currentState = switch (currentState) {
             case S1_RESET -> State.S1_INIT;
-            case S1_INIT, S3_INTERRUPT -> switch (this.emulator.getHighestDmaStatus()) {
+            case S1_INIT, S3_INTERRUPT -> switch (this.emulator.getDmaStatus()) {
                 case NONE ->  State.S0_FETCH;
                 case IN -> State.S2_DMA_IN;
                 case OUT -> State.S2_DMA_OUT;
@@ -183,7 +183,7 @@ public class CDP1802 implements Processor {
                 if (this.longInstruction) {
                     yield State.S1_EXECUTE;
                 } else {
-                    yield switch (this.emulator.getHighestDmaStatus()) {
+                    yield switch (this.emulator.getDmaStatus()) {
                         case NONE -> {
                             if (this.emulator.anyInterrupting() && getInterruptEnable()) {
                                 this.idling = false;
@@ -205,7 +205,7 @@ public class CDP1802 implements Processor {
                     };
                 }
             }
-            case S2_DMA_IN, S2_DMA_OUT -> switch (this.emulator.getHighestDmaStatus()) {
+            case S2_DMA_IN, S2_DMA_OUT -> switch (this.emulator.getDmaStatus()) {
                 case NONE -> {
                     if (this.emulator.anyInterrupting() && getInterruptEnable()) {
                         yield State.S3_INTERRUPT;
@@ -219,40 +219,34 @@ public class CDP1802 implements Processor {
         };
     }
 
-    private void onReset() {
+    private int onReset() {
         setI(0);
         setN(0);
         setQ(false);
         setX(0);
         setP(0);
         setInterruptEnable(true);
+        return HANDLED;
         // reset data bus
     }
 
-    private void onInit() {
-        //Arrays.fill(this.registers, 0);
-        registers[0] = 0;
+    private int onInit() {
+        Arrays.fill(this.registers, 0);
+        return HANDLED;
     }
 
-    private void onFetch() {
+    private int onFetch() {
         CosmacVipMemory memory = this.emulator.getMemory();
         int code = memory.readByte(getRegister(getP()));
         setI((code & 0xF0) >>> 4);
         setN(code & 0x0F);
-        /*
-        String regs = "D: " + Integer.toHexString(getD()).toUpperCase() + " ";
-        for (int i = 0; i < 16; i++) {
-            regs += " R" + Integer.toHexString(i).toUpperCase() + ": " + Integer.toHexString(this.registers[i]).toUpperCase() + " ";
-        }
-
-
-        Logger.info("PC: " + Integer.toHexString(getRegister(getP())).toUpperCase() + ". Instruction: " + Integer.toHexString(getI()).toUpperCase() + Integer.toHexString(getN()).toUpperCase() + " " + regs);
-         */
+        this.logTrace();
         setRegister(getP(), getRegister(getP()) + 1);
+        return HANDLED;
     }
 
-    private void onExecute() {
-        int flags = switch (getI()) {
+    private int onExecute() {
+        return switch (getI()) {
             case 0x0 -> {
                 if (getN() != 0) { // 0N: LDN
                     setD(this.emulator.getMemory().readByte(getRegister(getN())));
@@ -410,27 +404,17 @@ public class CDP1802 implements Processor {
                     int N = getN();
                     if (N >= 0x1 && N <= 0x7) { // 6N: OUT
                         int NX = N & 7;
-                        if (NX >= 4) {
-                            this.emulator.getMemory().setMA7Latched(false);
-                        } else {
-                            IODevice ioDevice = this.emulator.getIODevice(NX);
-                            if (ioDevice != null) {
-                                ioDevice.onOutput(this.emulator.getMemory().readByte(getRegister(getX())));
-                            }
-                        }
+                        this.emulator.dispatchOutput(NX, this.emulator.getMemory().readByte(getRegister(getX())));
                         setRegister(getX(), getRegister(getX()) + 1);
                         yield HANDLED;
                     } else if (N >= 0x9 && N <= 0xF) { // 6N: INP
                         int NX = N & 7;
-                        IODevice ioDevice = this.emulator.getIODevice(NX);
-                        if (ioDevice != null) {
-                            int input = ioDevice.onInput();
-                            this.emulator.getMemory().writeByte(getRegister(getX()), input);
-                            setD(input);
-                        }
+                        int input = this.emulator.dispatchInput(NX);
+                        this.emulator.getMemory().writeByte(getRegister(getX()), input);
+                        setD(input);
                         yield HANDLED;
                     } else {
-                        yield 0;
+                        yield HANDLED;
                     }
                 }
             };
@@ -851,23 +835,39 @@ public class CDP1802 implements Processor {
         };
     }
 
-    private void onDmaIn() {
-        CosmacVipMemory memory = this.emulator.getMemory();
-        memory.writeByte(getRegister(0), this.emulator.dispatchDmaIn());
+    private int onDmaIn() {
+        this.emulator.getMemory().writeByte(getRegister(0), this.emulator.dispatchDmaIn());
         setRegister(0, getRegister(0) + 1);
+        return HANDLED;
     }
 
-    private void onDmaOut() {
-        CosmacVipMemory memory = this.emulator.getMemory();
-        this.emulator.dispatchDmaOut(memory.readByte(getRegister(0)));
+    private int onDmaOut() {
+        this.emulator.dispatchDmaOut(this.emulator.getMemory().readByte(getRegister(0)));
         setRegister(0, getRegister(0) + 1);
+        return HANDLED;
     }
 
-    private void onInterrupt() {
+    private int onInterrupt() {
         setT(getX() << 4 | getP());
         setInterruptEnable(false);
         setP(1);
         setX(2);
+        return HANDLED;
+    }
+
+    private void logTrace() {
+        String pc = String.format("[%04X]", getRegister(getP()));
+        String ins = String.format(" %02X |", getI() << 4 | getN());
+        String df = getDF() ? " DF:1" : " DF:0";
+        String d = String.format(" D: %02X ", getD());
+
+        StringBuilder regs = new StringBuilder(" ");
+        for (int i = 0; i < 16; i++) {
+            regs.append(String.format("R%01X:%04X ", i, getRegister(i)));
+        }
+
+        Logger.info(pc + ins + regs + " | " + d + df);
+
     }
 
     public enum State {
@@ -893,6 +893,14 @@ public class CDP1802 implements Processor {
 
         public boolean isS3Interrupt() {
             return this == S3_INTERRUPT;
+        }
+
+        public boolean getSC0() {
+            return isS1Execute() || isS3Interrupt();
+        }
+
+        public boolean getSC1() {
+            return isS2Dma() || isS3Interrupt();
         }
 
     }

@@ -1,7 +1,9 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.Memory;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -12,7 +14,7 @@ public class MemoryTableModel extends AbstractTableModel {
     public static final int BYTES_PER_ROW = 8;
     private static final int MAX_SHOWN_BYTES = 0xFFFFFF + 1;
 
-    private Chip8Memory memory;
+    private Memory memory;
     private int rowCount = (int) Math.ceil(MAX_SHOWN_BYTES / (double) BYTES_PER_ROW);
 
     public MemoryTableModel() {
@@ -41,8 +43,8 @@ public class MemoryTableModel extends AbstractTableModel {
         }
     }
 
-    public void update(Chip8Emulator emulator) {
-        Chip8Memory memory = emulator.getMemory();
+    public void update(Emulator emulator) {
+        Memory memory = emulator.getMemory();
         if (!Objects.equals(memory, this.memory)) {
             this.memory = memory;
             this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) BYTES_PER_ROW);

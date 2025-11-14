@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
+import io.github.arkosammy12.jchip.emulators.Emulator;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
@@ -43,7 +44,7 @@ public class MemoryTable extends JTable {
 
     }
 
-    public void update(Chip8Emulator emulator) {
+    public void update(Emulator emulator) {
         this.memoryTableModel.update(emulator);
     }
 

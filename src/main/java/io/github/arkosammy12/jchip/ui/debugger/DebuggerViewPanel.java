@@ -6,6 +6,7 @@ import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.Memory;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -191,10 +192,14 @@ public class DebuggerViewPanel extends JPanel {
         int sp = processor.getStackPointer();
         processor.getRegisterView(this.shownRegisters);
         processor.getStackView(this.shownStack);
-        Chip8Memory memory = emulator.getMemory();
+
+         */
+        Memory memory = emulator.getMemory();
         this.memoryTable.update(emulator);
 
+        /*
         SwingUtilities.invokeLater(() -> {
+
 
             this.doVFResetLabel.setState(config.doVFReset());
             this.doIncrementIndexLabel.setState(config.doIncrementIndex());

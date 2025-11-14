@@ -43,8 +43,6 @@ public abstract class Display<E extends Emulator> implements Closeable {
 
     protected abstract void populateRenderBuffer(int[][] renderBuffer);
 
-    protected abstract void clear();
-
     public void flush() {
         this.emulatorRenderer.updateRenderBuffer();
     }
