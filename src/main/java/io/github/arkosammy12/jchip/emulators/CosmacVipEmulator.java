@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
+import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.ui.IODevice;
 import io.github.arkosammy12.jchip.util.Chip8Variant;
@@ -26,6 +27,7 @@ public class CosmacVipEmulator implements Emulator {
     private final CDP1802 processor;
     private final CosmacVipMemory memory;
     private final CDP1861<?> display;
+    private final Chip8SoundSystem soundSystem;
     private final CosmacVIPKeypad keypad;
     private final  IODevice[] ioDevices = new IODevice[8];
 
@@ -39,10 +41,10 @@ public class CosmacVipEmulator implements Emulator {
         this.processor = new CDP1802(this);
         this.memory = new CosmacVipMemory(this);
         this.display = new CDP1861<>(this);
+        this.soundSystem = new Chip8SoundSystem(this);
         this.ioDevices[0] = this.display;
         this.ioDevices[1] = this.keypad;
     }
-
 
     @Override
     public CDP1802 getProcessor() {
@@ -150,6 +152,7 @@ public class CosmacVipEmulator implements Emulator {
             this.processor.nextState();
         }
         this.display.flush();
+        this.soundSystem.pushSamples(this.processor.getQ() ? 1 : 0);
     }
 
     @Override
