@@ -7,7 +7,7 @@ import io.github.arkosammy12.jchip.ui.IODevice;
 public class CosmacVIPKeypad extends Keypad implements IODevice {
 
     private final CosmacVipEmulator emulator;
-    private int pressedKey = -1;
+    private int latchedKey = 0;
 
     public CosmacVIPKeypad(EmulatorSettings emulatorSettings, CosmacVipEmulator emulator) {
         super(emulatorSettings);
@@ -16,10 +16,7 @@ public class CosmacVIPKeypad extends Keypad implements IODevice {
 
     @Override
     public void cycle() {
-        if (pressedKey >= 0 && !this.isKeyPressed(pressedKey)) {
-            this.emulator.getProcessor().setEF(2, false);
-            pressedKey = -1;
-        }
+        this.emulator.getProcessor().setEF(2, this.isKeyPressed(this.latchedKey));
     }
 
     @Override
@@ -44,10 +41,7 @@ public class CosmacVIPKeypad extends Keypad implements IODevice {
 
     @Override
     public void onOutput(int value) {
-        if (this.isKeyPressed(value & 0xF)) {
-            this.emulator.getProcessor().setEF(2, true);
-            this.pressedKey = value & 0xF;
-        }
+        this.latchedKey = value & 0xF;
     }
 
     @Override

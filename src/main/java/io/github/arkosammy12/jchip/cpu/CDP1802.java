@@ -240,7 +240,7 @@ public class CDP1802 implements Processor {
         int code = memory.readByte(getRegister(getP()));
         setI((code & 0xF0) >>> 4);
         setN(code & 0x0F);
-        this.logTrace();
+        //this.logTrace();
         setRegister(getP(), getRegister(getP()) + 1);
         return HANDLED;
     }
@@ -406,16 +406,14 @@ public class CDP1802 implements Processor {
                         int NX = N & 7;
                         this.emulator.dispatchOutput(NX, this.emulator.getMemory().readByte(getRegister(getX())));
                         setRegister(getX(), getRegister(getX()) + 1);
-                        yield HANDLED;
                     } else if (N >= 0x9 && N <= 0xF) { // 6N: INP
                         int NX = N & 7;
                         int input = this.emulator.dispatchInput(NX);
                         this.emulator.getMemory().writeByte(getRegister(getX()), input);
                         setD(input);
                         yield HANDLED;
-                    } else {
-                        yield HANDLED;
                     }
+                    yield HANDLED;
                 }
             };
             case 0x7 -> switch (getN()) {
