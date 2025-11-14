@@ -421,17 +421,17 @@ public class CDP1802 implements Processor {
             case 0x7 -> switch (getN()) {
                 case 0x0 -> { // 70: RET
                     int value = this.emulator.getMemory().readByte(getRegister(getX()));
+                    setRegister(getX(), getRegister(getX()) + 1);
                     setX((value & 0xF0) >>> 4);
                     setP(value & 0x0F);
-                    setRegister(getX(), getRegister(getX()) + 1);
                     setInterruptEnable(true);
                     yield HANDLED;
                 }
                 case 0x1 -> { // 71: DIS
                     int value = this.emulator.getMemory().readByte(getRegister(getX()));
+                    setRegister(getX(), getRegister(getX()) + 1);
                     setX((value & 0xF0) >>> 4);
                     setP(value & 0x0F);
-                    setRegister(getX(), getRegister(getX()) + 1);
                     setInterruptEnable(false);
                     yield HANDLED;
                 }
