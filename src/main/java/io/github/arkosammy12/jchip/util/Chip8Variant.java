@@ -81,6 +81,14 @@ public enum Chip8Variant implements DisplayNameProvider {
             (emulatorSettings) -> new CosmacVipEmulator(emulatorSettings, true),
             new Quirkset(false, false, false, false, false, false, _ -> 1),
             new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
+    ),
+    COSMAC_VIP(
+            "cosmac-vip",
+            "COSMAC-VIP",
+            null,
+            (emulatorSettings) -> new CosmacVipEmulator(emulatorSettings, false),
+            new Quirkset(false, false, false, false, false, false, _ -> 1),
+            new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null)
     );
 
     private final Function<EmulatorSettings, Emulator> emulatorSupplier;
