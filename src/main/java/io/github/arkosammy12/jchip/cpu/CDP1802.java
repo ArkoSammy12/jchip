@@ -2,7 +2,6 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
-import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
 import org.tinylog.Logger;
 
 import java.util.Arrays;
@@ -16,6 +15,7 @@ public class CDP1802 implements Processor {
     private State currentState = State.S1_RESET;
     private boolean longInstruction = false;
     private boolean idling = false;
+    private long machineCycles;
 
     private int accumulator; // D
     private boolean dataFlagRegister; // DF
@@ -56,13 +56,11 @@ public class CDP1802 implements Processor {
     }
 
     protected void setRegisterLowOrder(int index, int value) {
-        int currentRegisterHighOrder = this.getRegisterHighOrder(index);
-        this.registers[index] = (currentRegisterHighOrder << 8) | (value & 0xFF);
+        this.registers[index] = (this.getRegisterHighOrder(index) << 8) | (value & 0xFF);
     }
 
     protected void setRegisterHighOrder(int index, int value) {
-        int currentRegisterLowOrder = this.getRegisterLowOrder(index);
-        this.registers[index] = ((value & 0xFF) << 8) | currentRegisterLowOrder;
+        this.registers[index] = ((value & 0xFF) << 8) | this.getRegisterLowOrder(index);
     }
 
     protected void setP(int value) {
@@ -153,6 +151,10 @@ public class CDP1802 implements Processor {
         return this.externalFlagInputs[index];
     }
 
+    public long getMachineCycles() {
+        return this.machineCycles;
+    }
+
     @Override
     public int cycle() {
         int flags = switch (currentState) {
@@ -167,6 +169,7 @@ public class CDP1802 implements Processor {
         if (!isHandled(flags)) {
             throw new InvalidInstructionException(getI(), getN(), this.emulator.getChip8Variant());
         }
+        this.machineCycles++;
         return flags;
     }
 
@@ -222,9 +225,9 @@ public class CDP1802 implements Processor {
     private int onReset() {
         setI(0);
         setN(0);
-        setQ(false);
         setX(0);
         setP(0);
+        setQ(false);
         setInterruptEnable(true);
         return HANDLED;
         // reset data bus
@@ -236,12 +239,11 @@ public class CDP1802 implements Processor {
     }
 
     private int onFetch() {
-        CosmacVipMemory memory = this.emulator.getMemory();
-        int code = memory.readByte(getRegister(getP()));
-        setI((code & 0xF0) >>> 4);
-        setN(code & 0x0F);
-        //this.logTrace();
+        int opcode = this.emulator.getMemory().readByte(getRegister(getP()));
         setRegister(getP(), getRegister(getP()) + 1);
+        setI((opcode & 0xF0) >>> 4);
+        setN(opcode & 0x0F);
+        //this.logTrace();
         return HANDLED;
     }
 
@@ -252,6 +254,7 @@ public class CDP1802 implements Processor {
                     setD(this.emulator.getMemory().readByte(getRegister(getN())));
                 } else { // 00: IDLE
                     this.idling = true;
+                    this.emulator.getMemory().readByte(getRegister(0)); // Dummy read for accurate bus activity
                 }
                 yield HANDLED;
             }
@@ -269,116 +272,131 @@ public class CDP1802 implements Processor {
                     yield HANDLED;
                 }
                 case 0x1 -> { // 31: BQ
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getQ()) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0x2 -> { // 32: BZ
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getD() == 0) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0x3 -> { // 33: BDF
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getDF()) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0x4 -> { // 34: B1
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getEF(0)) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0x5 -> { // 35: B2
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getEF(1)) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0x6 -> { // 36: B3
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getEF(2)) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0x7 -> { // 37: B4
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getEF(3)) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0x8 -> { // 38: NBR
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
                 case 0x9 -> { // 39: BNQ
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getQ()) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0xA -> { // 3A: BNZ
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getD() != 0) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0xB -> { // 3B: BNF
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getDF()) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0xC -> { // 3C: BN1
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getEF(0)) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0xD -> { // 3D: BN2
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getEF(1)) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0xE -> { // 3E: BN3
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getEF(2)) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0xF -> { // 3F: BN4
+                    int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getEF(3)) {
-                        setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegisterLowOrder(getP(), value);
                     } else {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
@@ -397,6 +415,7 @@ public class CDP1802 implements Processor {
             }
             case 0x6 -> switch (getN()) {
                 case 0x0 -> { // 60: IRX
+                    this.emulator.getMemory().readByte(getRegister(getX())); // Dummy read for accurate bus activity
                     setRegister(getX(), getRegister(getX()) + 1);
                     yield HANDLED;
                 }
@@ -473,8 +492,9 @@ public class CDP1802 implements Processor {
                     yield HANDLED;
                 }
                 case 0x9 -> { // 79: MARK
-                    setT(getX() << 4 | getP());
-                    this.emulator.getMemory().writeByte(getRegister(2), getX() << 4 | getP());
+                    int value = (getX() << 4) | getP();
+                    setT(value);
+                    this.emulator.getMemory().writeByte(getRegister(2), value);
                     setX(getP());
                     setRegister(2, getRegister(2) - 1);
                     yield HANDLED;
@@ -518,18 +538,22 @@ public class CDP1802 implements Processor {
                 default -> 0;
             };
             case 0x8 -> { // 8N: GLO
+                // TODO: Place RN.0 on data bus
                 setD(getRegisterLowOrder(getN()));
                 yield HANDLED;
             }
             case 0x9 -> { // 9N: GHI
+                // TODO: Place RN.1 on data bus
                 setD(getRegisterHighOrder(getN()));
                 yield HANDLED;
             }
             case 0xA -> { // AN: PLO
+                // TODO: Place D on data bus
                 setRegisterLowOrder(getN(), getD());
                 yield HANDLED;
             }
             case 0xB -> { // BN: PHI
+                // TODO: Place D on data bus
                 setRegisterHighOrder(getN(), getD());
                 yield HANDLED;
             }
@@ -549,17 +573,14 @@ public class CDP1802 implements Processor {
                 case 0x1 -> { // C1: LBQ
                     if (!this.longInstruction) {
                         this.longInstruction = true;
-                        if (getQ()) {
-                            setB(this.emulator.getMemory().readByte(getRegister(getP())));
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        } else {
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        }
+                        setB(this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegister(getP(), getRegister(getP()) + 1);
                     } else {
                         this.longInstruction = false;
+                        int lowByte = this.emulator.getMemory().readByte(getRegister(getP()));
                         if (getQ()) {
                             setRegisterHighOrder(getP(), getB());
-                            setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                            setRegisterLowOrder(getP(), lowByte);
                         } else {
                             setRegister(getP(), getRegister(getP()) + 1);
                         }
@@ -569,17 +590,14 @@ public class CDP1802 implements Processor {
                 case 0x2 -> { // C2: LBZ
                     if (!this.longInstruction) {
                         this.longInstruction = true;
-                        if (getD() == 0) {
-                            setB(this.emulator.getMemory().readByte(getRegister(getP())));
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        } else {
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        }
+                        setB(this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegister(getP(), getRegister(getP()) + 1);
                     } else {
                         this.longInstruction = false;
+                        int lowByte = this.emulator.getMemory().readByte(getRegister(getP()));
                         if (getD() == 0) {
                             setRegisterHighOrder(getP(), getB());
-                            setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                            setRegisterLowOrder(getP(), lowByte);
                         } else {
                             setRegister(getP(), getRegister(getP()) + 1);
                         }
@@ -589,17 +607,14 @@ public class CDP1802 implements Processor {
                 case 0x3 -> { // C3: LBDF
                     if (!this.longInstruction) {
                         this.longInstruction = true;
-                        if (getDF()) {
-                            setB(this.emulator.getMemory().readByte(getRegister(getP())));
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        } else {
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        }
+                        setB(this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegister(getP(), getRegister(getP()) + 1);
                     } else {
                         this.longInstruction = false;
+                        int lowByte = this.emulator.getMemory().readByte(getRegister(getP()));
                         if (getDF()) {
                             setRegisterHighOrder(getP(), getB());
-                            setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                            setRegisterLowOrder(getP(), lowByte);
                         } else {
                             setRegister(getP(), getRegister(getP()) + 1);
                         }
@@ -608,10 +623,12 @@ public class CDP1802 implements Processor {
                 }
                 case 0x4 -> { // C4: NOP
                     this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     yield HANDLED;
                 }
                 case 0x5 -> { // C5: LSNQ
                     this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (!getQ()) {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
@@ -619,6 +636,7 @@ public class CDP1802 implements Processor {
                 }
                 case 0x6 -> { // LSNZ
                     this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getD() != 0) {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
@@ -626,35 +644,29 @@ public class CDP1802 implements Processor {
                 }
                 case 0x7 -> { // C7: LSNF
                     this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (!getDF()) {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
                     yield HANDLED;
                 }
                 case 0x8 -> { // C8: NLBR
-                    if (!this.longInstruction) {
-                        this.longInstruction = true;
-                        setRegister(getP(), getRegister(getP()) + 1);
-                    } else {
-                        this.longInstruction = false;
-                        setRegister(getP(), getRegister(getP()) + 1);
-                    }
+                    this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
+                    setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
                 case 0x9 -> { // C9: LBNQ
                     if (!this.longInstruction) {
                         this.longInstruction = true;
-                        if (!getQ()) {
-                            setB(this.emulator.getMemory().readByte(getRegister(getP())));
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        } else {
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        }
+                        setB(this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegister(getP(), getRegister(getP()) + 1);
                     } else {
                         this.longInstruction = false;
+                        int lowByte = this.emulator.getMemory().readByte(getRegister(getP()));
                         if (!getQ()) {
                             setRegisterHighOrder(getP(), getB());
-                            setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                            setRegisterLowOrder(getP(), lowByte);
                         } else {
                             setRegister(getP(), getRegister(getP()) + 1);
                         }
@@ -664,17 +676,14 @@ public class CDP1802 implements Processor {
                 case 0xA -> { // CA: LBNZ
                     if (!this.longInstruction) {
                         this.longInstruction = true;
-                        if (getD() != 0) {
-                            setB(this.emulator.getMemory().readByte(getRegister(getP())));
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        } else {
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        }
+                        setB(this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegister(getP(), getRegister(getP()) + 1);
                     } else {
                         this.longInstruction = false;
+                        int lowByte = this.emulator.getMemory().readByte(getRegister(getP()));
                         if (getD() != 0) {
                             setRegisterHighOrder(getP(), getB());
-                            setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                            setRegisterLowOrder(getP(), lowByte);
                         } else {
                             setRegister(getP(), getRegister(getP()) + 1);
                         }
@@ -684,17 +693,14 @@ public class CDP1802 implements Processor {
                 case 0xB -> { // CB: LBNF
                     if (!this.longInstruction) {
                         this.longInstruction = true;
-                        if (!getDF()) {
-                            setB(this.emulator.getMemory().readByte(getRegister(getP())));
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        } else {
-                            setRegister(getP(), getRegister(getP()) + 1);
-                        }
+                        setB(this.emulator.getMemory().readByte(getRegister(getP())));
+                        setRegister(getP(), getRegister(getP()) + 1);
                     } else {
                         this.longInstruction = false;
+                        int lowByte = this.emulator.getMemory().readByte(getRegister(getP()));
                         if (!getDF()) {
                             setRegisterHighOrder(getP(), getB());
-                            setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
+                            setRegisterLowOrder(getP(), lowByte);
                         } else {
                             setRegister(getP(), getRegister(getP()) + 1);
                         }
@@ -703,6 +709,7 @@ public class CDP1802 implements Processor {
                 }
                 case 0xC -> { // CC: LSIE
                     this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getInterruptEnable()) {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
@@ -710,6 +717,7 @@ public class CDP1802 implements Processor {
                 }
                 case 0xD -> { // CD: LSQ
                     this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getQ()) {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
@@ -717,6 +725,7 @@ public class CDP1802 implements Processor {
                 }
                 case 0xE -> { // CE: LSZ
                     this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getD() == 0) {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
@@ -724,6 +733,7 @@ public class CDP1802 implements Processor {
                 }
                 case 0xF -> { // CF: LSDF
                     this.longInstruction = !this.longInstruction;
+                    this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getDF()) {
                         setRegister(getP(), getRegister(getP()) + 1);
                     }
@@ -732,10 +742,12 @@ public class CDP1802 implements Processor {
                 default -> 0;
             };
             case 0xD -> { // DN: SEP
+                // TODO: Place NN on the data bus
                 setP(getN());
                 yield HANDLED;
             }
             case 0xE -> { // EN: SEX
+                // TODO: Place NN on the data bus
                 setX(getN());
                 yield HANDLED;
             }

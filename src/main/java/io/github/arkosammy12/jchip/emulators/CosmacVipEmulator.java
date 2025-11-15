@@ -81,6 +81,10 @@ public class CosmacVipEmulator implements Emulator {
         return List.of(this.keypad);
     }
 
+    public boolean isWithChip8Interpreter() {
+        return this.withChip8Interpreter;
+    }
+
     public int dispatchInput(int ioIndex) {
         IODevice ioDevice = this.ioDevices[(ioIndex - 1) & 0xF];
         if (ioDevice == null) {
@@ -99,10 +103,6 @@ public class CosmacVipEmulator implements Emulator {
             return;
         }
         ioDevice.onOutput(value);
-    }
-
-    public boolean isWithChip8Interpreter() {
-        return this.withChip8Interpreter;
     }
 
     public IODevice.DmaStatus getDmaStatus() {
