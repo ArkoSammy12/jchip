@@ -60,6 +60,7 @@ public class FileMenu extends JMenu {
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
         primarySettingsProvider.getRawRom().ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
+        primarySettingsProvider.getRomPath().ifPresent(this.romPath::set);
     }
 
 }

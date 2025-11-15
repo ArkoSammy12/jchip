@@ -27,12 +27,15 @@ public enum Variant implements DisplayNameProvider {
         this.displayName = displayName;
     }
 
+    @Override
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
     public static Emulator getEmulator(JChip jchip) {
-        PrimarySettingsProvider settings = jchip.getMainWindow().getSettingsBar();
-        Optional<Variant> optionalVariant = settings.getVariant();
+        Optional<Variant> optionalVariant = jchip.getMainWindow().getSettingsBar().getVariant();
         if (optionalVariant.isPresent()) {
-            Variant variant = optionalVariant.get();
-            return switch (variant) {
+            return switch (optionalVariant.get()) {
                 case CHIP_8 -> new Chip8Emulator(new Chip8EmulatorSettings(jchip));
                 case STRICT_CHIP_8 -> new StrictChip8Emulator(new Chip8EmulatorSettings(jchip));
                 case CHIP_8X -> new Chip8XEmulator(new Chip8EmulatorSettings(jchip));
@@ -68,11 +71,6 @@ public enum Variant implements DisplayNameProvider {
             }
         }
         throw new IllegalArgumentException("Unknown variant: " + identifier);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return this.displayName;
     }
 
     public static class Converter implements CommandLine.ITypeConverter<Variant> {

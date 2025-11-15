@@ -124,7 +124,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         };
     }
 
-    private Optional<Quirkset> getDefaultQuirkset(Variant variant) {
+    private static Optional<Quirkset> getDefaultQuirkset(Variant variant) {
         return switch (variant) {
             case CHIP_8, CHIP_8X -> Optional.of(new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11));
             case STRICT_CHIP_8, COSMAC_VIP, HYBRID_CHIP_8 -> Optional.empty();

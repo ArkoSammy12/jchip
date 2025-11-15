@@ -38,7 +38,7 @@ public class CosmacVipEmulator implements Emulator {
     public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, boolean isHybridChip8) {
         this.settings = emulatorSettings;
         this.isHybridChip8 = isHybridChip8;
-        this.variant = isHybridChip8 ? Variant.HYBRID_CHIP_8 : Variant.COSMAC_VIP;
+        this.variant = emulatorSettings.getVariant();
         this.keypad = new CosmacVIPKeypad(this);
         this.processor = new CDP1802(this);
         this.memory = new CosmacVipMemory(this);
@@ -87,20 +87,20 @@ public class CosmacVipEmulator implements Emulator {
         return this.isHybridChip8;
     }
 
-    public int dispatchInput(int ioIndex) {
-        IODevice ioDevice = this.ioDevices[(ioIndex - 1) & 0xF];
+    public int dispatchInput(int ioPort) {
+        IODevice ioDevice = this.ioDevices[(ioPort - 1) & 0xF];
         if (ioDevice == null) {
             return 0;
         }
         return ioDevice.onInput();
     }
 
-    public void dispatchOutput(int ioIndex, int value) {
-        if (ioIndex >= 4) {
+    public void dispatchOutput(int ioPort, int value) {
+        if (ioPort >= 4) {
             this.memory.setMA7Latched(false);
             return;
         }
-        IODevice ioDevice = this.ioDevices[(ioIndex - 1) & 0xF];
+        IODevice ioDevice = this.ioDevices[(ioPort - 1) & 0xF];
         if (ioDevice == null) {
             return;
         }
