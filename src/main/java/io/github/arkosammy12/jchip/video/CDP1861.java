@@ -95,6 +95,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
         } else {
             this.interrupting = false;
             this.dmaStatus = DmaStatus.NONE;
+            this.emulator.getProcessor().setEF(0, false);
         }
         if (cpuMachineCycles % MACHINE_CYCLES_PER_SCANLINE == 0) {
             this.scanlineIndex = (this.scanlineIndex + 1) % SCANLINES_PER_FRAME;
