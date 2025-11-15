@@ -29,9 +29,10 @@ public class CosmacVipEmulator implements Emulator {
     private final CDP1861<?> display;
     private final Chip8SoundSystem soundSystem;
     private final CosmacVIPKeypad keypad;
-    private final  IODevice[] ioDevices = new IODevice[8];
+    private final IODevice[] ioDevices = new IODevice[8];
 
     private final boolean withChip8Interpreter;
+    private int currentInstructionsPerFrame;
 
     public CosmacVipEmulator(EmulatorSettings emulatorSettings, boolean withChip8Interpreter) {
         this.settings = emulatorSettings;
@@ -146,10 +147,19 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public void executeFrame() {
         for (int i = 0; i < CYCLES_PER_FRAME; i++) {
+
+            CDP1802.State currentState = this.processor.getCurrentState();
+
             this.processor.cycle();
-            this.display.cycle();
-            this.keypad.cycle();
+            this.tickIoDevices();
             this.processor.nextState();
+
+            CDP1802.State nextState = this.processor.getCurrentState();
+
+            if (currentState == CDP1802.State.S1_EXECUTE && nextState != CDP1802.State.S1_EXECUTE) {
+                this.currentInstructionsPerFrame++;
+            }
+
         }
         this.display.flush();
         this.soundSystem.pushSamples(this.processor.getQ() ? 1 : 0);
@@ -158,14 +168,24 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public void executeSingleCycle() {
         this.processor.cycle();
-        this.display.cycle();
+        this.tickIoDevices();
         this.processor.nextState();
         this.display.flush();
     }
 
+    private void tickIoDevices() {
+        for (IODevice ioDevice : this.ioDevices) {
+            if (ioDevice != null) {
+                ioDevice.cycle();
+            }
+        }
+    }
+
     @Override
     public int getCurrentInstructionsPerFrame() {
-        return CYCLES_PER_FRAME;
+        int ret = this.currentInstructionsPerFrame;
+        this.currentInstructionsPerFrame = 0;
+        return ret;
     }
 
     @Override
