@@ -30,6 +30,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     private DmaStatus dmaStatus = DmaStatus.NONE;
     private boolean interrupting = false;
     private boolean enabled = false;
+    private boolean displayEnableLatch;
 
     public CDP1861(E emulator) {
         super(emulator);
@@ -76,11 +77,15 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
 
     @Override
     public void cycle() {
-        this.emulator.getProcessor().setEF(0, (this.scanlineIndex >= FIRST_EFX_BEGIN && this.scanlineIndex < FIRST_EFX_END) || (this.scanlineIndex >= SECOND_EFX_BEGIN && this.scanlineIndex < SECOND_EFX_END));
+        long cpuMachineCycles = this.emulator.getProcessor().getMachineCycles();
+        if (cpuMachineCycles % CosmacVipEmulator.CYCLES_PER_FRAME == 0) {
+            this.enabled = this.displayEnableLatch;
+        }
         if (this.enabled) {
+            this.emulator.getProcessor().setEF(0, (this.scanlineIndex >= FIRST_EFX_BEGIN && this.scanlineIndex < FIRST_EFX_END) || (this.scanlineIndex >= SECOND_EFX_BEGIN && this.scanlineIndex < SECOND_EFX_END));
             this.interrupting = this.scanlineIndex >= INTERRUPT_BEGIN && this.scanlineIndex < INTERRUPT_END;
             if (this.scanlineIndex >= DISPLAY_AREA_BEGIN && this.scanlineIndex < DISPLAY_AREA_END) {
-                long relativeCycles = this.emulator.getProcessor().getMachineCycles() % MACHINE_CYCLES_PER_SCANLINE;
+                long relativeCycles = cpuMachineCycles % MACHINE_CYCLES_PER_SCANLINE;
                 if (relativeCycles >= DMAO_BEGIN && relativeCycles < DMAO_END) {
                     this.dmaStatus = DmaStatus.OUT;
                 } else {
@@ -91,7 +96,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
             this.interrupting = false;
             this.dmaStatus = DmaStatus.NONE;
         }
-        if (this.emulator.getProcessor().getMachineCycles() % MACHINE_CYCLES_PER_SCANLINE == 0) {
+        if (cpuMachineCycles % MACHINE_CYCLES_PER_SCANLINE == 0) {
             this.scanlineIndex = (this.scanlineIndex + 1) % SCANLINES_PER_FRAME;
         }
     }
@@ -126,12 +131,12 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
 
     @Override
     public void onOutput(int value) {
-        this.enabled = false;
+        this.displayEnableLatch = false;
     }
 
     @Override
     public int onInput() {
-        this.enabled = true;
+        this.displayEnableLatch = true;
         return 0;
     }
 
