@@ -258,6 +258,7 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 - [NinjaWeedle - Oxiti8's MegaChip docs](https://github.com/NinjaWeedle/MegaChip8/blob/main/docs/Oxiti8's%20MegaChip%20docs.txt)
 - [NinjaWeedle - Oxiti8's HyperWaveCHIP-64 docs](https://github.com/NinjaWeedle/HyperWaveCHIP-64/blob/master/HyperWaveCHIP-64%20Extension%20docs.txt)
 - [Ready4Next - Mega8](https://github.com/Ready4Next/Mega8)
+- [Cosmac ELF Group](https://groups.io/g/cosmacelf)
 - [Emulator Development Discord](https://discord.gg/dkmJAes)
 
 ## Credits
