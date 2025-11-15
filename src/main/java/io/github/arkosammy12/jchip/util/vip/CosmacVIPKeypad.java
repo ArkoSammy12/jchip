@@ -1,7 +1,7 @@
-package io.github.arkosammy12.jchip.util;
+package io.github.arkosammy12.jchip.util.vip;
 
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
-import io.github.arkosammy12.jchip.ui.IODevice;
+import io.github.arkosammy12.jchip.util.Keypad;
 
 public class CosmacVIPKeypad extends Keypad implements IODevice {
 

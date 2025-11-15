@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
-import io.github.arkosammy12.jchip.ui.IODevice;
+import io.github.arkosammy12.jchip.util.vip.IODevice;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements IODevice {

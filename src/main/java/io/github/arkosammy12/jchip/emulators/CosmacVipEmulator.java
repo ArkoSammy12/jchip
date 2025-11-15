@@ -7,16 +7,16 @@ import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
-import io.github.arkosammy12.jchip.ui.IODevice;
+import io.github.arkosammy12.jchip.util.vip.IODevice;
 import io.github.arkosammy12.jchip.util.Variant;
-import io.github.arkosammy12.jchip.util.CosmacVIPKeypad;
+import io.github.arkosammy12.jchip.util.vip.CosmacVIPKeypad;
 import io.github.arkosammy12.jchip.video.CDP1861;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
 
-import static io.github.arkosammy12.jchip.ui.IODevice.DmaStatus.IN;
-import static io.github.arkosammy12.jchip.ui.IODevice.DmaStatus.OUT;
+import static io.github.arkosammy12.jchip.util.vip.IODevice.DmaStatus.IN;
+import static io.github.arkosammy12.jchip.util.vip.IODevice.DmaStatus.OUT;
 
 public class CosmacVipEmulator implements Emulator {
 

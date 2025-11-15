@@ -15,7 +15,6 @@ public class MegaChipDisplay<E extends MegaChipEmulator> extends SChipDisplay<E>
     private int collisionIndex = 0;
     private BlendMode blendMode = BlendMode.BLEND_NORMAL;
 
-    //private boolean megaChipModeEnabled = false;
     private boolean scrollTriggered = false;
 
     public MegaChipDisplay(E emulator) {
@@ -104,17 +103,6 @@ public class MegaChipDisplay<E extends MegaChipEmulator> extends SChipDisplay<E>
     public int getColorIndexAt(int column, int row) {
         return this.indexBuffer[column][row];
     }
-
-    /*
-    public void setMegaChipMode(boolean value) {
-        this.megaChipModeEnabled = value;
-    }
-
-    public boolean isMegaChipModeEnabled() {
-        return this.megaChipModeEnabled;
-    }
-
-     */
 
     public void setDisplayUpdateScrollTriggered() {
         this.scrollTriggered = true;
