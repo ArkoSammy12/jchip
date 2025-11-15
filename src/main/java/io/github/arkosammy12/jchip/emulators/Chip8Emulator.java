@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.*;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
@@ -26,23 +26,23 @@ public class Chip8Emulator implements Emulator {
     private Chip8SoundSystem soundSystem;
 
     private final Keypad keypad;
-    private final Chip8Variant chip8Variant;
-    private final EmulatorSettings emulatorSettings;
+    private final Variant variant;
+    private final Chip8EmulatorSettings emulatorSettings;
     private final int targetInstructionsPerFrame;
 
     private long instructionCounter;
     private int currentInstructionsPerFrame;
     private int waitFrames = 0;
 
-    public Chip8Emulator(EmulatorSettings emulatorSettings) {
+    public Chip8Emulator(Chip8EmulatorSettings emulatorSettings) {
         try {
             this.emulatorSettings = emulatorSettings;
-            this.chip8Variant = emulatorSettings.getVariant();
+            this.variant = emulatorSettings.getVariant();
             this.targetInstructionsPerFrame = emulatorSettings.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
-            this.keypad = new Keypad(emulatorSettings);
+            this.keypad = new Keypad(this);
             this.initializeComponents();
-            this.getMemory().loadFont(chip8Variant.getSpriteFont());
+            this.getMemory().loadFont(emulatorSettings.getHexSpriteFont());
         } catch (Exception e) {
             this.close();
             throw new EmulatorException(e);
@@ -97,8 +97,8 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public Chip8Variant getChip8Variant() {
-        return this.chip8Variant;
+    public Variant getChip8Variant() {
+        return this.variant;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public EmulatorSettings getEmulatorSettings() {
+    public Chip8EmulatorSettings getEmulatorSettings() {
         return this.emulatorSettings;
     }
 

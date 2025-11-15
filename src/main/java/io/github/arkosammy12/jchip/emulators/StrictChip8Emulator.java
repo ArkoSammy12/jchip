@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
 import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
@@ -18,7 +18,7 @@ public final class StrictChip8Emulator extends Chip8Emulator {
     private long nextFrame;
     private int cycleCounter;
 
-    public StrictChip8Emulator(EmulatorSettings emulatorSettings) {
+    public StrictChip8Emulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings);
         // Amount of cycles the COSMAC-VIP needs to set things up before beginning execution of the ROM
         this.machineCycles = 3250;
@@ -68,7 +68,7 @@ public final class StrictChip8Emulator extends Chip8Emulator {
 
     protected void initializeMemory() {
         this.memory = new StrictChip8Memory(this);
-        this.memory.loadFont(this.getChip8Variant().getSpriteFont());
+        this.memory.loadFont(this.getEmulatorSettings().getHexSpriteFont());
     }
 
     protected void initializeProcessor() {

@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.cpu;
 
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8Display;
@@ -353,7 +353,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     protected int executeDOpcode(int firstByte, int NN) {
         Chip8Display<?> display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorSettings config = this.emulator.getEmulatorSettings();
+        Chip8EmulatorSettings config = this.emulator.getEmulatorSettings();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
 
@@ -460,7 +460,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
                 yield HANDLED;
             }
             case 0x29 -> { // FX29: i := hex vX
-                this.setIndexRegister(this.emulator.getChip8Variant().getSpriteFont().getSmallFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
+                this.setIndexRegister(this.emulator.getEmulatorSettings().getHexSpriteFont().getSmallFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x33 -> { // FX33: bcd vX

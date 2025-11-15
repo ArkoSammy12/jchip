@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.ui.IODevice;
 
@@ -9,8 +8,8 @@ public class CosmacVIPKeypad extends Keypad implements IODevice {
     private final CosmacVipEmulator emulator;
     private int latchedKey = 0;
 
-    public CosmacVIPKeypad(EmulatorSettings emulatorSettings, CosmacVipEmulator emulator) {
-        super(emulatorSettings);
+    public CosmacVIPKeypad(CosmacVipEmulator emulator) {
+        super(emulator);
         this.emulator = emulator;
     }
 

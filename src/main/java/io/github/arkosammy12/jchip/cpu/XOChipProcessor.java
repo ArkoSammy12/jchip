@@ -1,9 +1,9 @@
 package io.github.arkosammy12.jchip.cpu;
 
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
@@ -91,7 +91,7 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
     protected int executeDOpcode(int firstByte, int NN) {
         XOChipDisplay<?> display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorSettings config = this.emulator.getEmulatorSettings();
+        Chip8EmulatorSettings config = this.emulator.getEmulatorSettings();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         int selectedBitPlanes = display.getSelectedBitPlanes();

@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.config;
 
-import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.ColorPalette;
 
@@ -14,7 +14,7 @@ public interface SettingsProvider {
 
     Optional<DisplayAngle> getDisplayAngle();
 
-    Optional<Chip8Variant> getChip8Variant();
+    Optional<Variant> getVariant();
 
     Optional<Boolean> doVFReset();
 

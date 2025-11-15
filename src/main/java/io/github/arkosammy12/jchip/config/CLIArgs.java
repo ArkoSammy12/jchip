@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.config;
 
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
@@ -28,11 +28,11 @@ public class CLIArgs implements PrimarySettingsProvider {
 
     @CommandLine.Option(
             names = {"--variant", "-v"},
-            converter = Chip8Variant.Converter.class,
+            converter = Variant.Converter.class,
             defaultValue = CommandLine.Option.NULL_VALUE,
             description = "Select the desired CHIP-8 variant or leave unspecified."
     )
-    private Optional<Chip8Variant> chip8Variant;
+    private Optional<Variant> chip8Variant;
 
     @CommandLine.Option(
             names = {"--instructions-per-frame", "-i"},
@@ -156,7 +156,7 @@ public class CLIArgs implements PrimarySettingsProvider {
     }
 
     @Override
-    public Optional<Chip8Variant> getChip8Variant() {
+    public Optional<Variant> getVariant() {
         return this.chip8Variant;
     }
 

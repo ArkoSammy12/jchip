@@ -1,9 +1,9 @@
 package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
@@ -70,7 +70,7 @@ public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
     protected int executeDOpcode(int firstByte, int NN) {
         SChipDisplay<?> display = this.emulator.getDisplay();
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorSettings config = this.emulator.getEmulatorSettings();
+        Chip8EmulatorSettings config = this.emulator.getEmulatorSettings();
         boolean extendedMode = display.isExtendedMode();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
@@ -167,7 +167,7 @@ public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
     protected int executeFOpcode(int firstByte, int NN) throws InvalidInstructionException {
         return switch (NN) {
             case 0x30 -> { // FX30: i := bighex vX
-                this.setIndexRegister(this.emulator.getChip8Variant().getSpriteFont().getBigFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
+                this.setIndexRegister(this.emulator.getEmulatorSettings().getHexSpriteFont().getBigFontSpriteOffset(this.getRegister(getX(firstByte, NN)) & 0xF));
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: saveflags vX

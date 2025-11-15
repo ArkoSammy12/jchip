@@ -2,10 +2,7 @@ package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.Chip8Processor;
-import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.memory.Memory;
 
 import javax.swing.*;

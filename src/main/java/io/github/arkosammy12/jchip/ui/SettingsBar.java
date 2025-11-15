@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 import io.github.arkosammy12.jchip.video.ColorPalette;
@@ -89,7 +89,7 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
     }
 
     @Override
-    public Optional<Chip8Variant> getChip8Variant() {
+    public Optional<Variant> getVariant() {
         return this.emulatorMenu.getChip8Variant();
     }
 

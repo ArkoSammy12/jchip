@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
 import io.github.arkosammy12.jchip.memory.Chip8XMemory;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 
 public class Chip8XEmulator extends Chip8Emulator {
@@ -11,7 +11,7 @@ public class Chip8XEmulator extends Chip8Emulator {
     private Chip8XMemory memory;
     private Chip8XDisplay<?> display;
 
-    public Chip8XEmulator(EmulatorSettings emulatorSettings) {
+    public Chip8XEmulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings);
     }
 

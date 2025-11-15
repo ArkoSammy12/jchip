@@ -74,6 +74,11 @@ public class Chip8Memory implements Memory {
     }
 
     @Override
+    public int getByte(int address) {
+        return this.readByte(address);
+    }
+
+    @Override
     public void writeByte(int address, int value) {
         this.bytes[address & this.memoryBoundsMask] = value;
     }

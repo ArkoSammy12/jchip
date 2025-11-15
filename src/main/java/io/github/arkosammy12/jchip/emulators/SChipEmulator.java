@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.SChipProcessor;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
@@ -14,7 +14,7 @@ public class SChipEmulator extends Chip8Emulator {
 
     private final boolean isModern;
 
-    public SChipEmulator(EmulatorSettings emulatorSettings, boolean isModern) {
+    public SChipEmulator(Chip8EmulatorSettings emulatorSettings, boolean isModern) {
         this.isModern = isModern;
         super(emulatorSettings);
     }

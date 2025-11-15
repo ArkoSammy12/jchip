@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.cpu;
 
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
@@ -208,7 +208,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
         }
 
         Chip8Memory memory = this.emulator.getMemory();
-        EmulatorSettings config = this.emulator.getEmulatorSettings();
+        Chip8EmulatorSettings config = this.emulator.getEmulatorSettings();
         int currentIndexRegister = this.getIndexRegister();
         boolean doClipping = config.doClipping();
 

@@ -2,9 +2,10 @@ package io.github.arkosammy12.jchip.config.database;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.SettingsProvider;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
 import io.github.arkosammy12.jchip.video.ColorPalette;
@@ -150,10 +151,10 @@ public class Chip8Database implements SettingsProvider {
     }
 
     @Override
-    public Optional<Chip8Variant> getChip8Variant() {
+    public Optional<Variant> getVariant() {
         return Optional.ofNullable(this.platformEntry)
                 .flatMap(PlatformEntry::getId)
-                .flatMap(Chip8Variant::getVariantForPlatformId);
+                .flatMap(EmulatorSettings::getVariantForPlatformIds);
     }
 
     @Override

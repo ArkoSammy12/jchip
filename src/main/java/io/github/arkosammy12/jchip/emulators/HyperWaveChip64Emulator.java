@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.HyperWaveChip64Processor;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.HyperWaveChip64Display;
 
 public class HyperWaveChip64Emulator extends XOChipEmulator {
@@ -9,7 +9,7 @@ public class HyperWaveChip64Emulator extends XOChipEmulator {
     private HyperWaveChip64Processor<?> processor;
     private HyperWaveChip64Display<?> display;
 
-    public HyperWaveChip64Emulator(EmulatorSettings emulatorSettings) {
+    public HyperWaveChip64Emulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings);
     }
 

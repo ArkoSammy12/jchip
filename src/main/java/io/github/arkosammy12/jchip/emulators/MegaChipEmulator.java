@@ -1,10 +1,10 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.memory.MegaChipMemory;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
@@ -16,7 +16,7 @@ public class MegaChipEmulator extends SChipEmulator {
     private MegaChipDisplay<?> display;
     private MegaChipSoundSystem soundSystem;
 
-    public MegaChipEmulator(EmulatorSettings emulatorSettings) {
+    public MegaChipEmulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings, false);
     }
 

@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
 import io.github.arkosammy12.jchip.video.ColorPalette;
@@ -21,7 +21,7 @@ public class EmulatorMenu extends JMenu {
     private final JMenuItem stepCycleButton = new JMenuItem("Step Cycle");
 
     private final QuirksMenu quirksMenu;
-    private final EnumMenu<Chip8Variant> variantMenu;
+    private final EnumMenu<Variant> variantMenu;
     private final EnumMenu<BuiltInColorPalette> colorPaletteMenu;
     private final EnumMenu<DisplayAngle> displayAngleMenu;
     private final JMenuItem instructionsPerFrameMenu;
@@ -93,7 +93,7 @@ public class EmulatorMenu extends JMenu {
         this.stepCycleButton.setEnabled(false);
 
         this.quirksMenu = new QuirksMenu();
-        this.variantMenu = new EnumMenu<>("Variant", Chip8Variant.class, true);
+        this.variantMenu = new EnumMenu<>("Variant", Variant.class, true);
         this.variantMenu.setMnemonic(KeyEvent.VK_V);
         this.variantMenu.setToolTipText("Select the desired CHIP-8 variant or leave unspecified.");
 
@@ -160,7 +160,7 @@ public class EmulatorMenu extends JMenu {
         return this.quirksMenu;
     }
 
-    public Optional<Chip8Variant> getChip8Variant() {
+    public Optional<Variant> getChip8Variant() {
         return this.variantMenu.getState();
     }
 
@@ -182,7 +182,7 @@ public class EmulatorMenu extends JMenu {
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
         this.quirksMenu.initializeSettings(primarySettingsProvider);
-        primarySettingsProvider.getChip8Variant().ifPresent(this.variantMenu::setState);
+        primarySettingsProvider.getVariant().ifPresent(this.variantMenu::setState);
         primarySettingsProvider.getDisplayAngle().ifPresent(this.displayAngleMenu::setState);
         primarySettingsProvider.getInstructionsPerFrame().ifPresent(val -> {
             this.instructionsPerFrame = val;

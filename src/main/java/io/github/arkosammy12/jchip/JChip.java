@@ -1,14 +1,12 @@
 package io.github.arkosammy12.jchip;
 
 import io.github.arkosammy12.jchip.config.CLIArgs;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
-import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.sound.SoundWriter;
 import io.github.arkosammy12.jchip.ui.MainWindow;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.FrameLimiter;
 import org.tinylog.Logger;
 import picocli.CommandLine;
@@ -16,8 +14,6 @@ import picocli.CommandLine;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -64,7 +60,7 @@ public class JChip {
             });
             if (cliArgs != null) {
                 this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
-                this.currentEmulator = Chip8Variant.getEmulator(new EmulatorSettings(this));
+                this.currentEmulator = Variant.getEmulator(this);
             }
         } catch (Exception e) {
             if (this.mainWindow != null) {
@@ -187,7 +183,7 @@ public class JChip {
             this.currentEmulator.close();
             this.mainWindow.setEmulatorRenderer(null);
         }
-        this.currentEmulator = Chip8Variant.getEmulator(new EmulatorSettings(this));
+        this.currentEmulator = Variant.getEmulator(this);
         this.currentState.set(State.RUNNING);
     }
 

@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
@@ -7,7 +8,7 @@ import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.ui.IODevice;
-import io.github.arkosammy12.jchip.util.Chip8Variant;
+import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.CosmacVIPKeypad;
 import io.github.arkosammy12.jchip.video.CDP1861;
 
@@ -21,8 +22,8 @@ public class CosmacVipEmulator implements Emulator {
 
     public static final int CYCLES_PER_FRAME = 3668;
 
-    private final EmulatorSettings settings;
-    private final Chip8Variant chip8Variant;
+    private final CosmacVipEmulatorSettings settings;
+    private final Variant variant;
 
     private final CDP1802 processor;
     private final CosmacVipMemory memory;
@@ -31,14 +32,14 @@ public class CosmacVipEmulator implements Emulator {
     private final CosmacVIPKeypad keypad;
     private final IODevice[] ioDevices = new IODevice[8];
 
-    private final boolean withChip8Interpreter;
+    private final boolean isHybridChip8;
     private int currentInstructionsPerFrame;
 
-    public CosmacVipEmulator(EmulatorSettings emulatorSettings, boolean withChip8Interpreter) {
+    public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, boolean isHybridChip8) {
         this.settings = emulatorSettings;
-        this.withChip8Interpreter = withChip8Interpreter;
-        this.chip8Variant = emulatorSettings.getVariant();
-        this.keypad = new CosmacVIPKeypad(this.settings, this);
+        this.isHybridChip8 = isHybridChip8;
+        this.variant = isHybridChip8 ? Variant.HYBRID_CHIP_8 : Variant.COSMAC_VIP;
+        this.keypad = new CosmacVIPKeypad(this);
         this.processor = new CDP1802(this);
         this.memory = new CosmacVipMemory(this);
         this.display = new CDP1861<>(this);
@@ -73,8 +74,8 @@ public class CosmacVipEmulator implements Emulator {
     }
 
     @Override
-    public Chip8Variant getChip8Variant() {
-        return this.chip8Variant;
+    public Variant getChip8Variant() {
+        return this.variant;
     }
 
     @Override
@@ -82,8 +83,8 @@ public class CosmacVipEmulator implements Emulator {
         return List.of(this.keypad);
     }
 
-    public boolean isWithChip8Interpreter() {
-        return this.withChip8Interpreter;
+    public boolean isHybridChip8() {
+        return this.isHybridChip8;
     }
 
     public int dispatchInput(int ioIndex) {
@@ -96,7 +97,7 @@ public class CosmacVipEmulator implements Emulator {
 
     public void dispatchOutput(int ioIndex, int value) {
         if (ioIndex >= 4) {
-            this.memory.setRomShadowed(false);
+            this.memory.setMA7Latched(false);
             return;
         }
         IODevice ioDevice = this.ioDevices[(ioIndex - 1) & 0xF];
@@ -156,7 +157,7 @@ public class CosmacVipEmulator implements Emulator {
 
             CDP1802.State nextState = this.processor.getCurrentState();
 
-            if (currentState == CDP1802.State.S1_EXECUTE && nextState != CDP1802.State.S1_EXECUTE) {
+            if (currentState.isS1Execute() && !nextState.isS1Execute()) {
                 this.currentInstructionsPerFrame++;
             }
 

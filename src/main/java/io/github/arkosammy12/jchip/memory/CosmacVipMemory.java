@@ -89,10 +89,11 @@ public class CosmacVipMemory implements Memory {
 
     protected final int[] bytes = new int[4096];
     private boolean ma7Latched = true;
+    private int dataBus = 0;
 
     public CosmacVipMemory(CosmacVipEmulator emulator) {
         int[] rom = emulator.getEmulatorSettings().getRom();
-        if (emulator.isWithChip8Interpreter()) {
+        if (emulator.isHybridChip8()) {
             System.arraycopy(CHIP_8_INTERPRETER, 0, this.bytes, 0, CHIP_8_INTERPRETER.length);
             System.arraycopy(rom, 0, this.bytes, CHIP_8_INTERPRETER.length, rom.length);
         } else {
@@ -116,7 +117,9 @@ public class CosmacVipMemory implements Memory {
         if (actualAddress >= 0x8000) {
             return MONITOR_ROM[actualAddress & 0x1FF];
         }
-        return this.bytes[actualAddress & 0xFFF];
+        int value = this.bytes[actualAddress & 0xFFF];
+        this.dataBus = value;
+        return value;
     }
 
     @Override
@@ -125,11 +128,22 @@ public class CosmacVipMemory implements Memory {
         if (actualAddress >= 0x8000) {
             return;
         }
+        this.dataBus = value;
         this.bytes[actualAddress & 0xFFF] = value & 0xFF;
     }
 
-    public void setRomShadowed(boolean value) {
+    @Override
+    public int getByte(int address) {
+        return this.bytes[address];
+    }
+
+    public void setMA7Latched(boolean value) {
         this.ma7Latched = value;
     }
 
+    public int getDataBus() {
+        return this.dataBus;
+    }
+
 }
+

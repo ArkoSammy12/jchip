@@ -1,12 +1,8 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
-import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.HyperWaveChip64Emulator;
 
-import java.awt.event.KeyAdapter;
 import java.util.Arrays;
-import java.util.List;
 
 public class HyperWaveChip64Display<E extends HyperWaveChip64Emulator> extends XOChipDisplay<E> {
 

@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
 import io.github.arkosammy12.jchip.memory.XOChipMemory;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
 public class XOChipEmulator extends SChipEmulator {
@@ -11,7 +11,7 @@ public class XOChipEmulator extends SChipEmulator {
     private XOChipMemory memory;
     private XOChipDisplay<?> display;
 
-    public XOChipEmulator(EmulatorSettings emulatorSettings) {
+    public XOChipEmulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings, true);
     }
 
@@ -36,7 +36,7 @@ public class XOChipEmulator extends SChipEmulator {
 
     protected void initializeMemory() {
         this.memory = new XOChipMemory(this);
-        this.memory.loadFont(this.getChip8Variant().getSpriteFont());
+        this.memory.loadFont(this.getEmulatorSettings().getHexSpriteFont());
     }
 
     protected void initializeProcessor() {

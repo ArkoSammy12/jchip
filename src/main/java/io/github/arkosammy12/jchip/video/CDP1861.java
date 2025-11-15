@@ -58,7 +58,10 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
 
     @Override
     protected int getImageScale(DisplayAngle displayAngle) {
-        return 7;
+        return switch (displayAngle) {
+            case DEG_90, DEG_270 -> 5;
+            default -> 7;
+        };
     }
 
     @Override
