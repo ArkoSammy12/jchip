@@ -5,14 +5,21 @@ import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
 import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.WAITING;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
 public final class StrictChip8Emulator extends Chip8Emulator {
 
+    @UnknownNullability
     private StrictChip8Processor processor;
+
+    @UnknownNullability
     private StrictChip8Memory memory;
+
+    @UnknownNullability
     private StrictChip8Display display;
 
     private long machineCycles;
@@ -27,17 +34,17 @@ public final class StrictChip8Emulator extends Chip8Emulator {
     }
 
     @Override
-    public StrictChip8Processor getProcessor() {
+    public @NotNull StrictChip8Processor getProcessor() {
         return this.processor;
     }
 
     @Override
-    public StrictChip8Memory getMemory() {
+    public @NotNull StrictChip8Memory getMemory() {
         return this.memory;
     }
 
     @Override
-    public StrictChip8Display getDisplay() {
+    public @NotNull StrictChip8Display getDisplay() {
         return this.display;
     }
 

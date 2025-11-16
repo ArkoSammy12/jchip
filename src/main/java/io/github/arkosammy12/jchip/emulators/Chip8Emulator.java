@@ -10,6 +10,9 @@ import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -22,9 +25,16 @@ public class Chip8Emulator implements Emulator {
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
     // Always access these via their getter methods
+    @UnknownNullability
     private Chip8Processor<?> processor;
+
+    @UnknownNullability
     private Chip8Memory memory;
+
+    @UnknownNullability
     private Chip8Display<?> display;
+
+    @UnknownNullability
     private Chip8SoundSystem soundSystem;
 
     private final Keypad keypad;
@@ -77,21 +87,25 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
+    @NotNull
     public Chip8Processor<?> getProcessor() {
         return this.processor;
     }
 
     @Override
+    @NotNull
     public Chip8Memory getMemory() {
         return this.memory;
     }
 
     @Override
+    @NotNull
     public Chip8Display<?> getDisplay() {
         return this.display;
     }
 
     @Override
+    @NotNull
     public Chip8SoundSystem getSoundSystem() {
         return this.soundSystem;
     }

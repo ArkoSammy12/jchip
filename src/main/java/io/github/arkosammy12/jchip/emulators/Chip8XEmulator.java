@@ -4,11 +4,18 @@ import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
 import io.github.arkosammy12.jchip.memory.Chip8XMemory;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class Chip8XEmulator extends Chip8Emulator {
 
+    @UnknownNullability
     private Chip8XProcessor<?> processor;
+
+    @UnknownNullability
     private Chip8XMemory memory;
+
+    @UnknownNullability
     private Chip8XDisplay<?> display;
 
     public Chip8XEmulator(Chip8EmulatorSettings emulatorSettings) {
@@ -16,17 +23,17 @@ public class Chip8XEmulator extends Chip8Emulator {
     }
 
     @Override
-    public Chip8XProcessor<?> getProcessor() {
+    public @NotNull Chip8XProcessor<?> getProcessor() {
         return this.processor;
     }
 
     @Override
-    public Chip8XMemory getMemory() {
+    public @NotNull Chip8XMemory getMemory() {
         return this.memory;
     }
 
     @Override
-    public Chip8XDisplay<?> getDisplay() {
+    public @NotNull Chip8XDisplay<?> getDisplay() {
         return this.display;
     }
 

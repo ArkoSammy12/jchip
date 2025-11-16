@@ -6,14 +6,23 @@ import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
 public class MegaChipEmulator extends SChipEmulator {
 
+    @UnknownNullability
     private MegaChipProcessor<?> processor;
+
+    @UnknownNullability
     private MegaChipMemory memory;
+
+    @UnknownNullability
     private MegaChipDisplay<?> display;
+
+    @UnknownNullability
     private MegaChipSoundSystem soundSystem;
 
     public MegaChipEmulator(Chip8EmulatorSettings emulatorSettings) {
@@ -21,22 +30,22 @@ public class MegaChipEmulator extends SChipEmulator {
     }
 
     @Override
-    public MegaChipProcessor<?> getProcessor() {
+    public @NotNull MegaChipProcessor<?> getProcessor() {
         return this.processor;
     }
 
     @Override
-    public MegaChipMemory getMemory() {
+    public @NotNull MegaChipMemory getMemory() {
         return this.memory;
     }
 
     @Override
-    public MegaChipDisplay<?> getDisplay() {
+    public @NotNull MegaChipDisplay<?> getDisplay() {
         return this.display;
     }
 
     @Override
-    public MegaChipSoundSystem getSoundSystem() {
+    public @NotNull MegaChipSoundSystem getSoundSystem() {
         return this.soundSystem;
     }
 

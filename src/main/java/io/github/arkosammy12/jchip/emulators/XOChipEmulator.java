@@ -4,11 +4,18 @@ import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
 import io.github.arkosammy12.jchip.memory.XOChipMemory;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class XOChipEmulator extends SChipEmulator {
 
+    @UnknownNullability
     private XOChipProcessor<?> processor;
+
+    @UnknownNullability
     private XOChipMemory memory;
+
+    @UnknownNullability
     private XOChipDisplay<?> display;
 
     public XOChipEmulator(Chip8EmulatorSettings emulatorSettings) {
@@ -16,17 +23,17 @@ public class XOChipEmulator extends SChipEmulator {
     }
 
     @Override
-    public XOChipProcessor<?> getProcessor() {
+    public @NotNull XOChipProcessor<?> getProcessor() {
         return this.processor;
     }
 
     @Override
-    public XOChipMemory getMemory() {
+    public @NotNull XOChipMemory getMemory() {
         return this.memory;
     }
 
     @Override
-    public XOChipDisplay<?> getDisplay() {
+    public @NotNull XOChipDisplay<?> getDisplay() {
         return this.display;
     }
 

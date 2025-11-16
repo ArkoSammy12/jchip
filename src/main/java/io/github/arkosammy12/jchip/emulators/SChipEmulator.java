@@ -4,12 +4,17 @@ import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.SChipProcessor;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
 public class SChipEmulator extends Chip8Emulator {
 
+    @UnknownNullability
     private SChipProcessor<?> processor;
+
+    @UnknownNullability
     private SChipDisplay<?> display;
 
     private final boolean isModern;
@@ -20,12 +25,12 @@ public class SChipEmulator extends Chip8Emulator {
     }
 
     @Override
-    public SChipProcessor<?> getProcessor() {
+    public @NotNull SChipProcessor<?> getProcessor() {
         return this.processor;
     }
 
     @Override
-    public SChipDisplay<?> getDisplay() {
+    public @NotNull SChipDisplay<?> getDisplay() {
         return this.display;
     }
 
