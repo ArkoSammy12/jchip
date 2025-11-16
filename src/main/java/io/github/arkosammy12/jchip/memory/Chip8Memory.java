@@ -23,9 +23,9 @@ public class Chip8Memory implements Memory {
                 this.bytes[i + programStart] = rom[i] & 0xFF;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new EmulatorException("ROM size too big for selected CHIP-8 variant!");
+            throw new EmulatorException("ROM size too big for selected variant!");
         } catch (Exception e) {
-            throw new EmulatorException("Error initializing CHIP-8 memory: ", e);
+            throw new EmulatorException("Error initializing memory: ", e);
         }
     }
 
@@ -68,7 +68,6 @@ public class Chip8Memory implements Memory {
         }
     }
 
-    @Override
     public int readByte(int address) {
         return this.bytes[address & this.memoryBoundsMask];
     }
@@ -78,7 +77,6 @@ public class Chip8Memory implements Memory {
         return this.readByte(address);
     }
 
-    @Override
     public void writeByte(int address, int value) {
         this.bytes[address & this.memoryBoundsMask] = value;
     }

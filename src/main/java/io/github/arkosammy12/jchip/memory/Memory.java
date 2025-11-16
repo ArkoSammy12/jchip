@@ -6,10 +6,6 @@ public interface Memory {
 
     int getMemoryBoundsMask();
 
-    int readByte(int address);
-
     int getByte(int address);
-
-    void writeByte(int address, int value);
 
 }

@@ -2,7 +2,6 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
-import org.tinylog.Logger;
 
 import java.util.Arrays;
 
@@ -246,6 +245,42 @@ public class CDP1802 implements Processor {
         //this.logTrace();
         return HANDLED;
     }
+
+    private int onDmaIn() {
+        this.emulator.getMemory().writeByte(getRegister(0), this.emulator.dispatchDmaIn());
+        setRegister(0, getRegister(0) + 1);
+        return HANDLED;
+    }
+
+    private int onDmaOut() {
+        this.emulator.dispatchDmaOut(this.emulator.getMemory().readByte(getRegister(0)));
+        setRegister(0, getRegister(0) + 1);
+        return HANDLED;
+    }
+
+    private int onInterrupt() {
+        setT(getX() << 4 | getP());
+        setInterruptEnable(false);
+        setP(1);
+        setX(2);
+        return HANDLED;
+    }
+
+    /*
+    private void logTrace() {
+        String pc = String.format("[%04X]", getRegister(getP()));
+        String ins = String.format(" %02X |", getI() << 4 | getN());
+        String df = getDF() ? " DF:1" : " DF:0";
+        String d = String.format(" D: %02X ", getD());
+
+        StringBuilder regs = new StringBuilder(" ");
+        for (int i = 0; i < 16; i++) {
+            regs.append(String.format("R%01X:%04X ", i, getRegister(i)));
+        }
+
+        Logger.info(pc + ins + regs + " | " + d + df);
+    }
+     */
 
     private int onExecute() {
         return switch (getI()) {
@@ -843,41 +878,6 @@ public class CDP1802 implements Processor {
             };
             default -> 0;
         };
-    }
-
-    private int onDmaIn() {
-        this.emulator.getMemory().writeByte(getRegister(0), this.emulator.dispatchDmaIn());
-        setRegister(0, getRegister(0) + 1);
-        return HANDLED;
-    }
-
-    private int onDmaOut() {
-        this.emulator.dispatchDmaOut(this.emulator.getMemory().readByte(getRegister(0)));
-        setRegister(0, getRegister(0) + 1);
-        return HANDLED;
-    }
-
-    private int onInterrupt() {
-        setT(getX() << 4 | getP());
-        setInterruptEnable(false);
-        setP(1);
-        setX(2);
-        return HANDLED;
-    }
-
-    private void logTrace() {
-        String pc = String.format("[%04X]", getRegister(getP()));
-        String ins = String.format(" %02X |", getI() << 4 | getN());
-        String df = getDF() ? " DF:1" : " DF:0";
-        String d = String.format(" D: %02X ", getD());
-
-        StringBuilder regs = new StringBuilder(" ");
-        for (int i = 0; i < 16; i++) {
-            regs.append(String.format("R%01X:%04X ", i, getRegister(i)));
-        }
-
-        Logger.info(pc + ins + regs + " | " + d + df);
-
     }
 
     public enum State {

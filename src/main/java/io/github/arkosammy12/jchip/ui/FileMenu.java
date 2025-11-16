@@ -36,7 +36,7 @@ public class FileMenu extends JMenu {
             details.actionPerformed(null);
             if (chooser.showOpenDialog(SwingUtilities.getWindowAncestor(this)) == JFileChooser.APPROVE_OPTION) {
                 this.romPath.set(chooser.getSelectedFile().toPath().toAbsolutePath());
-                this.rawRom.set(EmulatorSettings.getRawRom(this.romPath.get()));
+                this.rawRom.set(EmulatorSettings.readRawRom(this.romPath.get()));
             }
         });
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK, true));

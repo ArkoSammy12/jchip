@@ -31,7 +31,7 @@ public interface EmulatorSettings {
         return rom;
     }
 
-    static byte[] getRawRom(Path path) {
+    static byte[] readRawRom(Path path) {
         try {
             return Files.readAllBytes(path);
         } catch (Exception e) {

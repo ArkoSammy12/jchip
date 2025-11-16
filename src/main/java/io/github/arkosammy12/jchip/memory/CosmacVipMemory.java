@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.memory;
 
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
+import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 
 public class CosmacVipMemory implements Memory {
 
@@ -94,11 +95,17 @@ public class CosmacVipMemory implements Memory {
     public CosmacVipMemory(CosmacVipEmulator emulator) {
         int[] rom = emulator.getEmulatorSettings().getRom();
         this.bytes = new int[this.getMemorySize()];
-        if (emulator.isHybridChip8()) {
-            System.arraycopy(CHIP_8_INTERPRETER, 0, this.bytes, 0, CHIP_8_INTERPRETER.length);
-            System.arraycopy(rom, 0, this.bytes, CHIP_8_INTERPRETER.length, rom.length);
-        } else {
-            System.arraycopy(rom, 0, this.bytes, 0, rom.length);
+        try {
+            if (emulator.isHybridChip8()) {
+                System.arraycopy(CHIP_8_INTERPRETER, 0, this.bytes, 0, CHIP_8_INTERPRETER.length);
+                System.arraycopy(rom, 0, this.bytes, CHIP_8_INTERPRETER.length, rom.length);
+            } else {
+                System.arraycopy(rom, 0, this.bytes, 0, rom.length);
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new EmulatorException("ROM size too big for selected variant!");
+        } catch (Exception e) {
+            throw new EmulatorException("Error initializing memory: ", e);
         }
     }
 
@@ -112,7 +119,6 @@ public class CosmacVipMemory implements Memory {
         return 0xFFF;
     }
 
-    @Override
     public int readByte(int address) {
         int actualAddress = this.ma7Latched ? address | 0x8000 : address;
         if (actualAddress >= 0x8000) {
@@ -123,7 +129,6 @@ public class CosmacVipMemory implements Memory {
         return value;
     }
 
-    @Override
     public void writeByte(int address, int value) {
         int actualAddress = this.ma7Latched ? address | 0x8000 : address;
         if (actualAddress >= 0x8000) {

@@ -123,7 +123,7 @@ public class CLIArgs implements PrimarySettingsProvider {
 
     @Override
     public Optional<byte[]> getRawRom() {
-        return Optional.of(EmulatorSettings.getRawRom(convertToAbsolutePathIfNeeded(romPath)));
+        return Optional.of(EmulatorSettings.readRawRom(convertToAbsolutePathIfNeeded(romPath)));
     }
 
     @Override

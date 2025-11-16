@@ -126,7 +126,7 @@ public final class StrictChip8Emulator extends Chip8Emulator {
         debuggerInfo.clearTextSectionEntries();
         debuggerInfo.setTextSectionName("Strict CHIP-8");
         debuggerInfo.createTextSectionEntry()
-                .withName("No custom quirks support.");
+                .withName("No custom quirks supported.");
         return debuggerInfo;
     }
 

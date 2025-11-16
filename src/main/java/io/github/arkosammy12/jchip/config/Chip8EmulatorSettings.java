@@ -42,7 +42,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         this.displayAngle = settings.getDisplayAngle().orElse(database.getDisplayAngle().orElse(DisplayAngle.DEG_0));
         this.variant = settings.getVariant().orElse(database.getVariant().orElse(CHIP_8));
 
-        Quirkset defaultQuirkset = getDefaultQuirkset(this.variant).orElse(new Quirkset(false, false, false, false, false, false, _ -> 0));
+        DefaultQuirkSet defaultQuirkset = getDefaultQuirkSet(this.variant).orElse(new DefaultQuirkSet(false, false, false, false, false, false, _ -> 0));
         boolean useVariantQuirks = settings.useVariantQuirks();
         this.hexSpriteFont = getHexSpriteFont(this.variant);
 
@@ -92,21 +92,6 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         return this.variant;
     }
 
-    @Override
-    public Emulator getEmulator() {
-        return switch (this.variant) {
-            case CHIP_8 -> new Chip8Emulator(this);
-            case STRICT_CHIP_8 -> new StrictChip8Emulator(this);
-            case CHIP_8X -> new Chip8XEmulator(this);
-            case SUPER_CHIP_LEGACY -> new SChipEmulator(this, false);
-            case SUPER_CHIP_MODERN -> new SChipEmulator(this, true);
-            case XO_CHIP -> new XOChipEmulator(this);
-            case MEGA_CHIP -> new MegaChipEmulator(this);
-            case HYPERWAVE_CHIP_64 -> new HyperWaveChip64Emulator(this);
-            default -> throw new IllegalArgumentException();
-        };
-    }
-
     public boolean doVFReset() {
         return this.doVFReset;
     }
@@ -131,6 +116,21 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         return this.doJumpWithVX;
     }
 
+    @Override
+    public Emulator getEmulator() {
+        return switch (this.variant) {
+            case CHIP_8 -> new Chip8Emulator(this);
+            case STRICT_CHIP_8 -> new StrictChip8Emulator(this);
+            case CHIP_8X -> new Chip8XEmulator(this);
+            case SUPER_CHIP_LEGACY -> new SChipEmulator(this, false);
+            case SUPER_CHIP_MODERN -> new SChipEmulator(this, true);
+            case XO_CHIP -> new XOChipEmulator(this);
+            case MEGA_CHIP -> new MegaChipEmulator(this);
+            case HYPERWAVE_CHIP_64 -> new HyperWaveChip64Emulator(this);
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
     private static HexSpriteFont getHexSpriteFont(Variant variant) {
         return switch (variant) {
             case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG);
@@ -140,18 +140,18 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         };
     }
 
-    private static Optional<Quirkset> getDefaultQuirkset(Variant variant) {
+    private static Optional<DefaultQuirkSet> getDefaultQuirkSet(Variant variant) {
         return switch (variant) {
-            case CHIP_8, CHIP_8X -> Optional.of(new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11));
-            case SUPER_CHIP_LEGACY -> Optional.of(new Quirkset(false, false, true, true, true, true, _ -> 30));
-            case SUPER_CHIP_MODERN -> Optional.of(new Quirkset(false, false, false, true, true, true, _ -> 30));
-            case XO_CHIP, HYPERWAVE_CHIP_64 -> Optional.of(new Quirkset(false, true, false, false, false, false, _ -> 1000));
-            case MEGA_CHIP -> Optional.of(new Quirkset(false, false, false, false, true, false, _ -> 1000));
+            case CHIP_8, CHIP_8X -> Optional.of(new DefaultQuirkSet(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11));
+            case SUPER_CHIP_LEGACY -> Optional.of(new DefaultQuirkSet(false, false, true, true, true, true, _ -> 30));
+            case SUPER_CHIP_MODERN -> Optional.of(new DefaultQuirkSet(false, false, false, true, true, true, _ -> 30));
+            case XO_CHIP, HYPERWAVE_CHIP_64 -> Optional.of(new DefaultQuirkSet(false, true, false, false, false, false, _ -> 1000));
+            case MEGA_CHIP -> Optional.of(new DefaultQuirkSet(false, false, false, false, true, false, _ -> 1000));
             default -> Optional.empty();
         };
     }
 
-    public record Quirkset(
+    private record DefaultQuirkSet(
             boolean doVFReset,
             boolean doIncrementIndex,
             boolean doDisplayWait,

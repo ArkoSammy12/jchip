@@ -96,13 +96,13 @@ public class StrictChip8Memory extends Chip8Memory {
 
     public void writeStackWord(int index, int value) {
         int stackWordOffset = this.getMemorySize() - 0x130 - index * 2;
-        this.writeByte(stackWordOffset - 2, (value & 0xFF00) >>> 8);
-        this.writeByte(stackWordOffset - 1, value & 0xFF);
+        this.writeByte(stackWordOffset - 3, (value & 0xFF00) >>> 8);
+        this.writeByte(stackWordOffset - 2, value & 0xFF);
     }
 
     public int readStackWord(int index) {
         int stackWordOffset = this.getMemorySize() - 0x130 - index * 2;
-        return (this.readByte(stackWordOffset - 2) << 8) | this.readByte(stackWordOffset - 1);
+        return (this.readByte(stackWordOffset - 3) << 8) | this.readByte(stackWordOffset - 2);
     }
 
     public void drawDisplayPixel(int column, int row) {

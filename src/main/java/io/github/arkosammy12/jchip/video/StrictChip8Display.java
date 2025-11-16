@@ -9,7 +9,6 @@ public final class StrictChip8Display extends Chip8Display<StrictChip8Emulator> 
         super(emulator);
     }
 
-
     @Override
     public boolean flipPixel(int column, int row) {
         StrictChip8Memory memory = this.emulator.getMemory();
