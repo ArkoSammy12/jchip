@@ -76,10 +76,6 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
         return this.stack[stackPointer];
     }
 
-    public void getStackView(int[] ret) {
-        System.arraycopy(this.stack, 0, ret, 0, Math.min(this.stack.length, ret.length));
-    }
-
     public int getStackPointer() {
         return this.stackPointer;
     }
@@ -117,12 +113,12 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
         this.registers[0xF] = value ? 1 : 0;
     }
 
-    protected int getRegister(int register) {
+    public int getRegister(int register) {
         return this.registers[register];
     }
 
-    public final void getRegisterView(int[] ret) {
-        System.arraycopy(this.registers, 0, ret, 0, Math.min(this.registers.length, ret.length));
+    public int getStackElement(int index) {
+        return this.stack[index];
     }
 
     protected final Random getRandom() {

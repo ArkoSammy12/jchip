@@ -135,7 +135,7 @@ public class CosmacVipMemory implements Memory {
 
     @Override
     public int getByte(int address) {
-        return this.bytes[address];
+        return this.bytes[address & this.getMemoryBoundsMask()];
     }
 
     public void setMA7Latched(boolean value) {

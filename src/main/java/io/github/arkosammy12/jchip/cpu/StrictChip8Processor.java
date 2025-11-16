@@ -79,7 +79,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
         super.setVF(value);
     }
 
-    protected int getRegister(int register) {
+    public int getRegister(int register) {
         return this.emulator.getMemory().getRegister(register);
     }
 

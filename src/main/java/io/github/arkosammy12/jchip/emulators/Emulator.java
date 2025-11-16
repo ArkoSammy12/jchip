@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Processor;
 import io.github.arkosammy12.jchip.memory.Memory;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
+import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.video.Display;
 
@@ -25,6 +26,8 @@ public interface Emulator extends AutoCloseable {
     Variant getChip8Variant();
 
     List<KeyAdapter> getKeyAdapters();
+
+    DebuggerInfo getDebuggerInfo();
 
     void executeFrame();
 

@@ -1,129 +1,63 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.JChip;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.memory.Memory;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DebuggerViewPanel extends JPanel {
 
     private final JChip jchip;
 
-    private final DebuggerLabel<Boolean> doVFResetLabel;
-    private final DebuggerLabel<Boolean> doIncrementIndexLabel;
-    private final DebuggerLabel<Boolean> doDisplayWaitLabel;
-    private final DebuggerLabel<Boolean> doClippingLabel;
-    private final DebuggerLabel<Boolean> doShiftVXInPlaceLabel;
-    private final DebuggerLabel<Boolean> doJumpWithVXLabel;
+    private final JPanel textPanel;
+    private final JPanel singleRegistersPanel;
+    private final JPanel registersPanel;
+    private final JPanel stackPanel;
 
-    private final DebuggerLabel<Integer> programCounterLabel;
-    private final DebuggerLabel<Integer> indexRegisterLabel;
-    private final DebuggerLabel<Integer> delayTimerLabel;
-    private final DebuggerLabel<Integer> soundTimerLabel;
-    private final DebuggerLabel<Integer> stackPointerLabel;
+    private final JScrollPane textScrollPane;
+    private final JScrollPane singleRegistersScrollPane;
+    private final JScrollPane registersScrollPane;
+    private final JScrollPane stackScrollPane;
 
-    private final List<DebuggerLabel<Integer>> registerLabels = new ArrayList<>();
-    private final List<DebuggerLabel<Integer>> stackLabels = new ArrayList<>();
+    private DebuggerInfo debuggerInfo;
+
+    private final List<DebuggerLabel<?>> textPanelLabels = new ArrayList<>();
+    private final List<DebuggerLabel<?>> singleRegisterLabels = new ArrayList<>();
+    private final List<DebuggerLabel<?>> registerLabels = new ArrayList<>();
+    private final List<DebuggerLabel<?>> stackLabels = new ArrayList<>();
 
     private final MemoryTable memoryTable;
-
-    private final int[] shownRegisters = new int[16];
-    private final int[] shownStack = new int[16];
 
     public DebuggerViewPanel(JChip jchip) {
         super();
         this.jchip = jchip;
 
-        this.doVFResetLabel = new DebuggerLabel<>("VF Reset");
-        this.doIncrementIndexLabel = new DebuggerLabel<>("Increment I");
-        this.doDisplayWaitLabel = new DebuggerLabel<>("Display Wait");
-        this.doClippingLabel = new DebuggerLabel<>("Clipping");
-        this.doShiftVXInPlaceLabel = new DebuggerLabel<>("Shift VX In Place");
-        this.doJumpWithVXLabel = new DebuggerLabel<>("Jump With VX");
-
-        this.programCounterLabel = new DebuggerLabel<>("PC");
-        this.programCounterLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
-        this.programCounterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-
-        this.indexRegisterLabel = new DebuggerLabel<>("I");
-        this.indexRegisterLabel.setToStringFunction(val -> Integer.toHexString(val).toUpperCase());
-        this.indexRegisterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-
-        this.delayTimerLabel = new DebuggerLabel<>("DT");
-        this.delayTimerLabel.setToStringFunction(val -> String.format("%02X", val));
-        this.delayTimerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-
-        this.soundTimerLabel = new DebuggerLabel<>("ST");
-        this.soundTimerLabel.setToStringFunction(val -> String.format("%02X", val));
-        this.soundTimerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-
-        this.stackPointerLabel = new DebuggerLabel<>("SP");
-        this.stackPointerLabel.setToStringFunction(val -> String.format("%02X", val));
-        this.stackPointerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-
-        for (int i = 0; i < 16; i++) {
-            String hexDigit = Integer.toHexString(i).toUpperCase();
-            DebuggerLabel<Integer> registerLabel = new DebuggerLabel<>("V" + hexDigit);
-            DebuggerLabel<Integer> stackLabel = new DebuggerLabel<>(hexDigit);
-
-            registerLabel.setToStringFunction(val -> String.format("%02X", val));
-            stackLabel.setToStringFunction(val -> String.format("%02X", val));
-
-            registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-            stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
-
-            this.registerLabels.add(registerLabel);
-            this.stackLabels.add(stackLabel);
-        }
-
-        JPanel currentQuirksPanel = new JPanel(new GridLayout(0, 1, 1, 1));
-        currentQuirksPanel.add(this.doVFResetLabel);
-        currentQuirksPanel.add(this.doIncrementIndexLabel);
-        currentQuirksPanel.add(this.doDisplayWaitLabel);
-        currentQuirksPanel.add(this.doClippingLabel);
-        currentQuirksPanel.add(this.doShiftVXInPlaceLabel);
-        currentQuirksPanel.add(this.doJumpWithVXLabel);
-
-        JPanel singleRegistersPanel = new JPanel(new GridLayout(0, 2, 1, 1));
-        singleRegistersPanel.add(this.programCounterLabel);
-        singleRegistersPanel.add(this.indexRegisterLabel);
-        singleRegistersPanel.add(this.delayTimerLabel);
-        singleRegistersPanel.add(this.soundTimerLabel);
-        singleRegistersPanel.add(this.stackPointerLabel);
-
-        JPanel registersPanel = new JPanel(new GridLayout(0, 2, 5, 1));
-        JPanel stackPanel = new JPanel(new GridLayout(0, 2, 5, 1));
-
-        int numRows = 8;
-        for (int row = 0; row < numRows; row++) {
-            for (int col = 0; col < 2; col++) {
-                int index = col * numRows + row;
-                registersPanel.add(this.registerLabels.get(index));
-                stackPanel.add(this.stackLabels.get(index));
-            }
-        }
+        this.textPanel = new JPanel(new GridLayout(0, 1, 1, 1));
+        this.singleRegistersPanel = new JPanel(new GridLayout(0, 2, 1, 1));
+        this.registersPanel = new JPanel(new GridLayout(0, 2, 5, 1));
+        this.stackPanel = new JPanel(new GridLayout(0, 2, 5, 1));
 
         this.memoryTable = new MemoryTable();
 
-        JScrollPane currentQuirksScrollPane = new JScrollPane(currentQuirksPanel);
-        currentQuirksScrollPane.setPreferredSize(new Dimension(currentQuirksScrollPane.getSize().width, 20));
-        currentQuirksScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Current Quirks", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
 
-        JScrollPane singleRegisterScrollPane = new JScrollPane(singleRegistersPanel);
-        singleRegisterScrollPane.setPreferredSize(new Dimension(singleRegisterScrollPane.getSize().width, 10));
-        singleRegisterScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Single Registers", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
+        this.textScrollPane = new JScrollPane(textPanel);
+        textScrollPane.setPreferredSize(new Dimension(textScrollPane.getSize().width, 20));
+        textScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Current Quirks", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
 
-        JScrollPane registersScrollPane = new JScrollPane(registersPanel);
+        this.singleRegistersScrollPane = new JScrollPane(singleRegistersPanel);
+        singleRegistersScrollPane.setPreferredSize(new Dimension(singleRegistersScrollPane.getSize().width, 10));
+        singleRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Single Registers", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
+
+        this.registersScrollPane = new JScrollPane(registersPanel);
         registersScrollPane.setPreferredSize(new Dimension(registersScrollPane.getSize().width, 130));
         registersScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Registers", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
 
-        JScrollPane stackScrollPane = new JScrollPane(stackPanel);
+        this.stackScrollPane = new JScrollPane(stackPanel);
         stackScrollPane.setPreferredSize(new Dimension(stackScrollPane.getSize().width, 130));
         stackScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Stack", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
 
@@ -134,8 +68,8 @@ public class DebuggerViewPanel extends JPanel {
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setPreferredSize(new Dimension(150, leftPanel.getSize().height));
-        leftPanel.add(currentQuirksScrollPane);
-        leftPanel.add(singleRegisterScrollPane);
+        leftPanel.add(textScrollPane);
+        leftPanel.add(singleRegistersScrollPane);
         leftPanel.add(registersScrollPane);
         leftPanel.add(stackScrollPane);
 
@@ -154,92 +88,98 @@ public class DebuggerViewPanel extends JPanel {
 
     public void clear() {
         SwingUtilities.invokeLater(() -> {
-            this.doVFResetLabel.setState(null);
-            this.doIncrementIndexLabel.setState(null);
-            this.doDisplayWaitLabel.setState(null);
-            this.doClippingLabel.setState(null);
-            this.doShiftVXInPlaceLabel.setState(null);
-            this.doJumpWithVXLabel.setState(null);
-
-            this.programCounterLabel.setState(null);
-            this.indexRegisterLabel.setState(null);
-            this.delayTimerLabel.setState(null);
-            this.soundTimerLabel.setState(null);
-            this.stackPointerLabel.setState(null);
-
-            for (int i = 0; i < 16; i++) {
-                this.registerLabels.get(i).setState(null);
-                this.stackLabels.get(i).setState(null);
-            }
-
-            this.memoryTable.clear();
-
+            this.clearState();
+            this.repaint();
+            this.revalidate();
         });
     }
 
     public void update(Emulator emulator) {
-        EmulatorSettings config = emulator.getEmulatorSettings();
+        DebuggerInfo debuggerInfo = emulator.getDebuggerInfo();
+        if (!Objects.equals(debuggerInfo, this.debuggerInfo)) {
+            this.initializeDebuggerPanel(debuggerInfo);
+        }
 
-        /*
-        Chip8Processor<?> processor = emulator.getProcessor();
-        int pc = processor.getProgramCounter();
-        int I = processor.getIndexRegister();
-        int dt = processor.getDelayTimer();
-        int st = processor.getSoundTimer();
-        int sp = processor.getStackPointer();
-        processor.getRegisterView(this.shownRegisters);
-        processor.getStackView(this.shownStack);
-
-         */
-        Memory memory = emulator.getMemory();
-        this.memoryTable.update(emulator);
-
-        /*
         SwingUtilities.invokeLater(() -> {
-
-
-            this.doVFResetLabel.setState(config.doVFReset());
-            this.doIncrementIndexLabel.setState(config.doIncrementIndex());
-            this.doDisplayWaitLabel.setState(config.doDisplayWait());
-            this.doClippingLabel.setState(config.doClipping());
-            this.doShiftVXInPlaceLabel.setState(config.doShiftVXInPlace());
-            this.doJumpWithVXLabel.setState(config.doJumpWithVX());
-
-            String formatSpecifier = "%0" + hexDigitCount(memory.getMemoryBoundsMask()) + "X";
-
-            this.programCounterLabel.setToStringFunction(val -> String.format(formatSpecifier, val));
-            this.programCounterLabel.setState(pc);
-
-            this.indexRegisterLabel.setToStringFunction(val -> String.format(formatSpecifier, val));
-            this.indexRegisterLabel.setState(I);
-
-            this.delayTimerLabel.setState(dt);
-            this.soundTimerLabel.setState(st);
-            this.stackPointerLabel.setState(sp);
-
-            for (int i = 0; i < 16; i++) {
-                this.registerLabels.get(i).setState(this.shownRegisters[i]);
-
-                this.stackLabels.get(i).setToStringFunction(val -> String.format(formatSpecifier, val));
-                this.stackLabels.get(i).setState(this.shownStack[i]);
-            }
-
-            switch (this.jchip.getMainWindow().getSettingsBar().getDebuggerSettingsMenu().getCurrentMemoryFollowMode()) {
-                case FOLLOW_PC -> this.memoryTable.scrollToAddress(pc);
-                case FOLLOW_I -> this.memoryTable.scrollToAddress(I);
-            }
-
+            this.textPanelLabels.forEach(DebuggerLabel::updateState);
+            this.singleRegisterLabels.forEach(DebuggerLabel::updateState);
+            this.registerLabels.forEach(DebuggerLabel::updateState);
+            this.stackLabels.forEach(DebuggerLabel::updateState);
+            this.memoryTable.update(emulator);
+            this.debuggerInfo.getScrollAddressSupplier().ifPresent(supplier -> {
+                if (this.jchip.getMainWindow().getSettingsBar().getDebuggerSettingsMenu().isMemoryFollowEnabled()) {
+                    this.memoryTable.scrollToAddress(supplier.get());
+                }
+            });
         });
+    }
 
-         */
+    private void initializeDebuggerPanel(DebuggerInfo debuggerInfo) {
+        this.clearState();
+        this.debuggerInfo = debuggerInfo;
+
+        this.textPanelLabels.addAll(this.debuggerInfo.getTextSectionLabels());
+        this.singleRegisterLabels.addAll(this.debuggerInfo.getSingleRegisterLabels());
+        this.registerLabels.addAll(this.debuggerInfo.getRegisterLabels());
+        this.stackLabels.addAll(this.debuggerInfo.getStackLabels());
+
+        this.textScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), this.debuggerInfo.getTextSectionName(), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
+        this.singleRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), this.debuggerInfo.getSingleRegisterSectionName(), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
+        this.registersScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), this.debuggerInfo.getRegisterSectionName(), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
+        this.stackScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), this.debuggerInfo.getStackSectionName(), TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
+
+        this.textPanelLabels.forEach(this.textPanel::add);
+
+        for (DebuggerLabel<?> label : this.singleRegisterLabels) {
+            label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+            this.singleRegistersPanel.add(label);
+        }
+
+        int registerLabelRows = (int) Math.ceil((double) this.registerLabels.size() / 2);
+        for (int row = 0; row < registerLabelRows; row++) {
+            for (int col = 0; col < 2; col++) {
+                int index = col * registerLabelRows + row;
+                if (index < 0 || index >= this.registerLabels.size()) {
+                    continue;
+                }
+                DebuggerLabel<?> registerLabel = this.registerLabels.get(index);
+                registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+                registersPanel.add(this.registerLabels.get(index));
+            }
+        }
+
+        int stackLabelsRows = (int) Math.ceil((double) this.registerLabels.size() / 2);
+        for (int row = 0; row < stackLabelsRows; row++) {
+            for (int col = 0; col < 2; col++) {
+                int index = col * stackLabelsRows + row;
+                if (index < 0 || index >= this.stackLabels.size()) {
+                    continue;
+                }
+                DebuggerLabel<?> stackLabel = this.stackLabels.get(index);
+                stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
+                stackPanel.add(stackLabel);
+            }
+        }
+
+        this.repaint();
+        this.revalidate();
 
     }
 
-    private static int hexDigitCount(int x) {
-        if (x == 0) {
-            return 1;
-        }
-        return (32 - Integer.numberOfLeadingZeros(x) + 3) >>> 2;
+    private void clearState() {
+        this.debuggerInfo = null;
+
+        this.textPanelLabels.forEach(this.textPanel::remove);
+        this.singleRegisterLabels.forEach(this.singleRegistersPanel::remove);
+        this.registerLabels.forEach(this.registersPanel::remove);
+        this.stackLabels.forEach(this.stackPanel::remove);
+
+        this.textPanelLabels.clear();
+        this.singleRegisterLabels.clear();
+        this.registerLabels.clear();
+        this.stackLabels.clear();
+
+        this.memoryTable.clear();
     }
 
 }

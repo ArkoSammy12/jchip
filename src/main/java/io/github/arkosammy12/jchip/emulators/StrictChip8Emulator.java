@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
 import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
+import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.WAITING;
@@ -97,6 +98,16 @@ public final class StrictChip8Emulator extends Chip8Emulator {
 
     private long calculateNextFrame() {
         return ((this.machineCycles + 2572) / 3668) * 3668 + 1096;
+    }
+
+    @Override
+    protected DebuggerInfo createDebuggerInfo() {
+        DebuggerInfo debuggerInfo = super.createDebuggerInfo();
+        debuggerInfo.clearTextSectionEntries();
+        debuggerInfo.setTextSectionName("Strict CHIP-8");
+        debuggerInfo.createTextSectionEntry()
+                .withName("This variant does not support custom quirks");
+        return debuggerInfo;
     }
 
 }

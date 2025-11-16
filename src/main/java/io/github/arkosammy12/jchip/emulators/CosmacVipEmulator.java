@@ -8,6 +8,7 @@ import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
 import io.github.arkosammy12.jchip.memory.ExpandedCosmacVipMemory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
+import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.util.vip.IODevice;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.vip.CosmacVIPKeypad;
@@ -15,6 +16,7 @@ import io.github.arkosammy12.jchip.video.CDP1861;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
+import java.util.function.Function;
 
 import static io.github.arkosammy12.jchip.util.vip.IODevice.DmaStatus.IN;
 import static io.github.arkosammy12.jchip.util.vip.IODevice.DmaStatus.OUT;
@@ -24,6 +26,7 @@ public class CosmacVipEmulator implements Emulator {
     public static final int CYCLES_PER_FRAME = 3668;
 
     private final CosmacVipEmulatorSettings settings;
+    private final DebuggerInfo debuggerInfo;
     private final Variant variant;
 
     private final CDP1802 processor;
@@ -51,6 +54,7 @@ public class CosmacVipEmulator implements Emulator {
         this.soundSystem = new Chip8SoundSystem(this);
         this.ioDevices[0] = this.display;
         this.ioDevices[1] = this.keypad;
+        this.debuggerInfo = this.createDebuggerInfo();
     }
 
     @Override
@@ -70,7 +74,7 @@ public class CosmacVipEmulator implements Emulator {
 
     @Override
     public SoundSystem getSoundSystem() {
-        return null;
+        return this.soundSystem;
     }
 
     @Override
@@ -86,6 +90,11 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public List<KeyAdapter> getKeyAdapters() {
         return List.of(this.keypad);
+    }
+
+    @Override
+    public DebuggerInfo getDebuggerInfo() {
+        return this.debuggerInfo;
     }
 
     public boolean isHybridChip8() {
@@ -207,4 +216,81 @@ public class CosmacVipEmulator implements Emulator {
             throw new EmulatorException("Error releasing current emulator resources: ", e);
         }
     }
+
+    protected DebuggerInfo createDebuggerInfo() {
+        DebuggerInfo debuggerInfo = new DebuggerInfo();
+        debuggerInfo.setTextSectionName("Cosmac VIP");
+        debuggerInfo.setScrollAddressSupplier(() -> this.processor.getRegister(this.processor.getX()));
+
+        Function<Integer, String> byteFormatter = val -> String.format("%02X", val);
+        Function<Integer, String> nibbleFormatter = val -> String.format("%01X", val);
+        Function<Boolean, String> booleanFormatter = val -> val ? "1" : "0";
+
+        debuggerInfo.createTextSectionEntry()
+                .withName("Cosmac VIP based variant. Does not support custom quirks.");
+
+        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+                .withName("I")
+                .withStateUpdater(this.processor::getI)
+                .withToStringFunction(nibbleFormatter);
+
+        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+                .withName("N")
+                .withStateUpdater(this.processor::getN)
+                .withToStringFunction(nibbleFormatter);
+
+        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+                .withName("P")
+                .withStateUpdater(this.processor::getP)
+                .withToStringFunction(nibbleFormatter);
+
+        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+                .withName("X")
+                .withStateUpdater(this.processor::getX)
+                .withToStringFunction(nibbleFormatter);
+
+        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+                .withName("D")
+                .withStateUpdater(this.processor::getD)
+                .withToStringFunction(byteFormatter);
+
+        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+                .withName("T")
+                .withStateUpdater(this.processor::getT)
+                .withToStringFunction(byteFormatter);
+
+        debuggerInfo.<Boolean>createSingleRegisterSectionEntry()
+                .withName("DF")
+                .withStateUpdater(this.processor::getDF)
+                .withToStringFunction(booleanFormatter);
+
+        debuggerInfo.<Boolean>createSingleRegisterSectionEntry()
+                .withName("IE")
+                .withStateUpdater(this.processor::getInterruptEnable)
+                .withToStringFunction(booleanFormatter);
+
+        debuggerInfo.<Boolean>createSingleRegisterSectionEntry()
+                .withName("Q")
+                .withStateUpdater(this.processor::getQ)
+                .withToStringFunction(booleanFormatter);
+
+        debuggerInfo.setStackSectionName("X Data");
+
+        for (int i = 0; i < 16; i++) {
+            int finalI = i;
+            debuggerInfo.<Integer>createRegisterSectionEntry()
+                    .withName(String.format("R%01X", i))
+                    .withStateUpdater(() -> this.getProcessor().getRegister(finalI))
+                    .withToStringFunction(val -> String.format("%04X", val));
+
+            int finalI1 = i;
+            debuggerInfo.<Integer>createStackSectionEntry()
+                    .withName(String.format("%01X", i))
+                    .withStateUpdater(() -> this.getMemory().getByte(this.processor.getRegister(finalI1)))
+                    .withToStringFunction(val -> String.format("%02X", val));
+
+        }
+        return debuggerInfo;
+    }
+
 }

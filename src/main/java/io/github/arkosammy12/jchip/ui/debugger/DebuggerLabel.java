@@ -2,21 +2,24 @@ package io.github.arkosammy12.jchip.ui.debugger;
 
 import javax.swing.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 public class DebuggerLabel<T> extends JLabel {
 
     private final String name;
     private final AtomicReference<T> state = new AtomicReference<>(null);
-    private Function<T, String> toStringFunction;
+    DebuggerInfo.TextEntry<T> textEntry;
 
-    public DebuggerLabel(String name) {
+    public DebuggerLabel(DebuggerInfo.TextEntry<T> textEntry) {
+        String name = textEntry.getName().orElse("");
         super(name);
         this.name = name;
+        this.textEntry = textEntry;
     }
 
-    public void setToStringFunction(Function<T, String> toStringFunction) {
-        this.toStringFunction = toStringFunction;
+
+    public void updateState() {
+        this.textEntry.getStateUpdater().ifPresent(stateUpdater -> this.state.set(stateUpdater.get()));
+        this.setState(this.state.get());
     }
 
     public void setState(T val) {
@@ -28,8 +31,20 @@ public class DebuggerLabel<T> extends JLabel {
             return;
         }
         this.state.set(val);
-        String str = this.toStringFunction != null ? this.toStringFunction.apply(val) : val.toString();
-        this.setText(this.name + ": " + str);
+        String stateString = this.textEntry.getToStringFunction().orElse(Object::toString).apply(this.state.get());
+        String descriptionString = this.textEntry.getDescription().orElse("");
+        String nameString = this.textEntry.getName().orElse("");
+
+        String finalString = "";
+        if (!nameString.isEmpty()) {
+            finalString += nameString;
+        }
+
+        if (!descriptionString.isEmpty()) {
+            finalString += " (" + descriptionString + ")";
+        }
+        finalString += ": " + stateString;
+        this.setText(finalString);
     }
 
 }

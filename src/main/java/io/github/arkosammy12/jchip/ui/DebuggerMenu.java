@@ -8,7 +8,8 @@ import java.awt.event.KeyEvent;
 public class DebuggerMenu extends JMenu {
 
     private final JRadioButtonMenuItem showDebuggerButton;
-    private MemoryFollowMode currentMemoryFollowMode = MemoryFollowMode.FOLLOW_I;
+    private final JCheckBoxMenuItem memoryFollowButton;
+    private boolean memoryFollowEnabled = true;
 
     public DebuggerMenu(JChip jchip) {
         super("Debugger");
@@ -16,44 +17,23 @@ public class DebuggerMenu extends JMenu {
         this.setMnemonic(KeyEvent.VK_D);
 
         this.showDebuggerButton = new JRadioButtonMenuItem("Show");
-        this.showDebuggerButton.addActionListener(_ -> jchip.getMainWindow().setDebuggerViewEnabled(showDebuggerButton.isSelected()));
+        this.showDebuggerButton.addActionListener(_ ->
+                jchip.getMainWindow().setDebuggerViewEnabled(showDebuggerButton.isSelected())
+        );
         this.showDebuggerButton.setToolTipText("Toggle the debugger view panel.");
 
-        JMenu memoryFollowModeMenu = new JMenu("Memory follow mode");
-        memoryFollowModeMenu.setToolTipText("Make the memory viewer automatically scroll to the desired address, if any.");
-
-        JRadioButtonMenuItem noFollowButton = new JRadioButtonMenuItem("No Follow");
-        noFollowButton.addActionListener(_ -> this.currentMemoryFollowMode = MemoryFollowMode.NO_FOLLOW);
-
-        JRadioButtonMenuItem followPcButton = new JRadioButtonMenuItem("Follow PC");
-        followPcButton.addActionListener(_ -> this.currentMemoryFollowMode = MemoryFollowMode.FOLLOW_PC);
-
-        JRadioButtonMenuItem followIButton = new JRadioButtonMenuItem("Follow I");
-        followIButton.addActionListener(_ -> this.currentMemoryFollowMode = MemoryFollowMode.FOLLOW_I);
-        followIButton.setSelected(true);
-
-        ButtonGroup memoryFollowModeButtonGroup = new ButtonGroup();
-        memoryFollowModeButtonGroup.add(noFollowButton);
-        memoryFollowModeButtonGroup.add(followPcButton);
-        memoryFollowModeButtonGroup.add(followIButton);
-
-        memoryFollowModeMenu.add(noFollowButton);
-        memoryFollowModeMenu.add(followPcButton);
-        memoryFollowModeMenu.add(followIButton);
+        this.memoryFollowButton = new JCheckBoxMenuItem("Memory Follow");
+        this.memoryFollowButton.setSelected(memoryFollowEnabled);
+        this.memoryFollowButton.setToolTipText("Automatically scroll memory viewer.");
+        this.memoryFollowButton.addActionListener(_ ->
+                memoryFollowEnabled = memoryFollowButton.isSelected()
+        );
 
         this.add(showDebuggerButton);
-        this.add(memoryFollowModeMenu);
-
+        this.add(memoryFollowButton);
     }
 
-    public MemoryFollowMode getCurrentMemoryFollowMode() {
-        return this.currentMemoryFollowMode;
+    public boolean isMemoryFollowEnabled() {
+        return memoryFollowEnabled;
     }
-
-    public enum MemoryFollowMode {
-        NO_FOLLOW,
-        FOLLOW_PC,
-        FOLLOW_I
-    }
-
 }

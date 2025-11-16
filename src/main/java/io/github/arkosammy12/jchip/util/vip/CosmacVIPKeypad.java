@@ -47,4 +47,5 @@ public class CosmacVIPKeypad extends Keypad implements IODevice {
     public int onInput() {
         return 0;
     }
+
 }
