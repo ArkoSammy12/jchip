@@ -8,13 +8,6 @@ import io.github.arkosammy12.jchip.util.Variant;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
-
-import static io.github.arkosammy12.jchip.util.Variant.*;
-import static io.github.arkosammy12.jchip.util.Variant.HYBRID_CHIP_8;
-import static io.github.arkosammy12.jchip.util.Variant.MEGA_CHIP;
-import static io.github.arkosammy12.jchip.util.Variant.SUPER_CHIP_LEGACY;
-import static io.github.arkosammy12.jchip.util.Variant.XO_CHIP;
 
 public interface EmulatorSettings {
 
@@ -44,19 +37,6 @@ public interface EmulatorSettings {
         } catch (Exception e) {
             throw new EmulatorException(e);
         }
-    }
-
-    static Optional<Variant> getVariantForPlatformIds(String id) {
-        return switch (id) {
-            case "modernChip8" -> Optional.of(CHIP_8);
-            case "originalChip8" -> Optional.of(STRICT_CHIP_8);
-            case "chip8x" -> Optional.of(CHIP_8X);
-            case "superchip1", "superchip" -> Optional.of(SUPER_CHIP_LEGACY);
-            case "xochip" -> Optional.of(XO_CHIP);
-            case "megachip8" -> Optional.of(MEGA_CHIP);
-            case "hybridVIP" -> Optional.of(HYBRID_CHIP_8);
-            default -> Optional.empty();
-        };
     }
 
 }

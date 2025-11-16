@@ -20,6 +20,12 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static io.github.arkosammy12.jchip.util.Variant.*;
+import static io.github.arkosammy12.jchip.util.Variant.HYBRID_CHIP_8;
+import static io.github.arkosammy12.jchip.util.Variant.MEGA_CHIP;
+import static io.github.arkosammy12.jchip.util.Variant.SUPER_CHIP_LEGACY;
+import static io.github.arkosammy12.jchip.util.Variant.XO_CHIP;
+
 public class Chip8Database implements SettingsProvider {
 
     private final Hashes hashes;
@@ -154,7 +160,7 @@ public class Chip8Database implements SettingsProvider {
     public Optional<Variant> getVariant() {
         return Optional.ofNullable(this.platformEntry)
                 .flatMap(PlatformEntry::getId)
-                .flatMap(EmulatorSettings::getVariantForPlatformIds);
+                .flatMap(Chip8Database::getVariantForPlatformIds);
     }
 
     @Override
@@ -230,6 +236,20 @@ public class Chip8Database implements SettingsProvider {
 
     private Optional<Platforms> getPlatforms() {
         return Optional.ofNullable(this.platforms);
+    }
+
+    private static Optional<Variant> getVariantForPlatformIds(String id) {
+        return switch (id) {
+            case "modernChip8" -> Optional.of(CHIP_8);
+            case "originalChip8" -> Optional.of(STRICT_CHIP_8);
+            case "chip8x" -> Optional.of(CHIP_8X);
+            case "superchip1", "superchip" -> Optional.of(SUPER_CHIP_LEGACY);
+            case "xochip" -> Optional.of(XO_CHIP);
+            case "megachip8" -> Optional.of(MEGA_CHIP);
+            case "hybridVIP" -> Optional.of(HYBRID_CHIP_8);
+            case "chip48" -> Optional.empty();
+            default -> Optional.empty();
+        };
     }
 
 }
