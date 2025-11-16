@@ -6,25 +6,29 @@ import io.github.arkosammy12.jchip.emulators.*;
 import picocli.CommandLine;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 public enum Variant implements DisplayNameProvider {
-    CHIP_8("chip-8", "CHIP-8"),
-    STRICT_CHIP_8("strict-chip-8", "STRICT CHIP-8"),
-    CHIP_8X("chip-8x", "CHIP-8X"),
-    SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1"),
-    SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN"),
-    XO_CHIP("xo-chip", "XO-CHIP"),
-    MEGA_CHIP("mega-chip", "MEGA-CHIP"),
-    HYPERWAVE_CHIP_64("hyperwave-chip-64", "HyperWaveCHIP-64"),
-    HYBRID_CHIP_8("hybrid-chip-8", "Hybrid CHIP-8"),
-    COSMAC_VIP("cosmac-vip", "COSMAC-VIP");
+    CHIP_8("chip-8", "CHIP-8", Chip8EmulatorSettings::new),
+    STRICT_CHIP_8("strict-chip-8", "STRICT CHIP-8", Chip8EmulatorSettings::new),
+    CHIP_8X("chip-8x", "CHIP-8X", Chip8EmulatorSettings::new),
+    SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", Chip8EmulatorSettings::new),
+    SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", Chip8EmulatorSettings::new),
+    XO_CHIP("xo-chip", "XO-CHIP", Chip8EmulatorSettings::new),
+    MEGA_CHIP("mega-chip", "MEGA-CHIP", Chip8EmulatorSettings::new),
+    HYPERWAVE_CHIP_64("hyperwave-chip-64", "HyperWaveCHIP-64", (Chip8EmulatorSettings::new)),
+    HYBRID_CHIP_8("hybrid-chip-8", "Hybrid CHIP-8", jchip -> new CosmacVipEmulatorSettings(jchip, true, false)),
+    COSMAC_VIP("cosmac-vip", "COSMAC-VIP", jchip -> new CosmacVipEmulatorSettings(jchip, false, false)),
+    COSMAC_VIP_8K("8k-cosmac-vip", "8K COSMAC-VIP", jchip -> new CosmacVipEmulatorSettings(jchip, false, true));
 
     private final String identifier;
     private final String displayName;
+    private final Function<JChip, ? extends EmulatorSettings> emulatorSettingsProvider;
 
-    Variant(String identifier, String displayName) {
+    Variant(String identifier, String displayName, Function<JChip, ? extends EmulatorSettings> emulatorSettingsProvider) {
         this.identifier = identifier;
         this.displayName = displayName;
+        this.emulatorSettingsProvider = emulatorSettingsProvider;
     }
 
     @Override
@@ -35,33 +39,9 @@ public enum Variant implements DisplayNameProvider {
     public static Emulator getEmulator(JChip jchip) {
         Optional<Variant> optionalVariant = jchip.getMainWindow().getSettingsBar().getVariant();
         if (optionalVariant.isPresent()) {
-            return switch (optionalVariant.get()) {
-                case CHIP_8 -> new Chip8Emulator(new Chip8EmulatorSettings(jchip));
-                case STRICT_CHIP_8 -> new StrictChip8Emulator(new Chip8EmulatorSettings(jchip));
-                case CHIP_8X -> new Chip8XEmulator(new Chip8EmulatorSettings(jchip));
-                case SUPER_CHIP_LEGACY -> new SChipEmulator(new Chip8EmulatorSettings(jchip), false);
-                case SUPER_CHIP_MODERN -> new SChipEmulator(new Chip8EmulatorSettings(jchip), true);
-                case XO_CHIP -> new XOChipEmulator(new Chip8EmulatorSettings(jchip));
-                case MEGA_CHIP -> new MegaChipEmulator(new Chip8EmulatorSettings(jchip));
-                case HYPERWAVE_CHIP_64 -> new HyperWaveChip64Emulator(new Chip8EmulatorSettings(jchip));
-                case HYBRID_CHIP_8 -> new CosmacVipEmulator(new CosmacVipEmulatorSettings(jchip), true);
-                case COSMAC_VIP -> new CosmacVipEmulator(new CosmacVipEmulatorSettings(jchip), false);
-            };
-        } else {
-            Chip8EmulatorSettings chip8EmulatorSettings = new Chip8EmulatorSettings(jchip);
-            return switch (chip8EmulatorSettings.getVariant()) {
-                case CHIP_8 -> new Chip8Emulator(chip8EmulatorSettings);
-                case STRICT_CHIP_8 -> new StrictChip8Emulator(chip8EmulatorSettings);
-                case CHIP_8X -> new Chip8XEmulator(chip8EmulatorSettings);
-                case SUPER_CHIP_LEGACY -> new SChipEmulator(chip8EmulatorSettings, false);
-                case SUPER_CHIP_MODERN -> new SChipEmulator(chip8EmulatorSettings, true);
-                case XO_CHIP -> new XOChipEmulator(chip8EmulatorSettings);
-                case MEGA_CHIP -> new MegaChipEmulator(chip8EmulatorSettings);
-                case HYPERWAVE_CHIP_64 -> new HyperWaveChip64Emulator(chip8EmulatorSettings);
-                case HYBRID_CHIP_8 -> new CosmacVipEmulator(new CosmacVipEmulatorSettings(jchip), true);
-                case COSMAC_VIP -> new CosmacVipEmulator(new CosmacVipEmulatorSettings(jchip), false);
-            };
+            return optionalVariant.get().emulatorSettingsProvider.apply(jchip).getEmulator();
         }
+        return new Chip8EmulatorSettings(jchip).getEmulator();
     }
 
     public static Variant getVariantForIdentifier(String identifier) {

@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.config;
 
 import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.Variant;
@@ -27,6 +28,8 @@ public interface EmulatorSettings {
 
     Variant getVariant();
 
+    Emulator getEmulator();
+
     static int[] loadRom(byte[] rawRom) {
         int[] rom = new int[rawRom.length];
         for (int i = 0; i < rom.length; i++) {
@@ -52,7 +55,6 @@ public interface EmulatorSettings {
             case "xochip" -> Optional.of(XO_CHIP);
             case "megachip8" -> Optional.of(MEGA_CHIP);
             case "hybridVIP" -> Optional.of(HYBRID_CHIP_8);
-            case "chip48" -> Optional.empty();
             default -> Optional.empty();
         };
     }

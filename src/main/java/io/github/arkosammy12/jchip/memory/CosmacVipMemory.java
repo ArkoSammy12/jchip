@@ -87,12 +87,13 @@ public class CosmacVipMemory implements Memory {
             0xf4, 0x56, 0x76, 0xe6, 0xf4, 0xb9, 0x56, 0x45, 0xf2, 0x56, 0xd4, 0x45, 0xaa, 0x86, 0xfa, 0x0f, 0xba, 0xd4, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe0, 0x00, 0x4b
     };
 
-    protected final int[] bytes = new int[4096];
-    private boolean ma7Latched = true;
-    private int dataBus = 0;
+    protected final int[] bytes;
+    protected boolean ma7Latched = true;
+    protected int dataBus = 0;
 
     public CosmacVipMemory(CosmacVipEmulator emulator) {
         int[] rom = emulator.getEmulatorSettings().getRom();
+        this.bytes = new int[this.getMemorySize()];
         if (emulator.isHybridChip8()) {
             System.arraycopy(CHIP_8_INTERPRETER, 0, this.bytes, 0, CHIP_8_INTERPRETER.length);
             System.arraycopy(rom, 0, this.bytes, CHIP_8_INTERPRETER.length, rom.length);

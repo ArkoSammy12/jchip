@@ -1,6 +1,8 @@
 package io.github.arkosammy12.jchip.config;
 
 import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
+import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.Variant;
 
@@ -12,13 +14,17 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
 
     private final DisplayAngle displayAngle;
     private final Variant variant;
+    private final boolean isHybridChip8;
+    private final boolean withExpandedRam;
 
-    public CosmacVipEmulatorSettings(JChip jchip) {
+    public CosmacVipEmulatorSettings(JChip jchip, boolean isHybridChip8, boolean withExpandedRam) {
         super(jchip);
         PrimarySettingsProvider settings = this.getJChip().getMainWindow().getSettingsBar();
         this.displayAngle = settings.getDisplayAngle().orElse(DisplayAngle.DEG_0);
         this.romTitle = settings.getRomPath().map(path -> path.getFileName().toString()).orElse(null);
         this.variant = settings.getVariant().orElse(COSMAC_VIP);
+        this.isHybridChip8 = isHybridChip8;
+        this.withExpandedRam = withExpandedRam;
     }
 
     @Override
@@ -35,4 +41,10 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
     public Variant getVariant() {
         return this.variant;
     }
+
+    @Override
+    public Emulator getEmulator() {
+        return new CosmacVipEmulator(this, this.isHybridChip8, this.withExpandedRam);
+    }
+
 }

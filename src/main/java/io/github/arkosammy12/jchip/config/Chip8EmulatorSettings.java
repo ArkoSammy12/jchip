@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.config;
 
 import io.github.arkosammy12.jchip.JChip;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
+import io.github.arkosammy12.jchip.emulators.*;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 import io.github.arkosammy12.jchip.util.Variant;
@@ -91,6 +92,21 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         return this.variant;
     }
 
+    @Override
+    public Emulator getEmulator() {
+        return switch (this.variant) {
+            case CHIP_8 -> new Chip8Emulator(this);
+            case STRICT_CHIP_8 -> new StrictChip8Emulator(this);
+            case CHIP_8X -> new Chip8XEmulator(this);
+            case SUPER_CHIP_LEGACY -> new SChipEmulator(this, false);
+            case SUPER_CHIP_MODERN -> new SChipEmulator(this, true);
+            case XO_CHIP -> new XOChipEmulator(this);
+            case MEGA_CHIP -> new MegaChipEmulator(this);
+            case HYPERWAVE_CHIP_64 -> new HyperWaveChip64Emulator(this);
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
     public boolean doVFReset() {
         return this.doVFReset;
     }
@@ -117,21 +133,21 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
 
     private static HexSpriteFont getHexSpriteFont(Variant variant) {
         return switch (variant) {
-            case CHIP_8, STRICT_CHIP_8, CHIP_8X, HYBRID_CHIP_8, COSMAC_VIP -> new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null);
             case SUPER_CHIP_LEGACY, SUPER_CHIP_MODERN -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG);
             case XO_CHIP, HYPERWAVE_CHIP_64 -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG);
             case MEGA_CHIP -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.MEGACHIP_8_BIG);
+            default -> new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null);
         };
     }
 
     private static Optional<Quirkset> getDefaultQuirkset(Variant variant) {
         return switch (variant) {
             case CHIP_8, CHIP_8X -> Optional.of(new Quirkset(true, true, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11));
-            case STRICT_CHIP_8, COSMAC_VIP, HYBRID_CHIP_8 -> Optional.empty();
             case SUPER_CHIP_LEGACY -> Optional.of(new Quirkset(false, false, true, true, true, true, _ -> 30));
             case SUPER_CHIP_MODERN -> Optional.of(new Quirkset(false, false, false, true, true, true, _ -> 30));
             case XO_CHIP, HYPERWAVE_CHIP_64 -> Optional.of(new Quirkset(false, true, false, false, false, false, _ -> 1000));
             case MEGA_CHIP -> Optional.of(new Quirkset(false, false, false, false, true, false, _ -> 1000));
+            default -> Optional.empty();
         };
     }
 
