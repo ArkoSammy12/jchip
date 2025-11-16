@@ -5,17 +5,20 @@ import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
 import io.github.arkosammy12.jchip.memory.Chip8XMemory;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+
+import java.util.Objects;
 
 public class Chip8XEmulator extends Chip8Emulator {
 
-    @UnknownNullability
+    @Nullable
     private Chip8XProcessor<?> processor;
 
-    @UnknownNullability
+    @Nullable
     private Chip8XMemory memory;
 
-    @UnknownNullability
+    @Nullable
     private Chip8XDisplay<?> display;
 
     public Chip8XEmulator(Chip8EmulatorSettings emulatorSettings) {
@@ -23,33 +26,42 @@ public class Chip8XEmulator extends Chip8Emulator {
     }
 
     @Override
-    public @NotNull Chip8XProcessor<?> getProcessor() {
-        return this.processor;
+    @NotNull
+    public Chip8XProcessor<?> getProcessor() {
+        return Objects.requireNonNull(this.processor);
     }
 
     @Override
-    public @NotNull Chip8XMemory getMemory() {
-        return this.memory;
+    @NotNull
+    public Chip8XDisplay<?> getDisplay() {
+        return Objects.requireNonNull(this.display);
     }
 
     @Override
-    public @NotNull Chip8XDisplay<?> getDisplay() {
-        return this.display;
+    @NotNull
+    public Chip8XMemory getMemory() {
+        return Objects.requireNonNull(this.memory);
     }
 
     @Override
-    protected void initializeDisplay() {
-        this.display = new Chip8XDisplay<>(this);
-    }
-
-    @Override
-    protected void initializeMemory() {
-        this.memory = new Chip8XMemory(this);
-    }
-
-    @Override
-    protected void initializeProcessor() {
+    @Nullable
+    protected Chip8XProcessor<?> createProcessor() {
         this.processor = new Chip8XProcessor<>(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected Chip8XDisplay<?> createDisplay() {
+        this.display = new Chip8XDisplay<>(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected Chip8XMemory createMemory() {
+        this.memory = new Chip8XMemory(this);
+        return null;
     }
 
 }

@@ -5,17 +5,20 @@ import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
 import io.github.arkosammy12.jchip.memory.XOChipMemory;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+
+import java.util.Objects;
 
 public class XOChipEmulator extends SChipEmulator {
 
-    @UnknownNullability
+    @Nullable
     private XOChipProcessor<?> processor;
 
-    @UnknownNullability
+    @Nullable
     private XOChipMemory memory;
 
-    @UnknownNullability
+    @Nullable
     private XOChipDisplay<?> display;
 
     public XOChipEmulator(Chip8EmulatorSettings emulatorSettings) {
@@ -23,31 +26,42 @@ public class XOChipEmulator extends SChipEmulator {
     }
 
     @Override
-    public @NotNull XOChipProcessor<?> getProcessor() {
-        return this.processor;
+    @NotNull
+    public XOChipProcessor<?> getProcessor() {
+        return Objects.requireNonNull(this.processor);
     }
 
     @Override
-    public @NotNull XOChipMemory getMemory() {
-        return this.memory;
+    @NotNull
+    public XOChipDisplay<?> getDisplay() {
+        return Objects.requireNonNull(this.display);
     }
 
     @Override
-    public @NotNull XOChipDisplay<?> getDisplay() {
-        return this.display;
+    @NotNull
+    public XOChipMemory getMemory() {
+        return Objects.requireNonNull(this.memory);
     }
 
-    protected void initializeDisplay() {
-        this.display = new XOChipDisplay<>(this);
-    }
-
-    protected void initializeMemory() {
-        this.memory = new XOChipMemory(this);
-        this.memory.loadFont(this.getEmulatorSettings().getHexSpriteFont());
-    }
-
-    protected void initializeProcessor() {
+    @Override
+    @Nullable
+    protected XOChipProcessor<?> createProcessor() {
         this.processor = new XOChipProcessor<>(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected XOChipDisplay<?> createDisplay() {
+        this.display = new XOChipDisplay<>(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected XOChipMemory createMemory() {
+        this.memory = new XOChipMemory(this);
+        return null;
     }
 
 }

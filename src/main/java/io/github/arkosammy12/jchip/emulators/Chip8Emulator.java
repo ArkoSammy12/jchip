@@ -12,10 +12,10 @@ import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
@@ -24,18 +24,17 @@ public class Chip8Emulator implements Emulator {
 
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
-    // Always access these via their getter methods
-    @UnknownNullability
-    private Chip8Processor<?> processor;
+    @Nullable
+    private final Chip8Processor<?> processor;
 
-    @UnknownNullability
-    private Chip8Memory memory;
+    @Nullable
+    private final Chip8Memory memory;
 
-    @UnknownNullability
-    private Chip8Display<?> display;
+    @Nullable
+    private final Chip8Display<?> display;
 
-    @UnknownNullability
-    private Chip8SoundSystem soundSystem;
+    @Nullable
+    private final Chip8SoundSystem soundSystem;
 
     private final Keypad keypad;
     private final Variant variant;
@@ -54,7 +53,12 @@ public class Chip8Emulator implements Emulator {
             this.targetInstructionsPerFrame = emulatorSettings.getInstructionsPerFrame();
             this.currentInstructionsPerFrame = targetInstructionsPerFrame;
             this.keypad = new Keypad(this);
-            this.initializeComponents();
+
+            this.soundSystem = this.createSoundSystem();
+            this.display = this.createDisplay();
+            this.memory = this.createMemory();
+            this.processor = this.createProcessor();
+
             this.getMemory().loadFont(emulatorSettings.getHexSpriteFont());
             this.debuggerInfo = this.createDebuggerInfo();
         } catch (Exception e) {
@@ -63,51 +67,48 @@ public class Chip8Emulator implements Emulator {
         }
     }
 
-    protected void initializeComponents() {
-        this.initializeSoundSystem();
-        this.initializeDisplay();
-        this.initializeMemory();
-        this.initializeProcessor();
-    }
-
-    protected void initializeSoundSystem() {
-        this.soundSystem = new Chip8SoundSystem(this);
-    }
-
-    protected void initializeDisplay() {
-        this.display = new Chip8Display<>(this);
-    }
-
-    protected void initializeMemory() {
-        this.memory = new Chip8Memory(this);
-    }
-
-    protected void initializeProcessor() {
-        this.processor = new Chip8Processor<>(this);
-    }
-
     @Override
     @NotNull
     public Chip8Processor<?> getProcessor() {
-        return this.processor;
-    }
-
-    @Override
-    @NotNull
-    public Chip8Memory getMemory() {
-        return this.memory;
+        return Objects.requireNonNull(this.processor);
     }
 
     @Override
     @NotNull
     public Chip8Display<?> getDisplay() {
-        return this.display;
+        return Objects.requireNonNull(this.display);
+    }
+
+    @Override
+    @NotNull
+    public Chip8Memory getMemory() {
+        return Objects.requireNonNull(this.memory);
     }
 
     @Override
     @NotNull
     public Chip8SoundSystem getSoundSystem() {
-        return this.soundSystem;
+        return Objects.requireNonNull(this.soundSystem);
+    }
+
+    @Nullable
+    protected Chip8Processor<?> createProcessor() {
+        return new Chip8Processor<>(this);
+    }
+
+    @Nullable
+    protected Chip8Display<?> createDisplay() {
+        return new Chip8Display<>(this);
+    }
+
+    @Nullable
+    protected Chip8Memory createMemory() {
+        return new Chip8Memory(this);
+    }
+
+    @Nullable
+    protected Chip8SoundSystem createSoundSystem() {
+        return new Chip8SoundSystem(this);
     }
 
     public Keypad getKeypad() {
@@ -202,12 +203,8 @@ public class Chip8Emulator implements Emulator {
     @Override
     public void close() {
         try {
-            if (this.getDisplay() != null) {
-                this.getDisplay().close();
-            }
-            if (this.getSoundSystem() != null) {
-                this.getSoundSystem().close();
-            }
+            this.getDisplay().close();
+            this.getSoundSystem().close();
         } catch (Exception e) {
             throw new EmulatorException("Error releasing current emulator resources: ", e);
         }

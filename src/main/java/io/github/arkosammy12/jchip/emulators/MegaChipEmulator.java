@@ -7,22 +7,25 @@ import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+
+import java.util.Objects;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
 public class MegaChipEmulator extends SChipEmulator {
 
-    @UnknownNullability
+    @Nullable
     private MegaChipProcessor<?> processor;
 
-    @UnknownNullability
+    @Nullable
     private MegaChipMemory memory;
 
-    @UnknownNullability
+    @Nullable
     private MegaChipDisplay<?> display;
 
-    @UnknownNullability
+    @Nullable
     private MegaChipSoundSystem soundSystem;
 
     public MegaChipEmulator(Chip8EmulatorSettings emulatorSettings) {
@@ -30,45 +33,55 @@ public class MegaChipEmulator extends SChipEmulator {
     }
 
     @Override
-    public @NotNull MegaChipProcessor<?> getProcessor() {
-        return this.processor;
+    @NotNull
+    public MegaChipProcessor<?> getProcessor() {
+        return Objects.requireNonNull(this.processor);
     }
 
     @Override
-    public @NotNull MegaChipMemory getMemory() {
-        return this.memory;
+    @NotNull
+    public MegaChipDisplay<?> getDisplay() {
+        return Objects.requireNonNull(this.display);
     }
 
     @Override
-    public @NotNull MegaChipDisplay<?> getDisplay() {
-        return this.display;
+    @NotNull
+    public MegaChipMemory getMemory() {
+        return Objects.requireNonNull(this.memory);
     }
 
     @Override
     public @NotNull MegaChipSoundSystem getSoundSystem() {
-        return this.soundSystem;
+        return Objects.requireNonNull(this.soundSystem);
     }
 
     @Override
-    protected void initializeSoundSystem() {
-        this.soundSystem = new MegaChipSoundSystem(this);
-    }
-
-    @Override
-    protected void initializeDisplay() {
-        this.display = new MegaChipDisplay<>(this);
-    }
-
-    @Override
-    protected void initializeMemory() {
-        this.memory = new MegaChipMemory(this);
-    }
-
-    @Override
-    protected void initializeProcessor() {
+    @Nullable
+    protected MegaChipProcessor<?> createProcessor() {
         this.processor = new MegaChipProcessor<>(this);
+        return null;
     }
 
+    @Override
+    @Nullable
+    protected MegaChipDisplay<?> createDisplay() {
+        this.display = new MegaChipDisplay<>(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected MegaChipMemory createMemory() {
+        this.memory = new MegaChipMemory(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected MegaChipSoundSystem createSoundSystem() {
+        this.soundSystem = new MegaChipSoundSystem(this);
+        return null;
+    }
 
     @Override
     protected boolean waitFrameEnd(int flags) {

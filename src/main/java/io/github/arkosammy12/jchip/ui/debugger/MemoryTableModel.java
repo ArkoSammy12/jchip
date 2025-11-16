@@ -1,8 +1,6 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
-import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.memory.Memory;
 
 import javax.swing.*;
@@ -37,7 +35,7 @@ public class MemoryTableModel extends AbstractTableModel {
             return String.format("%06X", row * BYTES_PER_ROW);
         } else if (this.memory != null) {
             int idx = row * BYTES_PER_ROW + (col - 1);
-            return idx < this.memory.getMemorySize() ? String.format("%02X", this.memory.readByte(idx)) : "";
+            return idx < this.memory.getMemorySize() ? String.format("%02X", this.memory.getByte(idx)) : "";
         } else {
             return "00";
         }

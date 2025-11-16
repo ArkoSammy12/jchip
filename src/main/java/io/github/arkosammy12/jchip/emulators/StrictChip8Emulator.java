@@ -6,20 +6,22 @@ import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.WAITING;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
 public final class StrictChip8Emulator extends Chip8Emulator {
 
-    @UnknownNullability
+    @Nullable
     private StrictChip8Processor processor;
 
-    @UnknownNullability
+    @Nullable
     private StrictChip8Memory memory;
 
-    @UnknownNullability
+    @Nullable
     private StrictChip8Display display;
 
     private long machineCycles;
@@ -34,18 +36,42 @@ public final class StrictChip8Emulator extends Chip8Emulator {
     }
 
     @Override
-    public @NotNull StrictChip8Processor getProcessor() {
-        return this.processor;
+    @NotNull
+    public StrictChip8Processor getProcessor() {
+        return Objects.requireNonNull(this.processor);
     }
 
     @Override
-    public @NotNull StrictChip8Memory getMemory() {
-        return this.memory;
+    @NotNull
+    public StrictChip8Display getDisplay() {
+        return Objects.requireNonNull(this.display);
     }
 
     @Override
-    public @NotNull StrictChip8Display getDisplay() {
-        return this.display;
+    @NotNull
+    public StrictChip8Memory getMemory() {
+        return Objects.requireNonNull(this.memory);
+    }
+
+    @Override
+    @Nullable
+    protected StrictChip8Processor createProcessor() {
+        this.processor = new StrictChip8Processor(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected StrictChip8Display createDisplay() {
+        this.display = new StrictChip8Display(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected StrictChip8Memory createMemory() {
+        this.memory = new StrictChip8Memory(this);
+        return null;
     }
 
     @Override
@@ -68,19 +94,6 @@ public final class StrictChip8Emulator extends Chip8Emulator {
         if (!isSet(this.getProcessor().cycle(), WAITING)) {
             this.cycleCounter++;
         }
-    }
-
-    protected void initializeDisplay() {
-        this.display = new StrictChip8Display(this);
-    }
-
-    protected void initializeMemory() {
-        this.memory = new StrictChip8Memory(this);
-        this.memory.loadFont(this.getEmulatorSettings().getHexSpriteFont());
-    }
-
-    protected void initializeProcessor() {
-        this.processor = new StrictChip8Processor(this);
     }
 
     public void addCycles(long cycles) {
@@ -113,7 +126,7 @@ public final class StrictChip8Emulator extends Chip8Emulator {
         debuggerInfo.clearTextSectionEntries();
         debuggerInfo.setTextSectionName("Strict CHIP-8");
         debuggerInfo.createTextSectionEntry()
-                .withName("This variant does not support custom quirks");
+                .withName("No custom quirks support.");
         return debuggerInfo;
     }
 

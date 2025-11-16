@@ -227,7 +227,9 @@ public class CosmacVipEmulator implements Emulator {
         Function<Boolean, String> booleanFormatter = val -> val ? "1" : "0";
 
         debuggerInfo.createTextSectionEntry()
-                .withName("Cosmac VIP based variant. Does not support custom quirks.");
+                .withName("Cosmac VIP based variant.");
+        debuggerInfo.createTextSectionEntry()
+                .withName("Does not support custom quirks.");
 
         debuggerInfo.<Integer>createSingleRegisterSectionEntry()
                 .withName("I")

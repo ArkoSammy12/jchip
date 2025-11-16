@@ -5,16 +5,19 @@ import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.SChipProcessor;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+
+import java.util.Objects;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
 public class SChipEmulator extends Chip8Emulator {
 
-    @UnknownNullability
+    @Nullable
     private SChipProcessor<?> processor;
 
-    @UnknownNullability
+    @Nullable
     private SChipDisplay<?> display;
 
     private final boolean isModern;
@@ -25,23 +28,29 @@ public class SChipEmulator extends Chip8Emulator {
     }
 
     @Override
-    public @NotNull SChipProcessor<?> getProcessor() {
-        return this.processor;
+    @NotNull
+    public SChipProcessor<?> getProcessor() {
+        return Objects.requireNonNull(this.processor);
     }
 
     @Override
-    public @NotNull SChipDisplay<?> getDisplay() {
-        return this.display;
+    @NotNull
+    public SChipDisplay<?> getDisplay() {
+        return Objects.requireNonNull(this.display);
     }
 
     @Override
-    protected void initializeDisplay() {
-        this.display = new SChipDisplay<>(this, this.isModern);
-    }
-
-    @Override
-    protected void initializeProcessor() {
+    @Nullable
+    protected SChipProcessor<?> createProcessor() {
         this.processor = new SChipProcessor<>(this);
+        return null;
+    }
+
+    @Override
+    @Nullable
+    protected SChipDisplay<?> createDisplay() {
+        this.display = new SChipDisplay<>(this, this.isModern);
+        return null;
     }
 
     public boolean isModern() {
