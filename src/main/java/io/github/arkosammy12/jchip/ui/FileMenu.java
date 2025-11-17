@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FileMenu extends JMenu {
 
-    private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8"};
+    private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8", "cos", "bin"};
 
     private final AtomicReference<Path> romPath = new AtomicReference<>(null);
     private final AtomicReference<byte[]> rawRom = new AtomicReference<>(null);
@@ -31,7 +31,7 @@ public class FileMenu extends JMenu {
         openItem.addActionListener(_ -> {
             JFileChooser chooser = new JFileChooser();
             chooser.setPreferredSize(new Dimension(700, 400));
-            chooser.setFileFilter(new FileNameExtensionFilter("CHIP-8 ROMs", FILE_EXTENSIONS));
+            chooser.setFileFilter(new FileNameExtensionFilter("ROMs", FILE_EXTENSIONS));
             Action details = chooser.getActionMap().get("viewTypeDetails");
             details.actionPerformed(null);
             if (chooser.showOpenDialog(SwingUtilities.getWindowAncestor(this)) == JFileChooser.APPROVE_OPTION) {
