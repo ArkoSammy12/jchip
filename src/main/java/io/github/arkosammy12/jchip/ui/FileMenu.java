@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FileMenu extends JMenu {
 
-    private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8", "cos", "bin"};
+    private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8", "hc8", "cos", "bin"};
 
     private final AtomicReference<Path> romPath = new AtomicReference<>(null);
     private final AtomicReference<byte[]> rawRom = new AtomicReference<>(null);
