@@ -232,12 +232,12 @@ public class Chip8Emulator implements Emulator {
         debuggerInfo.<Integer>createSingleRegisterSectionEntry()
                 .withName("PC")
                 .withStateUpdater(this.getProcessor()::getProgramCounter)
-                .withToStringFunction(byteFormatter);
+                .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getMemory().getMemoryBoundsMask()) + "X", val));
 
         debuggerInfo.<Integer>createSingleRegisterSectionEntry()
                 .withName("I")
                 .withStateUpdater(this.getProcessor()::getIndexRegister)
-                .withToStringFunction(byteFormatter);
+                .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getMemory().getMemoryBoundsMask()) + "X", val));
 
         debuggerInfo.<Integer>createSingleRegisterSectionEntry()
                 .withName("DT")
