@@ -10,6 +10,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
@@ -21,6 +22,7 @@ public class FileMenu extends JMenu {
 
     private final AtomicReference<Path> romPath = new AtomicReference<>(null);
     private final AtomicReference<byte[]> rawRom = new AtomicReference<>(null);
+    private Path currentDirectory;
 
     public FileMenu(JChip jchip) {
         super("File");
@@ -33,9 +35,14 @@ public class FileMenu extends JMenu {
             chooser.setPreferredSize(new Dimension(700, 400));
             chooser.setFileFilter(new FileNameExtensionFilter("ROMs", FILE_EXTENSIONS));
             Action details = chooser.getActionMap().get("viewTypeDetails");
+            if (this.currentDirectory != null) {
+                chooser.setCurrentDirectory(this.currentDirectory.toFile());
+            }
             details.actionPerformed(null);
             if (chooser.showOpenDialog(SwingUtilities.getWindowAncestor(this)) == JFileChooser.APPROVE_OPTION) {
-                this.romPath.set(chooser.getSelectedFile().toPath().toAbsolutePath());
+                Path selectedFilePath =  chooser.getSelectedFile().toPath();
+                this.currentDirectory = selectedFilePath.getParent();
+                this.romPath.set(selectedFilePath);
                 this.rawRom.set(EmulatorSettings.readRawRom(this.romPath.get()));
             }
         });
@@ -60,7 +67,7 @@ public class FileMenu extends JMenu {
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
         primarySettingsProvider.getRawRom().ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
-        primarySettingsProvider.getRomPath().ifPresent(this.romPath::set);
+        primarySettingsProvider.getRomPath().map(Path::toAbsolutePath).ifPresent(this.romPath::set);
     }
 
 }
