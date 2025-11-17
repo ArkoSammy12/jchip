@@ -100,11 +100,10 @@ public class DebuggerViewPanel extends JPanel {
 
     public void update(Emulator emulator) {
         DebuggerInfo debuggerInfo = emulator.getDebuggerInfo();
-        if (!Objects.equals(debuggerInfo, this.debuggerInfo)) {
-            this.initializeDebuggerPanel(debuggerInfo);
-        }
-
         SwingUtilities.invokeLater(() -> {
+            if (!Objects.equals(debuggerInfo, this.debuggerInfo)) {
+                this.initializeDebuggerPanel(debuggerInfo);
+            }
             this.textPanelLabels.forEach(DebuggerLabel::updateState);
             this.singleRegisterLabels.forEach(DebuggerLabel::updateState);
             this.registerLabels.forEach(DebuggerLabel::updateState);
