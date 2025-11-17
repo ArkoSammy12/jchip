@@ -34,11 +34,10 @@ public class FileMenu extends JMenu {
             JFileChooser chooser = new JFileChooser();
             chooser.setPreferredSize(new Dimension(700, 400));
             chooser.setFileFilter(new FileNameExtensionFilter("ROMs", FILE_EXTENSIONS));
-            Action details = chooser.getActionMap().get("viewTypeDetails");
+            chooser.getActionMap().get("viewTypeDetails").actionPerformed(null);
             if (this.currentDirectory != null) {
                 chooser.setCurrentDirectory(this.currentDirectory.toFile());
             }
-            details.actionPerformed(null);
             if (chooser.showOpenDialog(SwingUtilities.getWindowAncestor(this)) == JFileChooser.APPROVE_OPTION) {
                 Path selectedFilePath =  chooser.getSelectedFile().toPath();
                 this.currentDirectory = selectedFilePath.getParent();
