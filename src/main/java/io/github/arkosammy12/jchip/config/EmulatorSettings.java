@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.config;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -11,7 +11,7 @@ import java.nio.file.Path;
 
 public interface EmulatorSettings {
 
-    JChip getJChip();
+    Jchip getJchip();
 
     int[] getRom();
 

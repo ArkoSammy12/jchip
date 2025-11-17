@@ -5,6 +5,7 @@ import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 
 import java.util.Arrays;
 
+import static io.github.arkosammy12.jchip.cpu.CDP1802.State.*;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.HANDLED;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isHandled;
 
@@ -174,35 +175,35 @@ public class CDP1802 implements Processor {
 
     public void nextState() {
         this.currentState = switch (currentState) {
-            case S1_RESET -> State.S1_INIT;
+            case S1_RESET -> S1_INIT;
             case S1_INIT, S3_INTERRUPT -> switch (this.emulator.getDmaStatus()) {
-                case NONE ->  State.S0_FETCH;
-                case IN -> State.S2_DMA_IN;
-                case OUT -> State.S2_DMA_OUT;
+                case NONE ->  S0_FETCH;
+                case IN -> S2_DMA_IN;
+                case OUT -> S2_DMA_OUT;
             };
-            case S0_FETCH -> State.S1_EXECUTE;
+            case S0_FETCH -> S1_EXECUTE;
             case S1_EXECUTE -> {
                 if (this.longInstruction) {
-                    yield State.S1_EXECUTE;
+                    yield S1_EXECUTE;
                 } else {
                     yield switch (this.emulator.getDmaStatus()) {
                         case NONE -> {
                             if (this.emulator.anyInterrupting() && getInterruptEnable()) {
                                 this.idling = false;
-                                yield State.S3_INTERRUPT;
+                                yield S3_INTERRUPT;
                             } else if (this.idling) {
-                                yield State.S1_EXECUTE;
+                                yield S1_EXECUTE;
                             } else {
-                                yield State.S0_FETCH;
+                                yield S0_FETCH;
                             }
                         }
                         case IN -> {
                             this.idling = false;
-                            yield State.S2_DMA_IN;
+                            yield S2_DMA_IN;
                         }
                         case OUT -> {
                             this.idling = false;
-                            yield State.S2_DMA_OUT;
+                            yield S2_DMA_OUT;
                         }
                     };
                 }
@@ -210,13 +211,13 @@ public class CDP1802 implements Processor {
             case S2_DMA_IN, S2_DMA_OUT -> switch (this.emulator.getDmaStatus()) {
                 case NONE -> {
                     if (this.emulator.anyInterrupting() && getInterruptEnable()) {
-                        yield State.S3_INTERRUPT;
+                        yield S3_INTERRUPT;
                     } else {
-                        yield State.S0_FETCH;
+                        yield S0_FETCH;
                     }
                 }
-                case IN -> State.S2_DMA_IN;
-                case OUT -> State.S2_DMA_OUT;
+                case IN -> S2_DMA_IN;
+                case OUT -> S2_DMA_OUT;
             };
         };
     }
@@ -285,28 +286,28 @@ public class CDP1802 implements Processor {
     private int onExecute() {
         return switch (getI()) {
             case 0x0 -> {
-                if (getN() != 0) { // 0N: LDN
+                if (getN() != 0) { // 0N: LDN | M(R(N)) → D; FOR N not 0
                     setD(this.emulator.getMemory().readByte(getRegister(getN())));
-                } else { // 00: IDLE
+                } else { // 00: IDL. IDLE.
                     this.idling = true;
                     this.emulator.getMemory().readByte(getRegister(0)); // Dummy read for accurate bus activity
                 }
                 yield HANDLED;
             }
-            case 0x1 -> { // 1N: INC
+            case 0x1 -> { // 1N: INC | R(N) + 1 → R(N)
                 setRegister(getN(), getRegister(getN()) + 1);
                 yield HANDLED;
             }
-            case 0x2 -> { // 2N: DEC
+            case 0x2 -> { // 2N: DEC | R(N) - 1 → R(N)
                 setRegister(getN(), getRegister(getN()) - 1);
                 yield HANDLED;
             }
             case 0x3 -> switch (getN()) {
-                case 0x0 -> { // 30: BR
+                case 0x0 -> { // 30: BR | M(R(P)) -> R(P).0
                     setRegisterLowOrder(getP(), this.emulator.getMemory().readByte(getRegister(getP())));
                     yield HANDLED;
                 }
-                case 0x1 -> { // 31: BQ
+                case 0x1 -> { // 31: BQ | IF Q = 1, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getQ()) {
                         setRegisterLowOrder(getP(), value);
@@ -315,7 +316,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x2 -> { // 32: BZ
+                case 0x2 -> { // 32: BZ | IF D = 0, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getD() == 0) {
                         setRegisterLowOrder(getP(), value);
@@ -324,7 +325,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x3 -> { // 33: BDF
+                case 0x3 -> { // 33: BDF | IF DF = 1, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getDF()) {
                         setRegisterLowOrder(getP(), value);
@@ -333,7 +334,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x4 -> { // 34: B1
+                case 0x4 -> { // 34: B1 | IF EF1 = 1, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getEF(0)) {
                         setRegisterLowOrder(getP(), value);
@@ -342,7 +343,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x5 -> { // 35: B2
+                case 0x5 -> { // 35: B2 | IF EF2 = 1, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getEF(1)) {
                         setRegisterLowOrder(getP(), value);
@@ -351,7 +352,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x6 -> { // 36: B3
+                case 0x6 -> { // 36: B3 | IF EF3 = 1, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getEF(2)) {
                         setRegisterLowOrder(getP(), value);
@@ -360,7 +361,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x7 -> { // 37: B4
+                case 0x7 -> { // 37: B4 | IF EF4 = 1, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getEF(3)) {
                         setRegisterLowOrder(getP(), value);
@@ -369,12 +370,12 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x8 -> { // 38: NBR
+                case 0x8 -> { // 38: NBR | R(P) + 1 → R(P)
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0x9 -> { // 39: BNQ
+                case 0x9 -> { // 39: BNQ | IF Q = 0, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getQ()) {
                         setRegisterLowOrder(getP(), value);
@@ -383,7 +384,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xA -> { // 3A: BNZ
+                case 0xA -> { // 3A: BNZ | IF D NOT 0, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (getD() != 0) {
                         setRegisterLowOrder(getP(), value);
@@ -392,7 +393,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xB -> { // 3B: BNF
+                case 0xB -> { // 3B: BNF | IF DF = 0, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getDF()) {
                         setRegisterLowOrder(getP(), value);
@@ -401,7 +402,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xC -> { // 3C: BN1
+                case 0xC -> { // 3C: BN1 | IF EF1 = 0, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getEF(0)) {
                         setRegisterLowOrder(getP(), value);
@@ -410,7 +411,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xD -> { // 3D: BN2
+                case 0xD -> { // 3D: BN2 | IF EF2 = 0, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getEF(1)) {
                         setRegisterLowOrder(getP(), value);
@@ -419,7 +420,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xE -> { // 3E: BN3
+                case 0xE -> { // 3E: BN3 | IF EF3 = 0, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getEF(2)) {
                         setRegisterLowOrder(getP(), value);
@@ -428,7 +429,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xF -> { // 3F: BN4
+                case 0xF -> { // 3F: BN4 | IF EF4 = 0, M(R(P)) → R(P).0, ELSE R(P) + 1 → R(P)
                     int value = this.emulator.getMemory().readByte(getRegister(getP()));
                     if (!getEF(3)) {
                         setRegisterLowOrder(getP(), value);
@@ -439,28 +440,28 @@ public class CDP1802 implements Processor {
                 }
                 default -> 0;
             };
-            case 0x4 -> { // 4N: LDA
+            case 0x4 -> { // 4N: LDA | M(R(N)) → D; R(N) + 1 → R(N)
                 setD(this.emulator.getMemory().readByte(getRegister(getN())));
                 setRegister(getN(), getRegister(getN()) + 1);
                 yield HANDLED;
             }
-            case 0x5 -> { // 5N: STR
+            case 0x5 -> { // 5N: STR | D → M(R(N))
                 this.emulator.getMemory().writeByte(getRegister(getN()), getD());
                 yield HANDLED;
             }
             case 0x6 -> switch (getN()) {
-                case 0x0 -> { // 60: IRX
+                case 0x0 -> { // 60: IRX | R(X) + 1 → R(X)
                     this.emulator.getMemory().readByte(getRegister(getX())); // Dummy read for accurate bus activity
                     setRegister(getX(), getRegister(getX()) + 1);
                     yield HANDLED;
                 }
                 default -> {
                     int N = getN();
-                    if (N >= 0x1 && N <= 0x7) { // 6N: OUT
+                    if (N >= 0x1 && N <= 0x7) { // 6N: OUT | M(R(X)) → BUS; R(X) + 1 → R(X)
                         int NX = N & 7;
                         this.emulator.dispatchOutput(NX, this.emulator.getMemory().readByte(getRegister(getX())));
                         setRegister(getX(), getRegister(getX()) + 1);
-                    } else if (N >= 0x9 && N <= 0xF) { // 6N: INP
+                    } else if (N >= 0x9 && N <= 0xF) { // 6N: INP | BUS → M(R(X)), D
                         int NX = N & 7;
                         int input = this.emulator.dispatchInput(NX);
                         this.emulator.getMemory().writeByte(getRegister(getX()), input);
@@ -471,7 +472,7 @@ public class CDP1802 implements Processor {
                 }
             };
             case 0x7 -> switch (getN()) {
-                case 0x0 -> { // 70: RET
+                case 0x0 -> { // 70: RET | M(R(X)) → (X, P); R(X) + 1 → R(X), 1 → IE
                     int value = this.emulator.getMemory().readByte(getRegister(getX()));
                     setRegister(getX(), getRegister(getX()) + 1);
                     setX((value & 0xF0) >>> 4);
@@ -479,7 +480,7 @@ public class CDP1802 implements Processor {
                     setInterruptEnable(true);
                     yield HANDLED;
                 }
-                case 0x1 -> { // 71: DIS
+                case 0x1 -> { // 71: DIS | M(R(X)) → (X, P); R(X) + 1 → R(X), 0 → IE
                     int value = this.emulator.getMemory().readByte(getRegister(getX()));
                     setRegister(getX(), getRegister(getX()) + 1);
                     setX((value & 0xF0) >>> 4);
@@ -487,46 +488,46 @@ public class CDP1802 implements Processor {
                     setInterruptEnable(false);
                     yield HANDLED;
                 }
-                case 0x2 -> { // 72: LDXA
+                case 0x2 -> { // 72: LDXA | M(R(X)) → D; R(X) + 1 → R(X)
                     setD(this.emulator.getMemory().readByte(getRegister(getX())));
                     setRegister(getX(), getRegister(getX()) + 1);
                     yield HANDLED;
                 }
-                case 0x3 -> { // 73: STXD
+                case 0x3 -> { // 73: STXD | D → M(R(X)); R(X) - 1 → R(X)
                     this.emulator.getMemory().writeByte(getRegister(getX()), getD());
                     setRegister(getX(), getRegister(getX()) - 1);
                     yield HANDLED;
                 }
-                case 0x4 -> { // 74: ADC
+                case 0x4 -> { // 74: ADC | M(R(X)) + D + DF → DF, D
                     int result = this.emulator.getMemory().readByte(getRegister(getX())) + getD() + (getDF() ? 1 : 0);
                     setD(result);
                     setDF(result > 0xFF);
                     yield HANDLED;
                 }
-                case 0x5 -> { // 75: SBD
+                case 0x5 -> { // 75: SBD | M(R(X)) - D - (NOT DF) → DF, D
                     int result = this.emulator.getMemory().readByte(getRegister(getX())) - getD() - (getDF() ? 0 : 1);
                     setD(result);
                     setDF(result >= 0);
                     yield HANDLED;
                 }
-                case 0x6 -> { // 76: SHRC
+                case 0x6 -> { // 76: SHRC | SHIFT D RIGHT, LSB(D) → DF, DF → MSB(D)
                     boolean DF = getDF();
                     boolean shiftedOut = (getD() & 1) != 0;
                     setD((DF ? 0x80 : 0x00) | (getD() >>> 1));
                     setDF(shiftedOut);
                     yield HANDLED;
                 }
-                case 0x7 -> { // 77: SMB
+                case 0x7 -> { // 77: SMB | D - M(R(X)) - (NOT DF) → DF, D
                     int result = getD() - this.emulator.getMemory().readByte(getRegister(getX())) - (getDF() ? 0 : 1);
                     setD(result);
                     setDF(result >= 0);
                     yield HANDLED;
                 }
-                case 0x8 -> { // 78: SAV
+                case 0x8 -> { // 78: SAV | T → M(R(X))
                     this.emulator.getMemory().writeByte(getRegister(getX()), getT());
                     yield HANDLED;
                 }
-                case 0x9 -> { // 79: MARK
+                case 0x9 -> { // 79: MARK | (X, P) → T; (X, P) → M(R(2)), THEN P → X; R(2) - 1 → R(2)
                     int value = (getX() << 4) | getP();
                     setT(value);
                     this.emulator.getMemory().writeByte(getRegister(2), value);
@@ -534,36 +535,36 @@ public class CDP1802 implements Processor {
                     setRegister(2, getRegister(2) - 1);
                     yield HANDLED;
                 }
-                case 0xA -> { // 7A: REQ
+                case 0xA -> { // 7A: REQ | 0 → Q
                     setQ(false);
                     yield HANDLED;
                 }
-                case 0xB -> { // 7B: SEQ
+                case 0xB -> { // 7B: SEQ | 1 → Q
                     setQ(true);
                     yield HANDLED;
                 }
-                case 0xC -> { // 7C: ADCI
+                case 0xC -> { // 7C: ADCI | M(R(P)) + D + DF → DF, D; R(P) + 1 → R(P)
                     int result = this.emulator.getMemory().readByte(getRegister(getP())) + getD() + (getDF() ? 1 : 0);
                     setD(result);
                     setDF(result > 0xFF);
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0xD -> { // 7D: SBDI
+                case 0xD -> { // 7D: SBDI | M(R(P)) - D - (Not DF) → DF, D; R(P) + 1 → R(P)
                     int result = this.emulator.getMemory().readByte(getRegister(getP())) - getD() - (getDF() ? 0 : 1);
                     setD(result);
                     setDF(result >= 0);
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0xE -> { // 7E: SHLC
+                case 0xE -> { // 7E: SHLC | SHIFT D LEFT, MSB(D) → DF, DF → LSB(D)
                     boolean DF = getDF();
                     boolean shiftedOut = (getD() & 0x80) != 0;
                     setD((getD() << 1) | (DF ? 1 : 0));
                     setDF(shiftedOut);
                     yield HANDLED;
                 }
-                case 0xF -> { // 7F: SMBI
+                case 0xF -> { // 7F: SMBI | D - M(R(P)) - (NOT DF) → DF, D; R(P) + 1 → R(P)
                     int result = getD() - this.emulator.getMemory().readByte(getRegister(getP())) - (getDF() ? 0 : 1);
                     setD(result);
                     setDF(result >= 0);
@@ -572,28 +573,28 @@ public class CDP1802 implements Processor {
                 }
                 default -> 0;
             };
-            case 0x8 -> { // 8N: GLO
+            case 0x8 -> { // 8N: GLO | R(N).0 → D
                 // TODO: Place RN.0 on data bus
                 setD(getRegisterLowOrder(getN()));
                 yield HANDLED;
             }
-            case 0x9 -> { // 9N: GHI
+            case 0x9 -> { // 9N: GHI | R(N).1 → D
                 // TODO: Place RN.1 on data bus
                 setD(getRegisterHighOrder(getN()));
                 yield HANDLED;
             }
-            case 0xA -> { // AN: PLO
+            case 0xA -> { // AN: PLO | D → R(N).0
                 // TODO: Place D on data bus
                 setRegisterLowOrder(getN(), getD());
                 yield HANDLED;
             }
-            case 0xB -> { // BN: PHI
+            case 0xB -> { // BN: PHI | D → R(N).1
                 // TODO: Place D on data bus
                 setRegisterHighOrder(getN(), getD());
                 yield HANDLED;
             }
             case 0xC -> switch (getN()) {
-                case 0x0 -> { // C0: LBR
+                case 0x0 -> { // C0: LBR | M(R(P)) → R(P). 1, M(R(P) + 1) → R(P).0
                     if (!this.longInstruction) {
                         this.longInstruction = true;
                         setB(this.emulator.getMemory().readByte(getRegister(getP())));
@@ -605,7 +606,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x1 -> { // C1: LBQ
+                case 0x1 -> { // C1: LBQ | IF Q = 1, M(R(P)) → R(P).1, M(R(P) + 1) → R(P).0, ELSE R(P) + 2 → R(P)
                     if (!this.longInstruction) {
                         this.longInstruction = true;
                         setB(this.emulator.getMemory().readByte(getRegister(getP())));
@@ -622,7 +623,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x2 -> { // C2: LBZ
+                case 0x2 -> { // C2: LBZ | IF D = 0, M(R(P)) → R(P).1, M(R(P) + 1) → R(P).0, ELSE R(P) + 2 → R(P)
                     if (!this.longInstruction) {
                         this.longInstruction = true;
                         setB(this.emulator.getMemory().readByte(getRegister(getP())));
@@ -639,7 +640,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x3 -> { // C3: LBDF
+                case 0x3 -> { // C3: LBDF | IF DF = 1, M(R(P)) → R(P).1, M(R(P) + 1) → R(P).0, ELSE R(P) + 2 → R(P)
                     if (!this.longInstruction) {
                         this.longInstruction = true;
                         setB(this.emulator.getMemory().readByte(getRegister(getP())));
@@ -656,12 +657,12 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x4 -> { // C4: NOP
+                case 0x4 -> { // C4: NOP | NO OPERATION
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     yield HANDLED;
                 }
-                case 0x5 -> { // C5: LSNQ
+                case 0x5 -> { // C5: LSNQ | IF Q = 0, R(P) + 2 → R(P), ELSE CONTINUE
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (!getQ()) {
@@ -669,7 +670,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x6 -> { // LSNZ
+                case 0x6 -> { // LSNZ | IF D Not 0, R(P) + 2 → R(P), ELSE CONTINUE
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getD() != 0) {
@@ -677,7 +678,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x7 -> { // C7: LSNF
+                case 0x7 -> { // C7: LSNF | IF DF = 0, R(P) + 2 → R(P), ELSE CONTINUE
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (!getDF()) {
@@ -685,13 +686,13 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0x8 -> { // C8: NLBR
+                case 0x8 -> { // C8: NLBR | R(P) + 2 → R(P)
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0x9 -> { // C9: LBNQ
+                case 0x9 -> { // C9: LBNQ | IF Q = 0, M(R(P)) → R(P).1, M(R(P) + 1) → R(P).0, ELSE R(P) + 2 → R(P)
                     if (!this.longInstruction) {
                         this.longInstruction = true;
                         setB(this.emulator.getMemory().readByte(getRegister(getP())));
@@ -708,7 +709,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xA -> { // CA: LBNZ
+                case 0xA -> { // CA: LBNZ | IF D Not 0, M(R(P)) → R(P).1, M(R(P) + 1) → R(P).0, ELSE R(P) + 2 → R(P)
                     if (!this.longInstruction) {
                         this.longInstruction = true;
                         setB(this.emulator.getMemory().readByte(getRegister(getP())));
@@ -725,7 +726,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xB -> { // CB: LBNF
+                case 0xB -> { // CB: LBNF - IF DF = 0, M(R(P)) → R(P).1, M(R(P) + 1) → R(P).0, ELSE
                     if (!this.longInstruction) {
                         this.longInstruction = true;
                         setB(this.emulator.getMemory().readByte(getRegister(getP())));
@@ -742,7 +743,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xC -> { // CC: LSIE
+                case 0xC -> { // CC: LSIE | IF IE = 1, R(P) + 2 → R(P), ELSE CONTINUE
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getInterruptEnable()) {
@@ -750,7 +751,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xD -> { // CD: LSQ
+                case 0xD -> { // CD: LSQ | IF Q = 1, R(P) + 2 → R(P), ELSE CONTINUE
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getQ()) {
@@ -758,7 +759,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xE -> { // CE: LSZ
+                case 0xE -> { // CE: LSZ | IF D = 0, R(P) + 2 → R(P), ELSE CONTINUE
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getD() == 0) {
@@ -766,7 +767,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xF -> { // CF: LSDF
+                case 0xF -> { // CF: LSDF | IF DF = 1, R(P) + 2 → R(P), ELSE CONTINUE
                     this.longInstruction = !this.longInstruction;
                     this.emulator.getMemory().readByte(getRegister(getP())); // Dummy read for accurate bus activity
                     if (getDF()) {
@@ -776,98 +777,98 @@ public class CDP1802 implements Processor {
                 }
                 default -> 0;
             };
-            case 0xD -> { // DN: SEP
+            case 0xD -> { // DN: SEP | N → P
                 // TODO: Place NN on the data bus
                 setP(getN());
                 yield HANDLED;
             }
-            case 0xE -> { // EN: SEX
+            case 0xE -> { // EN: SEX | N → X
                 // TODO: Place NN on the data bus
                 setX(getN());
                 yield HANDLED;
             }
             case 0xF -> switch (getN()) {
-                case 0x0 -> { // F0: LDX
+                case 0x0 -> { // F0: LDX | M(R(X)) → D
                     setD(this.emulator.getMemory().readByte(getRegister(getX())));
                     yield HANDLED;
                 }
-                case 0x1 -> { // F1: OR
+                case 0x1 -> { // F1: OR | M(R(X)) OR D → D
                     setD(this.emulator.getMemory().readByte(getRegister(getX())) | getD());
                     yield HANDLED;
                 }
-                case 0x2 -> { // F2: AND
+                case 0x2 -> { // F2: AND | M(R(X)) AND D → D
                     setD(this.emulator.getMemory().readByte(getRegister(getX())) & getD());
                     yield HANDLED;
                 }
-                case 0x3 -> { // F3: XOR
+                case 0x3 -> { // F3: XOR | M(R(X)) XOR D → D
                     setD(this.emulator.getMemory().readByte(getRegister(getX())) ^ getD());
                     yield HANDLED;
                 }
-                case 0x4 -> { // F4: ADD
+                case 0x4 -> { // F4: ADD | M(R(X)) + D → DF, D
                     int result = this.emulator.getMemory().readByte(getRegister(getX())) + getD();
                     setD(result);
                     setDF(result > 0xFF);
                     yield HANDLED;
                 }
-                case 0x5 -> { // F5: SD
+                case 0x5 -> { // F5: SD | M(R(X)) - D → DF, D
                     int result = this.emulator.getMemory().readByte(getRegister(getX())) - getD();
                     setD(result);
                     setDF(result >= 0);
                     yield HANDLED;
                 }
-                case 0x6 -> { // F6: SHR
+                case 0x6 -> { // F6: SHR | SHIFT D RIGHT, LSB(D) → DF, 0 → MSB(D)
                     boolean shiftedOut = (getD() & 1) != 0;
                     setD(getD() >>> 1);
                     setDF(shiftedOut);
                     yield HANDLED;
                 }
-                case 0x7 -> { // F7: SM
+                case 0x7 -> { // F7: SM | D - M(R(X)) → DF, D
                     int result = getD() - this.emulator.getMemory().readByte(getRegister(getX()));
                     setD(result);
                     setDF(result >= 0);
                     yield HANDLED;
                 }
-                case 0x8 -> { // F8: LDI
+                case 0x8 -> { // F8: LDI | M(R(P)) → D; R(P) + 1 → R(P)
                     setD(this.emulator.getMemory().readByte(getRegister(getP())));
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0x9 -> { // F9: ORI
+                case 0x9 -> { // F9: ORI | M(R(P)) OR D → D; R(P) + 1 → R(P)
                     setD(this.emulator.getMemory().readByte(getRegister(getP())) | getD());
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0xA -> { // FA: ANI
+                case 0xA -> { // FA: ANI | M(R(P)) AND D → D; R(P) + 1 → R(P)
                     setD(this.emulator.getMemory().readByte(getRegister(getP())) & getD());
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0xB -> { // FB: XRI
+                case 0xB -> { // FB: XRI | M(R(P)) XOR D → D; R(P) + 1 → R(P)
                     setD(this.emulator.getMemory().readByte(getRegister(getP())) ^ getD());
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0xC -> { // FC: ADI
+                case 0xC -> { // FC: ADI | M(R(P)) + D → DF, D; R(P) + 1 → R(P)
                     int result = this.emulator.getMemory().readByte(getRegister(getP())) + getD();
                     setD(result);
                     setDF(result > 0xFF);
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0xD -> { // FD: SDI
+                case 0xD -> { // FD: SDI | M(R(P)) - D → DF, D; R(P) + 1 → R(P)
                     int result = this.emulator.getMemory().readByte(getRegister(getP())) - getD();
                     setD(result);
                     setDF(result >= 0);
                     setRegister(getP(), getRegister(getP()) + 1);
                     yield HANDLED;
                 }
-                case 0xE -> { // FE: SHL
+                case 0xE -> { // FE: SHL | SHIFT D LEFT, MSB(D) → DF, 0 → LSB(D)
                     boolean shiftedOut = (getD() & 0x80) != 0;
                     setD(getD() << 1);
                     setDF(shiftedOut);
                     yield HANDLED;
                 }
-                case 0xF -> { // FF: SMI
+                case 0xF -> { // FF: SMI | D - M(R(P)) → DF, D; R(P) + 1 → R(P)
                     int result = getD() - this.emulator.getMemory().readByte(getRegister(getP()));
                     setD(result);
                     setDF(result >= 0);

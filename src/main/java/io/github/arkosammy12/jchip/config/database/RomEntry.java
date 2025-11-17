@@ -13,7 +13,7 @@ class RomEntry {
     private Map<String, Quirks> quirkyPlatforms;
 
     @SerializedName(value = "tickrate")
-    private Integer tickrate;
+    private Integer tickRate;
 
     @SerializedName(value = "screenRotation")
     private Integer screenRotation;
@@ -29,8 +29,8 @@ class RomEntry {
         return Optional.ofNullable(this.quirkyPlatforms);
     }
 
-    Optional<Integer> getTickrate() {
-        return Optional.ofNullable(this.tickrate);
+    Optional<Integer> getTickRate() {
+        return Optional.ofNullable(this.tickRate);
     }
 
     Optional<Integer> getScreenRotation() {

@@ -2,7 +2,6 @@ package io.github.arkosammy12.jchip.config.database;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.SettingsProvider;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.util.Variant;
@@ -125,7 +124,7 @@ public class Chip8Database implements SettingsProvider {
 
     @Override
     public Optional<Integer> getInstructionsPerFrame() {
-        return Optional.ofNullable(this.romEntry).flatMap(RomEntry::getTickrate);
+        return Optional.ofNullable(this.romEntry).flatMap(RomEntry::getTickRate);
     }
 
     @Override

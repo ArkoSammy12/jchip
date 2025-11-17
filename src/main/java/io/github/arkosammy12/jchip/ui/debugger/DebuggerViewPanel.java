@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public class DebuggerViewPanel extends JPanel {
 
-    private final JChip jchip;
+    private final Jchip jchip;
 
     private final JPanel textPanel;
     private final JPanel singleRegistersPanel;
@@ -33,7 +33,7 @@ public class DebuggerViewPanel extends JPanel {
 
     private final MemoryTable memoryTable;
 
-    public DebuggerViewPanel(JChip jchip) {
+    public DebuggerViewPanel(Jchip jchip) {
         super();
         this.jchip = jchip;
 

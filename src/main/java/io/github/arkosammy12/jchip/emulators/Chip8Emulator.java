@@ -197,7 +197,7 @@ public class Chip8Emulator implements Emulator {
     }
 
     protected void terminate() {
-        this.getEmulatorSettings().getJChip().stop();
+        this.getEmulatorSettings().getJchip().stop();
     }
 
     @Override

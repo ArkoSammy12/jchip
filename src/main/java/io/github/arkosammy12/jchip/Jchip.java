@@ -17,7 +17,7 @@ import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class JChip {
+public class Jchip {
 
     private MainWindow mainWindow;
     private Emulator currentEmulator;
@@ -30,7 +30,7 @@ public class JChip {
 
     private final AtomicBoolean running = new AtomicBoolean(true);
 
-    public JChip(String[] args) throws Exception {
+    public Jchip(String[] args) throws Exception {
         try {
             CLIArgs cliArgs = null;
             if (args.length > 0) {

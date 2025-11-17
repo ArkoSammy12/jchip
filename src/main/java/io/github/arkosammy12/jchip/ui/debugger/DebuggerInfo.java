@@ -96,23 +96,23 @@ public class DebuggerInfo {
         return entry;
     }
 
-    public List<DebuggerLabel<?>> getTextSectionLabels() {
+    List<DebuggerLabel<?>> getTextSectionLabels() {
         return this.textSectionEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
     }
 
-    public List<DebuggerLabel<?>> getSingleRegisterLabels() {
+    List<DebuggerLabel<?>> getSingleRegisterLabels() {
         return this.singleRegistersEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
     }
 
-    public List<DebuggerLabel<?>> getRegisterLabels() {
+    List<DebuggerLabel<?>> getRegisterLabels() {
         return this.registerEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
     }
 
-    public List<DebuggerLabel<?>> getStackLabels() {
+    List<DebuggerLabel<?>> getStackLabels() {
         return this.stackEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
     }
 
-    public Optional<Supplier<Integer>> getScrollAddressSupplier() {
+    Optional<Supplier<Integer>> getScrollAddressSupplier() {
         return Optional.ofNullable(this.scrollAddressSupplier);
     }
 

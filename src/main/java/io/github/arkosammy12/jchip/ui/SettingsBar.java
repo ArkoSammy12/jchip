@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -19,7 +19,7 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
     private final DebuggerMenu debuggerMenu;
     private final HelpMenu helpMenu;
 
-    public SettingsBar(JChip jchip) {
+    public SettingsBar(Jchip jchip) {
         super();
 
         this.fileMenu = new FileMenu(jchip);

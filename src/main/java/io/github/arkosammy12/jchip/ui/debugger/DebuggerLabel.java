@@ -16,7 +16,6 @@ public class DebuggerLabel<T> extends JLabel {
         this.textEntry = textEntry;
     }
 
-
     public void updateState() {
         this.textEntry.getStateUpdater().ifPresent(stateUpdater -> this.state.set(stateUpdater.get()));
         this.setState(this.state.get());

@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.CLIArgs;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
@@ -19,7 +19,7 @@ public class SettingsMenu extends JMenu {
 
     private final JRadioButtonMenuItem showInfoPanelButton;
 
-    public SettingsMenu(JChip jchip) {
+    public SettingsMenu(Jchip jchip) {
         super("Settings");
 
         this.setMnemonic(KeyEvent.VK_S);

@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.*;
 import io.github.arkosammy12.jchip.emulators.*;
 import picocli.CommandLine;
@@ -23,9 +23,9 @@ public enum Variant implements DisplayNameProvider {
 
     private final String identifier;
     private final String displayName;
-    private final Function<JChip, ? extends EmulatorSettings> emulatorSettingsProvider;
+    private final Function<Jchip, ? extends EmulatorSettings> emulatorSettingsProvider;
 
-    Variant(String identifier, String displayName, Function<JChip, ? extends EmulatorSettings> emulatorSettingsProvider) {
+    Variant(String identifier, String displayName, Function<Jchip, ? extends EmulatorSettings> emulatorSettingsProvider) {
         this.identifier = identifier;
         this.displayName = displayName;
         this.emulatorSettingsProvider = emulatorSettingsProvider;
@@ -36,7 +36,7 @@ public enum Variant implements DisplayNameProvider {
         return this.displayName;
     }
 
-    public static Emulator getEmulator(JChip jchip) {
+    public static Emulator getEmulator(Jchip jchip) {
         Optional<Variant> optionalVariant = jchip.getMainWindow().getSettingsBar().getVariant();
         if (optionalVariant.isPresent()) {
             return optionalVariant.get().emulatorSettingsProvider.apply(jchip).getEmulator();

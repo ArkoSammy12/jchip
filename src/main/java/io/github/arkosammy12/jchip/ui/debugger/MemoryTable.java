@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
-import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 
 import javax.swing.*;

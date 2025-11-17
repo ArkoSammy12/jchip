@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.memory.Chip8Memory;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
@@ -171,7 +171,7 @@ public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: saveflags vX
-                JChip jchip = this.emulator.getEmulatorSettings().getJChip();
+                Jchip jchip = this.emulator.getEmulatorSettings().getJchip();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
                     jchip.setFlagRegister(i, this.getRegister(i));
@@ -179,7 +179,7 @@ public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
                 yield HANDLED;
             }
             case 0x85 -> { // FX85: loadflags vX
-                JChip jchip = this.emulator.getEmulatorSettings().getJChip();
+                Jchip jchip = this.emulator.getEmulatorSettings().getJchip();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
                     this.setRegister(i, jchip.getFlagRegister(i));

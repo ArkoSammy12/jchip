@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.ui;
 
 import com.formdev.flatlaf.icons.*;
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 
@@ -10,7 +10,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
@@ -24,7 +23,7 @@ public class FileMenu extends JMenu {
     private final AtomicReference<byte[]> rawRom = new AtomicReference<>(null);
     private Path currentDirectory;
 
-    public FileMenu(JChip jchip) {
+    public FileMenu(Jchip jchip) {
         super("File");
 
         this.setMnemonic(KeyEvent.VK_F);

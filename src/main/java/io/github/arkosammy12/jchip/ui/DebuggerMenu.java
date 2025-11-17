@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -11,7 +11,7 @@ public class DebuggerMenu extends JMenu {
     private final JCheckBoxMenuItem memoryFollowButton;
     private boolean memoryFollowEnabled = true;
 
-    public DebuggerMenu(JChip jchip) {
+    public DebuggerMenu(Jchip jchip) {
         super("Debugger");
 
         this.setMnemonic(KeyEvent.VK_D);

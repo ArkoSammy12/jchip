@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.config;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.*;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -30,10 +30,10 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     private final boolean doShiftVXInPlace;
     private final boolean doJumpWithVX;
 
-    public Chip8EmulatorSettings(JChip jchip) {
+    public Chip8EmulatorSettings(Jchip jchip) {
         super(jchip);
 
-        PrimarySettingsProvider settings = this.getJChip().getMainWindow().getSettingsBar();
+        PrimarySettingsProvider settings = this.getJchip().getMainWindow().getSettingsBar();
         Chip8Database database = jchip.getDatabase();
         database.fetchDataForRom(this.getRawRom());
 

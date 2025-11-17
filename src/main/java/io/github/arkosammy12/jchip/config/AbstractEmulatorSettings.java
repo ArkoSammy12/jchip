@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.config;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 
 import java.util.Arrays;
@@ -10,9 +10,9 @@ public abstract class AbstractEmulatorSettings implements EmulatorSettings {
 
     private final byte[] rawRom;
     private final int[] rom;
-    private final JChip jchip;
+    private final Jchip jchip;
 
-    public AbstractEmulatorSettings(JChip jchip) {
+    public AbstractEmulatorSettings(Jchip jchip) {
         this.jchip = jchip;
 
         PrimarySettingsProvider settings = this.jchip.getMainWindow().getSettingsBar();
@@ -31,7 +31,7 @@ public abstract class AbstractEmulatorSettings implements EmulatorSettings {
     }
 
     @Override
-    public JChip getJChip() {
+    public Jchip getJchip() {
         return this.jchip;
     }
 

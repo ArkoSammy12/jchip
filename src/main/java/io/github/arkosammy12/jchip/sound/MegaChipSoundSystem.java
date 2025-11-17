@@ -1,12 +1,12 @@
 package io.github.arkosammy12.jchip.sound;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.memory.MegaChipMemory;
 
 public class MegaChipSoundSystem extends Chip8SoundSystem {
 
-    private final JChip jchip;
+    private final Jchip jchip;
     private final MegaChipEmulator emulator;
 
     private int trackStart;
@@ -20,7 +20,7 @@ public class MegaChipSoundSystem extends Chip8SoundSystem {
     public MegaChipSoundSystem(MegaChipEmulator emulator) {
         super(emulator);
         this.emulator = emulator;
-        this.jchip = emulator.getEmulatorSettings().getJChip();
+        this.jchip = emulator.getEmulatorSettings().getJchip();
     }
 
     public void playTrack(int trackSampleRate, int trackSize, boolean loop, int trackStart) {

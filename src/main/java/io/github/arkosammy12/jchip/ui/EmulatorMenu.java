@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -30,7 +30,7 @@ public class EmulatorMenu extends JMenu {
 
     private Integer instructionsPerFrame;
 
-    public EmulatorMenu(JChip jchip) {
+    public EmulatorMenu(Jchip jchip) {
         super("Emulator");
 
         this.setMnemonic(KeyEvent.VK_E);

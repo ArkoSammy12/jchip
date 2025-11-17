@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 
 import java.awt.event.KeyAdapter;
@@ -10,12 +10,12 @@ import java.util.List;
 
 public class Keypad extends KeyAdapter {
 
-    private final JChip jchip;
+    private final Jchip jchip;
     private final boolean[] keys = new boolean[16];
     private int waitingKey = -1;
 
     public Keypad(Emulator emulator) {
-        this.jchip = emulator.getEmulatorSettings().getJChip();
+        this.jchip = emulator.getEmulatorSettings().getJchip();
     }
 
     @Override

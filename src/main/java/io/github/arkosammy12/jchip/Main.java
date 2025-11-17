@@ -23,9 +23,9 @@ public class Main {
         if (Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported"))) {
             Toolkit.getDefaultToolkit().setDynamicLayout(true);
         }
-        JChip jchip = null;
+        Jchip jchip = null;
         try {
-            jchip = new JChip(args);
+            jchip = new Jchip(args);
             jchip.start();
         } catch (Throwable t) {
             Logger.error("jchip has crashed!");

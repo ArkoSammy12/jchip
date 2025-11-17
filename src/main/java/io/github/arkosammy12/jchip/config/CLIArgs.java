@@ -123,12 +123,12 @@ public class CLIArgs implements PrimarySettingsProvider {
 
     @Override
     public Optional<byte[]> getRawRom() {
-        return Optional.of(EmulatorSettings.readRawRom(convertToAbsolutePathIfNeeded(romPath)));
+        return Optional.of(EmulatorSettings.readRawRom(romPath.toAbsolutePath()));
     }
 
     @Override
     public Optional<Path> getRomPath() {
-        return Optional.of(convertToAbsolutePathIfNeeded(romPath));
+        return Optional.of(romPath.toAbsolutePath());
     }
 
     @Override
@@ -188,13 +188,6 @@ public class CLIArgs implements PrimarySettingsProvider {
     @Override
     public Optional<Boolean> doJumpWithVX() {
         return this.doJumpWithVX;
-    }
-
-    public static Path convertToAbsolutePathIfNeeded(Path path) {
-        if (path == null) {
-            return null;
-        }
-        return path.isAbsolute() ? path : path.toAbsolutePath();
     }
 
 }

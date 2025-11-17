@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.JChip;
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 
 import javax.swing.*;
@@ -10,7 +10,7 @@ import java.net.URI;
 
 public class HelpMenu extends JMenu {
 
-    public HelpMenu(JChip jchip) {
+    public HelpMenu(Jchip jchip) {
         super("Help");
 
         this.setMnemonic(KeyEvent.VK_H);
@@ -19,8 +19,8 @@ public class HelpMenu extends JMenu {
         aboutItem.setMnemonic(KeyEvent.VK_A);
         aboutItem.addActionListener(_ -> JOptionPane.showMessageDialog(
                 jchip.getMainWindow(),
-                String.format("JChip Emulator\nVersion %s\n\nBy ArkoSammy12", Main.VERSION_STRING),
-                "About JChip",
+                String.format("Jchip Emulator\nVersion %s\n\nBy ArkoSammy12", Main.VERSION_STRING),
+                "About Jchip",
                 JOptionPane.INFORMATION_MESSAGE)
         );
         aboutItem.setToolTipText("Show the current jchip version.");

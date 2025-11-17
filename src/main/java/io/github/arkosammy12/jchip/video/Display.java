@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.video;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
-import java.awt.event.*;
 import java.io.Closeable;
 
 public abstract class Display<E extends Emulator> implements Closeable {
@@ -20,7 +19,7 @@ public abstract class Display<E extends Emulator> implements Closeable {
         this.displayAngle = emulator.getEmulatorSettings().getDisplayAngle();
         this.imageWidth = getImageWidth();
         this.imageHeight = getImageHeight();
-        this.emulatorRenderer = new EmulatorRenderer(emulator.getEmulatorSettings().getJChip(), this, emulator.getKeyAdapters(), emulator.getEmulatorSettings().getProgramTitle());
+        this.emulatorRenderer = new EmulatorRenderer(emulator.getEmulatorSettings().getJchip(), this, emulator.getKeyAdapters(), emulator.getEmulatorSettings().getProgramTitle());
     }
 
     public EmulatorRenderer getEmulatorRenderer() {
