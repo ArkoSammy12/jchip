@@ -15,16 +15,14 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
     private final DisplayAngle displayAngle;
     private final Variant variant;
     private final boolean isHybridChip8;
-    private final boolean withExpandedRam;
 
-    public CosmacVipEmulatorSettings(Jchip jchip, boolean isHybridChip8, boolean withExpandedRam) {
+    public CosmacVipEmulatorSettings(Jchip jchip, boolean isHybridChip8) {
         super(jchip);
         PrimarySettingsProvider settings = this.getJchip().getMainWindow().getSettingsBar();
         this.displayAngle = settings.getDisplayAngle().orElse(DisplayAngle.DEG_0);
         this.romTitle = settings.getRomPath().map(path -> path.getFileName().toString()).orElse(null);
         this.variant = settings.getVariant().orElse(COSMAC_VIP);
         this.isHybridChip8 = isHybridChip8;
-        this.withExpandedRam = withExpandedRam;
     }
 
     @Override
@@ -44,7 +42,7 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
 
     @Override
     public Emulator getEmulator() {
-        return new CosmacVipEmulator(this, this.isHybridChip8, this.withExpandedRam);
+        return new CosmacVipEmulator(this, this.isHybridChip8);
     }
 
 }

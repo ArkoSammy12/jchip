@@ -5,7 +5,6 @@ import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
-import io.github.arkosammy12.jchip.memory.ExpandedCosmacVipMemory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
@@ -39,17 +38,13 @@ public class CosmacVipEmulator implements Emulator {
     private final boolean isHybridChip8;
     private int currentInstructionsPerFrame;
 
-    public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, boolean isHybridChip8, boolean withRamExpansion) {
+    public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, boolean isHybridChip8) {
         this.settings = emulatorSettings;
         this.isHybridChip8 = isHybridChip8;
         this.variant = emulatorSettings.getVariant();
         this.keypad = new CosmacVIPKeypad(this);
         this.processor = new CDP1802(this);
-        if (withRamExpansion) {
-            this.memory = new ExpandedCosmacVipMemory(this);
-        } else {
-            this.memory = new CosmacVipMemory(this);
-        }
+        this.memory = new CosmacVipMemory(this);
         this.display = new CDP1861<>(this);
         this.soundSystem = new Chip8SoundSystem(this);
         this.ioDevices[0] = this.display;
