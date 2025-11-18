@@ -1,5 +1,16 @@
 <p align="center">
-  <img src="https://i.imgur.com/8ltzY7g.png" alt="jchip emulator screenshot" width="600"/>
+  <img src="media/chip8.png" width="45%">
+  <img src="media/schip.png" width="45%">
+</p>
+
+<p align="center">
+  <img src="media/xochip.png" width="45%">
+  <img src="media/megachip.png" width="45%">
+</p>
+
+<p align="center">
+  <img src="media/hybridchip8.png" width="45%">
+  <img src="media/cosmac.png" width="45%">
 </p>
 
 # jchip
@@ -8,7 +19,7 @@ A multi-variant CHIP-8 interpreter and COSMAC-VIP emulator written in Java.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-blue)
-[![Latest Release Tag](https://img.shields.io/github/tag/arkosammy12/jchip.svg)](https://github.com/arkosammy12/jchip/tree/v3.1.0)
+[![Latest Release Tag](https://img.shields.io/github/tag/arkosammy12/jchip.svg)](https://github.com/arkosammy12/jchip/tree/v4.0.0)
 
 * [jChip](#jchip)
 * [Introduction](#introduction)
