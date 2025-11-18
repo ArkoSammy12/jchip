@@ -58,7 +58,7 @@ public class CLIArgs implements PrimarySettingsProvider {
     private Optional<KeyboardLayout> keyboardLayout;
 
     @CommandLine.Option(
-            names = "--use-variant-quirks",
+            names = "--force-variant-quirks",
             negatable = true,
             defaultValue = "false",
             description = "Force the used quirks to be of the variant used to run the current ROM."
