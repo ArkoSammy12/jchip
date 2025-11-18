@@ -162,7 +162,7 @@ Under the **Emulator** menu, the following submenus can be found:
 - **Variant** – Choose a specific variant or leave unspecified, falling back to database or CHIP-8.
 - **Color Palette** – Select from built-in palettes or leave unspecified.
 - **Display Angle** – Set screen rotation (0°, 90°, 180°, 270°) or leave unspecified.
-- **Instructions per Frame** – Set the IPF value manually or leave unspecified by clearing the value.
+- **Instructions per Frame** – Set the IPF value manually or leave unspecified by clearing the value. Hit the `Enter` to confirm the change.
 
 Menus that contain an "Unspecified" button allow for that setting to be automatically configured via the included CHIP-8 ROM metadata database. If otherwise specified, the emulator
 will use the selected setting instead.
