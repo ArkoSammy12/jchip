@@ -254,6 +254,7 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 - [Chromatophore - HP48-Superchip investigations](https://github.com/Chromatophore/HP48-Superchip/tree/master/investigations)
 - [Cosmac ELF Group](https://groups.io/g/cosmacelf)
 - [cskordis - Cosmac-VIP-Color-Board-VP590](https://github.com/cskordis/Cosmac-VIP-Color-Board-VP590)
+- [Emulator Development Discord](https://discord.gg/dkmJAes)
 - [etxmato - emma_02](https://github.com/etxmato/emma_02?tab=readme-ov-file)
 - [GamingMadster - Chip-8 All-In-One Tests](https://github.com/GamingMadster/Chip-8_All-In-One)
 - [Gulrak - Cadmium Emulator](https://github.com/gulrak/cadmium)
@@ -280,10 +281,6 @@ You may also get pre-compiled JARs from the [releases page](https://github.com/A
 - [Tobias Langhoff - High Level CHIP-8 Emulator Guide](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/)
 - [XO-CHIP Specifications](https://johnearnest.github.io/Octo/docs/XO-ChipSpecification.html)
 - [ZXDunny - ZX-Chip8](https://github.com/ZXDunny/ZX-Chip8)
-
-
-
-- [Emulator Development Discord](https://discord.gg/dkmJAes)
 
 ## Credits
 
