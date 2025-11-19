@@ -6,15 +6,21 @@ public interface IODevice {
 
     DmaStatus getDmaStatus();
 
-     boolean isInterrupting();
+    boolean isInterrupting();
 
-    void doDmaOut(int value);
+    default void doDmaOut(int value) {}
 
-    int doDmaIn();
+    default int doDmaIn() {
+        // Data bus lines are pulled up on the VIP
+        return 0xFF;
+    }
 
-    void onOutput(int value);
+    default void onOutput(int value) {}
 
-    int onInput();
+    default int onInput() {
+        // Data bus lines are pulled up on the VIP
+        return 0xFF;
+    }
 
     enum DmaStatus {
         NONE,

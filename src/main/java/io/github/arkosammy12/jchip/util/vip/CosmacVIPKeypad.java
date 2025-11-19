@@ -29,23 +29,8 @@ public class CosmacVIPKeypad extends Keypad implements IODevice {
     }
 
     @Override
-    public void doDmaOut(int value) {
-
-    }
-
-    @Override
-    public int doDmaIn() {
-        return 0;
-    }
-
-    @Override
     public void onOutput(int value) {
         this.latchedKey = value & 0xF;
-    }
-
-    @Override
-    public int onInput() {
-        return 0;
     }
 
 }

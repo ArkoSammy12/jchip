@@ -126,11 +126,6 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     }
 
     @Override
-    public int doDmaIn() {
-        return 0;
-    }
-
-    @Override
     public void onOutput(int value) {
         this.displayEnableLatch = false;
     }
@@ -138,7 +133,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     @Override
     public int onInput() {
         this.displayEnableLatch = true;
-        return 0;
+        return 0xFF;
     }
 
     @Override

@@ -466,7 +466,9 @@ public class CDP1802 implements Processor {
                         int input = this.emulator.dispatchInput(NX);
                         this.emulator.getMemory().writeByte(getRegister(getX()), input);
                         setD(input);
-                        yield HANDLED;
+                    } else if (N == 0x8) { // 68: Undefined. Return 0xFF from pull up data bus
+                        this.emulator.getMemory().writeByte(getRegister(getX()), 0xFF);
+                        setD(0xFF);
                     }
                     yield HANDLED;
                 }
@@ -726,7 +728,7 @@ public class CDP1802 implements Processor {
                     }
                     yield HANDLED;
                 }
-                case 0xB -> { // CB: LBNF - IF DF = 0, M(R(P)) → R(P).1, M(R(P) + 1) → R(P).0, ELSE
+                case 0xB -> { // CB: LBNF | IF DF = 0, M(R(P)) → R(P).1, M(R(P) + 1) → R(P).0, ELSE
                     if (!this.longInstruction) {
                         this.longInstruction = true;
                         setB(this.emulator.getMemory().readByte(getRegister(getP())));
