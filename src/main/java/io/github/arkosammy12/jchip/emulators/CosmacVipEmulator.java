@@ -135,11 +135,27 @@ public class CosmacVipEmulator implements Emulator {
     }
 
     public void dispatchDmaOut(int value) {
-        this.display.doDmaOut(value);
+        for (IODevice ioDevice : this.ioDevices) {
+            if (ioDevice == null) {
+                continue;
+            }
+            if (ioDevice.getDmaStatus() == IODevice.DmaStatus.OUT) {
+                ioDevice.doDmaOut(value);
+                return;
+            }
+        }
     }
 
     public int dispatchDmaIn() {
-        return this.display.doDmaIn();
+        for (IODevice ioDevice : this.ioDevices) {
+            if (ioDevice == null) {
+                continue;
+            }
+            if (ioDevice.getDmaStatus() == IODevice.DmaStatus.IN) {
+                return ioDevice.doDmaIn();
+            }
+        }
+        return 0xFF;
     }
 
     public boolean anyInterrupting() {
