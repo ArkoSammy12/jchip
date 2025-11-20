@@ -39,7 +39,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
 
     @Override
     public int getWidth() {
-        return 256;
+        return 64;
     }
 
     @Override
@@ -114,14 +114,11 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
         int dmaIndex = (int) ((this.emulator.getProcessor().getMachineCycles() % MACHINE_CYCLES_PER_SCANLINE) - DMAO_BEGIN);
         int colStart = dmaIndex * 8;
         for (int i = 0, mask = 0x80; i < 8; i++, mask >>>= 1) {
-            int col = (colStart + i) * 4;
-            for (int j = 0; j < 4; j++) {
-                int colOffset = col + j;
-                if (colOffset < 0 || colOffset >= this.getWidth()) {
-                    break;
-                }
-                this.displayBuffer[colOffset][row] = ((value & mask) != 0) ? 1 : 0;
+            int col = colStart + i;
+            if (col < 0 || col >= this.getWidth()) {
+                break;
             }
+            this.displayBuffer[col][row] = (value & mask) != 0 ? 1 : 0;
         }
     }
 
@@ -140,7 +137,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     protected void populateRenderBuffer(int[][] renderBuffer) {
         for (int y = 0; y < imageHeight; y++) {
             for (int x = 0; x < imageWidth; x++) {
-                renderBuffer[x][y] = (this.displayBuffer[x][y] & 0xF) != 0 ? 0xFFFFFFFF : 0xFF000000;
+                renderBuffer[x][y] = (this.displayBuffer[x / 4][y] != 0) ? 0xFFFFFFFF : 0xFF000000;
             }
         }
     }
