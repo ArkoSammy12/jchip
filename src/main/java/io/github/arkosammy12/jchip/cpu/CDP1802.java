@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import static io.github.arkosammy12.jchip.cpu.CDP1802.State.*;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.HANDLED;
@@ -33,6 +34,10 @@ public class CDP1802 implements Processor {
 
     public CDP1802(CosmacVipEmulator emulator) {
         this.emulator = emulator;
+        Random random = new Random();
+        for (int i = 0; i < this.registers.length; i++) {
+            this.registers[i] = random.nextInt(0xFFFF + 1);
+        }
     }
 
     public State getCurrentState() {
@@ -225,8 +230,6 @@ public class CDP1802 implements Processor {
     private int onReset() {
         setI(0);
         setN(0);
-        setX(0);
-        setP(0);
         setQ(false);
         setIE(true);
         return HANDLED;
@@ -234,7 +237,9 @@ public class CDP1802 implements Processor {
     }
 
     private int onInit() {
-        Arrays.fill(this.registers, 0);
+        setX(0);
+        setP(0);
+        setR(0, 0);
         return HANDLED;
     }
 
