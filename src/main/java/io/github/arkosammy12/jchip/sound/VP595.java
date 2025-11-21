@@ -39,10 +39,10 @@ public class VP595 implements SoundSystem, IODevice {
             return;
         }
         byte[] data = new byte[SAMPLES_PER_FRAME];
-        double step = 2.0 * Math.PI * frequency / SAMPLE_RATE;
+        double step = frequency / SAMPLE_RATE;
         for (int i = 0; i < data.length; i++) {
-            data[i] = (byte) ((phase < Math.PI) ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
-            phase = (phase + step) % (2 * Math.PI);
+            data[i] = (byte) ((phase < 0.5) ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
+            phase = (phase + step) % 1;
         }
         this.jchip.getSoundWriter().writeSamples(data);
     }
