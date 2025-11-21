@@ -82,7 +82,9 @@ get into assembly-like languages.
 instead of relying on the host emulator to supply the colors. This variant only has a few ROMs made mostly by the variant's developer and doesn't seem to have gained much traction. However, in the spirit of supporting newer extensions, I decided to implement it as a way to show support for possible new improvements to XO-CHIP, in the hopes that it will become more popular in the future.
 9. `HYBRID CHIP-8`: This variant is backed by an emulator implementation of the original COSMAC-VIP computer from the RCA corporation. Powered by the CDP1802 microprocessor and the CDP1861C video display interface, this variant is capable of running hybrid CHIP-8 ROMs, which are those that require the use of native subroutine calls written in CDP1802 machine language.
     This variant does not support custom quirks, configurable color palettes, or IPF.
-10. `COSMAC-VIP`: Providing support for hybrid CHIP-8 ROMs by emulating the COSMAC-VIP allows jchip to also provide a standalone COSMAC-VIP variant, which does not include the CHIP-8 interpreter and just loads the provided ROM at the start of memory. This variant is
+10. `HYBRID CHIP-8X`: This variant, while also being backed a COSMAC-VIP emulation core, implements the VP590 Color Board and the VP595 Simple Sound board expansions to add support for the original CHIP-8X interpreter. In the small off-chance that there are hybrid CHIP-8X ROMs out there, this variant can run them.
+    This variant was mostly added as an extra bonus made purely for fun and for learning.
+11. `COSMAC-VIP`: Providing support for hybrid CHIP-8 ROMs by emulating the COSMAC-VIP allows jchip to also provide a standalone COSMAC-VIP variant, which does not include the CHIP-8 interpreter and just loads the provided ROM at the start of memory. This variant is
     capable of running ROMs made for the original COSMAC-VIP computer, targeting at most 2KB of on-board RAM plus an additional 2KB of RAM expansion, for a total of 4KB. Since this is a raw COSMAC-VIP implementation, it also ignores any user configured quirks, color palette, or IPF.
 
 ### Configurable quirks
