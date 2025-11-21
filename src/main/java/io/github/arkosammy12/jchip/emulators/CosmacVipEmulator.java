@@ -5,13 +5,16 @@ import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
+import io.github.arkosammy12.jchip.memory.HybridChip8XMemory;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
+import io.github.arkosammy12.jchip.sound.VP595;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.util.vip.IODevice;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.vip.CosmacVIPKeypad;
 import io.github.arkosammy12.jchip.video.CDP1861;
+import io.github.arkosammy12.jchip.video.VP590;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -31,24 +34,31 @@ public class CosmacVipEmulator implements Emulator {
     private final CDP1802 processor;
     private final CosmacVipMemory memory;
     private final CDP1861<?> display;
-    private final Chip8SoundSystem soundSystem;
+    private final SoundSystem soundSystem;
     private final CosmacVIPKeypad keypad;
-    private final IODevice[] ioDevices = new IODevice[8];
+    private final List<IODevice> ioDevices;
 
-    private final boolean isHybridChip8;
+    private final CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter;
     private int currentInstructionsPerFrame;
 
-    public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, boolean isHybridChip8) {
+    public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter) {
         this.settings = emulatorSettings;
-        this.isHybridChip8 = isHybridChip8;
+        this.chip8Interpreter = chip8Interpreter;
         this.variant = emulatorSettings.getVariant();
         this.keypad = new CosmacVIPKeypad(this);
         this.processor = new CDP1802(this);
-        this.memory = new CosmacVipMemory(this);
-        this.display = new CDP1861<>(this);
-        this.soundSystem = new Chip8SoundSystem(this);
-        this.ioDevices[0] = this.display;
-        this.ioDevices[1] = this.keypad;
+        if (this.chip8Interpreter == CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8X) {
+            this.memory = new HybridChip8XMemory(this);
+            this.display = new VP590<>(this);
+            VP595 vp595 = new VP595(this);
+            this.soundSystem = vp595;
+            this.ioDevices = List.of(this.display, this.keypad, vp595);
+        } else {
+            this.memory = new CosmacVipMemory(this);
+            this.display = new CDP1861<>(this);
+            this.soundSystem = new Chip8SoundSystem(this);
+            this.ioDevices = List.of(this.display, this.keypad);
+        }
         this.debuggerInfo = this.createDebuggerInfo();
     }
 
@@ -92,36 +102,34 @@ public class CosmacVipEmulator implements Emulator {
         return this.debuggerInfo;
     }
 
-    public boolean isHybridChip8() {
-        return this.isHybridChip8;
+    public CosmacVipEmulatorSettings.Chip8Interpreter getChip8Interpreter() {
+        return this.chip8Interpreter;
     }
 
     public int dispatchInput(int ioPort) {
-        IODevice ioDevice = this.ioDevices[(ioPort - 1) & 0xF];
-        if (ioDevice == null) {
-            return 0;
+        for (IODevice ioDevice : this.ioDevices) {
+            if (ioDevice.isInputPort(ioPort)) {
+                return ioDevice.onInput(ioPort);
+            }
         }
-        return ioDevice.onInput();
+        return 0xFF;
     }
 
     public void dispatchOutput(int ioPort, int value) {
-        if (ioPort >= 4) {
-            this.memory.setMA7Latched(false);
-            return;
+        if ((ioPort & 4) != 0) {
+            this.memory.unlatchAddressMsb();
         }
-        IODevice ioDevice = this.ioDevices[(ioPort - 1) & 0xF];
-        if (ioDevice == null) {
-            return;
+        for (IODevice ioDevice : this.ioDevices) {
+            if (ioDevice.isOutputPort(ioPort)) {
+                ioDevice.onOutput(ioPort, value);
+                return;
+            }
         }
-        ioDevice.onOutput(value);
     }
 
     public IODevice.DmaStatus getDmaStatus() {
         IODevice.DmaStatus highestStatus = IODevice.DmaStatus.NONE;
         for (IODevice ioDevice : this.ioDevices) {
-            if (ioDevice == null) {
-                continue;
-            }
             switch (ioDevice.getDmaStatus()) {
                 case IN -> highestStatus = IN;
                 case OUT -> {
@@ -134,25 +142,19 @@ public class CosmacVipEmulator implements Emulator {
         return highestStatus;
     }
 
-    public void dispatchDmaOut(int value) {
+    public void dispatchDmaOut(int dmaOutAddress, int value) {
         for (IODevice ioDevice : this.ioDevices) {
-            if (ioDevice == null) {
-                continue;
-            }
             if (ioDevice.getDmaStatus() == IODevice.DmaStatus.OUT) {
-                ioDevice.doDmaOut(value);
+                ioDevice.doDmaOut(dmaOutAddress, value);
                 return;
             }
         }
     }
 
-    public int dispatchDmaIn() {
+    public int dispatchDmaIn(int dmaInAddress) {
         for (IODevice ioDevice : this.ioDevices) {
-            if (ioDevice == null) {
-                continue;
-            }
             if (ioDevice.getDmaStatus() == IODevice.DmaStatus.IN) {
-                return ioDevice.doDmaIn();
+                return ioDevice.doDmaIn(dmaInAddress);
             }
         }
         return 0xFF;
@@ -160,9 +162,6 @@ public class CosmacVipEmulator implements Emulator {
 
     public boolean anyInterrupting() {
         for (IODevice ioDevice : this.ioDevices) {
-            if (ioDevice == null) {
-                continue;
-            }
             if (ioDevice.isInterrupting()) {
                 return true;
             }
@@ -177,7 +176,7 @@ public class CosmacVipEmulator implements Emulator {
             CDP1802.State currentState = this.processor.getCurrentState();
 
             this.processor.cycle();
-            this.tickIoDevices();
+            this.cycleIoDevices();
             this.processor.nextState();
 
             CDP1802.State nextState = this.processor.getCurrentState();
@@ -194,16 +193,14 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public void executeSingleCycle() {
         this.processor.cycle();
-        this.tickIoDevices();
+        this.cycleIoDevices();
         this.processor.nextState();
         this.display.flush();
     }
 
-    private void tickIoDevices() {
+    private void cycleIoDevices() {
         for (IODevice ioDevice : this.ioDevices) {
-            if (ioDevice != null) {
-                ioDevice.cycle();
-            }
+            ioDevice.cycle();
         }
     }
 
@@ -231,7 +228,7 @@ public class CosmacVipEmulator implements Emulator {
     protected DebuggerInfo createDebuggerInfo() {
         DebuggerInfo debuggerInfo = new DebuggerInfo();
         debuggerInfo.setTextSectionName("Cosmac VIP");
-        debuggerInfo.setScrollAddressSupplier(() -> this.processor.getRegister(this.processor.getX()));
+        debuggerInfo.setScrollAddressSupplier(() -> this.processor.getR(this.processor.getX()));
 
         Function<Integer, String> byteFormatter = val -> String.format("%02X", val);
         Function<Integer, String> nibbleFormatter = val -> String.format("%01X", val);
@@ -279,7 +276,7 @@ public class CosmacVipEmulator implements Emulator {
 
         debuggerInfo.<Boolean>createSingleRegisterSectionEntry()
                 .withName("IE")
-                .withStateUpdater(this.processor::getInterruptEnable)
+                .withStateUpdater(this.processor::getIE)
                 .withToStringFunction(booleanFormatter);
 
         debuggerInfo.<Boolean>createSingleRegisterSectionEntry()
@@ -293,13 +290,13 @@ public class CosmacVipEmulator implements Emulator {
             int finalI = i;
             debuggerInfo.<Integer>createRegisterSectionEntry()
                     .withName(String.format("R%01X", i))
-                    .withStateUpdater(() -> this.getProcessor().getRegister(finalI))
+                    .withStateUpdater(() -> this.getProcessor().getR(finalI))
                     .withToStringFunction(val -> String.format("%04X", val));
 
             int finalI1 = i;
             debuggerInfo.<Integer>createStackSectionEntry()
                     .withName(String.format("%01X", i))
-                    .withStateUpdater(() -> this.getMemory().getByte(this.processor.getRegister(finalI1)))
+                    .withStateUpdater(() -> this.getMemory().getByte(this.processor.getR(finalI1)))
                     .withToStringFunction(val -> String.format("%02X", val));
 
         }

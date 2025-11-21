@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.memory;
 
+import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 
@@ -89,23 +90,27 @@ public class CosmacVipMemory implements Memory {
     };
 
     protected final int[] bytes;
-    protected boolean ma7Latched = true;
+    protected boolean addressMsbLatched = true;
     protected int dataBus = 0;
 
     public CosmacVipMemory(CosmacVipEmulator emulator) {
         int[] rom = emulator.getEmulatorSettings().getRom();
         this.bytes = new int[this.getMemorySize()];
         try {
-            if (emulator.isHybridChip8()) {
-                System.arraycopy(CHIP_8_INTERPRETER, 0, this.bytes, 0, CHIP_8_INTERPRETER.length);
-                System.arraycopy(rom, 0, this.bytes, CHIP_8_INTERPRETER.length, rom.length);
-            } else {
-                System.arraycopy(rom, 0, this.bytes, 0, rom.length);
-            }
+            this.initializeRam(emulator, rom);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new EmulatorException("ROM size too big for selected variant!");
         } catch (Exception e) {
             throw new EmulatorException("Error initializing memory: ", e);
+        }
+    }
+
+    protected void initializeRam(CosmacVipEmulator emulator, int[] rom) {
+        if (emulator.getChip8Interpreter() == CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8) {
+            System.arraycopy(CHIP_8_INTERPRETER, 0, this.bytes, 0, CHIP_8_INTERPRETER.length);
+            System.arraycopy(rom, 0, this.bytes, CHIP_8_INTERPRETER.length, rom.length);
+        } else {
+            System.arraycopy(rom, 0, this.bytes, 0, rom.length);
         }
     }
 
@@ -120,7 +125,7 @@ public class CosmacVipMemory implements Memory {
     }
 
     public int readByte(int address) {
-        int actualAddress = this.ma7Latched ? address | 0x8000 : address;
+        int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
         if (actualAddress >= 0x8000) {
             return MONITOR_ROM[actualAddress & 0x1FF];
         }
@@ -130,7 +135,7 @@ public class CosmacVipMemory implements Memory {
     }
 
     public void writeByte(int address, int value) {
-        int actualAddress = this.ma7Latched ? address | 0x8000 : address;
+        int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
         if (actualAddress >= 0x8000) {
             return;
         }
@@ -143,12 +148,8 @@ public class CosmacVipMemory implements Memory {
         return this.bytes[address & this.getMemoryBoundsMask()];
     }
 
-    public void setMA7Latched(boolean value) {
-        this.ma7Latched = value;
-    }
-
-    public int getDataBus() {
-        return this.dataBus;
+    public void unlatchAddressMsb() {
+        this.addressMsbLatched = false;
     }
 
 }

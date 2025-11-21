@@ -17,8 +17,9 @@ public enum Variant implements DisplayNameProvider {
     XO_CHIP("xo-chip", "XO-CHIP", Chip8EmulatorSettings::new),
     MEGA_CHIP("mega-chip", "MEGA-CHIP", Chip8EmulatorSettings::new),
     HYPERWAVE_CHIP_64("hyperwave-chip-64", "HyperWaveCHIP-64", (Chip8EmulatorSettings::new)),
-    HYBRID_CHIP_8("hybrid-chip-8", "HYBRID CHIP-8", jchip -> new CosmacVipEmulatorSettings(jchip, true)),
-    COSMAC_VIP("cosmac-vip", "COSMAC-VIP", jchip -> new CosmacVipEmulatorSettings(jchip, false));
+    HYBRID_CHIP_8("hybrid-chip-8", "HYBRID CHIP-8", jchip -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8)),
+    HYBRID_CHIP_8X("hybrid-chip-8x", "HYBRID CHIP-8X", jchip -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8X)),
+    COSMAC_VIP("cosmac-vip", "COSMAC-VIP", jchip -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.NONE));
 
     private final String identifier;
     private final String displayName;

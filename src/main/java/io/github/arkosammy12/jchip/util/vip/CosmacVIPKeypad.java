@@ -19,17 +19,12 @@ public class CosmacVIPKeypad extends Keypad implements IODevice {
     }
 
     @Override
-    public DmaStatus getDmaStatus() {
-        return DmaStatus.NONE;
+    public boolean isOutputPort(int port)  {
+        return port == 2;
     }
 
     @Override
-    public boolean isInterrupting() {
-        return false;
-    }
-
-    @Override
-    public void onOutput(int value) {
+    public void onOutput(int port, int value) {
         this.latchedKey = value & 0xF;
     }
 

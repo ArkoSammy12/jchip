@@ -2,22 +2,34 @@ package io.github.arkosammy12.jchip.util.vip;
 
 public interface IODevice {
 
-    void cycle();
+    default void cycle() { }
 
-    DmaStatus getDmaStatus();
+    default DmaStatus getDmaStatus() {
+        return DmaStatus.NONE;
+    }
 
-    boolean isInterrupting();
+    default boolean isInterrupting() {
+        return false;
+    }
 
-    default void doDmaOut(int value) {}
+    default void doDmaOut(int dmaOutAddress, int value) { }
 
-    default int doDmaIn() {
+    default int doDmaIn(int dmaInAddress) {
         // Data bus lines are pulled up on the VIP
         return 0xFF;
     }
 
-    default void onOutput(int value) {}
+    default boolean isOutputPort(int port) {
+        return false;
+    }
 
-    default int onInput() {
+    default void onOutput(int port, int value) { }
+
+    default boolean isInputPort(int port) {
+        return false;
+    }
+
+    default int onInput(int port) {
         // Data bus lines are pulled up on the VIP
         return 0xFF;
     }
@@ -25,11 +37,7 @@ public interface IODevice {
     enum DmaStatus {
         NONE,
         IN,
-        OUT;
-
-        public boolean isDma() {
-            return this == IN || this == OUT;
-        }
+        OUT
 
     }
 

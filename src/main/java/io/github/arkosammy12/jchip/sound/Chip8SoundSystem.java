@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class Chip8SoundSystem implements SoundSystem {
 
-    private static final int SQUARE_WAVE_AMPLITUDE = 4;
+    public static final int SQUARE_WAVE_AMPLITUDE = 4;
 
     private final Jchip jchip;
     private final int[] patternBuffer = new int[16];

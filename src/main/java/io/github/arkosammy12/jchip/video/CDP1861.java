@@ -7,7 +7,7 @@ import io.github.arkosammy12.jchip.util.DisplayAngle;
 public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements IODevice {
 
     private static final int SCANLINES_PER_FRAME = 262;
-    private static final int MACHINE_CYCLES_PER_SCANLINE = 14;
+    protected static final int MACHINE_CYCLES_PER_SCANLINE = 14;
 
     private static final int INTERRUPT_BEGIN = 78;
     private static final int INTERRUPT_END = 80;
@@ -15,17 +15,17 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     private static final int FIRST_EFX_BEGIN = 76;
     private static final int FIRST_EFX_END = 80;
 
-    private static final int DISPLAY_AREA_BEGIN = 80;
+    protected static final int DISPLAY_AREA_BEGIN = 80;
     private static final int DISPLAY_AREA_END = 208;
 
     private static final int SECOND_EFX_BEGIN = 204;
     private static final int SECOND_EFX_END = 208;
 
-    private static final int DMAO_BEGIN = 4 - 1; // Shift begin and end indices back by one, since the actual
+    protected static final int DMAO_BEGIN = 4 - 1; // Shift begin and end indices back by one, since the actual
     private static final int DMAO_END = 12 - 1;  // dmao cycle will be acknowledged on the next cycle
 
-    private final int[][] displayBuffer;
-    private int scanlineIndex;
+    protected final int[][] displayBuffer;
+    protected int scanlineIndex;
 
     private DmaStatus dmaStatus = DmaStatus.NONE;
     private boolean interrupting = false;
@@ -103,7 +103,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     }
 
     @Override
-    public void doDmaOut(int value) {
+    public void doDmaOut(int dmaOutAddress, int value) {
         if (!this.emulator.getProcessor().getCurrentState().isS2Dma()) {
             return;
         }
@@ -118,17 +118,27 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
             if (col < 0 || col >= this.getWidth()) {
                 break;
             }
-            this.displayBuffer[col][row] = (value & mask) != 0 ? 1 : 0;
+            this.displayBuffer[col][row] = (value & mask) != 0 ? 0xFFFFFFFF : 0xFF000000;
         }
     }
 
     @Override
-    public void onOutput(int value) {
+    public boolean isOutputPort(int port) {
+        return port == 1;
+    }
+
+    @Override
+    public void onOutput(int port, int value) {
         this.displayEnableLatch = false;
     }
 
     @Override
-    public int onInput() {
+    public boolean isInputPort(int port) {
+        return port == 1;
+    }
+
+    @Override
+    public int onInput(int port) {
         this.displayEnableLatch = true;
         return 0xFF;
     }
@@ -137,7 +147,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     protected void populateRenderBuffer(int[][] renderBuffer) {
         for (int y = 0; y < imageHeight; y++) {
             for (int x = 0; x < imageWidth; x++) {
-                renderBuffer[x][y] = (this.displayBuffer[x / 4][y] != 0) ? 0xFFFFFFFF : 0xFF000000;
+                renderBuffer[x][y] = this.displayBuffer[x / 4][y];
             }
         }
     }
