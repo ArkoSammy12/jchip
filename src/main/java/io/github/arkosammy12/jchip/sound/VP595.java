@@ -51,4 +51,5 @@ public class VP595 implements SoundSystem, IODevice {
     public void close() throws IOException {
         this.jchip.getSoundWriter().stop();
     }
+
 }
