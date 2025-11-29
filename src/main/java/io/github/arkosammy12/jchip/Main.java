@@ -18,6 +18,7 @@ public class Main {
         FlatDarculaLaf.setup();
         System.setProperty("flatlaf.menuBarEmbedded", "false");
         UIManager.put("Component.hideMnemonics", false);
+        UIManager.put("FileChooser.readOnly", Boolean.TRUE);
         JFrame.setDefaultLookAndFeelDecorated(true);
         System.setProperty("sun.awt.noerasebackground", "true");
         if (Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported"))) {
