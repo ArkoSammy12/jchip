@@ -59,28 +59,28 @@ public class MegaChipEmulator extends SChipEmulator {
     @Nullable
     protected MegaChipProcessor<?> createProcessor() {
         this.processor = new MegaChipProcessor<>(this);
-        return null;
+        return this.processor;
     }
 
     @Override
     @Nullable
     protected MegaChipDisplay<?> createDisplay() {
         this.display = new MegaChipDisplay<>(this);
-        return null;
+        return this.display;
     }
 
     @Override
     @Nullable
     protected MegaChipMemory createMemory() {
         this.memory = new MegaChipMemory(this);
-        return null;
+        return this.memory;
     }
 
     @Override
     @Nullable
     protected MegaChipSoundSystem createSoundSystem() {
         this.soundSystem = new MegaChipSoundSystem(this);
-        return null;
+        return this.soundSystem;
     }
 
     @Override

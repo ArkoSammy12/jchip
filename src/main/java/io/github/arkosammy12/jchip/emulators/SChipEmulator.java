@@ -43,14 +43,14 @@ public class SChipEmulator extends Chip8Emulator {
     @Nullable
     protected SChipProcessor<?> createProcessor() {
         this.processor = new SChipProcessor<>(this);
-        return null;
+        return this.processor;
     }
 
     @Override
     @Nullable
     protected SChipDisplay<?> createDisplay() {
         this.display = new SChipDisplay<>(this, this.isModern);
-        return null;
+        return this.display;
     }
 
     public boolean isModern() {

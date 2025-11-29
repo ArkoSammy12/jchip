@@ -47,21 +47,21 @@ public class XOChipEmulator extends SChipEmulator {
     @Nullable
     protected XOChipProcessor<?> createProcessor() {
         this.processor = new XOChipProcessor<>(this);
-        return null;
+        return this.processor;
     }
 
     @Override
     @Nullable
     protected XOChipDisplay<?> createDisplay() {
         this.display = new XOChipDisplay<>(this);
-        return null;
+        return this.display;
     }
 
     @Override
     @Nullable
     protected XOChipMemory createMemory() {
         this.memory = new XOChipMemory(this);
-        return null;
+        return this.memory;
     }
 
 }

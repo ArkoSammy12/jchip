@@ -37,14 +37,14 @@ public class HyperWaveChip64Emulator extends XOChipEmulator {
     @Nullable
     protected HyperWaveChip64Processor<?> createProcessor() {
         this.processor = new HyperWaveChip64Processor<>(this);
-        return null;
+        return this.processor;
     }
 
     @Override
     @Nullable
     protected HyperWaveChip64Display<?> createDisplay() {
         this.display = new HyperWaveChip64Display<>(this);
-        return null;
+        return this.display;
     }
 
 }

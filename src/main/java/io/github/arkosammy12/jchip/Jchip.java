@@ -200,7 +200,7 @@ public class Jchip {
         this.soundWriter.close();
     }
 
-    enum State {
+    private enum State {
         RUNNING,
         STOPPING,
         RESETTING,

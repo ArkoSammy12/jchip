@@ -103,6 +103,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     }
 
     @Override
+    @SuppressWarnings("DuplicatedCode")
     public void doDmaOut(int dmaOutAddress, int value) {
         if (!this.emulator.getProcessor().getCurrentState().isS2Dma()) {
             return;

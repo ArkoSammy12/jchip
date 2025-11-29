@@ -57,21 +57,21 @@ public final class StrictChip8Emulator extends Chip8Emulator {
     @Nullable
     protected StrictChip8Processor createProcessor() {
         this.processor = new StrictChip8Processor(this);
-        return null;
+        return this.processor;
     }
 
     @Override
     @Nullable
     protected StrictChip8Display createDisplay() {
         this.display = new StrictChip8Display(this);
-        return null;
+        return this.display;
     }
 
     @Override
     @Nullable
     protected StrictChip8Memory createMemory() {
         this.memory = new StrictChip8Memory(this);
-        return null;
+        return this.memory;
     }
 
     @Override

@@ -25,12 +25,13 @@ public final class SoundWriter implements Closeable {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
             audioLine = AudioSystem.getSourceDataLine(format);
             audioLine.open(format);
-            audioLine.start();
             FloatControl control = null;
             if (audioLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 control = (FloatControl) audioLine.getControl(FloatControl.Type.MASTER_GAIN);
                 control.setValue(20.0f * (float) Math.log10(volume / 100.0));
             }
+            audioLine.flush();
+            audioLine.start();
             this.volumeControl = control;
 
         } catch (Exception e) {
@@ -38,11 +39,12 @@ public final class SoundWriter implements Closeable {
         }
     }
     public void writeSamples(byte[] buf) {
-        if (!this.audioLine.isRunning() && this.audioLine.isOpen()) {
-            this.audioLine.start();
-        }
         if (!this.enabled) {
             return;
+        }
+        if (!this.audioLine.isRunning() && this.audioLine.isOpen()) {
+            this.audioLine.flush();
+            this.audioLine.start();
         }
         if (!this.soundHasPlayed) {
             if (this.audioLine.available() < this.audioLine.getBufferSize()) {
@@ -58,11 +60,12 @@ public final class SoundWriter implements Closeable {
     }
 
     public void silence() {
-        if (!this.audioLine.isRunning() && this.audioLine.isOpen()) {
-            this.audioLine.start();
-        }
         if (!this.enabled) {
             return;
+        }
+        if (!this.audioLine.isRunning() && this.audioLine.isOpen()) {
+            this.audioLine.flush();
+            this.audioLine.start();
         }
         if (this.soundHasPlayed) {
             this.audioLine.write(EMPTY_SAMPLES, 0, Math.min(this.getBytesToWrite(EMPTY_SAMPLES.length), this.audioLine.available()));

@@ -233,7 +233,6 @@ public class CDP1802 implements Processor {
         setQ(false);
         setIE(true);
         return HANDLED;
-        // reset data bus
     }
 
     private int onInit() {
