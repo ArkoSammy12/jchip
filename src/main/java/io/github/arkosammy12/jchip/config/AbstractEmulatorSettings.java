@@ -19,7 +19,7 @@ public abstract class AbstractEmulatorSettings implements EmulatorSettings {
         Optional<byte[]> rawRomOptional = settings.getRawRom();
 
         if (rawRomOptional.isEmpty()) {
-            throw new EmulatorException("Must select a ROM before starting emulation!");
+            throw new EmulatorException("Must select a ROM file before starting emulation!");
         }
 
         byte[] rawRom = rawRomOptional.get();

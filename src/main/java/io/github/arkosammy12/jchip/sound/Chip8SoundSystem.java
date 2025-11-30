@@ -46,7 +46,7 @@ public class Chip8SoundSystem implements SoundSystem {
     public void pushSamples(int soundTimer) {
         if (soundTimer <= 0) {
             this.phase = 0;
-            this.jchip.getSoundWriter().silence();
+            this.jchip.getSoundWriter().pushSilence();
             return;
         }
         byte[] data = new byte[SAMPLES_PER_FRAME];
@@ -55,12 +55,7 @@ public class Chip8SoundSystem implements SoundSystem {
             data[i] = (byte) (((this.patternBuffer[bitStep >> 3]) & (1 << (7 ^ (bitStep & 7)))) != 0 ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
             this.phase = (this.phase + step) % 1.0;
         }
-        this.jchip.getSoundWriter().writeSamples(data);
-    }
-
-    @Override
-    public void close() {
-        this.jchip.getSoundWriter().stop();
+        this.jchip.getSoundWriter().pushSamples(data);
     }
 
 }

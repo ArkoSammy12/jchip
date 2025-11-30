@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.Chip8Display;
@@ -38,8 +38,8 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
 
     public Chip8Processor(E emulator) {
         this.emulator = emulator;
-        this.programCounter = emulator.getMemory().getProgramStart();
-        this.memoryBoundsMask = emulator.getMemory().getMemoryBoundsMask();
+        this.programCounter = emulator.getBus().getProgramStart();
+        this.memoryBoundsMask = emulator.getBus().getMemoryBoundsMask();
     }
 
     protected void setProgramCounter(int programCounter) {
@@ -130,7 +130,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     }
 
     public final int cycle() throws InvalidInstructionException {
-        Chip8Memory memory = this.emulator.getMemory();
+        Chip8Bus memory = this.emulator.getBus();
         int programCounter = this.getProgramCounter();
         this.incrementProgramCounter();
         return this.execute(memory.readByte(programCounter), memory.readByte(programCounter + 1));
@@ -348,10 +348,10 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     @SuppressWarnings("DuplicatedCode")
     protected int executeDOpcode(int firstByte, int NN) {
         Chip8Display<?> display = this.emulator.getDisplay();
-        Chip8Memory memory = this.emulator.getMemory();
-        Chip8EmulatorSettings config = this.emulator.getEmulatorSettings();
+        Chip8Bus bus = this.emulator.getBus();
+        Chip8EmulatorSettings settings = this.emulator.getEmulatorSettings();
         int currentIndexRegister = this.getIndexRegister();
-        boolean doClipping = config.doClipping();
+        boolean doClipping = settings.doClipping();
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
@@ -372,7 +372,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
                     sliceY %= displayHeight;
                 }
             }
-            int slice = memory.readByte(currentIndexRegister + i);
+            int slice = bus.readByte(currentIndexRegister + i);
             for (int j = 0, sliceMask = BASE_SLICE_MASK_8; j < 8; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= displayWidth) {
@@ -460,24 +460,24 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x33 -> { // FX33: bcd vX
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexPointer = this.getIndexRegister();
                 int vX = this.getRegister(getX(firstByte, NN));
                 long hundreds = (vX * 0x51EB851FL) >>> 37;
                 long remainder = vX - hundreds * 100;
                 long tens = (remainder * 0xCCCDL) >>> 19;
                 long ones = remainder - tens * 10;
-                memory.writeByte(currentIndexPointer, (int) hundreds);
-                memory.writeByte(currentIndexPointer + 1, (int) tens);
-                memory.writeByte(currentIndexPointer + 2, (int) ones);
+                bus.writeByte(currentIndexPointer, (int) hundreds);
+                bus.writeByte(currentIndexPointer + 1, (int) tens);
+                bus.writeByte(currentIndexPointer + 2, (int) ones);
                 yield HANDLED;
             }
             case 0x55 -> { // FX55: save vX
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexPointer = this.getIndexRegister();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
-                    memory.writeByte(currentIndexPointer + i, this.getRegister(i));
+                    bus.writeByte(currentIndexPointer + i, this.getRegister(i));
                 }
                 if (this.emulator.getEmulatorSettings().doIncrementIndex()) {
                     this.setIndexRegister(currentIndexPointer + X + 1);
@@ -485,11 +485,11 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
                 yield HANDLED;
             }
             case 0x65 -> { // FX65: load vX
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexRegister = this.getIndexRegister();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
-                    this.setRegister(i, memory.readByte(currentIndexRegister + i));
+                    this.setRegister(i, bus.readByte(currentIndexRegister + i));
                 }
                 if (this.emulator.getEmulatorSettings().doIncrementIndex()) {
                     this.setIndexRegister(currentIndexRegister + X + 1);

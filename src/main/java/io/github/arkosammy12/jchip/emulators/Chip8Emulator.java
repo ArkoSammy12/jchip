@@ -5,7 +5,7 @@ import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.*;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.util.*;
@@ -28,7 +28,7 @@ public class Chip8Emulator implements Emulator {
     private final Chip8Processor<?> processor;
 
     @Nullable
-    private final Chip8Memory memory;
+    private final Chip8Bus bus;
 
     @Nullable
     private final Chip8Display<?> display;
@@ -56,10 +56,10 @@ public class Chip8Emulator implements Emulator {
 
             this.soundSystem = this.createSoundSystem();
             this.display = this.createDisplay();
-            this.memory = this.createMemory();
+            this.bus = this.createBus();
             this.processor = this.createProcessor();
 
-            this.getMemory().loadFont(emulatorSettings.getHexSpriteFont());
+            this.getBus().loadFont(emulatorSettings.getHexSpriteFont());
             this.debuggerInfo = this.createDebuggerInfo();
         } catch (Exception e) {
             this.close();
@@ -81,8 +81,8 @@ public class Chip8Emulator implements Emulator {
 
     @Override
     @NotNull
-    public Chip8Memory getMemory() {
-        return Objects.requireNonNull(this.memory);
+    public Chip8Bus getBus() {
+        return Objects.requireNonNull(this.bus);
     }
 
     @Override
@@ -102,8 +102,8 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Nullable
-    protected Chip8Memory createMemory() {
-        return new Chip8Memory(this);
+    protected Chip8Bus createBus() {
+        return new Chip8Bus(this);
     }
 
     @Nullable
@@ -161,7 +161,7 @@ public class Chip8Emulator implements Emulator {
             return;
         }
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-            if (this.waitFrameEnd(this.getProcessor().cycle())) {
+            if (this.waitVBlank(this.getProcessor().cycle())) {
                 break;
             }
             if (this.getProcessor().shouldTerminate()) {
@@ -184,7 +184,7 @@ public class Chip8Emulator implements Emulator {
         this.instructionCounter++;
     }
 
-    protected boolean waitFrameEnd(int flags) {
+    protected boolean waitVBlank(int flags) {
         if (this.emulatorSettings.doDisplayWait()) {
             if (isSet(flags, Chip8Processor.DRAW_EXECUTED)) {
                 return true;
@@ -204,7 +204,6 @@ public class Chip8Emulator implements Emulator {
     public void close() {
         try {
             this.getDisplay().close();
-            this.getSoundSystem().close();
         } catch (Exception e) {
             throw new EmulatorException("Error releasing current emulator resources: ", e);
         }
@@ -232,12 +231,12 @@ public class Chip8Emulator implements Emulator {
         debuggerInfo.<Integer>createSingleRegisterSectionEntry()
                 .withName("PC")
                 .withStateUpdater(this.getProcessor()::getProgramCounter)
-                .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getMemory().getMemoryBoundsMask()) + "X", val));
+                .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));
 
         debuggerInfo.<Integer>createSingleRegisterSectionEntry()
                 .withName("I")
                 .withStateUpdater(this.getProcessor()::getIndexRegister)
-                .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getMemory().getMemoryBoundsMask()) + "X", val));
+                .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));
 
         debuggerInfo.<Integer>createSingleRegisterSectionEntry()
                 .withName("DT")
@@ -264,7 +263,7 @@ public class Chip8Emulator implements Emulator {
             debuggerInfo.<Integer>createStackSectionEntry()
                     .withName(String.format("%01X", i))
                     .withStateUpdater(() -> this.getProcessor().getStackElement(finalI))
-                    .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getMemory().getMemoryBoundsMask()) + "X", val));
+                    .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));
 
         }
         return debuggerInfo;

@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.emulators.HyperWaveChip64Emulator;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.HyperWaveChip64Display;
 
@@ -102,30 +102,30 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator> extends
         return switch (NN) {
             case 0x00 -> switch (firstByte) {
                 case 0xF1 -> { // F100 NNNN: LONG JUMP
-                    Chip8Memory memory = this.emulator.getMemory();
+                    Chip8Bus bus = this.emulator.getBus();
                     int currentProgramCounter = this.getProgramCounter();
-                    this.setProgramCounter((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
+                    this.setProgramCounter((bus.readByte(currentProgramCounter) << 8) | bus.readByte(currentProgramCounter + 1));
                     yield HANDLED;
                 }
                 case 0xF2 -> { // F200 NNNN: LONG CALL SUBROUTINE
-                    Chip8Memory memory = this.emulator.getMemory();
+                    Chip8Bus bus = this.emulator.getBus();
                     int currentProgramCounter = this.getProgramCounter();
                     this.push(currentProgramCounter + 2);
-                    this.setProgramCounter((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
+                    this.setProgramCounter((bus.readByte(currentProgramCounter) << 8) | bus.readByte(currentProgramCounter + 1));
                     yield HANDLED;
                 }
                 case 0xF3 -> { // F300 NNNN: LONG JUMP0
-                    Chip8Memory memory = this.emulator.getMemory();
+                    Chip8Bus bus = this.emulator.getBus();
                     int currentProgramCounter = this.getProgramCounter();
-                    this.setProgramCounter(((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1)) + this.getRegister(0x0));
+                    this.setProgramCounter(((bus.readByte(currentProgramCounter) << 8) | bus.readByte(currentProgramCounter + 1)) + this.getRegister(0x0));
                     yield HANDLED;
                 }
                 default -> super.executeFOpcode(firstByte, NN);
             };
             case 0x03 -> { // FX03: PALETTE N
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexRegister = this.getIndexRegister();
-                this.emulator.getDisplay().setPaletteEntry(getX(firstByte, NN) & 0xF, (memory.readByte(currentIndexRegister) << 16) | (memory.readByte(currentIndexRegister + 1) << 8) | memory.readByte(currentIndexRegister + 2));
+                this.emulator.getDisplay().setPaletteEntry(getX(firstByte, NN) & 0xF, (bus.readByte(currentIndexRegister) << 16) | (bus.readByte(currentIndexRegister + 1) << 8) | bus.readByte(currentIndexRegister + 2));
                 yield HANDLED;
             }
             case 0x1F -> { // FX1F: SUB I, VX
@@ -138,9 +138,9 @@ public class HyperWaveChip64Processor<E extends HyperWaveChip64Emulator> extends
 
     @Override
     protected boolean previousOpcodeWasFX00() {
-        Chip8Memory memory = this.emulator.getMemory();
+        Chip8Bus bus = this.emulator.getBus();
         int currentProgramCounter = this.getProgramCounter();
-        int firstByte = memory.readByte(currentProgramCounter - 2);
-        return (firstByte == 0xF0 || firstByte == 0xF1 || firstByte == 0xF2 || firstByte == 0xF3) && (memory.readByte(currentProgramCounter - 1) == 0x00);
+        int firstByte = bus.readByte(currentProgramCounter - 2);
+        return (firstByte == 0xF0 || firstByte == 0xF1 || firstByte == 0xF2 || firstByte == 0xF3) && (bus.readByte(currentProgramCounter - 1) == 0x00);
     }
 }

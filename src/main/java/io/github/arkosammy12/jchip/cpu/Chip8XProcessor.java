@@ -47,7 +47,7 @@ public class Chip8XProcessor<E extends Chip8XEmulator> extends Chip8Processor<E>
         int displayHeight = display.getHeight();
 
         if (N > 0) {
-            display.setExtendedColorDraw(true);
+            display.setHiresColor(true);
             int zoneX = vX & 0x38;
             for (int i = 0; i < N; i++) {
                 int colorY = (vX1 + i) % displayHeight;
@@ -56,7 +56,7 @@ public class Chip8XProcessor<E extends Chip8XEmulator> extends Chip8Processor<E>
                 }
             }
         } else {
-            display.setExtendedColorDraw(false);
+            display.setHiresColor(false);
             int horizontalZoneFill = ((vX & 0xF0) >> 4) + 1;
             int zoneFillStartHorizontalOffset = vX & 0xF;
             int verticalZoneFill = ((vX1 & 0xF0) >> 4) + 1;

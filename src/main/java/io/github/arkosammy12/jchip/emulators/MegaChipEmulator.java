@@ -1,14 +1,13 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.memory.MegaChipMemory;
+import io.github.arkosammy12.jchip.memory.MegaChipBus;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
 import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Objects;
 
@@ -20,7 +19,7 @@ public class MegaChipEmulator extends SChipEmulator {
     private MegaChipProcessor<?> processor;
 
     @Nullable
-    private MegaChipMemory memory;
+    private MegaChipBus bus;
 
     @Nullable
     private MegaChipDisplay<?> display;
@@ -46,47 +45,44 @@ public class MegaChipEmulator extends SChipEmulator {
 
     @Override
     @NotNull
-    public MegaChipMemory getMemory() {
-        return Objects.requireNonNull(this.memory);
+    public MegaChipBus getBus() {
+        return Objects.requireNonNull(this.bus);
     }
 
     @Override
-    public @NotNull MegaChipSoundSystem getSoundSystem() {
+    @NotNull
+    public MegaChipSoundSystem getSoundSystem() {
         return Objects.requireNonNull(this.soundSystem);
     }
 
     @Override
-    @Nullable
     protected MegaChipProcessor<?> createProcessor() {
         this.processor = new MegaChipProcessor<>(this);
         return this.processor;
     }
 
     @Override
-    @Nullable
     protected MegaChipDisplay<?> createDisplay() {
         this.display = new MegaChipDisplay<>(this);
         return this.display;
     }
 
     @Override
-    @Nullable
-    protected MegaChipMemory createMemory() {
-        this.memory = new MegaChipMemory(this);
-        return this.memory;
+    protected MegaChipBus createBus() {
+        this.bus = new MegaChipBus(this);
+        return this.bus;
     }
 
     @Override
-    @Nullable
     protected MegaChipSoundSystem createSoundSystem() {
         this.soundSystem = new MegaChipSoundSystem(this);
         return this.soundSystem;
     }
 
     @Override
-    protected boolean waitFrameEnd(int flags) {
+    protected boolean waitVBlank(int flags) {
         if (!this.getProcessor().isMegaModeOn()) {
-            return super.waitFrameEnd(flags);
+            return super.waitVBlank(flags);
         }
         return isSet(flags, Chip8Processor.CLS_EXECUTED);
     }

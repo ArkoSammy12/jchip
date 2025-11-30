@@ -2,11 +2,11 @@ package io.github.arkosammy12.jchip.memory;
 
 import io.github.arkosammy12.jchip.emulators.Chip8XEmulator;
 
-public class Chip8XMemory extends Chip8Memory {
+public class Chip8XBus extends Chip8Bus {
 
     private static final int PROGRAM_START = 0x300;
 
-    public Chip8XMemory(Chip8XEmulator emulator) {
+    public Chip8XBus(Chip8XEmulator emulator) {
         super(emulator);
     }
 

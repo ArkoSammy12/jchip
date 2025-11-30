@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.memory;
 import io.github.arkosammy12.jchip.emulators.StrictChip8Emulator;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 
-public class StrictChip8Memory extends Chip8Memory {
+public class StrictChip8Bus extends Chip8Bus {
 
     public static final int STACK_OFFSET = 0xEA0;
     public static final int WORK_AREA_OFFSET = 0xED0;
@@ -77,7 +77,7 @@ public class StrictChip8Memory extends Chip8Memory {
             0xDC, 0x3B, 0xEA, 0x1D, 0x1D, 0x30, 0xEA, 0x01,
     };
 
-    public StrictChip8Memory(StrictChip8Emulator emulator) {
+    public StrictChip8Bus(StrictChip8Emulator emulator) {
         super(emulator);
     }
 

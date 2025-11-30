@@ -15,7 +15,7 @@ public class VP590<E extends CosmacVipEmulator> extends CDP1861<E> {
 
     private final int[] colorRam = new int[256];
     private int backgroundColorIndex = 0;
-    private boolean extendedColorDraw = false;
+    private boolean hiresColor = false;
     private boolean colorRamModified = false;
 
     public VP590(E emulator) {
@@ -29,24 +29,15 @@ public class VP590<E extends CosmacVipEmulator> extends CDP1861<E> {
     public void writeColorRam(int address, int value) {
         this.colorRamModified = true;
         if ((address >= 0xC000 && address <= 0xCFFF) || (address >= 0xE000 && address <= 0xEFFF)) {
-            extendedColorDraw = false;
+            hiresColor = false;
         } else if ((address >= 0xD000 && address <= 0xDFFF) || (address >= 0xF000 && address <= 0xFFFF)) {
-            extendedColorDraw = true;
+            hiresColor = true;
         }
-        int colorValue = 0xF0 | (value & 7);
-        if (this.extendedColorDraw) {
-            this.colorRam[address & 0xFF] = colorValue;
-        } else {
-            this.colorRam[address & 0xE7] = colorValue;
-        }
+        this.colorRam[address & (this.hiresColor ? 0xFF : 0xE7)] = 0xF0 | (value & 7);
     }
 
     public int readColorRam(int address) {
-        if (this.extendedColorDraw) {
-            return this.colorRam[address & 0xFF];
-        } else {
-            return this.colorRam[address & 0xE7];
-        }
+        return this.colorRam[address & (this.hiresColor ? 0xFF : 0xE7)];
     }
 
     @Override

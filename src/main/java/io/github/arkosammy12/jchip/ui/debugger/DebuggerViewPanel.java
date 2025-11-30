@@ -44,7 +44,6 @@ public class DebuggerViewPanel extends JPanel {
 
         this.memoryTable = new MemoryTable();
 
-
         this.textScrollPane = new JScrollPane(textPanel);
         textScrollPane.setPreferredSize(new Dimension(textScrollPane.getSize().width, 20));
         textScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
@@ -63,7 +62,7 @@ public class DebuggerViewPanel extends JPanel {
 
         JScrollPane memoryScrollPane = new JScrollPane(memoryTable);
         memoryScrollPane.setPreferredSize(new Dimension(memoryScrollPane.getSize().width, 280));
-        memoryScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Memory", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
+        memoryScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true), "Bus", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION));
 
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));

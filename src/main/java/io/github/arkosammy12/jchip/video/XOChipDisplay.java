@@ -28,7 +28,7 @@ public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
 
     @SuppressWarnings("DuplicatedCode")
     public void scrollUp(int scrollAmount) {
-        int trueScrollAmount = this.extendedMode ? scrollAmount : scrollAmount * 2;
+        int trueScrollAmount = this.hiresMode ? scrollAmount : scrollAmount * 2;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
@@ -61,7 +61,7 @@ public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void scrollDown(int scrollAmount) {
-        int trueScrollAmount = this.extendedMode ? scrollAmount : scrollAmount * 2;
+        int trueScrollAmount = this.hiresMode ? scrollAmount : scrollAmount * 2;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
@@ -91,7 +91,7 @@ public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void scrollRight() {
-        int scrollAmount = this.extendedMode ? 4 : 8;
+        int scrollAmount = this.hiresMode ? 4 : 8;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
@@ -121,7 +121,7 @@ public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void scrollLeft() {
-        int scrollAmount = this.extendedMode ? 4 : 8;
+        int scrollAmount = this.hiresMode ? 4 : 8;
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;

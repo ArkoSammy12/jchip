@@ -2,12 +2,12 @@ package io.github.arkosammy12.jchip.memory;
 
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 
-public class MegaChipMemory extends Chip8Memory {
+public class MegaChipBus extends Chip8Bus {
 
     private static final int MEMORY_BOUNDS_MASK = 0xFFFFFF;
     private static final int MEMORY_SIZE = MEMORY_BOUNDS_MASK + 1;
 
-    public MegaChipMemory(MegaChipEmulator emulator) {
+    public MegaChipBus(MegaChipEmulator emulator) {
         super(emulator);
     }
 

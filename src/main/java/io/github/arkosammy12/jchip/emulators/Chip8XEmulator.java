@@ -2,11 +2,10 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
-import io.github.arkosammy12.jchip.memory.Chip8XMemory;
+import io.github.arkosammy12.jchip.memory.Chip8XBus;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Objects;
 
@@ -16,7 +15,7 @@ public class Chip8XEmulator extends Chip8Emulator {
     private Chip8XProcessor<?> processor;
 
     @Nullable
-    private Chip8XMemory memory;
+    private Chip8XBus bus;
 
     @Nullable
     private Chip8XDisplay<?> display;
@@ -39,29 +38,26 @@ public class Chip8XEmulator extends Chip8Emulator {
 
     @Override
     @NotNull
-    public Chip8XMemory getMemory() {
-        return Objects.requireNonNull(this.memory);
+    public Chip8XBus getBus() {
+        return Objects.requireNonNull(this.bus);
     }
 
     @Override
-    @Nullable
     protected Chip8XProcessor<?> createProcessor() {
         this.processor = new Chip8XProcessor<>(this);
         return this.processor;
     }
 
     @Override
-    @Nullable
     protected Chip8XDisplay<?> createDisplay() {
         this.display = new Chip8XDisplay<>(this);
         return this.display;
     }
 
     @Override
-    @Nullable
-    protected Chip8XMemory createMemory() {
-        this.memory = new Chip8XMemory(this);
-        return this.memory;
+    protected Chip8XBus createBus() {
+        this.bus = new Chip8XBus(this);
+        return this.bus;
     }
 
 }

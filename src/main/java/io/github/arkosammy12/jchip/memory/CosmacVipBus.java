@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 
-public class CosmacVipMemory implements Memory {
+public class CosmacVipBus implements Bus {
 
     private static final int[] MONITOR_ROM = {
             0xF8, 0x80, 0xB2, 0xF8, 0x08, 0xA2, 0xE2, 0xD2,
@@ -144,7 +144,7 @@ public class CosmacVipMemory implements Memory {
     protected boolean addressMsbLatched = true;
     protected int dataBus = 0;
 
-    public CosmacVipMemory(CosmacVipEmulator emulator) {
+    public CosmacVipBus(CosmacVipEmulator emulator) {
         int[] rom = emulator.getEmulatorSettings().getRom();
         this.bytes = new int[this.getMemorySize()];
         try {

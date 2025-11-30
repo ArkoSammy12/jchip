@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
-import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
+import io.github.arkosammy12.jchip.memory.StrictChip8Bus;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +19,7 @@ public final class StrictChip8Emulator extends Chip8Emulator {
     private StrictChip8Processor processor;
 
     @Nullable
-    private StrictChip8Memory memory;
+    private StrictChip8Bus bus;
 
     @Nullable
     private StrictChip8Display display;
@@ -49,29 +49,26 @@ public final class StrictChip8Emulator extends Chip8Emulator {
 
     @Override
     @NotNull
-    public StrictChip8Memory getMemory() {
-        return Objects.requireNonNull(this.memory);
+    public StrictChip8Bus getBus() {
+        return Objects.requireNonNull(this.bus);
     }
 
     @Override
-    @Nullable
     protected StrictChip8Processor createProcessor() {
         this.processor = new StrictChip8Processor(this);
         return this.processor;
     }
 
     @Override
-    @Nullable
     protected StrictChip8Display createDisplay() {
         this.display = new StrictChip8Display(this);
         return this.display;
     }
 
     @Override
-    @Nullable
-    protected StrictChip8Memory createMemory() {
-        this.memory = new StrictChip8Memory(this);
-        return this.memory;
+    protected StrictChip8Bus createBus() {
+        this.bus = new StrictChip8Bus(this);
+        return this.bus;
     }
 
     @Override

@@ -6,7 +6,7 @@ import io.github.arkosammy12.jchip.util.DisplayAngle;
 public class SChipDisplay<E extends SChipEmulator> extends Chip8Display<E> {
 
     private final boolean isModern;
-    protected boolean extendedMode;
+    protected boolean hiresMode;
 
     public SChipDisplay(E emulator, boolean isModern) {
         super(emulator);
@@ -15,12 +15,12 @@ public class SChipDisplay<E extends SChipEmulator> extends Chip8Display<E> {
 
     @Override
     public int getWidth() {
-        return this.extendedMode ? 128 : 64;
+        return this.hiresMode ? 128 : 64;
     }
 
     @Override
     public int getHeight() {
-        return this.extendedMode ? 64 : 32;
+        return this.hiresMode ? 64 : 32;
     }
 
     @Override
@@ -41,12 +41,12 @@ public class SChipDisplay<E extends SChipEmulator> extends Chip8Display<E> {
         };
     }
 
-    public void setExtendedMode(boolean extendedMode) {
-        this.extendedMode = extendedMode;
+    public void setHiresMode(boolean hiresMode) {
+        this.hiresMode = hiresMode;
     }
 
-    public boolean isExtendedMode() {
-        return this.extendedMode;
+    public boolean isHiresMode() {
+        return this.hiresMode;
     }
 
     public void setPixel(int column, int row, int value) {
@@ -62,7 +62,7 @@ public class SChipDisplay<E extends SChipEmulator> extends Chip8Display<E> {
         if (!this.isModern) {
             trueScrollAmount = scrollAmount;
         } else {
-            if (this.extendedMode) {
+            if (this.hiresMode) {
                 trueScrollAmount = scrollAmount;
             } else {
                 trueScrollAmount = scrollAmount * 2;
@@ -90,7 +90,7 @@ public class SChipDisplay<E extends SChipEmulator> extends Chip8Display<E> {
         if (!this.isModern) {
             scrollAmount = 4;
         } else {
-            if (this.extendedMode) {
+            if (this.hiresMode) {
                 scrollAmount = 4;
             } else {
                 scrollAmount = 8;
@@ -119,7 +119,7 @@ public class SChipDisplay<E extends SChipEmulator> extends Chip8Display<E> {
         if (!this.isModern) {
             scrollAmount = 4;
         } else {
-            if (this.extendedMode) {
+            if (this.hiresMode) {
                 scrollAmount = 4;
             } else {
                 scrollAmount = 8;

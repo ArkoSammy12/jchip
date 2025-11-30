@@ -98,7 +98,7 @@ public class Jchip {
                     continue;
                 }
                 switch (this.currentState.get()) {
-                    case IDLE, PAUSED -> this.soundWriter.setEnabled(false);
+                    case IDLE, PAUSED -> onIdle();
                     case STEPPING_FRAME -> onSteppingFrame();
                     case STEPPING_CYCLE -> onSteppingCycle();
                     case RUNNING -> onRunning();
@@ -144,11 +144,15 @@ public class Jchip {
         this.running.set(false);
     }
 
+    private void onIdle() {
+        this.soundWriter.setPaused(true);
+    }
+
     private void onRunning() {
         if (currentEmulator == null) {
             return;
         }
-        this.soundWriter.setEnabled(true);
+        this.soundWriter.setPaused(false);
         this.currentEmulator.executeFrame();
     }
 
@@ -156,6 +160,7 @@ public class Jchip {
         if (currentEmulator == null) {
             return;
         }
+        this.soundWriter.setPaused(true);
         this.currentEmulator.executeFrame();
         this.currentState.set(State.PAUSED);
     }
@@ -164,6 +169,7 @@ public class Jchip {
         if (this.currentEmulator == null) {
             return;
         }
+        this.soundWriter.setPaused(true);
         this.currentEmulator.executeSingleCycle();
         this.currentState.set(State.PAUSED);
     }
@@ -174,6 +180,7 @@ public class Jchip {
             this.currentEmulator = null;
             this.mainWindow.setEmulatorRenderer(null);
         }
+        this.soundWriter.setPaused(true);
         this.mainWindow.onStopped();
         this.currentState.set(State.IDLE);
     }
@@ -183,6 +190,7 @@ public class Jchip {
             this.currentEmulator.close();
             this.mainWindow.setEmulatorRenderer(null);
         }
+        this.soundWriter.setPaused(true);
         this.currentEmulator = Variant.getEmulator(this);
         this.currentState.set(State.RUNNING);
     }

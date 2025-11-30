@@ -237,6 +237,7 @@ public class Chip8Database implements SettingsProvider {
         return Optional.ofNullable(this.platforms);
     }
 
+    // The only missing id is "chip48", which we don't support
     private static Optional<Variant> getVariantForPlatformIds(String id) {
         return switch (id) {
             case "modernChip8" -> Optional.of(CHIP_8);
@@ -246,7 +247,6 @@ public class Chip8Database implements SettingsProvider {
             case "xochip" -> Optional.of(XO_CHIP);
             case "megachip8" -> Optional.of(MEGA_CHIP);
             case "hybridVIP" -> Optional.of(HYBRID_CHIP_8);
-            case "chip48" -> Optional.empty();
             default -> Optional.empty();
         };
     }

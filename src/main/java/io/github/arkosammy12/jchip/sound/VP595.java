@@ -4,8 +4,6 @@ import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.util.vip.IODevice;
 
-import java.io.IOException;
-
 import static io.github.arkosammy12.jchip.sound.Chip8SoundSystem.SQUARE_WAVE_AMPLITUDE;
 
 public class VP595 implements SoundSystem, IODevice {
@@ -34,7 +32,7 @@ public class VP595 implements SoundSystem, IODevice {
     public void pushSamples(int soundTimer) {
         double frequency = frequencyLatch;
         if (soundTimer <= 0) {
-            this.jchip.getSoundWriter().silence();
+            this.jchip.getSoundWriter().pushSilence();
             phase = 0;
             return;
         }
@@ -44,12 +42,7 @@ public class VP595 implements SoundSystem, IODevice {
             data[i] = (byte) ((phase < 0.5) ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
             phase = (phase + step) % 1;
         }
-        this.jchip.getSoundWriter().writeSamples(data);
-    }
-
-    @Override
-    public void close() throws IOException {
-        this.jchip.getSoundWriter().stop();
+        this.jchip.getSoundWriter().pushSamples(data);
     }
 
 }

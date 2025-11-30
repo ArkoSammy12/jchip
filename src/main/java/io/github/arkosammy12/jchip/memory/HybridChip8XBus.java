@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.video.VP590;
 
-public class HybridChip8XMemory extends CosmacVipMemory {
+public class HybridChip8XBus extends CosmacVipBus {
 
     private static final int[] CHIP_8X_INTERPRETER = {
             0x91, 0xBB, 0xFF, 0x01, 0xB2, 0xB6, 0xF8, 0xCF,
@@ -107,7 +107,7 @@ public class HybridChip8XMemory extends CosmacVipMemory {
 
     private final CosmacVipEmulator emulator;
 
-    public HybridChip8XMemory(CosmacVipEmulator emulator) {
+    public HybridChip8XBus(CosmacVipEmulator emulator) {
         super(emulator);
         this.emulator = emulator;
     }

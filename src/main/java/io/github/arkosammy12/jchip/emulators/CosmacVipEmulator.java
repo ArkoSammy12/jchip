@@ -4,8 +4,8 @@ import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.memory.CosmacVipMemory;
-import io.github.arkosammy12.jchip.memory.HybridChip8XMemory;
+import io.github.arkosammy12.jchip.memory.CosmacVipBus;
+import io.github.arkosammy12.jchip.memory.HybridChip8XBus;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.sound.VP595;
@@ -28,17 +28,17 @@ public class CosmacVipEmulator implements Emulator {
     public static final int CYCLES_PER_FRAME = 3668;
 
     private final CosmacVipEmulatorSettings settings;
+    private final CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter;
     private final DebuggerInfo debuggerInfo;
     private final Variant variant;
 
     private final CDP1802 processor;
-    private final CosmacVipMemory memory;
+    private final CosmacVipBus bus;
     private final CDP1861<?> display;
     private final SoundSystem soundSystem;
     private final CosmacVIPKeypad keypad;
     private final List<IODevice> ioDevices;
 
-    private final CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter;
     private int currentInstructionsPerFrame;
 
     public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter) {
@@ -48,13 +48,13 @@ public class CosmacVipEmulator implements Emulator {
         this.keypad = new CosmacVIPKeypad(this);
         this.processor = new CDP1802(this);
         if (this.chip8Interpreter == CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8X) {
-            this.memory = new HybridChip8XMemory(this);
+            this.bus = new HybridChip8XBus(this);
             this.display = new VP590<>(this);
             VP595 vp595 = new VP595(this);
             this.soundSystem = vp595;
             this.ioDevices = List.of(this.display, this.keypad, vp595);
         } else {
-            this.memory = new CosmacVipMemory(this);
+            this.bus = new CosmacVipBus(this);
             this.display = new CDP1861<>(this);
             this.soundSystem = new Chip8SoundSystem(this);
             this.ioDevices = List.of(this.display, this.keypad);
@@ -68,8 +68,8 @@ public class CosmacVipEmulator implements Emulator {
     }
 
     @Override
-    public CosmacVipMemory getMemory() {
-        return this.memory;
+    public CosmacVipBus getBus() {
+        return this.bus;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class CosmacVipEmulator implements Emulator {
 
     public void dispatchOutput(int ioPort, int value) {
         if ((ioPort & 4) != 0) {
-            this.memory.unlatchAddressMsb();
+            this.bus.unlatchAddressMsb();
         }
         for (IODevice ioDevice : this.ioDevices) {
             if (ioDevice.isOutputPort(ioPort)) {
@@ -212,13 +212,10 @@ public class CosmacVipEmulator implements Emulator {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         try {
             if (this.getDisplay() != null) {
                 this.getDisplay().close();
-            }
-            if (this.getSoundSystem() != null) {
-                this.getSoundSystem().close();
             }
         } catch (Exception e) {
             throw new EmulatorException("Error releasing current emulator resources: ", e);
@@ -293,10 +290,9 @@ public class CosmacVipEmulator implements Emulator {
                     .withStateUpdater(() -> this.getProcessor().getR(finalI))
                     .withToStringFunction(val -> String.format("%04X", val));
 
-            int finalI1 = i;
             debuggerInfo.<Integer>createStackSectionEntry()
                     .withName(String.format("%01X", i))
-                    .withStateUpdater(() -> this.getMemory().getByte(this.processor.getR(finalI1)))
+                    .withStateUpdater(() -> this.getBus().getByte(this.processor.getR(finalI)))
                     .withToStringFunction(val -> String.format("%02X", val));
 
         }

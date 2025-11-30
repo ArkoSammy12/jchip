@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
@@ -44,35 +44,35 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
         }
         return switch (getN(firstByte, NN)) {
             case 0x2 -> { // 5XY2: save vX - vY
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexRegister = this.getIndexRegister();
                 int X = getX(firstByte, NN);
                 int Y = getY(firstByte, NN);
                 boolean iterateInReverse = X > Y;
                 if (iterateInReverse) {
                     for (int i = X, j = 0; i >= Y; i--, j++) {
-                        memory.writeByte(currentIndexRegister + j, this.getRegister(i));
+                        bus.writeByte(currentIndexRegister + j, this.getRegister(i));
                     }
                 } else {
                     for (int i = X, j = 0; i <= Y; i++, j++) {
-                        memory.writeByte(currentIndexRegister + j, this.getRegister(i));
+                        bus.writeByte(currentIndexRegister + j, this.getRegister(i));
                     }
                 }
                 yield HANDLED;
             }
             case 0x3 -> { // 5XY3: load vX - vY
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexRegister = this.getIndexRegister();
                 int X = getX(firstByte, NN);
                 int Y = getY(firstByte, NN);
                 boolean iterateInReverse = X > Y;
                 if (iterateInReverse) {
                     for (int i = X, j = 0; i >= Y; i--, j++) {
-                        this.setRegister(i, memory.readByte(currentIndexRegister + j));
+                        this.setRegister(i, bus.readByte(currentIndexRegister + j));
                     }
                 } else {
                     for (int i = X, j = 0; i <= Y; i++, j++) {
-                        this.setRegister(i, memory.readByte(currentIndexRegister + j));
+                        this.setRegister(i, bus.readByte(currentIndexRegister + j));
                     }
                 }
                 yield HANDLED;
@@ -90,12 +90,12 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
     @SuppressWarnings("DuplicatedCode")
     protected int executeDOpcode(int firstByte, int NN) {
         XOChipDisplay<?> display = this.emulator.getDisplay();
-        Chip8Memory memory = this.emulator.getMemory();
-        Chip8EmulatorSettings config = this.emulator.getEmulatorSettings();
-        boolean extendedMode = display.isExtendedMode();
+        Chip8Bus bus = this.emulator.getBus();
+        Chip8EmulatorSettings settings = this.emulator.getEmulatorSettings();
+        boolean extendedMode = display.isHiresMode();
         int currentIndexRegister = this.getIndexRegister();
         int selectedBitPlanes = display.getSelectedBitPlanes();
-        boolean doClipping = config.doClipping();
+        boolean doClipping = settings.doClipping();
 
         int N = getN(firstByte, NN);
         int spriteHeight = N < 1 ? 16 : N;
@@ -133,8 +133,8 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
                     }
                 }
                 int slice = draw16WideSprite
-                        ? (memory.readByte(currentIndexRegister + (planeIterator * 2)) << 8) | memory.readByte(currentIndexRegister + (planeIterator * 2) + 1)
-                        : memory.readByte(currentIndexRegister + planeIterator);
+                        ? (bus.readByte(currentIndexRegister + (planeIterator * 2)) << 8) | bus.readByte(currentIndexRegister + (planeIterator * 2) + 1)
+                        : bus.readByte(currentIndexRegister + planeIterator);
                 for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                     int sliceX = spriteX + j;
                     if (sliceX >= displayWidth) {
@@ -174,7 +174,7 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
         return switch (NN) {
             case 0x00 -> {
                 if (firstByte == 0xF0) { // F000 NNNN: i := long NNNN
-                    Chip8Memory memory = this.emulator.getMemory();
+                    Chip8Bus memory = this.emulator.getBus();
                     int currentProgramCounter = this.getProgramCounter();
                     this.setIndexRegister((memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
                     this.incrementProgramCounter();
@@ -189,11 +189,11 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
             }
             case 0x02 -> {
                 if (firstByte == 0xF0) { // F002: audio
-                    Chip8Memory memory = this.emulator.getMemory();
+                    Chip8Bus bus = this.emulator.getBus();
                     Chip8SoundSystem soundSystem = this.emulator.getSoundSystem();
                     int currentIndexRegister = this.getIndexRegister();
                     for (int i = 0; i < 16; i++) {
-                        soundSystem.loadPatternByte(i, memory.readByte(currentIndexRegister + i));
+                        soundSystem.loadPatternByte(i, bus.readByte(currentIndexRegister + i));
                     }
                     yield HANDLED;
                 } else {
@@ -216,9 +216,9 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
     }
 
     protected boolean previousOpcodeWasFX00() {
-        Chip8Memory memory = this.emulator.getMemory();
+        Chip8Bus bus = this.emulator.getBus();
         int currentProgramCounter = this.getProgramCounter();
-        return (memory.readByte(currentProgramCounter - 2) == 0xF0) && (memory.readByte(currentProgramCounter - 1) == 0x00);
+        return (bus.readByte(currentProgramCounter - 2) == 0xF0) && (bus.readByte(currentProgramCounter - 1) == 0x00);
     }
 
 }

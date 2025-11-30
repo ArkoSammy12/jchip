@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.memory;
 
-public interface Memory {
+public interface Bus {
 
     int getMemorySize();
 

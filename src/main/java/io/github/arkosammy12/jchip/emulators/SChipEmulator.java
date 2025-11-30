@@ -6,7 +6,6 @@ import io.github.arkosammy12.jchip.cpu.SChipProcessor;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Objects;
 
@@ -40,14 +39,12 @@ public class SChipEmulator extends Chip8Emulator {
     }
 
     @Override
-    @Nullable
     protected SChipProcessor<?> createProcessor() {
         this.processor = new SChipProcessor<>(this);
         return this.processor;
     }
 
     @Override
-    @Nullable
     protected SChipDisplay<?> createDisplay() {
         this.display = new SChipDisplay<>(this, this.isModern);
         return this.display;
@@ -58,11 +55,11 @@ public class SChipEmulator extends Chip8Emulator {
     }
 
     @Override
-    protected boolean waitFrameEnd(int flags) {
+    protected boolean waitVBlank(int flags) {
         if (this.isModern) {
             return this.getEmulatorSettings().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED);
         } else {
-            return this.getEmulatorSettings().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isExtendedMode();
+            return this.getEmulatorSettings().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isHiresMode();
         }
     }
 

@@ -2,8 +2,8 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.emulators.StrictChip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
-import io.github.arkosammy12.jchip.memory.StrictChip8Memory;
+import io.github.arkosammy12.jchip.memory.Chip8Bus;
+import io.github.arkosammy12.jchip.memory.StrictChip8Bus;
 import io.github.arkosammy12.jchip.util.Keypad;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
 
@@ -57,7 +57,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     }
 
     protected void push(int value) {
-        this.emulator.getMemory().writeStackWord(this.stackPointer, value);
+        this.emulator.getBus().writeStackWord(this.stackPointer, value);
         if (this.stackPointer >= 0 && this.stackPointer < this.stack.length) {
             this.stack[stackPointer] = value;
         }
@@ -66,21 +66,21 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
 
     protected int pop() {
         this.stackPointer = (this.stackPointer - 1) & 0xFFFF;
-        return this.emulator.getMemory().readStackWord(this.stackPointer);
+        return this.emulator.getBus().readStackWord(this.stackPointer);
     }
 
     protected void setRegister(int register, int value) {
-        this.emulator.getMemory().setRegister(register, value);
+        this.emulator.getBus().setRegister(register, value);
         super.setRegister(register, value);
     }
 
     protected void setVF(boolean value) {
-        this.emulator.getMemory().setRegister(0xF, value ? 1 : 0);
+        this.emulator.getBus().setRegister(0xF, value ? 1 : 0);
         super.setVF(value);
     }
 
     public int getRegister(int register) {
-        return this.emulator.getMemory().getRegister(register);
+        return this.emulator.getBus().getRegister(register);
     }
 
     @Override
@@ -219,7 +219,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
             if (this.stackPointer >= 0 && this.stackPointer < this.stack.length) {
                 this.stack[this.stackPointer] = word;
             }
-            this.emulator.getMemory().writeStackWord(this.stackPointer, word);
+            this.emulator.getBus().writeStackWord(this.stackPointer, word);
         }
         return switch (getN(firstByte, NN)) {
             case 0x0 -> { // 8XY0: vX := vY
@@ -464,43 +464,43 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
                 yield HANDLED;
             }
             case 0x29 -> { // FX29: i := hex vX
-                this.setIndexRegister(StrictChip8Memory.getFontDigitOffset(this.getRegister(getX(firstByte, NN))));
+                this.setIndexRegister(StrictChip8Bus.getFontDigitOffset(this.getRegister(getX(firstByte, NN))));
                 this.emulator.addCycles(16);
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x33 -> { // FX33: bcd vX
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexPointer = this.getIndexRegister();
                 int vX = this.getRegister(getX(firstByte, NN));
                 long hundreds = (vX * 0x51EB851FL) >>> 37;
                 long remainder = vX - hundreds * 100;
                 long tens = (remainder * 0xCCCDL) >>> 19;
                 long ones = remainder - tens * 10;
-                memory.writeByte(currentIndexPointer, (int) hundreds);
-                memory.writeByte(currentIndexPointer + 1, (int) tens);
-                memory.writeByte(currentIndexPointer + 2, (int) ones);
+                bus.writeByte(currentIndexPointer, (int) hundreds);
+                bus.writeByte(currentIndexPointer + 1, (int) tens);
+                bus.writeByte(currentIndexPointer + 2, (int) ones);
                 this.emulator.addCycles(80 + (hundreds + tens + ones) * 16);
                 yield HANDLED;
             }
             case 0x55 -> { // FX55: save vX
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexPointer = this.getIndexRegister();
                 int X = getX(firstByte, NN);
                 this.emulator.addCycles(14);
                 for (int i = 0; i <= X; i++) {
-                    memory.writeByte(currentIndexPointer + i, this.getRegister(i));
+                    bus.writeByte(currentIndexPointer + i, this.getRegister(i));
                     this.emulator.addCycles(14);
                 }
                 this.setIndexRegister(currentIndexPointer + X + 1);
                 yield HANDLED;
             }
             case 0x65 -> { // FX65: load vX
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexRegister = this.getIndexRegister();
                 int X = getX(firstByte, NN);
                 this.emulator.addCycles(14);
                 for (int i = 0; i <= X; i++) {
-                    this.setRegister(i, memory.readByte(currentIndexRegister + i));
+                    this.setRegister(i, bus.readByte(currentIndexRegister + i));
                     this.emulator.addCycles(14);
                 }
                 this.setIndexRegister(currentIndexRegister + X + 1);
@@ -512,7 +512,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
 
     private void drawSprite(int spriteX, int spriteY, int currentIndexRegister, int N) {
         StrictChip8Display display = this.emulator.getDisplay();
-        StrictChip8Memory memory = this.emulator.getMemory();
+        StrictChip8Bus bus = this.emulator.getBus();
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
 
@@ -529,11 +529,11 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
             boolean col1 = false;
             boolean col2 = false;
 
-            int slice = memory.readByte(currentIndexRegister + i);
+            int slice = bus.readByte(currentIndexRegister + i);
 
-            int workAreaAddressOffset = memory.getMemorySize() - 0x130 + i * 2;
-            memory.writeByte(workAreaAddressOffset, slice >>> bitOffset);
-            memory.writeByte(workAreaAddressOffset + 1, bitOffset != 0 ? slice << (8 - bitOffset) : 0);
+            int workAreaAddressOffset = bus.getMemorySize() - 0x130 + i * 2;
+            bus.writeByte(workAreaAddressOffset, slice >>> bitOffset);
+            bus.writeByte(workAreaAddressOffset + 1, bitOffset != 0 ? slice << (8 - bitOffset) : 0);
 
             for (int j = 0, sliceMask = BASE_SLICE_MASK_8; j < 8; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;

@@ -2,12 +2,12 @@ package io.github.arkosammy12.jchip.memory;
 
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 
-public class XOChipMemory extends Chip8Memory {
+public class XOChipBus extends Chip8Bus {
 
     private static final int MEMORY_BOUNDS_MASK = 0xFFFF;
     private static final int MEMORY_SIZE = MEMORY_BOUNDS_MASK + 1;
 
-    public XOChipMemory(XOChipEmulator emulator) {
+    public XOChipBus(XOChipEmulator emulator) {
         super(emulator);
     }
 

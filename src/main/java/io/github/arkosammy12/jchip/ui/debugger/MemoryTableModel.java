@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.memory.Memory;
+import io.github.arkosammy12.jchip.memory.Bus;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -12,7 +12,7 @@ public class MemoryTableModel extends AbstractTableModel {
     public static final int BYTES_PER_ROW = 8;
     private static final int MAX_SHOWN_BYTES = 0xFFFFFF + 1;
 
-    private Memory memory;
+    private Bus memory;
     private int rowCount = (int) Math.ceil(MAX_SHOWN_BYTES / (double) BYTES_PER_ROW);
 
     public MemoryTableModel() {
@@ -42,7 +42,7 @@ public class MemoryTableModel extends AbstractTableModel {
     }
 
     public void update(Emulator emulator) {
-        Memory memory = emulator.getMemory();
+        Bus memory = emulator.getBus();
         if (!Objects.equals(memory, this.memory)) {
             this.memory = memory;
             this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) BYTES_PER_ROW);

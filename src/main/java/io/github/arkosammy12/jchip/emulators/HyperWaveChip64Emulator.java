@@ -5,7 +5,6 @@ import io.github.arkosammy12.jchip.cpu.HyperWaveChip64Processor;
 import io.github.arkosammy12.jchip.video.HyperWaveChip64Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Objects;
 
@@ -34,14 +33,12 @@ public class HyperWaveChip64Emulator extends XOChipEmulator {
     }
 
     @Override
-    @Nullable
     protected HyperWaveChip64Processor<?> createProcessor() {
         this.processor = new HyperWaveChip64Processor<>(this);
         return this.processor;
     }
 
     @Override
-    @Nullable
     protected HyperWaveChip64Display<?> createDisplay() {
         this.display = new HyperWaveChip64Display<>(this);
         return this.display;

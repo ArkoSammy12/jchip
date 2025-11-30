@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.emulators.SChipEmulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.SChipDisplay;
@@ -33,7 +33,7 @@ public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
                 }
                 case 0xFE -> { // 00FE: lores
                     SChipDisplay<?> display = this.emulator.getDisplay();
-                    display.setExtendedMode(false);
+                    display.setHiresMode(false);
                     if (this.emulator.isModern()) {
                         display.clear();
                     }
@@ -41,7 +41,7 @@ public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
                 }
                 case 0xFF -> { // 00FF: hires
                     SChipDisplay<?> display = this.emulator.getDisplay();
-                    display.setExtendedMode(true);
+                    display.setHiresMode(true);
                     if (this.emulator.isModern()) {
                         display.clear();
                     }
@@ -69,11 +69,11 @@ public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
     @SuppressWarnings("DuplicatedCode")
     protected int executeDOpcode(int firstByte, int NN) {
         SChipDisplay<?> display = this.emulator.getDisplay();
-        Chip8Memory memory = this.emulator.getMemory();
-        Chip8EmulatorSettings config = this.emulator.getEmulatorSettings();
-        boolean extendedMode = display.isExtendedMode();
+        Chip8Bus bus = this.emulator.getBus();
+        Chip8EmulatorSettings settings = this.emulator.getEmulatorSettings();
+        boolean extendedMode = display.isHiresMode();
         int currentIndexRegister = this.getIndexRegister();
-        boolean doClipping = config.doClipping();
+        boolean doClipping = settings.doClipping();
 
         int N = getN(firstByte, NN);
         int spriteHeight = N < 1 ? 16 : N;
@@ -114,8 +114,8 @@ public class SChipProcessor<E extends SChipEmulator> extends Chip8Processor<E> {
                 }
             }
             int slice = draw16WideSprite
-                    ? (memory.readByte(currentIndexRegister + i * 2) << 8) | memory.readByte(currentIndexRegister + (i * 2) + 1)
-                    : memory.readByte(currentIndexRegister + i);
+                    ? (bus.readByte(currentIndexRegister + i * 2) << 8) | bus.readByte(currentIndexRegister + (i * 2) + 1)
+                    : bus.readByte(currentIndexRegister + i);
             boolean rowCollided = false;
             for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;

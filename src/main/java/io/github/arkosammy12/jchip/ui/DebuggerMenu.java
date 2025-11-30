@@ -22,7 +22,7 @@ public class DebuggerMenu extends JMenu {
         );
         this.showDebuggerButton.setToolTipText("Toggle the debugger view panel.");
 
-        this.memoryFollowButton = new JCheckBoxMenuItem("Memory Follow");
+        this.memoryFollowButton = new JCheckBoxMenuItem("Bus Follow");
         this.memoryFollowButton.setSelected(memoryFollowEnabled);
         this.memoryFollowButton.setToolTipText("Automatically scroll memory viewer.");
         this.memoryFollowButton.addActionListener(_ ->

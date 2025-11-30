@@ -24,7 +24,7 @@ public class Chip8XDisplay<E extends Chip8XEmulator> extends Chip8Display<E> {
 
     private final int[][] foregroundColorIndexes = new int[64][32];
     private int backgroundColorIndex = 0;
-    private boolean extendedColorDraw = false;
+    private boolean hiresColor = false;
 
     public Chip8XDisplay(E emulator) {
         super(emulator);
@@ -43,12 +43,12 @@ public class Chip8XDisplay<E extends Chip8XEmulator> extends Chip8Display<E> {
         this.foregroundColorIndexes[column][row] = colorIndex;
     }
 
-    public void setExtendedColorDraw(boolean extendedColorDraw) {
-        this.extendedColorDraw = extendedColorDraw;
+    public void setHiresColor(boolean hiresColor) {
+        this.hiresColor = hiresColor;
     }
 
     protected void populateRenderBuffer(int[][] renderBuffer) {
-        if (this.extendedColorDraw) {
+        if (this.hiresColor) {
             for (int y = 0; y < imageHeight; y++) {
                 for (int x = 0; x < imageWidth; x++) {
                     renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];

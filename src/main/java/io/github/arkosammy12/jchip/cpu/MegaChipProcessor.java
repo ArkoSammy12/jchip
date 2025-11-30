@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.cpu;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.memory.Chip8Memory;
+import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
@@ -95,17 +95,17 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
                 };
             };
             case 0x01 -> { // 01NN NNNN: ldhi NNNNNN
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentProgramCounter = this.getProgramCounter();
-                this.setIndexRegister((NN << 16) | (memory.readByte(currentProgramCounter) << 8) | memory.readByte(currentProgramCounter + 1));
+                this.setIndexRegister((NN << 16) | (bus.readByte(currentProgramCounter) << 8) | bus.readByte(currentProgramCounter + 1));
                 this.incrementProgramCounter();
                 yield HANDLED;
             }
             case 0x02 -> { // 02NN: ldpal NN
-                Chip8Memory memory = this.emulator.getMemory();
+                Chip8Bus bus = this.emulator.getBus();
                 int currentIndexRegister = this.getIndexRegister();
                 for (int i = 0; i < NN; i++) {
-                    display.loadPaletteEntry(i + 1, (memory.readByte(currentIndexRegister + (i * 4)) << 24) | (memory.readByte(currentIndexRegister + (i * 4) + 1) << 16) | (memory.readByte(currentIndexRegister + (i * 4) + 2) << 8) | memory.readByte(currentIndexRegister + (i * 4) + 3));
+                    display.loadPaletteEntry(i + 1, (bus.readByte(currentIndexRegister + (i * 4)) << 24) | (bus.readByte(currentIndexRegister + (i * 4) + 1) << 16) | (bus.readByte(currentIndexRegister + (i * 4) + 2) << 8) | bus.readByte(currentIndexRegister + (i * 4) + 3));
                 }
                 yield HANDLED;
             }
@@ -123,11 +123,11 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
             }
             case 0x06 -> {
                 if (getY(firstByte, NN) == 0x0) { // 060N: digisnd N
-                    Chip8Memory memory = this.emulator.getMemory();
+                    Chip8Bus bus = this.emulator.getBus();
                     int currentIndexRegister = this.getIndexRegister();
                     this.emulator.getSoundSystem().playTrack(
-                            ((memory.readByte(currentIndexRegister) & 0xFF) << 8) | memory.readByte(currentIndexRegister + 1) & 0xFF,
-                            ((memory.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((memory.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (memory.readByte(currentIndexRegister + 4) & 0xFF),
+                            ((bus.readByte(currentIndexRegister) & 0xFF) << 8) | bus.readByte(currentIndexRegister + 1) & 0xFF,
+                            ((bus.readByte(currentIndexRegister + 2) & 0xFF) << 16) | ((bus.readByte(currentIndexRegister + 3) & 0xFF) << 8) | (bus.readByte(currentIndexRegister + 4) & 0xFF),
                             getN(firstByte, NN) == 0,
                             currentIndexRegister + 6
                     );
@@ -207,10 +207,10 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
             return this.handleMegaOffDraw(firstByte, NN);
         }
 
-        Chip8Memory memory = this.emulator.getMemory();
-        Chip8EmulatorSettings config = this.emulator.getEmulatorSettings();
+        Chip8Bus bus = this.emulator.getBus();
+        Chip8EmulatorSettings settings = this.emulator.getEmulatorSettings();
         int currentIndexRegister = this.getIndexRegister();
-        boolean doClipping = config.doClipping();
+        boolean doClipping = settings.doClipping();
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
@@ -244,8 +244,8 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
                     }
                 }
                 int slice = draw16WideSprite
-                        ? (memory.readByte(currentIndexRegister + i * 2) << 8) | memory.readByte(currentIndexRegister + (i * 2) + 1)
-                        : memory.readByte(currentIndexRegister + i);
+                        ? (bus.readByte(currentIndexRegister + i * 2) << 8) | bus.readByte(currentIndexRegister + (i * 2) + 1)
+                        : bus.readByte(currentIndexRegister + i);
                 for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                     int sliceX = spriteX + j;
                     if (sliceX >= displayWidth) {
@@ -285,7 +285,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
                             pixelX %= displayWidth;
                         }
                     }
-                    int pixelColorIndex = memory.readByte(currentIndexRegister + base + j);
+                    int pixelColorIndex = bus.readByte(currentIndexRegister + base + j);
                     if (pixelColorIndex == 0) {
                         continue;
                     }
@@ -327,15 +327,15 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
     }
 
     private boolean previousOpcodeWas01() {
-        return this.emulator.getMemory().readByte(this.getProgramCounter() - 2) == 0x01;
+        return this.emulator.getBus().readByte(this.getProgramCounter() - 2) == 0x01;
     }
 
     @SuppressWarnings("DuplicatedCode")
     private int handleMegaOffDraw(int firstByte, int NN) {
         SChipDisplay<?> display = this.emulator.getDisplay();
-        Chip8Memory memory = this.emulator.getMemory();
+        Chip8Bus bus = this.emulator.getBus();
 
-        boolean extendedMode = display.isExtendedMode();
+        boolean extendedMode = display.isHiresMode();
         int currentIndexRegister = this.getIndexRegister();
 
         int N = getN(firstByte, NN);
@@ -367,8 +367,8 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
                 break;
             }
             int slice = draw16WideSprite
-                    ? (memory.readByte(currentIndexRegister + i * 2) << 8) | memory.readByte(currentIndexRegister + (i * 2) + 1)
-                    : memory.readByte(currentIndexRegister + i);
+                    ? (bus.readByte(currentIndexRegister + i * 2) << 8) | bus.readByte(currentIndexRegister + (i * 2) + 1)
+                    : bus.readByte(currentIndexRegister + i);
             for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= displayWidth) {

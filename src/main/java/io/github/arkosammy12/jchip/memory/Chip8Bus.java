@@ -4,7 +4,7 @@ import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 
-public class Chip8Memory implements Memory {
+public class Chip8Bus implements Bus {
 
     private static final int MEMORY_BOUNDS_MASK = 0xFFF;
     private static final int MEMORY_SIZE = MEMORY_BOUNDS_MASK + 1;
@@ -13,7 +13,7 @@ public class Chip8Memory implements Memory {
     protected final int[] bytes;
     protected final int memoryBoundsMask;
 
-    public Chip8Memory(Chip8Emulator emulator) {
+    public Chip8Bus(Chip8Emulator emulator) {
         int[] rom = emulator.getEmulatorSettings().getRom();
         try {
             this.memoryBoundsMask = this.getMemoryBoundsMask();

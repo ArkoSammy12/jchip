@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.sound;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
-import io.github.arkosammy12.jchip.memory.MegaChipMemory;
+import io.github.arkosammy12.jchip.memory.MegaChipBus;
 
 public class MegaChipSoundSystem extends Chip8SoundSystem {
 
@@ -54,10 +54,10 @@ public class MegaChipSoundSystem extends Chip8SoundSystem {
             return;
         }
         if (!this.isPlaying) {
-            this.jchip.getSoundWriter().silence();
+            this.jchip.getSoundWriter().pushSilence();
             return;
         }
-        MegaChipMemory memory = this.emulator.getMemory();
+        MegaChipBus memory = this.emulator.getBus();
         byte[] data = new byte[SAMPLES_PER_FRAME];
         for (int i = 0; i < data.length; i++) {
             if (loop && this.samplePos >= this.trackSize) {
@@ -70,11 +70,7 @@ public class MegaChipSoundSystem extends Chip8SoundSystem {
                 data[i] = 0;
             }
         }
-        this.jchip.getSoundWriter().writeSamples(data);
+        this.jchip.getSoundWriter().pushSamples(data);
     }
 
-    @Override
-    public void close() {
-        this.jchip.getSoundWriter().stop();
-    }
 }
