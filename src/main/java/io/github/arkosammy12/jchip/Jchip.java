@@ -108,6 +108,7 @@ public class Jchip {
                 if (this.currentEmulator != null) {
                     this.mainWindow.onFrame(this.currentEmulator);
                 }
+                this.soundWriter.writeSamples();
             } catch (EmulatorException emulatorException) {
                 Logger.error("Error while running emulator: {}", emulatorException);
                 this.mainWindow.showExceptionDialog(emulatorException);

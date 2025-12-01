@@ -46,7 +46,6 @@ public class Chip8SoundSystem implements SoundSystem {
     public void pushSamples(int soundTimer) {
         if (soundTimer <= 0) {
             this.phase = 0;
-            this.jchip.getSoundWriter().pushSilence();
             return;
         }
         byte[] data = new byte[SAMPLES_PER_FRAME];

@@ -9,6 +9,8 @@ import static io.github.arkosammy12.jchip.sound.SoundSystem.SAMPLES_PER_FRAME;
 import static io.github.arkosammy12.jchip.sound.SoundSystem.SAMPLE_RATE;
 
 import java.io.Closeable;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public final class SoundWriter implements Closeable {
 
@@ -16,6 +18,7 @@ public final class SoundWriter implements Closeable {
 
     private final SourceDataLine audioLine;
     private final FloatControl volumeControl;
+    private final Queue<byte[]> samples = new LinkedList<>();
     private int volume = 75;
     private boolean paused = true;
 
@@ -42,20 +45,18 @@ public final class SoundWriter implements Closeable {
         this.paused = paused;
     }
 
-    public void flush() {
-        this.audioLine.flush();
-    }
-
     public void pushSamples(byte[] buf) {
-        if (this.paused) {
-            this.pushSilence();
-        } else {
-            this.audioLine.write(buf, 0, Math.min(this.getBytesToWrite(buf.length), this.audioLine.available()));
+        if (!this.paused) {
+            this.samples.offer(buf);
         }
     }
 
-    public void pushSilence() {
-        this.audioLine.write(EMPTY_SAMPLES, 0, Math.min(this.getBytesToWrite(EMPTY_SAMPLES.length), this.audioLine.available()));
+    public void writeSamples() {
+        byte[] samples = this.samples.poll();
+        if (samples == null) {
+            samples = EMPTY_SAMPLES;
+        }
+        this.audioLine.write(samples, 0, Math.min(this.getBytesToWrite(samples.length), this.audioLine.available()));
     }
 
     public void volumeUp() {

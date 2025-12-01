@@ -32,7 +32,6 @@ public class VP595 implements SoundSystem, IODevice {
     public void pushSamples(int soundTimer) {
         double frequency = frequencyLatch;
         if (soundTimer <= 0) {
-            this.jchip.getSoundWriter().pushSilence();
             phase = 0;
             return;
         }

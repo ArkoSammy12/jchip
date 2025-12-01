@@ -54,7 +54,6 @@ public class MegaChipSoundSystem extends Chip8SoundSystem {
             return;
         }
         if (!this.isPlaying) {
-            this.jchip.getSoundWriter().pushSilence();
             return;
         }
         MegaChipBus memory = this.emulator.getBus();
