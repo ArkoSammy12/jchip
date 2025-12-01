@@ -19,7 +19,7 @@ A multi-variant CHIP-8 interpreter and COSMAC-VIP emulator written in Java.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-blue)
-[![Latest Release Tag](https://img.shields.io/github/tag/arkosammy12/jchip.svg)](https://github.com/arkosammy12/jchip/tree/v4.1.1)
+[![Latest Release Tag](https://img.shields.io/github/tag/arkosammy12/jchip.svg)](https://github.com/arkosammy12/jchip/tree/v4.1.2)
 
 * [jchip](#jchip)
 * [Introduction](#introduction)
