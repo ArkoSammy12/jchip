@@ -17,8 +17,8 @@ public class Main {
     static void main(String[] args) throws Exception {
         FlatDarculaLaf.setup();
         System.setProperty("flatlaf.menuBarEmbedded", Boolean.FALSE.toString());
-        UIManager.put("Component.hideMnemonics", Boolean.FALSE);
-        UIManager.put("FileChooser.readOnly", Boolean.TRUE);
+        UIManager.put("Component.hideMnemonics", false);
+        UIManager.put("FileChooser.readOnly", true);
         JFrame.setDefaultLookAndFeelDecorated(true);
         System.setProperty("sun.awt.noerasebackground", Boolean.TRUE.toString());
         if (Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported"))) {

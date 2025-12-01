@@ -38,7 +38,6 @@ public class DebuggerLabel<T> extends JLabel {
         if (!nameString.isEmpty()) {
             finalString += nameString;
         }
-
         if (!descriptionString.isEmpty()) {
             finalString += " (" + descriptionString + ")";
         }

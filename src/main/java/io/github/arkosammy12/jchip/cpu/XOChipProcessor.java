@@ -3,8 +3,8 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
+import io.github.arkosammy12.jchip.sound.XOChipSoundSystem;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
 public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E> {
@@ -190,7 +190,7 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
             case 0x02 -> {
                 if (firstByte == 0xF0) { // F002: audio
                     Chip8Bus bus = this.emulator.getBus();
-                    Chip8SoundSystem soundSystem = this.emulator.getSoundSystem();
+                    XOChipSoundSystem soundSystem = this.emulator.getSoundSystem();
                     int currentIndexRegister = this.getIndexRegister();
                     for (int i = 0; i < 16; i++) {
                         soundSystem.loadPatternByte(i, bus.readByte(currentIndexRegister + i));

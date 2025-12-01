@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
 import io.github.arkosammy12.jchip.memory.XOChipBus;
+import io.github.arkosammy12.jchip.sound.XOChipSoundSystem;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +20,9 @@ public class XOChipEmulator extends SChipEmulator {
 
     @Nullable
     private XOChipDisplay<?> display;
+
+    @Nullable
+    private XOChipSoundSystem soundSystem;
 
     public XOChipEmulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings, true);
@@ -43,6 +47,12 @@ public class XOChipEmulator extends SChipEmulator {
     }
 
     @Override
+    @NotNull
+    public XOChipSoundSystem getSoundSystem() {
+        return Objects.requireNonNull(this.soundSystem);
+    }
+
+    @Override
     protected XOChipProcessor<?> createProcessor() {
         this.processor = new XOChipProcessor<>(this);
         return this.processor;
@@ -58,6 +68,12 @@ public class XOChipEmulator extends SChipEmulator {
     protected XOChipBus createBus() {
         this.bus = new XOChipBus(this);
         return this.bus;
+    }
+
+    @Override
+    protected XOChipSoundSystem createSoundSystem() {
+        this.soundSystem = new XOChipSoundSystem(this);
+        return this.soundSystem;
     }
 
 }

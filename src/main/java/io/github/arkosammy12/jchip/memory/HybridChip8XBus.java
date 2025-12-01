@@ -123,17 +123,6 @@ public class HybridChip8XBus extends CosmacVipBus {
     }
 
     @Override
-    public void writeByte(int address, int value) {
-        int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
-        if (actualAddress >= 0xC000 && this.emulator.getDisplay() instanceof VP590<?> vp590) {
-            this.dataBus = value;
-            vp590.writeColorRam(address, value);
-            return;
-        }
-        super.writeByte(address, value);
-    }
-
-    @Override
     public int readByte(int address) {
         int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
         if (actualAddress >= 0xC000 && this.emulator.getDisplay() instanceof VP590<?> vp590) {
@@ -142,6 +131,17 @@ public class HybridChip8XBus extends CosmacVipBus {
             return value;
         }
         return super.readByte(address);
+    }
+
+    @Override
+    public void writeByte(int address, int value) {
+        int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
+        if (actualAddress >= 0xC000 && this.emulator.getDisplay() instanceof VP590<?> vp590) {
+            this.dataBus = value;
+            vp590.writeColorRam(address, value);
+            return;
+        }
+        super.writeByte(address, value);
     }
 
 }

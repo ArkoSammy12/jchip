@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.config.CLIArgs;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
+import io.github.arkosammy12.jchip.sound.DefaultSoundWriter;
 import io.github.arkosammy12.jchip.sound.SoundWriter;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.util.Variant;
@@ -22,12 +23,11 @@ public class Jchip {
     private MainWindow mainWindow;
     private Emulator currentEmulator;
     private final Chip8Database database = new Chip8Database();
-    private final SoundWriter soundWriter = new SoundWriter();
+    private final DefaultSoundWriter soundWriter = new DefaultSoundWriter();
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
     private final int[] flagsStorage = new int[16];
 
     private final AtomicReference<State> currentState = new AtomicReference<>(State.IDLE);
-
     private final AtomicBoolean running = new AtomicBoolean(true);
 
     public Jchip(String[] args) throws Exception {
@@ -91,6 +91,14 @@ public class Jchip {
         return this.flagsStorage[index];
     }
 
+    public void setPaused(boolean paused) {
+        if (paused) {
+            this.currentState.set(State.PAUSED);
+        } else {
+            this.currentState.set(State.RUNNING);
+        }
+    }
+
     public void start() throws Exception {
         while (this.running.get()) {
             try {
@@ -99,16 +107,14 @@ public class Jchip {
                 }
                 switch (this.currentState.get()) {
                     case IDLE, PAUSED -> onIdle();
-                    case STEPPING_FRAME -> onSteppingFrame();
-                    case STEPPING_CYCLE -> onSteppingCycle();
-                    case RUNNING -> onRunning();
                     case RESETTING -> onResetting();
                     case STOPPING -> onStopping();
+                    case RUNNING -> onRunning();
+                    case STEPPING_FRAME -> onSteppingFrame();
+                    case STEPPING_CYCLE -> onSteppingCycle();
                 }
-                if (this.currentEmulator != null) {
-                    this.mainWindow.onFrame(this.currentEmulator);
-                }
-                this.soundWriter.writeSamples();
+                this.mainWindow.onFrame(this.currentEmulator);
+                this.soundWriter.onFrame();
             } catch (EmulatorException emulatorException) {
                 Logger.error("Error while running emulator: {}", emulatorException);
                 this.mainWindow.showExceptionDialog(emulatorException);
@@ -125,14 +131,6 @@ public class Jchip {
         this.currentState.set(State.STOPPING);
     }
 
-    public void setPaused(boolean paused) {
-        if (paused) {
-            this.currentState.set(State.PAUSED);
-        } else {
-            this.currentState.set(State.RUNNING);
-        }
-    }
-
     public void stepFrame() {
         this.currentState.set(State.STEPPING_FRAME);
     }
@@ -147,6 +145,27 @@ public class Jchip {
 
     private void onIdle() {
         this.soundWriter.setPaused(true);
+    }
+
+    private void onStopping() throws Exception {
+        if (this.currentEmulator != null) {
+            this.currentEmulator.close();
+            this.currentEmulator = null;
+            this.mainWindow.setEmulatorRenderer(null);
+        }
+        this.soundWriter.setPaused(true);
+        this.mainWindow.onStopped();
+        this.currentState.set(State.IDLE);
+    }
+
+    private void onResetting() throws Exception {
+        if (this.currentEmulator != null) {
+            this.currentEmulator.close();
+            this.mainWindow.setEmulatorRenderer(null);
+        }
+        this.soundWriter.setPaused(true);
+        this.currentEmulator = Variant.getEmulator(this);
+        this.currentState.set(State.RUNNING);
     }
 
     private void onRunning() {
@@ -175,28 +194,7 @@ public class Jchip {
         this.currentState.set(State.PAUSED);
     }
 
-    private void onStopping() throws Exception {
-        if (this.currentEmulator != null) {
-            this.currentEmulator.close();
-            this.currentEmulator = null;
-            this.mainWindow.setEmulatorRenderer(null);
-        }
-        this.soundWriter.setPaused(true);
-        this.mainWindow.onStopped();
-        this.currentState.set(State.IDLE);
-    }
-
-    private void onResetting() throws Exception {
-        if (this.currentEmulator != null) {
-            this.currentEmulator.close();
-            this.mainWindow.setEmulatorRenderer(null);
-        }
-        this.soundWriter.setPaused(true);
-        this.currentEmulator = Variant.getEmulator(this);
-        this.currentState.set(State.RUNNING);
-    }
-
-    public void onShutdown() throws Exception {
+    void onShutdown() throws Exception {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
             this.currentEmulator = null;

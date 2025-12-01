@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.video.Display;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
@@ -26,7 +25,7 @@ public class InfoPanel extends JPanel {
     public InfoPanel() {
         super();
 
-        this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        this.setLayout(new GridLayout(1, 6, 0, 0));
 
         JPanel variantPanel = new JPanel(new GridLayout(1, 0, 0, 0));
         variantPanel.add(this.variantLabel);
@@ -46,20 +45,20 @@ public class InfoPanel extends JPanel {
 
         JPanel frameTimePanel = new JPanel(new GridLayout(1, 0, 0, 0));
         frameTimePanel.add(frameTimeLabel);
-        frameTimePanel.setToolTipText("The current frame time value average, in miliseconds.");
+        frameTimePanel.setToolTipText("The current frame time value average, in milliseconds.");
 
         JPanel fpsPanel = new JPanel(new GridLayout(1, 0, 0, 0));
         fpsPanel.add(fpsLabel);
         fpsPanel.setToolTipText("The current frames per second value average.");
 
-        this.setPreferredSize(new Dimension(100, 20));
+        this.setPreferredSize(new Dimension(100, 22));
 
-        this.add(new JScrollPane(variantPanel));
-        this.add(new JScrollPane(romTitlePanel));
-        this.add(new JScrollPane(ipfPanel));
-        this.add(new JScrollPane(mipsPanel));
-        this.add(new JScrollPane(frameTimePanel));
-        this.add(new JScrollPane(fpsPanel));
+        this.add(new JScrollPane(variantPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
+        this.add(new JScrollPane(romTitlePanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
+        this.add(new JScrollPane(ipfPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
+        this.add(new JScrollPane(mipsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
+        this.add(new JScrollPane(frameTimePanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
+        this.add(new JScrollPane(fpsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
 
     }
 
@@ -91,11 +90,17 @@ public class InfoPanel extends JPanel {
 
         SwingUtilities.invokeLater(() -> {
             this.variantLabel.setText(emulator.getChip8Variant().getDisplayName());
-            this.romTitleLabel.setText(renderer.getRomTitle());
+
+            romTitleLabel.setText(renderer.getRomTitle());
+            this.romTitleLabel.setToolTipText(renderer.getRomTitle());
+
             this.ipfLabel.setText("IPF: " + averageIpf);
             this.mipsLabel.setText("MIPS: " + String.format("%.2f", mips));
             this.frameTimeLabel.setText("Frame time: " + String.format("%.2f ms", averageFrameTimeMs));
             this.fpsLabel.setText("FPS: " + String.format("%.2f", fps));
+
+            this.revalidate();
+            this.repaint();
         });
 
     }
@@ -108,11 +113,16 @@ public class InfoPanel extends JPanel {
         totalFrameTimeSinceLastUpdate = 0;
         SwingUtilities.invokeLater(() -> {
             this.variantLabel.setText("");
+
             this.romTitleLabel.setText("");
+            this.romTitleLabel.setToolTipText("The name of the running ROM, or the file name.");
+
             this.ipfLabel.setText("");
             this.mipsLabel.setText("");
             this.frameTimeLabel.setText("");
             this.fpsLabel.setText("");
+            this.revalidate();
+            this.repaint();
         });
 
     }

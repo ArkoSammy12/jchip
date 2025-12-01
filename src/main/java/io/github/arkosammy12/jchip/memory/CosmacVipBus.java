@@ -177,20 +177,22 @@ public class CosmacVipBus implements Bus {
 
     public int readByte(int address) {
         int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
+        int value;
         if (actualAddress >= 0x8000) {
-            return MONITOR_ROM[actualAddress & 0x1FF];
+            value = MONITOR_ROM[actualAddress & 0x1FF];
+        } else {
+            value = this.bytes[actualAddress & 0xFFF];
         }
-        int value = this.bytes[actualAddress & 0xFFF];
         this.dataBus = value;
         return value;
     }
 
     public void writeByte(int address, int value) {
         int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
+        this.dataBus = value;
         if (actualAddress >= 0x8000) {
             return;
         }
-        this.dataBus = value;
         this.bytes[actualAddress & 0xFFF] = value & 0xFF;
     }
 

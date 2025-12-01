@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8XProcessor;
 import io.github.arkosammy12.jchip.memory.Chip8XBus;
+import io.github.arkosammy12.jchip.sound.Chip8XSoundSystem;
 import io.github.arkosammy12.jchip.video.Chip8XDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +20,9 @@ public class Chip8XEmulator extends Chip8Emulator {
 
     @Nullable
     private Chip8XDisplay<?> display;
+
+    @Nullable
+    private Chip8XSoundSystem soundSystem;
 
     public Chip8XEmulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings);
@@ -43,6 +47,12 @@ public class Chip8XEmulator extends Chip8Emulator {
     }
 
     @Override
+    @NotNull
+    public Chip8XSoundSystem getSoundSystem() {
+        return Objects.requireNonNull(this.soundSystem);
+    }
+
+    @Override
     protected Chip8XProcessor<?> createProcessor() {
         this.processor = new Chip8XProcessor<>(this);
         return this.processor;
@@ -58,6 +68,12 @@ public class Chip8XEmulator extends Chip8Emulator {
     protected Chip8XBus createBus() {
         this.bus = new Chip8XBus(this);
         return this.bus;
+    }
+
+    @Override
+    protected Chip8XSoundSystem createSoundSystem() {
+        this.soundSystem = new Chip8XSoundSystem(this);
+        return this.soundSystem;
     }
 
 }

@@ -5,6 +5,7 @@ import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerViewPanel;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,7 +57,10 @@ public class MainWindow extends JFrame implements Closeable {
         return this.settingsBar;
     }
 
-    public void onFrame(Emulator emulator) {
+    public void onFrame(@Nullable Emulator emulator) {
+        if (emulator == null) {
+            return;
+        }
         if (this.showingDebuggerPanel.get()) {
             this.debuggerViewPanel.update(emulator);
         }
@@ -113,10 +117,9 @@ public class MainWindow extends JFrame implements Closeable {
     }
 
     public void showExceptionDialog(Exception e) {
-        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
-                this,
-                 e.getClass().getSimpleName() + ": " + e.getMessage(),
-                 "Emulation has stopped unexpectedly!",
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
+                e.getClass().getSimpleName() + ": " + e.getMessage(),
+                "Emulation has stopped unexpectedly!",
                 JOptionPane.ERROR_MESSAGE
         ));
     }
