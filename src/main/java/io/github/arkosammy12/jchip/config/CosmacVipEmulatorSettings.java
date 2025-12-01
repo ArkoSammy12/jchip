@@ -6,6 +6,8 @@ import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.Variant;
 
+import java.util.Optional;
+
 import static io.github.arkosammy12.jchip.util.Variant.COSMAC_VIP;
 
 public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
@@ -26,8 +28,8 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
     }
 
     @Override
-    public String getProgramTitle() {
-        return this.romTitle;
+    public Optional<String> getRomTitle() {
+        return Optional.ofNullable(this.romTitle);
     }
 
     @Override

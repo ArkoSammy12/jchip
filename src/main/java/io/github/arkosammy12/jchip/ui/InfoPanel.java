@@ -85,14 +85,12 @@ public class InfoPanel extends JPanel {
         totalFrameTimeSinceLastUpdate = 0;
         lastWindowTitleUpdate = now;
 
-        Display<?> display = emulator.getDisplay();
-        EmulatorRenderer renderer = display.getEmulatorRenderer();
-
         SwingUtilities.invokeLater(() -> {
             this.variantLabel.setText(emulator.getChip8Variant().getDisplayName());
 
-            romTitleLabel.setText(renderer.getRomTitle());
-            this.romTitleLabel.setToolTipText(renderer.getRomTitle());
+            String romTitle = emulator.getEmulatorSettings().getRomTitle().orElse("N/A");
+            romTitleLabel.setText(romTitle);
+            this.romTitleLabel.setToolTipText(romTitle);
 
             this.ipfLabel.setText("IPF: " + averageIpf);
             this.mipsLabel.setText("MIPS: " + String.format("%.2f", mips));

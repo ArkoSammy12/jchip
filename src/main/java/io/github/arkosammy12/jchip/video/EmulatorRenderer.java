@@ -25,7 +25,6 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final int displayHeight;
     private final int initialScale;
     private final DisplayAngle displayAngle;
-    private final String romTitle;
 
     private final BufferedImage bufferedImage;
     private final AffineTransform rotationTransform;
@@ -40,9 +39,8 @@ public class EmulatorRenderer extends Canvas implements Closeable {
     private final Object renderLock = new Object();
     protected final Object renderBufferLock = new Object();
 
-    public EmulatorRenderer(Jchip jchip, Display<?> display, List<KeyAdapter> keyAdapters, String romTitle) {
+    public EmulatorRenderer(Jchip jchip, Display<?> display, List<KeyAdapter> keyAdapters) {
         super();
-        this.romTitle = romTitle == null ? "" : romTitle;
         this.displayWidth = display.getImageWidth();
         this.displayHeight = display.getImageHeight();
         this.displayAngle = display.getDisplayAngle();
@@ -88,10 +86,6 @@ public class EmulatorRenderer extends Canvas implements Closeable {
 
     public int getInitialScale() {
         return this.initialScale;
-    }
-
-    public String getRomTitle() {
-        return this.romTitle;
     }
 
     protected void updateRenderBuffer() {

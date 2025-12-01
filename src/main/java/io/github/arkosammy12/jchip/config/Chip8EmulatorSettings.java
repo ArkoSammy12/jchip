@@ -66,8 +66,8 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     }
 
     @Override
-    public String getProgramTitle() {
-        return this.romTitle;
+    public Optional<String> getRomTitle() {
+        return Optional.ofNullable(this.romTitle);
     }
 
     public int getInstructionsPerFrame() {

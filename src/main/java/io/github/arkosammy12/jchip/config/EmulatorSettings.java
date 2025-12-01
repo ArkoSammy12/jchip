@@ -8,6 +8,7 @@ import io.github.arkosammy12.jchip.util.Variant;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public interface EmulatorSettings {
 
@@ -15,7 +16,7 @@ public interface EmulatorSettings {
 
     int[] getRom();
 
-    String getProgramTitle();
+    Optional<String> getRomTitle();
 
     DisplayAngle getDisplayAngle();
 
