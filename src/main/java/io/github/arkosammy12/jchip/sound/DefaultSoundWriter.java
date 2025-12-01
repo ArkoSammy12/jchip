@@ -48,6 +48,9 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
     @Override
     public void pushSamples(byte[] buf) {
         if (!this.paused) {
+            if (buf.length != SAMPLES_PER_FRAME) {
+                throw new IllegalArgumentException("Audio buffer sample size must be " + SAMPLES_PER_FRAME + "!");
+            }
             this.samples.offer(buf);
         }
     }
