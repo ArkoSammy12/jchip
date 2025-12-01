@@ -19,7 +19,7 @@ public class HelpMenu extends JMenu {
         aboutItem.setMnemonic(KeyEvent.VK_A);
         aboutItem.addActionListener(_ -> JOptionPane.showMessageDialog(
                 jchip.getMainWindow(),
-                String.format("Jchipr\nVersion %s\n\nBy ArkoSammy12", Main.VERSION_STRING),
+                String.format("Jchip\nVersion %s\n\nBy ArkoSammy12", Main.VERSION_STRING),
                 "About Jchip",
                 JOptionPane.INFORMATION_MESSAGE)
         );
