@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui;
 
 import com.formdev.flatlaf.icons.*;
+import com.formdev.flatlaf.util.SystemFileChooser;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
@@ -30,10 +31,8 @@ public class FileMenu extends JMenu {
 
         JMenuItem openItem = new JMenuItem("Load ROM");
         openItem.addActionListener(_ -> {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setPreferredSize(new Dimension(700, 400));
-            chooser.setFileFilter(new FileNameExtensionFilter("ROMs", FILE_EXTENSIONS));
-            chooser.getActionMap().get("viewTypeDetails").actionPerformed(null);
+            SystemFileChooser chooser = new SystemFileChooser();
+            chooser.setFileFilter(new SystemFileChooser.FileNameExtensionFilter("ROMs", FILE_EXTENSIONS));
             if (this.currentDirectory != null) {
                 chooser.setCurrentDirectory(this.currentDirectory.toFile());
             }
