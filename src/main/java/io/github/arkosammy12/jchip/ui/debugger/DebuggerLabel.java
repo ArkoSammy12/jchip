@@ -7,7 +7,7 @@ public class DebuggerLabel<T> extends JLabel {
 
     private final String name;
     private final AtomicReference<T> state = new AtomicReference<>(null);
-    DebuggerInfo.TextEntry<T> textEntry;
+    private final DebuggerInfo.TextEntry<T> textEntry;
 
     public DebuggerLabel(DebuggerInfo.TextEntry<T> textEntry) {
         String name = textEntry.getName().orElse("");

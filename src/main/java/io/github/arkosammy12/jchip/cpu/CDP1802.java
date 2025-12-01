@@ -274,7 +274,7 @@ public class CDP1802 implements Processor {
             case 0x0 -> {
                 if (getN() != 0) { // 0N: LDN | M(R(N)) → D; FOR N not 0
                     setD(this.emulator.getBus().readByte(getR(getN())));
-                } else { // 00: IDL. IDLE.
+                } else { // 00: IDL | IDLE.
                     this.idling = true;
                     this.emulator.getBus().readByte(getR(0)); // Dummy read for accurate bus activity
                 }

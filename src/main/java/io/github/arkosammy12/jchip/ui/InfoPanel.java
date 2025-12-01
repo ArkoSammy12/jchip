@@ -1,8 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.video.Display;
-import io.github.arkosammy12.jchip.video.EmulatorRenderer;
 
 import javax.swing.*;
 import java.awt.*;

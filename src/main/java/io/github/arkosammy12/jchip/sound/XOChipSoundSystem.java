@@ -2,15 +2,12 @@ package io.github.arkosammy12.jchip.sound;
 
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 
-import java.util.Arrays;
-
 public class XOChipSoundSystem extends Chip8SoundSystem {
 
     private final int[] patternBuffer = new int[16];
 
     public XOChipSoundSystem(XOChipEmulator emulator) {
         super(emulator);
-        Arrays.fill(this.patternBuffer, 0);
         this.setPitch(64);
     }
 
