@@ -7,13 +7,13 @@ public class DebuggerLabel<T> extends JLabel {
 
     private final String name;
     private final AtomicReference<T> state = new AtomicReference<>(null);
-    private final DebuggerInfo.TextEntry<T> textEntry;
+    private final Debugger.TextEntry<T> textEntry;
 
-    public DebuggerLabel(DebuggerInfo.TextEntry<T> textEntry) {
+    public DebuggerLabel(Debugger.TextEntry<T> textEntry) {
         String name = textEntry.getName().orElse("");
-        super(name);
-        this.name = name;
+        this.name = textEntry.getName().orElse("");
         this.textEntry = textEntry;
+        super(name);
     }
 
     public void updateState() {
@@ -34,15 +34,15 @@ public class DebuggerLabel<T> extends JLabel {
         String descriptionString = this.textEntry.getDescription().orElse("");
         String nameString = this.textEntry.getName().orElse("");
 
-        String finalString = "";
+        String labelString = "";
         if (!nameString.isEmpty()) {
-            finalString += nameString;
+            labelString += nameString;
         }
         if (!descriptionString.isEmpty()) {
-            finalString += " (" + descriptionString + ")";
+            labelString += " (" + descriptionString + ")";
         }
-        finalString += ": " + stateString;
-        this.setText(finalString);
+        labelString += ": " + stateString;
+        this.setText(labelString);
     }
 
 }

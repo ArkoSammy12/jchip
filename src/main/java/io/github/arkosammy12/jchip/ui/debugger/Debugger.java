@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class DebuggerInfo {
+public class Debugger {
 
     private final List<TextEntry<?>> textSectionEntries = new ArrayList<>();
     private final List<TextEntry<?>> singleRegistersEntries = new ArrayList<>();

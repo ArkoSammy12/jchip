@@ -9,7 +9,7 @@ import io.github.arkosammy12.jchip.memory.HybridChip8XBus;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.sound.VP595;
-import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
+import io.github.arkosammy12.jchip.ui.debugger.Debugger;
 import io.github.arkosammy12.jchip.util.vip.IODevice;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.vip.CosmacVIPKeypad;
@@ -29,7 +29,7 @@ public class CosmacVipEmulator implements Emulator {
 
     private final CosmacVipEmulatorSettings settings;
     private final CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter;
-    private final DebuggerInfo debuggerInfo;
+    private final Debugger debugger;
     private final Variant variant;
 
     private final CDP1802 processor;
@@ -59,7 +59,7 @@ public class CosmacVipEmulator implements Emulator {
             this.soundSystem = new Chip8SoundSystem(this);
             this.ioDevices = List.of(this.display, this.keypad);
         }
-        this.debuggerInfo = this.createDebuggerInfo();
+        this.debugger = this.createDebuggerInfo();
     }
 
     @Override
@@ -98,8 +98,8 @@ public class CosmacVipEmulator implements Emulator {
     }
 
     @Override
-    public DebuggerInfo getDebuggerInfo() {
-        return this.debuggerInfo;
+    public Debugger getDebugger() {
+        return this.debugger;
     }
 
     public CosmacVipEmulatorSettings.Chip8Interpreter getChip8Interpreter() {
@@ -222,81 +222,79 @@ public class CosmacVipEmulator implements Emulator {
         }
     }
 
-    protected DebuggerInfo createDebuggerInfo() {
-        DebuggerInfo debuggerInfo = new DebuggerInfo();
-        debuggerInfo.setTextSectionName("Cosmac VIP");
-        debuggerInfo.setScrollAddressSupplier(() -> this.processor.getR(this.processor.getX()));
+    protected Debugger createDebuggerInfo() {
+        Debugger debugger = new Debugger();
+        debugger.setTextSectionName("Cosmac VIP");
+        debugger.setScrollAddressSupplier(() -> this.processor.getR(this.processor.getX()));
 
         Function<Integer, String> byteFormatter = val -> String.format("%02X", val);
         Function<Integer, String> nibbleFormatter = val -> String.format("%01X", val);
         Function<Boolean, String> booleanFormatter = val -> val ? "1" : "0";
 
-        debuggerInfo.createTextSectionEntry()
-                .withName("Cosmac VIP based variant.");
-        debuggerInfo.createTextSectionEntry()
-                .withName("Does not support custom quirks.");
+        debugger.createTextSectionEntry()
+                .withName("Cosmac VIP based variant. Does not support custom quirks.");
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("I")
                 .withStateUpdater(this.processor::getI)
                 .withToStringFunction(nibbleFormatter);
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("N")
                 .withStateUpdater(this.processor::getN)
                 .withToStringFunction(nibbleFormatter);
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("P")
                 .withStateUpdater(this.processor::getP)
                 .withToStringFunction(nibbleFormatter);
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("X")
                 .withStateUpdater(this.processor::getX)
                 .withToStringFunction(nibbleFormatter);
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("D")
                 .withStateUpdater(this.processor::getD)
                 .withToStringFunction(byteFormatter);
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("T")
                 .withStateUpdater(this.processor::getT)
                 .withToStringFunction(byteFormatter);
 
-        debuggerInfo.<Boolean>createSingleRegisterSectionEntry()
+        debugger.<Boolean>createSingleRegisterSectionEntry()
                 .withName("DF")
                 .withStateUpdater(this.processor::getDF)
                 .withToStringFunction(booleanFormatter);
 
-        debuggerInfo.<Boolean>createSingleRegisterSectionEntry()
+        debugger.<Boolean>createSingleRegisterSectionEntry()
                 .withName("IE")
                 .withStateUpdater(this.processor::getIE)
                 .withToStringFunction(booleanFormatter);
 
-        debuggerInfo.<Boolean>createSingleRegisterSectionEntry()
+        debugger.<Boolean>createSingleRegisterSectionEntry()
                 .withName("Q")
                 .withStateUpdater(this.processor::getQ)
                 .withToStringFunction(booleanFormatter);
 
-        debuggerInfo.setStackSectionName("X Data");
+        debugger.setStackSectionName("X Data");
 
         for (int i = 0; i < 16; i++) {
             int finalI = i;
-            debuggerInfo.<Integer>createRegisterSectionEntry()
+            debugger.<Integer>createRegisterSectionEntry()
                     .withName(String.format("R%01X", i))
                     .withStateUpdater(() -> this.getProcessor().getR(finalI))
                     .withToStringFunction(val -> String.format("%04X", val));
 
-            debuggerInfo.<Integer>createStackSectionEntry()
+            debugger.<Integer>createStackSectionEntry()
                     .withName(String.format("%01X", i))
                     .withStateUpdater(() -> this.getBus().getByte(this.processor.getR(finalI)))
                     .withToStringFunction(val -> String.format("%02X", val));
 
         }
-        return debuggerInfo;
+        return debugger;
     }
 
 }

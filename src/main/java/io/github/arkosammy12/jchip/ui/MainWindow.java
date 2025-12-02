@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.ui;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.ui.debugger.DebuggerViewPanel;
+import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     private EmulatorRenderer emulatorRenderer;
     private final SettingsBar settingsBar;
-    private final DebuggerViewPanel debuggerViewPanel;
+    private final DebuggerPanel debuggerPanel;
     private final InfoPanel infoPanel;
 
     private final AtomicBoolean showingDebuggerPanel = new AtomicBoolean(false);
@@ -44,9 +44,9 @@ public class MainWindow extends JFrame implements Closeable {
         this.infoPanel.setVisible(true);
         this.getContentPane().add(this.infoPanel, BorderLayout.SOUTH);
 
-        this.debuggerViewPanel = new DebuggerViewPanel(jchip);
-        this.debuggerViewPanel.setVisible(false);
-        this.getContentPane().add(this.debuggerViewPanel, BorderLayout.EAST);
+        this.debuggerPanel = new DebuggerPanel(jchip);
+        this.debuggerPanel.setVisible(false);
+        this.getContentPane().add(this.debuggerPanel, BorderLayout.EAST);
 
         this.setTitle(DEFAULT_TITLE);
         this.requestFocusInWindow();
@@ -62,7 +62,7 @@ public class MainWindow extends JFrame implements Closeable {
             return;
         }
         if (this.showingDebuggerPanel.get()) {
-            this.debuggerViewPanel.update(emulator);
+            this.debuggerPanel.update(emulator);
         }
         if (this.showingInfoPanel.get()) {
             this.infoPanel.update(emulator);
@@ -72,7 +72,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     public void onStopped() {
         this.infoPanel.clear();
-        this.debuggerViewPanel.clear();
+        this.debuggerPanel.clear();
         this.settingsBar.onStopped();
     }
 
@@ -103,7 +103,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     public void setDebuggerViewEnabled(boolean enabled) {
         this.showingDebuggerPanel.set(enabled);
-        SwingUtilities.invokeLater(() -> this.debuggerViewPanel.setVisible(enabled));
+        SwingUtilities.invokeLater(() -> this.debuggerPanel.setVisible(enabled));
     }
 
     public void setInfoPanelEnabled(boolean enabled) {

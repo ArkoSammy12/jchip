@@ -7,7 +7,7 @@ import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.ui.debugger.DebuggerInfo;
+import io.github.arkosammy12.jchip.ui.debugger.Debugger;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +39,7 @@ public class Chip8Emulator implements Emulator {
     private final Keypad keypad;
     private final Variant variant;
     private final Chip8EmulatorSettings emulatorSettings;
-    private final DebuggerInfo debuggerInfo;
+    private final Debugger debugger;
     private final int targetInstructionsPerFrame;
 
     private long instructionCounter;
@@ -60,7 +60,7 @@ public class Chip8Emulator implements Emulator {
             this.processor = this.createProcessor();
 
             this.getBus().loadFont(emulatorSettings.getHexSpriteFont());
-            this.debuggerInfo = this.createDebuggerInfo();
+            this.debugger = this.createDebuggerInfo();
         } catch (Exception e) {
             this.close();
             throw new EmulatorException(e);
@@ -126,8 +126,8 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public DebuggerInfo getDebuggerInfo() {
-        return this.debuggerInfo;
+    public Debugger getDebugger() {
+        return this.debugger;
     }
 
     @Override
@@ -209,64 +209,64 @@ public class Chip8Emulator implements Emulator {
         }
     }
 
-    protected DebuggerInfo createDebuggerInfo() {
-        DebuggerInfo debuggerInfo = new DebuggerInfo();
-        debuggerInfo.setScrollAddressSupplier(() -> this.getProcessor().getIndexRegister());
+    protected Debugger createDebuggerInfo() {
+        Debugger debugger = new Debugger();
+        debugger.setScrollAddressSupplier(() -> this.getProcessor().getIndexRegister());
 
-        debuggerInfo.createTextSectionEntry()
+        debugger.createTextSectionEntry()
                 .withName("VF Reset: " + this.emulatorSettings.doVFReset() + ".");
-        debuggerInfo.createTextSectionEntry()
+        debugger.createTextSectionEntry()
                 .withName("Increment I: " + this.emulatorSettings.doIncrementIndex() + ".");
-        debuggerInfo.createTextSectionEntry()
+        debugger.createTextSectionEntry()
                 .withName("Display Wait: " + this.emulatorSettings.doDisplayWait() + ".");
-        debuggerInfo.createTextSectionEntry()
+        debugger.createTextSectionEntry()
                 .withName("Clipping: " + this.emulatorSettings.doDisplayWait() + ".");
-        debuggerInfo.createTextSectionEntry()
+        debugger.createTextSectionEntry()
                 .withName("Shift VX In Place: " + this.emulatorSettings.doShiftVXInPlace() + ".");
-        debuggerInfo.createTextSectionEntry()
+        debugger.createTextSectionEntry()
                 .withName("Jump With VX: " + this.emulatorSettings.doJumpWithVX() + ".");
 
         Function<Integer, String> byteFormatter = val -> String.format("%02X", val);
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("PC")
                 .withStateUpdater(this.getProcessor()::getProgramCounter)
                 .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("I")
                 .withStateUpdater(this.getProcessor()::getIndexRegister)
                 .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("DT")
                 .withStateUpdater(this.getProcessor()::getSoundTimer)
                 .withToStringFunction(byteFormatter);
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("ST")
                 .withStateUpdater(this.getProcessor()::getSoundTimer)
                 .withToStringFunction(byteFormatter);
 
-        debuggerInfo.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createSingleRegisterSectionEntry()
                 .withName("SP")
                 .withStateUpdater(this.getProcessor()::getStackPointer)
                 .withToStringFunction(byteFormatter);
 
         for (int i = 0; i < 16; i++) {
             int finalI = i;
-            debuggerInfo.<Integer>createRegisterSectionEntry()
+            debugger.<Integer>createRegisterSectionEntry()
                     .withName(String.format("V%01X", i))
                     .withStateUpdater(() -> this.getProcessor().getRegister(finalI))
                     .withToStringFunction(byteFormatter);
 
-            debuggerInfo.<Integer>createStackSectionEntry()
+            debugger.<Integer>createStackSectionEntry()
                     .withName(String.format("%01X", i))
                     .withStateUpdater(() -> this.getProcessor().getStackElement(finalI))
                     .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));
 
         }
-        return debuggerInfo;
+        return debugger;
     }
 
     private static int hexDigitCount(int x) {
