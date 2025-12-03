@@ -30,7 +30,7 @@ public class Jchip {
     private final AtomicReference<State> currentState = new AtomicReference<>(State.IDLE);
     private final AtomicBoolean running = new AtomicBoolean(true);
 
-    public Jchip(String[] args) throws Exception {
+    Jchip(String[] args) throws Exception {
         try {
             CLIArgs cliArgs = null;
             if (args.length > 0) {
