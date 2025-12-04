@@ -205,7 +205,9 @@ public class DebuggerPanel extends JPanel {
         for (int row = 0; row < registerLabelRows; row++) {
             for (int col = 0; col < 2; col++) {
                 int index = col * registerLabelRows + row;
-                if (index >= this.registerLabels.size()) continue;
+                if (index >= this.registerLabels.size()) {
+                    continue;
+                }
                 DebuggerLabel<?> registerLabel = this.registerLabels.get(index);
                 registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
                 registersPanel.add(registerLabel);
@@ -216,7 +218,9 @@ public class DebuggerPanel extends JPanel {
         for (int row = 0; row < stackLabelsRows; row++) {
             for (int col = 0; col < 2; col++) {
                 int index = col * stackLabelsRows + row;
-                if (index >= this.stackLabels.size()) continue;
+                if (index >= this.stackLabels.size()) {
+                    continue;
+                }
                 DebuggerLabel<?> stackLabel = this.stackLabels.get(index);
                 stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
                 stackPanel.add(stackLabel);
