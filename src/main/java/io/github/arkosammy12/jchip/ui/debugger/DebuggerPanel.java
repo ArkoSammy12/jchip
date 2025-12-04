@@ -92,7 +92,7 @@ public class DebuggerPanel extends JPanel {
         memoryScrollPane.setPreferredSize(new Dimension(memoryScrollPane.getSize().width, 280));
         memoryScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "Bus",
+                "Memory",
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION));
 
