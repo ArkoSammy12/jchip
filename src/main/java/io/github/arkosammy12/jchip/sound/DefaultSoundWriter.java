@@ -14,7 +14,7 @@ import java.util.Queue;
 
 public final class DefaultSoundWriter implements SoundWriter, Closeable {
 
-    private static final byte[] EMPTY_SAMPLES = new byte[SAMPLES_PER_FRAME];
+    private static final byte[] EMPTY_SAMPLES = new byte[SAMPLES_PER_FRAME * 2];
 
     private final SourceDataLine audioLine;
     private final FloatControl volumeControl;
@@ -24,7 +24,7 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
 
     public DefaultSoundWriter() {
         try {
-            AudioFormat format = new AudioFormat(SAMPLE_RATE, 8, 1, true, true);
+            AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
             audioLine = AudioSystem.getSourceDataLine(format);
             audioLine.open(format);
             FloatControl control = null;
@@ -47,12 +47,19 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
 
     @Override
     public void pushSamples(byte[] buf) {
-        if (!this.paused) {
-            if (buf.length != SAMPLES_PER_FRAME) {
-                throw new IllegalArgumentException("Audio buffer sample size must be " + SAMPLES_PER_FRAME + "!");
-            }
-            this.samples.offer(buf);
+        if (this.paused) {
+            return;
         }
+        if (buf.length != SAMPLES_PER_FRAME) {
+            throw new IllegalArgumentException("Audio buffer sample size must be " + SAMPLES_PER_FRAME + "!");
+        }
+        byte[] buf16 = new byte[SAMPLES_PER_FRAME * 2];
+        for (int i = 0; i < buf.length; i++) {
+            int sample16 = buf[i] * 256;
+            buf16[i * 2] = (byte) ((sample16 & 0xFF00) >>> 8);
+            buf16[(i * 2) + 1] = (byte) (sample16 & 0xFF);
+        }
+        this.samples.offer(buf16);
     }
 
 
@@ -87,7 +94,7 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
     }
 
     private int getBytesToWrite(int idealLength) {
-        int diff = (this.audioLine.getBufferSize() - this.audioLine.available()) - SAMPLES_PER_FRAME;
+        int diff = (this.audioLine.getBufferSize() - this.audioLine.available()) - (SAMPLES_PER_FRAME * 2);
         if (diff < 0) {
             return idealLength;
         }
