@@ -16,7 +16,8 @@ public class MainWindow extends JFrame implements Closeable {
 
     private static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
-    private EmulatorRenderer emulatorRenderer;
+    private final JSplitPane mainSplitPane;
+    private final EmulatorViewport emulatorViewport;
     private final SettingsBar settingsBar;
     private final DebuggerPanel debuggerPanel;
     private final InfoPanel infoPanel;
@@ -37,6 +38,9 @@ public class MainWindow extends JFrame implements Closeable {
 
         this.getContentPane().setLayout(new BorderLayout());
 
+        this.emulatorViewport = new EmulatorViewport();
+        this.emulatorViewport.setVisible(true);
+
         this.settingsBar = new SettingsBar(jchip);
         this.setJMenuBar(this.settingsBar);
 
@@ -46,7 +50,13 @@ public class MainWindow extends JFrame implements Closeable {
 
         this.debuggerPanel = new DebuggerPanel(jchip);
         this.debuggerPanel.setVisible(false);
-        this.getContentPane().add(this.debuggerPanel, BorderLayout.EAST);
+
+        this.mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debuggerPanel);
+        mainSplitPane.setContinuousLayout(true);
+        mainSplitPane.setResizeWeight(0.5);
+        mainSplitPane.setDividerSize(0);
+
+        this.getContentPane().add(mainSplitPane, BorderLayout.CENTER);
 
         this.setTitle(DEFAULT_TITLE);
         this.requestFocusInWindow();
@@ -77,33 +87,17 @@ public class MainWindow extends JFrame implements Closeable {
     }
 
     public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
-        SwingUtilities.invokeLater(() -> {
-            if (this.emulatorRenderer != null) {
-                this.emulatorRenderer.close();
-                this.getContentPane().remove(this.emulatorRenderer);
-            }
-            if (emulatorRenderer == null) {
-                this.emulatorRenderer = null;
-                this.getContentPane().revalidate();
-                this.getContentPane().repaint();
-                this.setTitle(DEFAULT_TITLE);
-                return;
-            }
-            this.emulatorRenderer = emulatorRenderer;
-            int displayWidth = emulatorRenderer.getDisplayWidth();
-            int displayHeight = emulatorRenderer.getDisplayHeight();
-            int initialScale = emulatorRenderer.getInitialScale();
-            this.getContentPane().add(emulatorRenderer);
-            this.setMinimumSize(new Dimension(displayWidth * (initialScale / 2), displayHeight * (initialScale / 2)));
-            this.getContentPane().revalidate();
-            this.getContentPane().repaint();
-            this.emulatorRenderer.requestFocusInWindow();
-        });
+        this.emulatorViewport.setEmulatorRenderer(emulatorRenderer);
     }
 
     public void setDebuggerViewEnabled(boolean enabled) {
         this.showingDebuggerPanel.set(enabled);
-        SwingUtilities.invokeLater(() -> this.debuggerPanel.setVisible(enabled));
+        SwingUtilities.invokeLater(() -> {
+            this.debuggerPanel.setVisible(enabled);
+            this.mainSplitPane.setDividerSize(enabled ? 8 : 0);
+            this.revalidate();
+            this.repaint();
+        });
     }
 
     public void setInfoPanelEnabled(boolean enabled) {
@@ -113,6 +107,8 @@ public class MainWindow extends JFrame implements Closeable {
                 this.infoPanel.clear();
             }
             this.infoPanel.setVisible(enabled);
+            this.revalidate();
+            this.repaint();
         });
     }
 
