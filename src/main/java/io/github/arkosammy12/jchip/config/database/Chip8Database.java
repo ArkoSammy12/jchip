@@ -240,8 +240,7 @@ public class Chip8Database implements SettingsProvider {
     // The only missing id is "chip48", which we don't support
     private static Optional<Variant> getVariantForPlatformIds(String id) {
         return switch (id) {
-            case "modernChip8" -> Optional.of(CHIP_8);
-            case "originalChip8" -> Optional.of(STRICT_CHIP_8);
+            case "originalChip8", "modernChip8" -> Optional.of(CHIP_8);
             case "chip8x" -> Optional.of(CHIP_8X);
             case "superchip1", "superchip" -> Optional.of(SUPER_CHIP_LEGACY);
             case "xochip" -> Optional.of(XO_CHIP);
