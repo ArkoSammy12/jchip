@@ -52,6 +52,14 @@ public class MemoryTable extends JTable {
         this.scrollToAddress(0);
     }
 
+    /*
+    @Override
+    public boolean getScrollableTracksViewportWidth() {
+        return getPreferredSize().width <= getParent().getWidth();
+    }
+
+     */
+
     public void scrollToAddress(int address) {
         int targetY = (address / BYTES_PER_ROW) * this.getRowHeight();
         if (targetY < 0) {

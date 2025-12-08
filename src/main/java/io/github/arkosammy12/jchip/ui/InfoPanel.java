@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.emulators.Emulator;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class InfoPanel extends JPanel {
 
@@ -61,6 +62,8 @@ public class InfoPanel extends JPanel {
     }
 
     public void update(Emulator emulator) {
+        String romTitle = emulator.getEmulatorSettings().getRomTitle().orElse("N/A");
+        String variantName = emulator.getChip8Variant().getDisplayName();
         this.totalIpfSinceLastUpdate += emulator.getCurrentInstructionsPerFrame();
         long now = System.nanoTime();
         double lastFrameDuration = now - lastFrameTime;
@@ -70,6 +73,13 @@ public class InfoPanel extends JPanel {
 
         long deltaTime = now - lastWindowTitleUpdate;
         if (deltaTime < 1_000_000_000L) {
+            if (!Objects.equals(this.romTitleLabel.getText(), romTitle) || !Objects.equals(this.variantLabel.getText(), variantName)) {
+                SwingUtilities.invokeLater(() -> {
+                    this.variantLabel.setText(emulator.getChip8Variant().getDisplayName());
+                    romTitleLabel.setText(romTitle);
+                    this.romTitleLabel.setToolTipText(romTitle);
+                });
+            }
             return;
         }
 
@@ -84,12 +94,6 @@ public class InfoPanel extends JPanel {
         lastWindowTitleUpdate = now;
 
         SwingUtilities.invokeLater(() -> {
-            this.variantLabel.setText(emulator.getChip8Variant().getDisplayName());
-
-            String romTitle = emulator.getEmulatorSettings().getRomTitle().orElse("N/A");
-            romTitleLabel.setText(romTitle);
-            this.romTitleLabel.setToolTipText(romTitle);
-
             this.ipfLabel.setText("IPF: " + averageIpf);
             this.mipsLabel.setText("MIPS: " + String.format("%.2f", mips));
             this.frameTimeLabel.setText("Frame time: " + String.format("%.2f ms", averageFrameTimeMs));
