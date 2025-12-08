@@ -6,14 +6,10 @@ import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 
 import javax.swing.*;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
 
 public class SettingsMenu extends JMenu {
-
-    //private final JMenuItem volumeUpButton;
-    //private final JMenuItem volumeDownButton;
 
     private final EnumMenu<KeyboardLayout> keyboardLayoutMenu;
 
@@ -26,9 +22,7 @@ public class SettingsMenu extends JMenu {
 
         JMenu volumeMenu = new JMenu("Volume");
         JSlider volumeSlider = new JSlider(0, 100, 50);
-        volumeSlider.addChangeListener(_ -> {
-            jchip.getSoundWriter().setVolume(volumeSlider.getValue());
-        });
+        volumeSlider.addChangeListener(_ -> jchip.getSoundWriter().setVolume(volumeSlider.getValue()));
         JPanel volumePanel = new JPanel();
         volumePanel.add(volumeSlider);
         volumeMenu.add(volumePanel);

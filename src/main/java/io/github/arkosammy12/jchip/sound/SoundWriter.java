@@ -6,8 +6,4 @@ public interface SoundWriter {
 
     void setVolume(int volume);
 
-    //void volumeUp();
-
-    //void volumeDown();
-
 }

@@ -146,7 +146,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
             case SUPER_CHIP_LEGACY -> Optional.of(new DefaultQuirkSet(false, false, true, true, true, true, _ -> 30));
             case SUPER_CHIP_MODERN -> Optional.of(new DefaultQuirkSet(false, false, false, true, true, true, _ -> 30));
             case XO_CHIP, HYPERWAVE_CHIP_64 -> Optional.of(new DefaultQuirkSet(false, true, false, false, false, false, _ -> 1000));
-            case MEGA_CHIP -> Optional.of(new DefaultQuirkSet(false, false, false, false, true, false, _ -> 1000));
+            case MEGA_CHIP -> Optional.of(new DefaultQuirkSet(false, false, false, false, true, false, _ -> 3000));
             default -> Optional.empty();
         };
     }

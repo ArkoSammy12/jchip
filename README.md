@@ -114,11 +114,12 @@ The reason I consider this a "quirk" is because this value is not strictly defin
 approximately 11 instructions per frame, although this is merely a result of the COSMAC-VIP's performance, and not because the interpreter was locked to run at that particular execution rate.
 The default values for the different variants are:
 
-| Variant                                 | Default IPF                 |
-|-----------------------------------------|-----------------------------|
-| CHIP-8 / CHIP-8X                        | 15 (11 if Display Wait off) |
-| SUPER-CHIP (both)                       | 30                          |
-| XO-CHIP / MEGA-CHIP / HYPERWAVE-CHIP-64 | 1000                        |
+| Variant                     | Default IPF                 |
+|-----------------------------|-----------------------------|
+| CHIP-8 / CHIP-8X            | 15 (11 if Display Wait off) |
+| SUPER-CHIP (1.1 and MODERN) | 30                          |
+| XO-CHIP / HYPERWAVE-CHIP-64 | 1000                        |
+| MEGA-CHIP                   | 3000                        |
 
 This value can also be individually configured like the rest of the quirks, though it receives its own category within the emulator's UI.
 

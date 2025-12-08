@@ -67,26 +67,6 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
         }
     }
 
-    /*
-
-    @Override
-    public void volumeUp() {
-        if (this.volumeControl != null) {
-            this.volume = Math.clamp(this.volume + 25, 0, 100);
-            this.volumeControl.setValue(20.0f * (float) Math.log10(volume / 100.0));
-        }
-    }
-
-    @Override
-    public void volumeDown() {
-        if (this.volumeControl != null) {
-            this.volume = Math.clamp(this.volume - 25, 0, 100);
-            this.volumeControl.setValue(20.0f * (float) Math.log10(volume / 100.0));
-        }
-    }
-
-     */
-
     public void onFrame() {
         byte[] samples = this.samples.poll();
         if (samples == null) {
