@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -104,8 +105,8 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
     }
 
     @Override
-    public Optional<Boolean> doIncrementIndex() {
-        return this.emulatorMenu.getQuirksMenu().doIncrementIndex();
+    public Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> getMemoryIncrementQuirk() {
+        return this.emulatorMenu.getQuirksMenu().getMemoryIncrementQuirk();
     }
 
     @Override

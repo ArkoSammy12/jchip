@@ -5,7 +5,7 @@ import java.awt.event.KeyEvent;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class QuirkSubMenu extends JMenu {
+public class BooleanMenu extends JMenu {
 
     private final JRadioButtonMenuItem unspecifiedItem;
     private final JRadioButtonMenuItem enabledItem;
@@ -13,7 +13,7 @@ public class QuirkSubMenu extends JMenu {
 
     private final AtomicReference<Boolean> state = new AtomicReference<>(null);
 
-    public QuirkSubMenu(String name) {
+    public BooleanMenu(String name) {
         super(name);
 
         this.unspecifiedItem = new JRadioButtonMenuItem("Unspecified");

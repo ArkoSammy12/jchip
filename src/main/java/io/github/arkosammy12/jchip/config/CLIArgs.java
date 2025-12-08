@@ -82,12 +82,12 @@ public class CLIArgs implements PrimarySettingsProvider {
     private Optional<Boolean> doVFReset;
 
     @CommandLine.Option(
-            names = "--increment-i",
-            negatable = true,
+            names = "--i-increment",
+            converter = Chip8EmulatorSettings.MemoryIncrementQuirk.Converter.class,
             defaultValue = CommandLine.Option.NULL_VALUE,
-            description = "Toggle the Increment Index quirk or leave unspecified."
+            description = "Specify the I increment quirk behavior or leave unspecified."
     )
-    private Optional<Boolean> doIncrementIndex;
+    private Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> memoryIncrementQuirk;
 
     @CommandLine.Option(
             names = "--display-wait",
@@ -166,8 +166,8 @@ public class CLIArgs implements PrimarySettingsProvider {
     }
 
     @Override
-    public Optional<Boolean> doIncrementIndex() {
-        return this.doIncrementIndex;
+    public Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> getMemoryIncrementQuirk() {
+        return this.memoryIncrementQuirk;
     }
 
     @Override

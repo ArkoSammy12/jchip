@@ -12,6 +12,9 @@ class Quirks {
     @SerializedName(value = "memoryLeaveIUnchanged")
     private Boolean memoryLeaveIUnchanged;
 
+    @SerializedName(value = "memoryIncrementByX")
+    private Boolean memoryIncrementByX;
+
     @SerializedName(value = "wrap")
     private Boolean wrap;
 
@@ -30,6 +33,10 @@ class Quirks {
 
     Optional<Boolean> getMemoryLeaveIUnchanged() {
         return Optional.ofNullable(this.memoryLeaveIUnchanged);
+    }
+
+    Optional<Boolean> getMemoryIncrementByX() {
+        return Optional.ofNullable(this.memoryIncrementByX);
     }
 
     Optional<Boolean> getWrap() {

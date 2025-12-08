@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.config.database;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.config.SettingsProvider;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.util.Variant;
@@ -168,8 +169,15 @@ public class Chip8Database implements SettingsProvider {
     }
 
     @Override
-    public Optional<Boolean> doIncrementIndex() {
-        return getQuirk(Quirks::getMemoryLeaveIUnchanged).map(v -> !v);
+    public Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> getMemoryIncrementQuirk() {
+        Optional<Boolean> leaveIUnchanged = getQuirk(Quirks::getMemoryLeaveIUnchanged);
+        if (leaveIUnchanged.isEmpty()) {
+            return Optional.empty();
+        }
+        if (leaveIUnchanged.get()) {
+            return Optional.of(Chip8EmulatorSettings.MemoryIncrementQuirk.NONE);
+        }
+        return getQuirk(Quirks::getMemoryIncrementByX).map(incrementByX -> incrementByX ? Chip8EmulatorSettings.MemoryIncrementQuirk.INCREMENT_X : Chip8EmulatorSettings.MemoryIncrementQuirk.INCREMENT_X_1);
     }
 
     @Override
@@ -237,11 +245,11 @@ public class Chip8Database implements SettingsProvider {
         return Optional.ofNullable(this.platforms);
     }
 
-    // The only missing id is "chip48", which we don't support
     private static Optional<Variant> getVariantForPlatformIds(String id) {
         return switch (id) {
             case "originalChip8", "modernChip8" -> Optional.of(CHIP_8);
             case "chip8x" -> Optional.of(CHIP_8X);
+            case "chip48" -> Optional.of(CHIP_48);
             case "superchip1", "superchip" -> Optional.of(SUPER_CHIP_LEGACY);
             case "xochip" -> Optional.of(XO_CHIP);
             case "megachip8" -> Optional.of(MEGA_CHIP);

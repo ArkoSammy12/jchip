@@ -474,13 +474,14 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
             }
             case 0x55 -> { // FX55: save vX
                 Chip8Bus bus = this.emulator.getBus();
-                int currentIndexPointer = this.getIndexRegister();
+                int currentIndexRegister = this.getIndexRegister();
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
-                    bus.writeByte(currentIndexPointer + i, this.getRegister(i));
+                    bus.writeByte(currentIndexRegister + i, this.getRegister(i));
                 }
-                if (this.emulator.getEmulatorSettings().doIncrementIndex()) {
-                    this.setIndexRegister(currentIndexPointer + X + 1);
+                switch (this.emulator.getEmulatorSettings().getMemoryIncrementQuirk()) {
+                    case INCREMENT_X -> this.setIndexRegister(currentIndexRegister + X);
+                    case INCREMENT_X_1 -> this.setIndexRegister(currentIndexRegister + X + 1);
                 }
                 yield HANDLED;
             }
@@ -491,8 +492,9 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
                 for (int i = 0; i <= X; i++) {
                     this.setRegister(i, bus.readByte(currentIndexRegister + i));
                 }
-                if (this.emulator.getEmulatorSettings().doIncrementIndex()) {
-                    this.setIndexRegister(currentIndexRegister + X + 1);
+                switch (this.emulator.getEmulatorSettings().getMemoryIncrementQuirk()) {
+                    case INCREMENT_X -> this.setIndexRegister(currentIndexRegister + X);
+                    case INCREMENT_X_1 -> this.setIndexRegister(currentIndexRegister + X + 1);
                 }
                 yield HANDLED;
             }

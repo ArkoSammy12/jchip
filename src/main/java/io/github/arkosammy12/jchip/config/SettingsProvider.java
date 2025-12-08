@@ -18,7 +18,7 @@ public interface SettingsProvider {
 
     Optional<Boolean> doVFReset();
 
-    Optional<Boolean> doIncrementIndex();
+    Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> getMemoryIncrementQuirk();
 
     Optional<Boolean> doDisplayWait();
 

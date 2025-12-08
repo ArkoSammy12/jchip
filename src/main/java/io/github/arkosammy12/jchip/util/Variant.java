@@ -12,6 +12,7 @@ public enum Variant implements DisplayNameProvider {
     CHIP_8("chip-8", "CHIP-8", Chip8EmulatorSettings::new),
     STRICT_CHIP_8("strict-chip-8", "STRICT CHIP-8", Chip8EmulatorSettings::new),
     CHIP_8X("chip-8x", "CHIP-8X", Chip8EmulatorSettings::new),
+    CHIP_48("chip-48", "CHIP-48", Chip8EmulatorSettings::new),
     SUPER_CHIP_LEGACY("schip-legacy", "SCHIP-1.1", Chip8EmulatorSettings::new),
     SUPER_CHIP_MODERN("schip-modern", "SCHIP-MODERN", Chip8EmulatorSettings::new),
     XO_CHIP("xo-chip", "XO-CHIP", Chip8EmulatorSettings::new),
