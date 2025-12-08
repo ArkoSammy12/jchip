@@ -96,25 +96,20 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION));
 
-
-        JSplitPane split1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScrollPane, singleRegistersScrollPane);
-        split1.setResizeWeight(0.25);
-        split1.setContinuousLayout(true);
-
-        JSplitPane split2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, split1, registersScrollPane);
-        split2.setResizeWeight(0.33);
-        split2.setContinuousLayout(true);
-
-        JSplitPane splitLeft = new JSplitPane(JSplitPane.VERTICAL_SPLIT, split2, stackScrollPane);
-        splitLeft.setResizeWeight(0.5);
-        splitLeft.setContinuousLayout(true);
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        leftPanel.setPreferredSize(new Dimension(150, leftPanel.getSize().height));
+        leftPanel.add(textScrollPane);
+        leftPanel.add(singleRegistersScrollPane);
+        leftPanel.add(registersScrollPane);
+        leftPanel.add(stackScrollPane);
 
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setPreferredSize(new Dimension(215, rightPanel.getSize().height));
         rightPanel.add(memoryScrollPane);
 
-        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, splitLeft, rightPanel);
+        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         mainSplit.setResizeWeight(0.5);
 
         this.setPreferredSize(new Dimension(500, this.getSize().height));
