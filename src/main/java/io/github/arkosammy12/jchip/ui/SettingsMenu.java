@@ -12,8 +12,8 @@ import java.util.Optional;
 
 public class SettingsMenu extends JMenu {
 
-    private final JMenuItem volumeUpButton;
-    private final JMenuItem volumeDownButton;
+    //private final JMenuItem volumeUpButton;
+    //private final JMenuItem volumeDownButton;
 
     private final EnumMenu<KeyboardLayout> keyboardLayoutMenu;
 
@@ -24,15 +24,14 @@ public class SettingsMenu extends JMenu {
 
         this.setMnemonic(KeyEvent.VK_S);
 
-        this.volumeDownButton = new JMenuItem("Volume Down");
-        this.volumeDownButton.addActionListener(_ -> jchip.getSoundWriter().volumeDown());
-        this.volumeDownButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, InputEvent.CTRL_DOWN_MASK, true));
-        this.volumeDownButton.setToolTipText("Decrease the sound volume of the emulator.");
-
-        this.volumeUpButton = new JMenuItem("Volume Up");
-        this.volumeUpButton.addActionListener(_ -> jchip.getSoundWriter().volumeUp());
-        this.volumeUpButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, InputEvent.CTRL_DOWN_MASK, true));
-        this.volumeUpButton.setToolTipText("Increase the sound volume of the emulator.");
+        JMenu volumeMenu = new JMenu("Volume");
+        JSlider volumeSlider = new JSlider(0, 100, 50);
+        volumeSlider.addChangeListener(_ -> {
+            jchip.getSoundWriter().setVolume(volumeSlider.getValue());
+        });
+        JPanel volumePanel = new JPanel();
+        volumePanel.add(volumeSlider);
+        volumeMenu.add(volumePanel);
 
         this.keyboardLayoutMenu = new EnumMenu<>("Keyboard Layout", KeyboardLayout.class, false);
         this.keyboardLayoutMenu.setState(KeyboardLayout.QWERTY);
@@ -43,8 +42,7 @@ public class SettingsMenu extends JMenu {
         this.showInfoPanelButton.setSelected(true);
         this.showInfoPanelButton.addActionListener(_ -> jchip.getMainWindow().setInfoPanelEnabled(this.showInfoPanelButton.isSelected()));
 
-        this.add(volumeUpButton);
-        this.add(volumeDownButton);
+        this.add(volumeMenu);
         this.addSeparator();
         this.add(keyboardLayoutMenu);
         this.addSeparator();

@@ -19,7 +19,6 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
     private final SourceDataLine audioLine;
     private final FloatControl volumeControl;
     private final Queue<byte[]> samples = new LinkedList<>();
-    private int volume = 75;
     private boolean paused = true;
 
     public DefaultSoundWriter() {
@@ -30,7 +29,7 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
             FloatControl control = null;
             if (audioLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 control = (FloatControl) audioLine.getControl(FloatControl.Type.MASTER_GAIN);
-                control.setValue(20.0f * (float) Math.log10(volume / 100.0));
+                control.setValue(20.0f * (float) Math.log10(50 / 100.0));
             }
             audioLine.flush();
             audioLine.start();
@@ -62,6 +61,13 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
         this.samples.offer(buf16);
     }
 
+    public void setVolume(int volume) {
+        if (this.volumeControl != null) {
+            this.volumeControl.setValue(20.0f * (float) Math.log10(Math.clamp(volume, 0, 100) / 100.0));
+        }
+    }
+
+    /*
 
     @Override
     public void volumeUp() {
@@ -78,6 +84,8 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
             this.volumeControl.setValue(20.0f * (float) Math.log10(volume / 100.0));
         }
     }
+
+     */
 
     public void onFrame() {
         byte[] samples = this.samples.poll();

@@ -4,8 +4,10 @@ public interface SoundWriter {
 
     void pushSamples(byte[] samples);
 
-    void volumeUp();
+    void setVolume(int volume);
 
-    void volumeDown();
+    //void volumeUp();
+
+    //void volumeDown();
 
 }
