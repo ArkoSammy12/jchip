@@ -1,5 +1,7 @@
 package io.github.arkosammy12.jchip.sound;
 
+import org.tinylog.Logger;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
@@ -31,8 +33,6 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
                 control = (FloatControl) audioLine.getControl(FloatControl.Type.MASTER_GAIN);
                 control.setValue(20.0f * (float) Math.log10(50 / 100.0));
             }
-            audioLine.flush();
-            audioLine.start();
             this.volumeControl = control;
 
         } catch (Exception e) {
@@ -88,6 +88,10 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
         byte[] samples = this.samples.poll();
         if (samples == null) {
             samples = EMPTY_SAMPLES;
+        }
+        if (!this.audioLine.isRunning()) {
+            this.audioLine.flush();
+            this.audioLine.start();
         }
         this.audioLine.write(samples, 0, Math.min(this.getBytesToWrite(samples.length), this.audioLine.available()));
     }
