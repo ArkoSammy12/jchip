@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public class MegaChipEmulator extends SChipEmulator {
+public class MegaChipEmulator extends SChip11Emulator {
 
     @Nullable
     private MegaChipProcessor<?> processor;

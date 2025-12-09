@@ -1,13 +1,12 @@
 package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.video.MegaChipDisplay;
-import io.github.arkosammy12.jchip.video.SChipDisplay;
+import io.github.arkosammy12.jchip.video.SChip11Display;
 
-public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcessor<E> {
+public class MegaChipProcessor<E extends MegaChipEmulator> extends SChip11Processor<E> {
 
     private boolean megaModeOn;
     private int cachedFontSpriteIndex;
@@ -330,7 +329,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
 
     @SuppressWarnings("DuplicatedCode")
     private int handleMegaOffDraw(int firstByte, int NN) {
-        SChipDisplay<?> display = this.emulator.getDisplay();
+        SChip11Display<?> display = this.emulator.getDisplay();
         Chip8Bus bus = this.emulator.getBus();
 
         boolean hiresMode = display.isHiresMode();

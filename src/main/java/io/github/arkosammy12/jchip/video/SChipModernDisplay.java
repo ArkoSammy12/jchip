@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.emulators.SChipModernEmulator;
 
-public class SChipModernDisplay<E extends SChipModernEmulator> extends SChipDisplay<E> {
+public class SChipModernDisplay<E extends SChipModernEmulator> extends SChip11Display<E> {
 
     public SChipModernDisplay(E emulator) {
         super(emulator);

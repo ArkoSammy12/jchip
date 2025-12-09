@@ -23,7 +23,7 @@ import java.util.function.Function;
 import static io.github.arkosammy12.jchip.util.Variant.*;
 import static io.github.arkosammy12.jchip.util.Variant.HYBRID_CHIP_8;
 import static io.github.arkosammy12.jchip.util.Variant.MEGA_CHIP;
-import static io.github.arkosammy12.jchip.util.Variant.SUPER_CHIP;
+import static io.github.arkosammy12.jchip.util.Variant.SUPER_CHIP_11;
 import static io.github.arkosammy12.jchip.util.Variant.XO_CHIP;
 
 public class Chip8Database implements SettingsProvider {
@@ -251,8 +251,8 @@ public class Chip8Database implements SettingsProvider {
             case "hybridVIP" -> Optional.of(HYBRID_CHIP_8);
             case "chip8x" -> Optional.of(CHIP_8X);
             case "chip48" -> Optional.of(CHIP_48);
-            case "superchip1" -> Optional.of(SUPER_CHIP_1);
-            case "superchip" -> Optional.of(SUPER_CHIP);
+            case "superchip1" -> Optional.of(SUPER_CHIP_10);
+            case "superchip" -> Optional.of(SUPER_CHIP_11);
             case "megachip8" -> Optional.of(MEGA_CHIP);
             case "xochip" -> Optional.of(XO_CHIP);
             default -> Optional.empty();

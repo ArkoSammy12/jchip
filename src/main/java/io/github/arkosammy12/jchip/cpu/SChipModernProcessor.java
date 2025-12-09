@@ -3,10 +3,10 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.emulators.SChipModernEmulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
-import io.github.arkosammy12.jchip.video.SChip1Display;
+import io.github.arkosammy12.jchip.video.SChip10Display;
 import io.github.arkosammy12.jchip.video.SChipModernDisplay;
 
-public class SChipModernProcessor<E extends SChipModernEmulator> extends SChipProcessor<E> {
+public class SChipModernProcessor<E extends SChipModernEmulator> extends SChip11Processor<E> {
 
     public SChipModernProcessor(E emulator) {
         super(emulator);
@@ -45,7 +45,7 @@ public class SChipModernProcessor<E extends SChipModernEmulator> extends SChipPr
     @Override
     @SuppressWarnings("DuplicatedCode")
     protected int executeDOpcode(int firstByte, int NN) {
-        SChip1Display<?> display = this.emulator.getDisplay();
+        SChip10Display<?> display = this.emulator.getDisplay();
         Chip8Bus bus = this.emulator.getBus();
         boolean hiresMode = display.isHiresMode();
         int currentIndexRegister = this.getIndexRegister();

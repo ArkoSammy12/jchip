@@ -1,11 +1,10 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.emulators.SChipEmulator;
-import io.github.arkosammy12.jchip.util.DisplayAngle;
+import io.github.arkosammy12.jchip.emulators.SChip11Emulator;
 
-public class SChipDisplay<E extends SChipEmulator> extends SChip1Display<E> {
+public class SChip11Display<E extends SChip11Emulator> extends SChip10Display<E> {
 
-    public SChipDisplay(E emulator) {
+    public SChip11Display(E emulator) {
         super(emulator);
     }
 

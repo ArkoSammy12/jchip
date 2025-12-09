@@ -2,8 +2,8 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
-import io.github.arkosammy12.jchip.cpu.SChip1Processor;
-import io.github.arkosammy12.jchip.video.SChip1Display;
+import io.github.arkosammy12.jchip.cpu.SChip10Processor;
+import io.github.arkosammy12.jchip.video.SChip10Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,39 +11,39 @@ import java.util.Objects;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public class SChip1Emulator extends Chip48Emulator {
+public class SChip10Emulator extends Chip48Emulator {
 
     @Nullable
-    private SChip1Processor<?> processor;
+    private SChip10Processor<?> processor;
 
     @Nullable
-    private SChip1Display<?> display;
+    private SChip10Display<?> display;
 
-    public SChip1Emulator(Chip8EmulatorSettings emulatorSettings) {
+    public SChip10Emulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings);
     }
 
     @Override
     @NotNull
-    public SChip1Processor<?> getProcessor() {
+    public SChip10Processor<?> getProcessor() {
         return Objects.requireNonNull(this.processor);
     }
 
     @Override
     @NotNull
-    public SChip1Display<?> getDisplay() {
+    public SChip10Display<?> getDisplay() {
         return Objects.requireNonNull(this.display);
     }
 
     @Override
-    protected SChip1Processor<?> createProcessor() {
-        this.processor = new SChip1Processor<>(this);
+    protected SChip10Processor<?> createProcessor() {
+        this.processor = new SChip10Processor<>(this);
         return this.processor;
     }
 
     @Override
-    protected SChip1Display<?> createDisplay() {
-        this.display = new SChip1Display<>(this);
+    protected SChip10Display<?> createDisplay() {
+        this.display = new SChip10Display<>(this);
         return this.display;
     }
 

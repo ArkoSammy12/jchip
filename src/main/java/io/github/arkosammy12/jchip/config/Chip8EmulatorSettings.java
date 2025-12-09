@@ -125,8 +125,8 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
             case STRICT_CHIP_8 -> new StrictChip8Emulator(this);
             case CHIP_8X -> new Chip8XEmulator(this);
             case CHIP_48 -> new Chip48Emulator(this);
-            case SUPER_CHIP_1 -> new SChip1Emulator(this);
-            case SUPER_CHIP -> new SChipEmulator(this);
+            case SUPER_CHIP_10 -> new SChip10Emulator(this);
+            case SUPER_CHIP_11 -> new SChip11Emulator(this);
             case SUPER_CHIP_MODERN -> new SChipModernEmulator(this);
             case XO_CHIP -> new XOChipEmulator(this);
             case MEGA_CHIP -> new MegaChipEmulator(this);
@@ -138,8 +138,8 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     private static HexSpriteFont getHexSpriteFont(Variant variant) {
         return switch (variant) {
             case CHIP_48 -> new HexSpriteFont(HexSpriteFont.CHIP_48, null);
-            case SUPER_CHIP_1 -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_10_BIG);
-            case SUPER_CHIP -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG);
+            case SUPER_CHIP_10 -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_10_BIG);
+            case SUPER_CHIP_11 -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG);
             case SUPER_CHIP_MODERN, XO_CHIP, HYPERWAVE_CHIP_64 -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG);
             case MEGA_CHIP -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.MEGACHIP_8_BIG);
             default -> new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null);
@@ -150,8 +150,8 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         return switch (variant) {
             case CHIP_8, CHIP_8X -> Optional.of(new DefaultQuirkSet(true, MemoryIncrementQuirk.INCREMENT_X_1, true, true, false, false, doDisplayWait -> doDisplayWait ? 15 : 11));
             case CHIP_48 -> Optional.of(new DefaultQuirkSet(false, MemoryIncrementQuirk.INCREMENT_X, true, true, true, true, doDisplayWait -> doDisplayWait ? 15 : 11));
-            case SUPER_CHIP_1 -> Optional.of(new DefaultQuirkSet(false, MemoryIncrementQuirk.INCREMENT_X, true, true, true, true, _ -> 30));
-            case SUPER_CHIP -> Optional.of(new DefaultQuirkSet(false, MemoryIncrementQuirk.NONE, true, true, true, true, _ -> 30));
+            case SUPER_CHIP_10 -> Optional.of(new DefaultQuirkSet(false, MemoryIncrementQuirk.INCREMENT_X, true, true, true, true, _ -> 30));
+            case SUPER_CHIP_11 -> Optional.of(new DefaultQuirkSet(false, MemoryIncrementQuirk.NONE, true, true, true, true, _ -> 30));
             case SUPER_CHIP_MODERN -> Optional.of(new DefaultQuirkSet(false, MemoryIncrementQuirk.NONE, false, true, true, true, _ -> 30));
             case XO_CHIP, HYPERWAVE_CHIP_64 -> Optional.of(new DefaultQuirkSet(false, MemoryIncrementQuirk.INCREMENT_X_1, false, false, false, false, _ -> 1000));
             case MEGA_CHIP -> Optional.of(new DefaultQuirkSet(false, MemoryIncrementQuirk.NONE, false, false, true, false, _ -> 3000));

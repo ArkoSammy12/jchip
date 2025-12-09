@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public class SChipModernEmulator extends SChipEmulator {
+public class SChipModernEmulator extends SChip11Emulator {
 
     @Nullable
     private SChipModernProcessor<?> processor;

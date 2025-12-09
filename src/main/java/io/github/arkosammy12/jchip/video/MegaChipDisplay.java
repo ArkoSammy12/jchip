@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.video;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
-public class MegaChipDisplay<E extends MegaChipEmulator> extends SChipDisplay<E> {
+public class MegaChipDisplay<E extends MegaChipEmulator> extends SChip11Display<E> {
 
     private final int[][] backBuffer = new int[256][256];
     private final int[][] indexBuffer = new int[256][256];
