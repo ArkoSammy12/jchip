@@ -47,6 +47,7 @@ public class EmulatorViewport extends JPanel {
             this.setPreferredSize(scaled);
             this.setMinimumSize(new Dimension(w * (scale / 2), h * (scale / 2)));
 
+            this.emulatorRenderer.requestFocusInWindow();
             this.revalidate();
             this.repaint();
 
