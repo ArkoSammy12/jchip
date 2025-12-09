@@ -33,7 +33,7 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
             }
             this.volumeControl = control;
         } catch (Exception e) {
-            throw new RuntimeException("Error initializing Source Data Line for audio.", e);
+            throw new RuntimeException("Error initializing Source Data Line for audio", e);
         }
     }
 

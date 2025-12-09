@@ -164,7 +164,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
         if (firstByte == 0x00) {
             return switch (NN) {
-                case 0xE0 -> { // 00E0: clear
+                case 0xE0 -> { // 00E0: onStopped
                     this.emulator.getDisplay().clear();
                     yield HANDLED | LONG_INSTRUCTION;
                 }

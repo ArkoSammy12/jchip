@@ -97,7 +97,7 @@ public final class StrictChip8Processor extends Chip8Processor<StrictChip8Emulat
     protected int execute0Opcode(int firstByte, int NN) throws InvalidInstructionException {
         if (firstByte == 0x00) {
             return switch (NN) {
-                case 0xE0 -> { // 00E0: clear
+                case 0xE0 -> { // 00E0: onStopped
                     final int eraseCycles = 3078;
                     long cyclesLeftInFrame = this.emulator.getCyclesLeftInCurrentFrame();
                     if (!this.isWaiting()) {

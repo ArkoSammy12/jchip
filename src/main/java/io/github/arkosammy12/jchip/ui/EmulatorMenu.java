@@ -45,7 +45,7 @@ public class EmulatorMenu extends JMenu {
             this.stepCycleButton.setEnabled(false);
         });
         this.resetButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK, true));
-        this.resetButton.setToolTipText("Apply any emulator setting changes, reload the ROM and begin emulation from scratch.");
+        this.resetButton.setToolTipText("Begin emulation from scratch with the configured settings and selected ROM file.");
         this.resetButton.setEnabled(true);
 
         this.pauseButton.addActionListener(_ -> {

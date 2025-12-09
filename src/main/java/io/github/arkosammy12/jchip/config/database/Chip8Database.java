@@ -48,7 +48,7 @@ public class Chip8Database implements SettingsProvider {
             Type platformListType = new TypeToken<List<PlatformEntry>>() {}.getType();
             this.platforms = new Platforms(gson.fromJson(loadJsonFromResources("/database/platforms.json"), platformListType));
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to initialize CHIP-8 metadata database.", e);
+            throw new IllegalStateException("Failed to initialize CHIP-8 metadata database", e);
         }
     }
 

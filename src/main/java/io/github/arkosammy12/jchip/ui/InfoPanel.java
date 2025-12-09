@@ -28,7 +28,7 @@ public class InfoPanel extends JPanel {
 
         JPanel variantPanel = new JPanel(new GridLayout(1, 0, 0, 0));
         variantPanel.add(this.variantLabel);
-        variantPanel.setToolTipText("The CHIP-8 being used to run the current ROM.");
+        variantPanel.setToolTipText("The variant being used to run the current ROM.");
 
         JPanel romTitlePanel = new JPanel(new GridLayout(1, 0, 0, 0));
         romTitlePanel.add(this.romTitleLabel);
@@ -61,9 +61,17 @@ public class InfoPanel extends JPanel {
 
     }
 
-    public void update(Emulator emulator) {
+    public void onFrame(Emulator emulator) {
         String romTitle = emulator.getEmulatorSettings().getRomTitle().orElse("N/A");
         String variantName = emulator.getVariant().getDisplayName();
+
+        boolean updateTitleNow = false;
+        boolean updateStatsNow = false;
+
+        if (!Objects.equals(this.romTitleLabel.getText(), romTitle) || !Objects.equals(this.variantLabel.getText(), variantName)) {
+            updateTitleNow = true;
+        }
+
         this.totalIpfSinceLastUpdate += emulator.getCurrentInstructionsPerFrame();
         long now = System.nanoTime();
         double lastFrameDuration = now - lastFrameTime;
@@ -72,40 +80,58 @@ public class InfoPanel extends JPanel {
         framesSinceLastUpdate++;
 
         long deltaTime = now - lastWindowTitleUpdate;
-        if (deltaTime < 1_000_000_000L) {
-            if (!Objects.equals(this.romTitleLabel.getText(), romTitle) || !Objects.equals(this.variantLabel.getText(), variantName)) {
-                SwingUtilities.invokeLater(() -> {
-                    this.variantLabel.setText(emulator.getVariant().getDisplayName());
-                    romTitleLabel.setText(romTitle);
-                    this.romTitleLabel.setToolTipText(romTitle);
-                });
-            }
-            return;
+
+        double fps = 0;
+        long averageIpf = 0;
+        double averageFrameTimeMs = 0;
+        double mips = 0;
+
+        if (deltaTime >= 1_000_000_000L) {
+            updateStatsNow = true;
+
+            fps = framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
+            averageIpf = totalIpfSinceLastUpdate / framesSinceLastUpdate;
+            averageFrameTimeMs = (totalFrameTimeSinceLastUpdate / framesSinceLastUpdate) / 1_000_000.0;
+            mips = (averageIpf * fps) / 1_000_000.0;
+
+            framesSinceLastUpdate = 0;
+            totalIpfSinceLastUpdate = 0;
+            totalFrameTimeSinceLastUpdate = 0;
+            lastWindowTitleUpdate = now;
         }
 
-        double fps = framesSinceLastUpdate / (deltaTime / 1_000_000_000.0);
-        long averageIpf = totalIpfSinceLastUpdate / framesSinceLastUpdate;
-        double averageFrameTimeMs = (totalFrameTimeSinceLastUpdate / framesSinceLastUpdate) / 1_000_000.0;
-        double mips = (averageIpf * fps) / 1_000_000.0;
+        if (updateTitleNow || updateStatsNow) {
+            final boolean fUpdateTitle = updateTitleNow;
+            final boolean fUpdateStats = updateStatsNow;
+            final String fRomTitle = romTitle;
+            final String fVariantName = variantName;
+            final double fFps = fps;
+            final long fAverageIpf = averageIpf;
+            final double fAverageFrameTimeMs = averageFrameTimeMs;
+            final double fMips = mips;
 
-        framesSinceLastUpdate = 0;
-        totalIpfSinceLastUpdate = 0;
-        totalFrameTimeSinceLastUpdate = 0;
-        lastWindowTitleUpdate = now;
+            SwingUtilities.invokeLater(() -> {
+                if (fUpdateTitle) {
+                    romTitleLabel.setText(fRomTitle);
+                    romTitleLabel.setToolTipText(fRomTitle);
+                    variantLabel.setText(fVariantName);
+                }
 
-        SwingUtilities.invokeLater(() -> {
-            this.ipfLabel.setText("IPF: " + averageIpf);
-            this.mipsLabel.setText("MIPS: " + String.format("%.2f", mips));
-            this.frameTimeLabel.setText("Frame time: " + String.format("%.2f ms", averageFrameTimeMs));
-            this.fpsLabel.setText("FPS: " + String.format("%.2f", fps));
+                if (fUpdateStats) {
+                    this.ipfLabel.setText("IPF: " + fAverageIpf);
+                    this.mipsLabel.setText("MIPS: " + String.format("%.2f", fMips));
+                    this.frameTimeLabel.setText("Frame time: " + String.format("%.2f ms", fAverageFrameTimeMs));
+                    this.fpsLabel.setText("FPS: " + String.format("%.2f", fFps));
+                }
 
-            this.revalidate();
-            this.repaint();
-        });
-
+                this.revalidate();
+                this.repaint();
+            });
+        }
     }
 
-    public void clear() {
+
+    public void onStopped() {
         lastWindowTitleUpdate = 0;
         lastFrameTime = System.nanoTime();
         framesSinceLastUpdate = 0;

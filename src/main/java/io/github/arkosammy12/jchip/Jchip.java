@@ -30,7 +30,7 @@ public class Jchip {
     private final AtomicReference<State> currentState = new AtomicReference<>(State.IDLE);
     private final AtomicBoolean running = new AtomicBoolean(true);
 
-    Jchip(String[] args) throws Exception {
+    Jchip(String[] args) {
         try {
             CLIArgs cliArgs = null;
             if (args.length > 0) {
@@ -50,10 +50,16 @@ public class Jchip {
             }
             SwingUtilities.invokeAndWait(() -> {
                 this.mainWindow = new MainWindow(this);
+                this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 this.mainWindow.addWindowListener(new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
-                        shutdown();
+                        try {
+                            running.set(false);
+                            onShutdown();
+                        } catch (Exception ex) {
+                            Logger.error("Error releasing application resources: {}", ex);
+                        }
                     }
                 });
                 this.mainWindow.setVisible(true);
@@ -63,11 +69,7 @@ public class Jchip {
                 this.currentEmulator = Variant.getEmulator(this);
             }
         } catch (Exception e) {
-            if (this.mainWindow != null) {
-                this.mainWindow.showExceptionDialog(e);
-            }
-            this.onShutdown();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error initializing Jchip", e);
         }
     }
 
@@ -137,10 +139,6 @@ public class Jchip {
 
     public void stepCycle() {
         this.currentState.set(State.STEPPING_CYCLE);
-    }
-
-    private void shutdown() {
-        this.running.set(false);
     }
 
     private void onIdle() {

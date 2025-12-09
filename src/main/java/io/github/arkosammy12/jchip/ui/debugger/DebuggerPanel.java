@@ -124,7 +124,7 @@ public class DebuggerPanel extends JPanel {
     }
 
 
-    public void clear() {
+    public void onStopped() {
         SwingUtilities.invokeLater(() -> {
             this.clearState();
             this.textArea.setText("");
@@ -142,12 +142,12 @@ public class DebuggerPanel extends JPanel {
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                     ""));
 
-            this.repaint();
             this.revalidate();
+            this.repaint();
         });
     }
 
-    public void update(Emulator emulator) {
+    public void onFrame(Emulator emulator) {
         Debugger debugger = emulator.getDebugger();
         SwingUtilities.invokeLater(() -> {
             if (!Objects.equals(debugger, this.debugger)) {
@@ -230,8 +230,8 @@ public class DebuggerPanel extends JPanel {
             }
         }
 
-        this.repaint();
         this.revalidate();
+        this.repaint();
     }
 
     private void clearState() {

@@ -34,7 +34,6 @@ public class MainWindow extends JFrame implements Closeable {
         this.pack();
         this.setSize((int) (screenSize.getWidth() / 1.5), (int) (screenSize.getHeight() / 1.5));
         this.setLocationRelativeTo(null);
-        this.setMaximumSize(screenSize);
 
         this.getContentPane().setLayout(new BorderLayout());
 
@@ -72,17 +71,17 @@ public class MainWindow extends JFrame implements Closeable {
             return;
         }
         if (this.showingDebuggerPanel.get()) {
-            this.debuggerPanel.update(emulator);
+            this.debuggerPanel.onFrame(emulator);
         }
         if (this.showingInfoPanel.get()) {
-            this.infoPanel.update(emulator);
+            this.infoPanel.onFrame(emulator);
         }
         emulator.getDisplay().getEmulatorRenderer().requestFrame();
     }
 
     public void onStopped() {
-        this.infoPanel.clear();
-        this.debuggerPanel.clear();
+        this.infoPanel.onStopped();
+        this.debuggerPanel.onStopped();
         this.settingsBar.onStopped();
     }
 
@@ -103,9 +102,6 @@ public class MainWindow extends JFrame implements Closeable {
     public void setInfoPanelEnabled(boolean enabled) {
         this.showingInfoPanel.set(enabled);
         SwingUtilities.invokeLater(() -> {
-            if (!enabled) {
-                this.infoPanel.clear();
-            }
             this.infoPanel.setVisible(enabled);
             this.revalidate();
             this.repaint();

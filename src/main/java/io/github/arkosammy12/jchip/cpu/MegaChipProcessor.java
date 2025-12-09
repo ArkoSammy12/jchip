@@ -48,7 +48,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChip11Proces
         }
         return switch (firstByte) {
             case 0x00 -> switch (NN) {
-                case 0xE0 -> { // 00E0: clear
+                case 0xE0 -> { // 00E0: onStopped
                     display.flushBackBuffer();
                     display.clear();
                     yield HANDLED | CLS_EXECUTED;

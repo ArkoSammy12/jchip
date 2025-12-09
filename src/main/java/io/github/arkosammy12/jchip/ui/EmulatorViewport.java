@@ -28,7 +28,6 @@ public class EmulatorViewport extends JPanel {
                 this.emulatorRenderer.close();
                 this.remove(this.emulatorRenderer);
             }
-
             this.emulatorRenderer = emulatorRenderer;
 
             if (emulatorRenderer == null) {
@@ -36,7 +35,6 @@ public class EmulatorViewport extends JPanel {
                 this.repaint();
                 return;
             }
-
             this.add(emulatorRenderer, BorderLayout.CENTER);
 
             int w = emulatorRenderer.getDisplayWidth();

@@ -42,24 +42,28 @@ public class CosmacVipEmulator implements Emulator {
     private int currentInstructionsPerFrame;
 
     public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter) {
-        this.settings = emulatorSettings;
-        this.chip8Interpreter = chip8Interpreter;
-        this.variant = emulatorSettings.getVariant();
-        this.keypad = new CosmacVIPKeypad(this);
-        this.processor = new CDP1802(this);
-        if (this.chip8Interpreter == CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8X) {
-            this.bus = new HybridChip8XBus(this);
-            this.display = new VP590<>(this);
-            VP595 vp595 = new VP595(this);
-            this.soundSystem = vp595;
-            this.ioDevices = List.of(this.display, this.keypad, vp595);
-        } else {
-            this.bus = new CosmacVipBus(this);
-            this.display = new CDP1861<>(this);
-            this.soundSystem = new Chip8SoundSystem(this);
-            this.ioDevices = List.of(this.display, this.keypad);
+        try {
+            this.settings = emulatorSettings;
+            this.chip8Interpreter = chip8Interpreter;
+            this.variant = emulatorSettings.getVariant();
+            this.keypad = new CosmacVIPKeypad(this);
+            this.processor = new CDP1802(this);
+            if (this.chip8Interpreter == CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8X) {
+                this.bus = new HybridChip8XBus(this);
+                this.display = new VP590<>(this);
+                VP595 vp595 = new VP595(this);
+                this.soundSystem = vp595;
+                this.ioDevices = List.of(this.display, this.keypad, vp595);
+            } else {
+                this.bus = new CosmacVipBus(this);
+                this.display = new CDP1861<>(this);
+                this.soundSystem = new Chip8SoundSystem(this);
+                this.ioDevices = List.of(this.display, this.keypad);
+            }
+            this.debugger = this.createDebuggerInfo();
+        } catch (Exception e) {
+            throw new EmulatorException(e);
         }
-        this.debugger = this.createDebuggerInfo();
     }
 
     @Override

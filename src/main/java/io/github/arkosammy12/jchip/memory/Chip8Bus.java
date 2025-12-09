@@ -25,7 +25,7 @@ public class Chip8Bus implements Bus {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new EmulatorException("ROM size too big for selected variant " + emulator.getVariant().getDisplayName() + "!");
         } catch (Exception e) {
-            throw new RuntimeException("Error initializing memory for variant " + emulator.getVariant() + ".", e);
+            throw new RuntimeException("Error initializing memory for variant " + emulator.getVariant(), e);
         }
     }
 
@@ -64,7 +64,7 @@ public class Chip8Bus implements Bus {
                 }
             });
         } catch (Exception e) {
-            throw new EmulatorException("Error initializing CHIP-8 font in memory: ", e);
+            throw new EmulatorException("Error initializing CHIP-8 font in memory", e);
         }
     }
 
