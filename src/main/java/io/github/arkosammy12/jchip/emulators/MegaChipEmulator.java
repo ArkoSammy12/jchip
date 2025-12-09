@@ -28,7 +28,7 @@ public class MegaChipEmulator extends SChipEmulator {
     private MegaChipSoundSystem soundSystem;
 
     public MegaChipEmulator(Chip8EmulatorSettings emulatorSettings) {
-        super(emulatorSettings, false);
+        super(emulatorSettings);
     }
 
     @Override

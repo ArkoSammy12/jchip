@@ -18,7 +18,7 @@ public class MegaChipDisplay<E extends MegaChipEmulator> extends SChipDisplay<E>
     private boolean scrollTriggered = false;
 
     public MegaChipDisplay(E emulator) {
-        super(emulator, false);
+        super(emulator);
         this.colorPalette[0] = 0x00000000;
         this.colorPalette[255] = 0xFFFFFFFF;
     }

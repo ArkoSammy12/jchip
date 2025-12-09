@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class XOChipEmulator extends SChipEmulator {
+public class XOChipEmulator extends SChipModernEmulator {
 
     @Nullable
     private XOChipProcessor<?> processor;
@@ -25,7 +25,7 @@ public class XOChipEmulator extends SChipEmulator {
     private XOChipSoundSystem soundSystem;
 
     public XOChipEmulator(Chip8EmulatorSettings emulatorSettings) {
-        super(emulatorSettings, true);
+        super(emulatorSettings);
     }
 
     @Override

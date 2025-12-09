@@ -349,9 +349,8 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     protected int executeDOpcode(int firstByte, int NN) {
         Chip8Display<?> display = this.emulator.getDisplay();
         Chip8Bus bus = this.emulator.getBus();
-        Chip8EmulatorSettings settings = this.emulator.getEmulatorSettings();
         int currentIndexRegister = this.getIndexRegister();
-        boolean doClipping = settings.doClipping();
+        boolean doClipping = this.emulator.getEmulatorSettings().doClipping();
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();

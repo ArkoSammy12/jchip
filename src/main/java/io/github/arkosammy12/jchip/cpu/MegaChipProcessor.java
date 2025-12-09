@@ -29,7 +29,6 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
         MegaChipDisplay<?> display = this.emulator.getDisplay();
         boolean handled = false;
         if (firstByte == 0x00) {
-            // Do not clear the frame buffer of the display we are switching into as per original Mega8 behavior
             handled = switch (NN) {
                 case 0x10 -> { // 0010: megaoff
                     this.setMegaMode(false);
@@ -208,9 +207,8 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
         }
 
         Chip8Bus bus = this.emulator.getBus();
-        Chip8EmulatorSettings settings = this.emulator.getEmulatorSettings();
         int currentIndexRegister = this.getIndexRegister();
-        boolean doClipping = settings.doClipping();
+        boolean doClipping = this.emulator.getEmulatorSettings().doClipping();
 
         int displayWidth = display.getWidth();
         int displayHeight = display.getHeight();
@@ -335,7 +333,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
         SChipDisplay<?> display = this.emulator.getDisplay();
         Chip8Bus bus = this.emulator.getBus();
 
-        boolean extendedMode = display.isHiresMode();
+        boolean hiresMode = display.isHiresMode();
         int currentIndexRegister = this.getIndexRegister();
 
         int N = getN(firstByte, NN);
@@ -346,7 +344,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
         int spriteX = this.getRegister(getX(firstByte, NN)) % displayWidth;
         int spriteY = this.getRegister(getY(firstByte, NN)) % displayHeight;
 
-        boolean draw16WideSprite = extendedMode && spriteHeight >= 16;
+        boolean draw16WideSprite = hiresMode && spriteHeight >= 16;
 
         int sliceLength;
         int baseMask;
@@ -377,7 +375,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChipProcesso
                 if ((slice & sliceMask) == 0) {
                     continue;
                 }
-                if (extendedMode) {
+                if (hiresMode) {
                     collided |= display.flipPixel(sliceX, sliceY);
                 } else {
                     int scaledSliceX = sliceX * 2;

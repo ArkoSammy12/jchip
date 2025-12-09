@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public class SChipEmulator extends Chip8Emulator {
+public class SChipEmulator extends SChip1Emulator {
 
     @Nullable
     private SChipProcessor<?> processor;
@@ -19,10 +19,7 @@ public class SChipEmulator extends Chip8Emulator {
     @Nullable
     private SChipDisplay<?> display;
 
-    private final boolean isModern;
-
-    public SChipEmulator(Chip8EmulatorSettings emulatorSettings, boolean isModern) {
-        this.isModern = isModern;
+    public SChipEmulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings);
     }
 
@@ -46,21 +43,8 @@ public class SChipEmulator extends Chip8Emulator {
 
     @Override
     protected SChipDisplay<?> createDisplay() {
-        this.display = new SChipDisplay<>(this, this.isModern);
+        this.display = new SChipDisplay<>(this);
         return this.display;
-    }
-
-    public boolean isModern() {
-        return this.isModern;
-    }
-
-    @Override
-    protected boolean waitVBlank(int flags) {
-        if (this.isModern) {
-            return this.getEmulatorSettings().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED);
-        } else {
-            return this.getEmulatorSettings().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isHiresMode();
-        }
     }
 
 }

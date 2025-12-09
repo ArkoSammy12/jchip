@@ -1,16 +1,18 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.emulators.SChipEmulator;
-import io.github.arkosammy12.jchip.util.DisplayAngle;
+import io.github.arkosammy12.jchip.emulators.SChipModernEmulator;
 
-public class SChipDisplay<E extends SChipEmulator> extends SChip1Display<E> {
+public class SChipModernDisplay<E extends SChipModernEmulator> extends SChipDisplay<E> {
 
-    public SChipDisplay(E emulator) {
+    public SChipModernDisplay(E emulator) {
         super(emulator);
     }
 
     @SuppressWarnings("DuplicatedCode")
     public void scrollDown(int scrollAmount) {
+        if (!this.hiresMode) {
+            scrollAmount *= 2;
+        }
         for (int i = this.imageHeight - 1; i >= 0; i--) {
             int shiftedVerticalPosition = scrollAmount + i;
             if (shiftedVerticalPosition >= this.imageHeight) {
@@ -29,7 +31,7 @@ public class SChipDisplay<E extends SChipEmulator> extends SChip1Display<E> {
 
     @SuppressWarnings("DuplicatedCode")
     public void scrollRight() {
-        int scrollAmount = 4;
+        int scrollAmount = this.hiresMode ? 4 : 8;
         for (int i = this.imageWidth - 1; i >= 0; i--) {
             int shiftedHorizontalPosition = i + scrollAmount;
             if (shiftedHorizontalPosition >= this.imageWidth) {
@@ -49,7 +51,7 @@ public class SChipDisplay<E extends SChipEmulator> extends SChip1Display<E> {
 
     @SuppressWarnings("DuplicatedCode")
     public void scrollLeft() {
-        int scrollAmount = 4;
+        int scrollAmount = this.hiresMode ? 4 : 8;
         for (int i = 0; i < this.imageWidth; i++) {
             int shiftedHorizontalPosition = i - scrollAmount;
             if (shiftedHorizontalPosition < 0) {

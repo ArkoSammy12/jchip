@@ -2,14 +2,14 @@ package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 
-public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
+public class XOChipDisplay<E extends XOChipEmulator> extends SChipModernDisplay<E> {
 
     public static final int BITPLANE_BASE_MASK = 1 << 3;
 
     private int selectedBitPlanes = 1;
 
     public XOChipDisplay(E emulator) {
-        super(emulator, true);
+        super(emulator);
     }
 
     public void setSelectedBitPlanes(int selectedBitPlanes) {
@@ -28,13 +28,15 @@ public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
 
     @SuppressWarnings("DuplicatedCode")
     public void scrollUp(int scrollAmount) {
-        int trueScrollAmount = this.hiresMode ? scrollAmount : scrollAmount * 2;
+        if (!this.hiresMode) {
+            scrollAmount *= 2;
+        }
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
             }
             for (int i = 0; i < this.imageHeight; i++) {
-                int shiftedVerticalPosition = i - trueScrollAmount;
+                int shiftedVerticalPosition = i - scrollAmount;
                 if (shiftedVerticalPosition < 0) {
                     continue;
                 }
@@ -47,7 +49,7 @@ public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
                     }
                 }
             }
-            for (int y = this.imageHeight - trueScrollAmount; y < this.imageHeight; y++) {
+            for (int y = this.imageHeight - scrollAmount; y < this.imageHeight; y++) {
                 if (y < 0) {
                     continue;
                 }
@@ -61,13 +63,15 @@ public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void scrollDown(int scrollAmount) {
-        int trueScrollAmount = this.hiresMode ? scrollAmount : scrollAmount * 2;
+        if (!this.hiresMode) {
+            scrollAmount *= 2;
+        }
         for (int mask = BITPLANE_BASE_MASK; mask > 0; mask >>>= 1) {
             if ((mask & this.selectedBitPlanes) == 0) {
                 continue;
             }
             for (int i = this.imageHeight - 1; i >= 0; i--) {
-                int shiftedVerticalPosition = trueScrollAmount + i;
+                int shiftedVerticalPosition = scrollAmount + i;
                 if (shiftedVerticalPosition >= this.imageHeight) {
                     continue;
                 }
@@ -80,7 +84,7 @@ public class XOChipDisplay<E extends XOChipEmulator> extends SChipDisplay<E> {
                     }
                 }
             }
-            for (int y = 0; y < trueScrollAmount && y < this.imageHeight; y++) {
+            for (int y = 0; y < scrollAmount && y < this.imageHeight; y++) {
                 for (int x = 0; x < this.imageWidth; x++) {
                     this.bitplaneBuffer[x][y] &= ~mask;
                 }

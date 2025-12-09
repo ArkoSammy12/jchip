@@ -7,7 +7,7 @@ import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.sound.XOChipSoundSystem;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
 
-public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E> {
+public class XOChipProcessor<E extends XOChipEmulator> extends SChipModernProcessor<E> {
 
     public XOChipProcessor(E emulator) {
         super(emulator);
@@ -91,11 +91,10 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
     protected int executeDOpcode(int firstByte, int NN) {
         XOChipDisplay<?> display = this.emulator.getDisplay();
         Chip8Bus bus = this.emulator.getBus();
-        Chip8EmulatorSettings settings = this.emulator.getEmulatorSettings();
-        boolean extendedMode = display.isHiresMode();
+        boolean hiresMode = display.isHiresMode();
         int currentIndexRegister = this.getIndexRegister();
         int selectedBitPlanes = display.getSelectedBitPlanes();
-        boolean doClipping = settings.doClipping();
+        boolean doClipping = this.emulator.getEmulatorSettings().doClipping();
 
         int N = getN(firstByte, NN);
         int spriteHeight = N < 1 ? 16 : N;
@@ -147,7 +146,7 @@ public class XOChipProcessor<E extends XOChipEmulator> extends SChipProcessor<E>
                     if ((slice & sliceMask) == 0) {
                         continue;
                     }
-                    if (extendedMode) {
+                    if (hiresMode) {
                         collided |= display.flipPixelAtBitPlanes(sliceX, sliceY, bitPlaneMask);
                     } else {
                         int scaledSliceX = sliceX * 2;
