@@ -3,19 +3,21 @@ package io.github.arkosammy12.jchip.sound;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.memory.MegaChipBus;
 
-public class MegaChipSoundSystem extends Chip8SoundSystem {
+public class MegaChipSoundSystem implements SoundSystem {
 
     private final MegaChipEmulator emulator;
+    private final Chip8SoundSystem megaOffSoundSystem;
 
+    private double step;
+    private double phase;
     private int trackStart;
     private int trackSize;
     private boolean loop;
     private boolean isPlaying;
 
     public MegaChipSoundSystem(MegaChipEmulator emulator) {
-        super(emulator);
         this.emulator = emulator;
-        this.step = 0;
+        this.megaOffSoundSystem = new Chip8SoundSystem(emulator);
     }
 
     public void playTrack(int trackSampleRate, int trackSize, boolean loop, int trackStart) {
@@ -45,7 +47,7 @@ public class MegaChipSoundSystem extends Chip8SoundSystem {
     @Override
     public void pushSamples(int soundTimer) {
         if (!this.emulator.getProcessor().isMegaModeOn()) {
-            super.pushSamples(soundTimer);
+            this.megaOffSoundSystem.pushSamples(soundTimer);
             return;
         }
         if (!this.isPlaying) {
@@ -64,7 +66,7 @@ public class MegaChipSoundSystem extends Chip8SoundSystem {
                 data[i] = 0;
             }
         }
-        this.jchip.getAudioRenderer().pushSamples8(data);
+        this.emulator.getEmulatorSettings().getJchip().getAudioRenderer().pushSamples8(data);
     }
 
 }
