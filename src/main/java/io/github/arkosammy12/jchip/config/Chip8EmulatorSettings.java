@@ -138,8 +138,9 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     private static HexSpriteFont getHexSpriteFont(Variant variant) {
         return switch (variant) {
             case CHIP_48 -> new HexSpriteFont(HexSpriteFont.CHIP_48, null);
-            case SUPER_CHIP_1, SUPER_CHIP, SUPER_CHIP_MODERN -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG);
-            case XO_CHIP, HYPERWAVE_CHIP_64 -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG);
+            case SUPER_CHIP_1 -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_10_BIG);
+            case SUPER_CHIP -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.SCHIP_11_BIG);
+            case SUPER_CHIP_MODERN, XO_CHIP, HYPERWAVE_CHIP_64 -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.OCTO_BIG);
             case MEGA_CHIP -> new HexSpriteFont(HexSpriteFont.CHIP_48, HexSpriteFont.MEGACHIP_8_BIG);
             default -> new HexSpriteFont(HexSpriteFont.CHIP_8_VIP, null);
         };
