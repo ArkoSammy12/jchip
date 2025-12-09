@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
+import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.ui.debugger.Debugger;
 import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
@@ -34,7 +35,7 @@ public class Chip8Emulator implements Emulator {
     private final Chip8Display<?> display;
 
     @Nullable
-    private final Chip8SoundSystem soundSystem;
+    private final SoundSystem soundSystem;
 
     private final Keypad keypad;
     private final Variant variant;
@@ -87,7 +88,7 @@ public class Chip8Emulator implements Emulator {
 
     @Override
     @NotNull
-    public Chip8SoundSystem getSoundSystem() {
+    public SoundSystem getSoundSystem() {
         return Objects.requireNonNull(this.soundSystem);
     }
 
@@ -107,7 +108,7 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Nullable
-    protected Chip8SoundSystem createSoundSystem() {
+    protected SoundSystem createSoundSystem() {
         return new Chip8SoundSystem(this);
     }
 

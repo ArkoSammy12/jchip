@@ -45,7 +45,7 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
     }
 
     @Override
-    public void pushSamples(byte[] buf) {
+    public void pushSamples8(byte[] buf) {
         if (this.paused) {
             return;
         }
@@ -55,6 +55,23 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
         byte[] buf16 = new byte[SAMPLES_PER_FRAME * 2];
         for (int i = 0; i < buf.length; i++) {
             int sample16 = buf[i] * 256;
+            buf16[i * 2] = (byte) ((sample16 & 0xFF00) >>> 8);
+            buf16[(i * 2) + 1] = (byte) (sample16 & 0xFF);
+        }
+        this.samples.offer(buf16);
+    }
+
+    @Override
+    public void pushSamples16(short[] buf) {
+        if (this.paused) {
+            return;
+        }
+        if (buf.length != SAMPLES_PER_FRAME) {
+            throw new IllegalArgumentException("Audio buffer sample size must be " + SAMPLES_PER_FRAME + "!");
+        }
+        byte[] buf16 = new byte[SAMPLES_PER_FRAME * 2];
+        for (int i = 0; i < buf.length; i++) {
+            int sample16 = buf[i];
             buf16[i * 2] = (byte) ((sample16 & 0xFF00) >>> 8);
             buf16[(i * 2) + 1] = (byte) (sample16 & 0xFF);
         }

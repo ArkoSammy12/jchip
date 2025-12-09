@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
-public class SChip1Emulator extends Chip8Emulator {
+public class SChip1Emulator extends Chip48Emulator {
 
     @Nullable
     private SChip1Processor<?> processor;

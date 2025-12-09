@@ -121,9 +121,10 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     @Override
     public Emulator getEmulator() {
         return switch (this.variant) {
-            case CHIP_8, CHIP_48 -> new Chip8Emulator(this);
+            case CHIP_8-> new Chip8Emulator(this);
             case STRICT_CHIP_8 -> new StrictChip8Emulator(this);
             case CHIP_8X -> new Chip8XEmulator(this);
+            case CHIP_48 -> new Chip48Emulator(this);
             case SUPER_CHIP_1 -> new SChip1Emulator(this);
             case SUPER_CHIP -> new SChipEmulator(this);
             case SUPER_CHIP_MODERN -> new SChipModernEmulator(this);

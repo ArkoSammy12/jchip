@@ -2,11 +2,9 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
-import io.github.arkosammy12.jchip.cpu.SChip1Processor;
 import io.github.arkosammy12.jchip.cpu.SChipModernProcessor;
-import io.github.arkosammy12.jchip.cpu.SChipProcessor;
-import io.github.arkosammy12.jchip.video.SChip1Display;
-import io.github.arkosammy12.jchip.video.SChipDisplay;
+import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
+import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.video.SChipModernDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +20,9 @@ public class SChipModernEmulator extends SChipEmulator {
 
     @Nullable
     private SChipModernDisplay<?> display;
+
+    @Nullable
+    private Chip8SoundSystem soundSystem;
 
     public SChipModernEmulator(Chip8EmulatorSettings emulatorSettings) {
         super(emulatorSettings);
@@ -40,6 +41,12 @@ public class SChipModernEmulator extends SChipEmulator {
     }
 
     @Override
+    @NotNull
+    public SoundSystem getSoundSystem() {
+        return Objects.requireNonNull(this.soundSystem);
+    }
+
+    @Override
     protected SChipModernProcessor<?> createProcessor() {
         this.processor = new SChipModernProcessor<>(this);
         return this.processor;
@@ -49,6 +56,12 @@ public class SChipModernEmulator extends SChipEmulator {
     protected SChipModernDisplay<?> createDisplay() {
         this.display = new SChipModernDisplay<>(this);
         return this.display;
+    }
+
+    @Override
+    protected SoundSystem createSoundSystem() {
+        this.soundSystem = new Chip8SoundSystem(this);
+        return this.soundSystem;
     }
 
     @Override
