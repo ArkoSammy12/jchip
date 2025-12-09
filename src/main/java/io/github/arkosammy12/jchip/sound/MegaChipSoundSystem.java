@@ -64,7 +64,7 @@ public class MegaChipSoundSystem extends Chip8SoundSystem {
                 data[i] = 0;
             }
         }
-        this.jchip.getSoundWriter().pushSamples8(data);
+        this.jchip.getAudioRenderer().pushSamples8(data);
     }
 
 }

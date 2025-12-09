@@ -68,7 +68,7 @@ public class MegaChipProcessor<E extends MegaChipEmulator> extends SChip11Proces
                     yield HANDLED;
                 }
                 case 0xFD -> { // 00FD: exit
-                    this.shouldTerminate = true;
+                    this.shouldExit = true;
                     yield HANDLED;
                 }
                 case 0xFE -> HANDLED; // 00FE: lores. Doesn't work when mega mode is on

@@ -34,7 +34,7 @@ public class Chip8SoundSystem implements SoundSystem {
             data[i] = (byte) (((DEFAULT_PATTERN_2[bitStep >> 3]) & (1 << (7 ^ (bitStep & 7)))) != 0 ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
             this.phase = (this.phase + step) % 1.0;
         }
-        this.jchip.getSoundWriter().pushSamples8(data);
+        this.jchip.getAudioRenderer().pushSamples8(data);
     }
 
 }

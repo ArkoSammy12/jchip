@@ -24,7 +24,7 @@ public enum DisplayAngle implements DisplayNameProvider {
                 return displayAngle;
             }
         }
-        throw new IllegalArgumentException("Invalid display angle value: " + identifier + "!");
+        throw new IllegalArgumentException("Unknown display angle identifier: " + identifier + "!");
     }
 
     public static DisplayAngle getDisplayAngleForIntValue(int intValue) {

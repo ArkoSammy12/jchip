@@ -23,9 +23,9 @@ public class Chip8Bus implements Bus {
                 this.bytes[i + programStart] = rom[i] & 0xFF;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new EmulatorException("ROM size too big for selected variant!");
+            throw new EmulatorException("ROM size too big for selected variant " + emulator.getVariant().getDisplayName() + "!");
         } catch (Exception e) {
-            throw new EmulatorException("Error initializing memory: ", e);
+            throw new RuntimeException("Error initializing memory for variant " + emulator.getVariant() + ".", e);
         }
     }
 

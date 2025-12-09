@@ -22,7 +22,7 @@ public class SettingsMenu extends JMenu {
 
         JMenu volumeMenu = new JMenu("Volume");
         JSlider volumeSlider = new JSlider(0, 100, 50);
-        volumeSlider.addChangeListener(_ -> jchip.getSoundWriter().setVolume(volumeSlider.getValue()));
+        volumeSlider.addChangeListener(_ -> jchip.getAudioRenderer().setVolume(volumeSlider.getValue()));
         JPanel volumePanel = new JPanel();
         volumePanel.add(volumeSlider);
         volumeMenu.add(volumePanel);

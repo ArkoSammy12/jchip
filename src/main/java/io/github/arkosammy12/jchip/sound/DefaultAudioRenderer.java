@@ -1,7 +1,5 @@
 package io.github.arkosammy12.jchip.sound;
 
-import org.tinylog.Logger;
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
@@ -14,7 +12,7 @@ import java.io.Closeable;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public final class DefaultSoundWriter implements SoundWriter, Closeable {
+public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
 
     private static final byte[] EMPTY_SAMPLES = new byte[SAMPLES_PER_FRAME * 2];
 
@@ -23,7 +21,7 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
     private final Queue<byte[]> samples = new LinkedList<>();
     private boolean paused = true;
 
-    public DefaultSoundWriter() {
+    public DefaultAudioRenderer() {
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
             audioLine = AudioSystem.getSourceDataLine(format);
@@ -34,9 +32,8 @@ public final class DefaultSoundWriter implements SoundWriter, Closeable {
                 control.setValue(20.0f * (float) Math.log10(50 / 100.0));
             }
             this.volumeControl = control;
-
         } catch (Exception e) {
-            throw new RuntimeException("Error while initializing Source Data Line for audio: ", e);
+            throw new RuntimeException("Error initializing Source Data Line for audio.", e);
         }
     }
 

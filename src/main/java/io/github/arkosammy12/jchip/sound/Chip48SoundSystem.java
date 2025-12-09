@@ -50,6 +50,6 @@ public class Chip48SoundSystem implements SoundSystem {
             data[i] = (short) HP48_BUZZER_SAMPLES[(int) phase];
             this.phase = (phase + 1) % HP48_BUZZER_SAMPLES.length;
         }
-        this.jchip.getSoundWriter().pushSamples16(data);
+        this.jchip.getAudioRenderer().pushSamples16(data);
     }
 }

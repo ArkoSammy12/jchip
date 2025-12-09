@@ -131,7 +131,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
             case XO_CHIP -> new XOChipEmulator(this);
             case MEGA_CHIP -> new MegaChipEmulator(this);
             case HYPERWAVE_CHIP_64 -> new HyperWaveChip64Emulator(this);
-            default -> throw new IllegalArgumentException();
+            default -> throw new IllegalArgumentException("Variant: " + this.variant + " does not correspond to a CHIP-8 interpreter core!");
         };
     }
 
@@ -173,11 +173,6 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         }
 
         @Override
-        public String toString() {
-            return this.name;
-        }
-
-        @Override
         public String getDisplayName() {
             return this.name;
         }
@@ -188,7 +183,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
                     return memoryIncrementQuirk;
                 }
             }
-            throw new IllegalArgumentException("Invalid memory increment quirk value: " + identifier + "!");
+            throw new IllegalArgumentException("Unknown memory increment quirk identifier: " + identifier + "!");
         }
 
         public static class Converter implements CommandLine.ITypeConverter<MemoryIncrementQuirk> {

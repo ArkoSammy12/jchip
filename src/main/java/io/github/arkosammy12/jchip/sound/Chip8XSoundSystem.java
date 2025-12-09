@@ -24,7 +24,7 @@ public class Chip8XSoundSystem extends Chip8SoundSystem {
             data[i] = (byte) ((phase < 0.5) ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
             this.phase = (phase + step) % 1;
         }
-        this.jchip.getSoundWriter().pushSamples8(data);
+        this.jchip.getAudioRenderer().pushSamples8(data);
     }
 
 }

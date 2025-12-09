@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
@@ -26,7 +25,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     protected final E emulator;
     private final Random random = new Random();
     private final int memoryBoundsMask;
-    protected boolean shouldTerminate;
+    protected boolean shouldExit;
 
     private final int[] registers = new int[16];
     protected final int[] stack = new int[16];
@@ -125,8 +124,8 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
         return this.random;
     }
 
-    public final boolean shouldTerminate() {
-        return this.shouldTerminate;
+    public final boolean shouldExit() {
+        return this.shouldExit;
     }
 
     public final int cycle() throws InvalidInstructionException {
@@ -157,7 +156,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
             default -> 0;
         };
         if (!isHandled(flags)) {
-            throw new InvalidInstructionException(firstByte, NN, this.emulator.getChip8Variant());
+            throw new InvalidInstructionException(firstByte, NN, this.emulator.getVariant());
         }
         return flags;
     }

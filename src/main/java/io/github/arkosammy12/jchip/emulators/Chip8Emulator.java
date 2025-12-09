@@ -117,7 +117,7 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
-    public Variant getChip8Variant() {
+    public Variant getVariant() {
         return this.variant;
     }
 
@@ -165,7 +165,7 @@ public class Chip8Emulator implements Emulator {
             if (this.waitVBlank(this.getProcessor().cycle())) {
                 break;
             }
-            if (this.getProcessor().shouldTerminate()) {
+            if (this.getProcessor().shouldExit()) {
                 this.terminate();
                 break;
             }
@@ -178,7 +178,7 @@ public class Chip8Emulator implements Emulator {
             this.getProcessor().decrementTimers();
         }
         this.getProcessor().cycle();
-        if (this.getProcessor().shouldTerminate()) {
+        if (this.getProcessor().shouldExit()) {
             this.terminate();
         }
         this.getDisplay().flush();
@@ -217,7 +217,7 @@ public class Chip8Emulator implements Emulator {
         debugger.createTextSectionEntry()
                 .withName("VF Reset: " + this.emulatorSettings.doVFReset() + ".");
         debugger.createTextSectionEntry()
-                .withName("Increment I: " + this.emulatorSettings.getMemoryIncrementQuirk() + ".");
+                .withName("Increment I: " + this.emulatorSettings.getMemoryIncrementQuirk().getDisplayName() + ".");
         debugger.createTextSectionEntry()
                 .withName("Display Wait: " + this.emulatorSettings.doDisplayWait() + ".");
         debugger.createTextSectionEntry()

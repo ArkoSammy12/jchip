@@ -63,7 +63,7 @@ public class InfoPanel extends JPanel {
 
     public void update(Emulator emulator) {
         String romTitle = emulator.getEmulatorSettings().getRomTitle().orElse("N/A");
-        String variantName = emulator.getChip8Variant().getDisplayName();
+        String variantName = emulator.getVariant().getDisplayName();
         this.totalIpfSinceLastUpdate += emulator.getCurrentInstructionsPerFrame();
         long now = System.nanoTime();
         double lastFrameDuration = now - lastFrameTime;
@@ -75,7 +75,7 @@ public class InfoPanel extends JPanel {
         if (deltaTime < 1_000_000_000L) {
             if (!Objects.equals(this.romTitleLabel.getText(), romTitle) || !Objects.equals(this.variantLabel.getText(), variantName)) {
                 SwingUtilities.invokeLater(() -> {
-                    this.variantLabel.setText(emulator.getChip8Variant().getDisplayName());
+                    this.variantLabel.setText(emulator.getVariant().getDisplayName());
                     romTitleLabel.setText(romTitle);
                     this.romTitleLabel.setToolTipText(romTitle);
                 });

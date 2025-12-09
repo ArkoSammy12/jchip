@@ -4,8 +4,8 @@ import io.github.arkosammy12.jchip.config.CLIArgs;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.sound.DefaultSoundWriter;
-import io.github.arkosammy12.jchip.sound.SoundWriter;
+import io.github.arkosammy12.jchip.sound.DefaultAudioRenderer;
+import io.github.arkosammy12.jchip.sound.AudioRenderer;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.FrameLimiter;
@@ -23,7 +23,7 @@ public class Jchip {
     private MainWindow mainWindow;
     private Emulator currentEmulator;
     private final Chip8Database database = new Chip8Database();
-    private final DefaultSoundWriter soundWriter = new DefaultSoundWriter();
+    private final DefaultAudioRenderer audioRenderer = new DefaultAudioRenderer();
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
     private final int[] flagsStorage = new int[16];
 
@@ -79,8 +79,8 @@ public class Jchip {
         return this.database;
     }
 
-    public SoundWriter getSoundWriter() {
-        return this.soundWriter;
+    public AudioRenderer getAudioRenderer() {
+        return this.audioRenderer;
     }
 
     public void setFlagRegister(int index, int value) {
@@ -114,10 +114,10 @@ public class Jchip {
                     case STEPPING_CYCLE -> onSteppingCycle();
                 }
                 this.mainWindow.onFrame(this.currentEmulator);
-                this.soundWriter.onFrame();
-            } catch (EmulatorException emulatorException) {
-                Logger.error("Error while running emulator: {}", emulatorException);
-                this.mainWindow.showExceptionDialog(emulatorException);
+                this.audioRenderer.onFrame();
+            } catch (EmulatorException e) {
+                Logger.error("Error while running emulator: {}", e);
+                this.mainWindow.showExceptionDialog(e);
                 this.stop();
             }
         }
@@ -144,7 +144,7 @@ public class Jchip {
     }
 
     private void onIdle() {
-        this.soundWriter.setPaused(true);
+        this.audioRenderer.setPaused(true);
     }
 
     private void onStopping() throws Exception {
@@ -153,7 +153,7 @@ public class Jchip {
             this.currentEmulator = null;
             this.mainWindow.setEmulatorRenderer(null);
         }
-        this.soundWriter.setPaused(true);
+        this.audioRenderer.setPaused(true);
         this.mainWindow.onStopped();
         this.currentState.set(State.IDLE);
     }
@@ -163,7 +163,7 @@ public class Jchip {
             this.currentEmulator.close();
             this.mainWindow.setEmulatorRenderer(null);
         }
-        this.soundWriter.setPaused(true);
+        this.audioRenderer.setPaused(true);
         this.currentEmulator = Variant.getEmulator(this);
         this.currentState.set(State.RUNNING);
     }
@@ -172,7 +172,7 @@ public class Jchip {
         if (currentEmulator == null) {
             return;
         }
-        this.soundWriter.setPaused(false);
+        this.audioRenderer.setPaused(false);
         this.currentEmulator.executeFrame();
     }
 
@@ -180,7 +180,7 @@ public class Jchip {
         if (currentEmulator == null) {
             return;
         }
-        this.soundWriter.setPaused(true);
+        this.audioRenderer.setPaused(true);
         this.currentEmulator.executeFrame();
         this.currentState.set(State.PAUSED);
     }
@@ -189,7 +189,7 @@ public class Jchip {
         if (this.currentEmulator == null) {
             return;
         }
-        this.soundWriter.setPaused(true);
+        this.audioRenderer.setPaused(true);
         this.currentEmulator.executeSingleCycle();
         this.currentState.set(State.PAUSED);
     }
@@ -204,7 +204,7 @@ public class Jchip {
             this.mainWindow.onStopped();
             this.mainWindow.close();
         }
-        this.soundWriter.close();
+        this.audioRenderer.close();
     }
 
     private enum State {

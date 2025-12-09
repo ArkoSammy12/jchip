@@ -41,7 +41,7 @@ public class VP595 implements SoundSystem, IODevice {
             data[i] = (byte) ((phase < 0.5) ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
             phase = (phase + step) % 1;
         }
-        this.jchip.getSoundWriter().pushSamples8(data);
+        this.jchip.getAudioRenderer().pushSamples8(data);
     }
 
 }

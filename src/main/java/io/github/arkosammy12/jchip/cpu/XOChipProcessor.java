@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;

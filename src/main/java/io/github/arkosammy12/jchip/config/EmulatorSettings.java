@@ -36,7 +36,7 @@ public interface EmulatorSettings {
         try {
             return Files.readAllBytes(path);
         } catch (Exception e) {
-            throw new EmulatorException(e);
+            throw new EmulatorException("Error reading ROM file from path: " + path + ".", e);
         }
     }
 

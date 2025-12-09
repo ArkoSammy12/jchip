@@ -52,7 +52,7 @@ public enum Variant implements DisplayNameProvider {
                 return variant;
             }
         }
-        throw new IllegalArgumentException("Unknown variant: " + identifier);
+        throw new IllegalArgumentException("Unknown variant identifier: " + identifier);
     }
 
     public static class Converter implements CommandLine.ITypeConverter<Variant> {

@@ -19,7 +19,7 @@ public class SChip10Processor<E extends SChip10Emulator> extends Chip8Processor<
         if (firstByte == 0x00) {
             return switch (NN) {
                 case 0xFD -> { // 00FD: exit
-                    this.shouldTerminate = true;
+                    this.shouldExit = true;
                     yield HANDLED;
                 }
                 case 0xFE -> { // 00FE: lores

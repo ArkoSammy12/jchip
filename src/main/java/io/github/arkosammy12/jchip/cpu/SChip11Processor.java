@@ -58,7 +58,7 @@ public class SChip11Processor<E extends SChip11Emulator> extends SChip10Processo
         int spriteX = this.getRegister(getX(firstByte, NN)) % displayWidth;
         int spriteY = this.getRegister(getY(firstByte, NN)) % displayHeight;
 
-        boolean draw16WideSprite = hiresMode&& spriteHeight >= 16;
+        boolean draw16WideSprite = hiresMode && spriteHeight >= 16;
 
         int sliceLength;
         int baseMask;
@@ -88,7 +88,7 @@ public class SChip11Processor<E extends SChip11Emulator> extends SChip10Processo
             int slice = draw16WideSprite
                     ? (bus.readByte(currentIndexRegister + i * 2) << 8) | bus.readByte(currentIndexRegister + (i * 2) + 1)
                     : bus.readByte(currentIndexRegister + i);
-            boolean rowCollided = false;
+            boolean sliceCollided = false;
             for (int j = 0, sliceMask = baseMask; j < sliceLength; j++, sliceMask >>>= 1) {
                 int sliceX = spriteX + j;
                 if (sliceX >= displayWidth) {
@@ -102,12 +102,12 @@ public class SChip11Processor<E extends SChip11Emulator> extends SChip10Processo
                     continue;
                 }
                 if (hiresMode) {
-                    rowCollided |= display.flipPixel(sliceX, sliceY);
+                    sliceCollided |= display.flipPixel(sliceX, sliceY);
                 } else {
                     int scaledSliceX = sliceX * 2;
                     int scaledSliceY = sliceY * 2;
-                    rowCollided |= display.flipPixel(scaledSliceX, scaledSliceY);
-                    rowCollided |= display.flipPixel(scaledSliceX + 1, scaledSliceY);
+                    sliceCollided |= display.flipPixel(scaledSliceX, scaledSliceY);
+                    sliceCollided |= display.flipPixel(scaledSliceX + 1, scaledSliceY);
                     display.flipPixel(scaledSliceX, scaledSliceY + 1);
                     display.flipPixel(scaledSliceX + 1, scaledSliceY + 1);
                 }
@@ -119,10 +119,10 @@ public class SChip11Processor<E extends SChip11Emulator> extends SChip10Processo
                 for (int j = x1; j < x2; j++) {
                     display.setPixel(j, scaledSliceY + 1, display.getPixel(j, scaledSliceY));
                 }
-                if (rowCollided) {
+                if (sliceCollided) {
                     collisionCounter = 1;
                 }
-            } else if (rowCollided) {
+            } else if (sliceCollided) {
                 collisionCounter++;
             }
         }

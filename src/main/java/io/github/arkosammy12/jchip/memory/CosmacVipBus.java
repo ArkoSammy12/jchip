@@ -150,9 +150,9 @@ public class CosmacVipBus implements Bus {
         try {
             this.initializeRam(emulator, rom);
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new EmulatorException("ROM size too big for selected variant!");
+            throw new EmulatorException("ROM size too big for selected variant " + emulator.getVariant().getDisplayName() + "!");
         } catch (Exception e) {
-            throw new EmulatorException("Error initializing memory: ", e);
+            throw new RuntimeException("Error initializing memory for variant " + emulator.getVariant() + ".", e);
         }
     }
 

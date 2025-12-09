@@ -88,7 +88,7 @@ public class CosmacVipEmulator implements Emulator {
     }
 
     @Override
-    public Variant getChip8Variant() {
+    public Variant getVariant() {
         return this.variant;
     }
 

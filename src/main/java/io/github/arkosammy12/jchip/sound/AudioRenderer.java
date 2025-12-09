@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.sound;
 
-public interface SoundWriter {
+public interface AudioRenderer {
 
     void pushSamples8(byte[] samples);
 

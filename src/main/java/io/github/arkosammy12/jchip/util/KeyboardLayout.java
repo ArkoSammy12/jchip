@@ -103,7 +103,7 @@ public enum KeyboardLayout implements DisplayNameProvider {
                 return layout;
             }
         }
-        throw new IllegalArgumentException("Unknown keyboard layout: " + identifier);
+        throw new IllegalArgumentException("Unknown keyboard layout identifier: " + identifier);
     }
 
     @Override

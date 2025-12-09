@@ -23,7 +23,7 @@ public interface Emulator extends AutoCloseable {
 
     EmulatorSettings getEmulatorSettings();
 
-    Variant getChip8Variant();
+    Variant getVariant();
 
     List<KeyAdapter> getKeyAdapters();
 

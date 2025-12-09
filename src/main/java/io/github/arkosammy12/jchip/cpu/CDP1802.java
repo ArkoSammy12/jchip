@@ -171,7 +171,7 @@ public class CDP1802 implements Processor {
             case S3_INTERRUPT -> onInterrupt();
         };
         if (!isHandled(flags)) {
-            throw new InvalidInstructionException((getI() << 4) | getN(), this.emulator.getChip8Variant());
+            throw new InvalidInstructionException((getI() << 4) | getN(), this.emulator.getVariant());
         }
         this.machineCycles++;
         return flags;
