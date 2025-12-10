@@ -97,7 +97,6 @@
                 <version>1.7.1</version>
                 <configuration>
                     <name>jchip</name>
-                    <appVersion>${project.version}</appVersion>
                     <type>APP_IMAGE</type>
                     <mainJar>${project.build.finalName}.jar</mainJar>
                     <input>${project.build.directory}</input>
