@@ -23,7 +23,7 @@ jobs:
         run: mvn -B package
 
       - name: Create app-image (jpackage)
-        run: mvn -B jpackage:jpackage
+        run: mvn -B -Papp-image jpackage:jpackage
 
       - name: Archive Windows image
         run: powershell Compress-Archive target/dist jchip-windows.zip
@@ -48,7 +48,7 @@ jobs:
         run: mvn -B package
 
       - name: Create app-image (jpackage)
-        run: mvn -B jpackage:jpackage
+        run: mvn -B -Papp-image jpackage:jpackage
 
       - name: Archive Linux image
         run: tar czf jchip-linux.tar.gz target/dist
@@ -73,7 +73,7 @@ jobs:
         run: mvn -B package
 
       - name: Create app-image (jpackage)
-        run: mvn -B jpackage:jpackage
+        run: mvn -B -Papp-image jpackage:jpackage
 
       - name: Archive macOS image
         run: zip -r jchip-macos.zip target/dist
