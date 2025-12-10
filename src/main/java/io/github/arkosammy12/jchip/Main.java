@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip;
 
-import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.intellijthemes.FlatOneDarkIJTheme;
 import org.tinylog.Logger;
 
 import javax.swing.*;
@@ -15,11 +15,18 @@ public class Main {
     public static final String VERSION_STRING = "v4.1.3";
 
     static void main(String[] args) throws Exception {
-        FlatDarculaLaf.setup();
-        System.setProperty("flatlaf.menuBarEmbedded", Boolean.FALSE.toString());
+
+        FlatOneDarkIJTheme.setUseNativeWindowDecorations(true);
+        FlatOneDarkIJTheme.setup();
+        JFrame.setDefaultLookAndFeelDecorated(false);
+        JDialog.setDefaultLookAndFeelDecorated(false);
+        UIManager.put("TitlePane.useWindowDecorations", false);
+        System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
+
+        UIManager.put("Component.arc", 8);
+        UIManager.put("Button.arc", 8);
         UIManager.put("Component.hideMnemonics", false);
         UIManager.put("FileChooser.readOnly", true);
-        JFrame.setDefaultLookAndFeelDecorated(true);
         System.setProperty("sun.awt.noerasebackground", Boolean.TRUE.toString());
         if (Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported"))) {
             Toolkit.getDefaultToolkit().setDynamicLayout(true);

@@ -1,0 +1,84 @@
+name: Build App-Images
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Temurin JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Build with Maven
+        run: mvn -B package
+
+      - name: Create app-image (jpackage)
+        run: mvn -B jpackage:jpackage
+
+      - name: Archive Windows image
+        run: powershell Compress-Archive target/dist jchip-windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jchip-windows
+          path: jchip-windows.zip
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Temurin JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Build with Maven
+        run: mvn -B package
+
+      - name: Create app-image (jpackage)
+        run: mvn -B jpackage:jpackage
+
+      - name: Archive Linux image
+        run: tar czf jchip-linux.tar.gz target/dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jchip-linux
+          path: jchip-linux.tar.gz
+
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Temurin JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Build with Maven
+        run: mvn -B package
+
+      - name: Create app-image (jpackage)
+        run: mvn -B jpackage:jpackage
+
+      - name: Archive macOS image
+        run: zip -r jchip-macos.zip target/dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jchip-macos
+          path: jchip-macos.zip

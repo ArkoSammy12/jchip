@@ -51,15 +51,20 @@
             <version>2.7.0</version>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>26.0.2-1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
             <version>3.7</version>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>26.0.2-1</version>
-            <scope>provided</scope>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-intellij-themes</artifactId>
+            <version>3.7</version>
         </dependency>
     </dependencies>
 
@@ -86,7 +91,27 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.7.1</version>
+                <configuration>
+                    <name>jchip</name>
+                    <appVersion>${project.version}</appVersion>
+                    <type>APP_IMAGE</type>
+                    <mainJar>${project.build.finalName}.jar</mainJar>
+                    <input>${project.build.directory}</input>
+                    <mainClass>io.github.arkosammy12.jchip.Main</mainClass>
+                    <runtimeImage>${java.home}</runtimeImage>
+                    <destination>${project.build.directory}/dist</destination>
+                    <removeDestination>true</removeDestination>
+                    <javaOptions>
+                        <option>-Dfile.encoding=UTF-8</option>
+                        <option>--enable-native-access=ALL-UNNAMED</option>
+                        <option>-XX:+UseZGC</option>
+                    </javaOptions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>
