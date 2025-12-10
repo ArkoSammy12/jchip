@@ -91,27 +91,46 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.panteleyev</groupId>
-                <artifactId>jpackage-maven-plugin</artifactId>
-                <version>1.7.1</version>
-                <configuration>
-                    <name>jchip</name>
-                    <appVersion>${project.version}</appVersion>
-                    <type>APP_IMAGE</type>
-                    <mainJar>${project.build.finalName}.jar</mainJar>
-                    <input>${project.build.directory}</input>
-                    <mainClass>io.github.arkosammy12.jchip.Main</mainClass>
-                    <runtimeImage>${java.home}</runtimeImage>
-                    <destination>${project.build.directory}/dist</destination>
-                    <removeDestination>true</removeDestination>
-                    <javaOptions>
-                        <option>-Dfile.encoding=UTF-8</option>
-                        <option>--enable-native-access=ALL-UNNAMED</option>
-                        <option>-XX:+UseZGC</option>
-                    </javaOptions>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>app-image</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <version>1.7.1</version>
+                        <executions>
+                            <execution>
+                                <id>app-image</id>
+                                <goals>
+                                    <goal>jpackage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <name>jchip</name>
+                            <appVersion>${project.version}</appVersion>
+                            <type>APP_IMAGE</type>
+                            <mainJar>${project.build.finalName}.jar</mainJar>
+                            <input>${project.build.directory}</input>
+                            <mainClass>io.github.arkosammy12.jchip.Main</mainClass>
+                            <runtimeImage>${java.home}</runtimeImage>
+                            <destination>${project.build.directory}/dist</destination>
+                            <removeDestination>true</removeDestination>
+                            <overwrite>true</overwrite>
+                            <javaOptions>
+                                <option>-Dfile.encoding=UTF-8</option>
+                                <option>--enable-native-access=ALL-UNNAMED</option>
+                                <option>-XX:+UseZGC</option>
+                            </javaOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
