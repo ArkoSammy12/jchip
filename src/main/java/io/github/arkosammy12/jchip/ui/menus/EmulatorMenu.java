@@ -1,13 +1,17 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
+import io.github.arkosammy12.jchip.ui.util.EnumMenu;
+import io.github.arkosammy12.jchip.ui.util.NumberOnlyTextField;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
 import io.github.arkosammy12.jchip.video.ColorPalette;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
@@ -110,7 +114,7 @@ public class EmulatorMenu extends JMenu {
         this.instructionsPerFrameMenu.setToolTipText("Set the desired IPF or leave blank to unspecify.");
 
         JLabel label = new JLabel("IPF: ");
-        this.instructionsPerFrameField = new JTextField(6);
+        this.instructionsPerFrameField = new NumberOnlyTextField();
         instructionsPerFrameField.setMaximumSize(instructionsPerFrameField.getPreferredSize());
         instructionsPerFrameField.setText(this.instructionsPerFrame != null ? this.instructionsPerFrame.toString() : "");
         instructionsPerFrameField.addActionListener(_ -> {
@@ -134,6 +138,39 @@ public class EmulatorMenu extends JMenu {
             }
 
         });
+
+        instructionsPerFrameField.getDocument().addDocumentListener(new DocumentListener() {
+            private void update() {
+                String text = instructionsPerFrameField.getText().trim();
+                if (text.isEmpty()) {
+                    instructionsPerFrame = null;
+                    return;
+                }
+                try {
+                    int ipf = Integer.parseInt(text);
+                    if (ipf > 0) {
+                        instructionsPerFrame = ipf;
+                    }
+                } catch (NumberFormatException _) {}
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                update();
+            }
+        });
+
+
         JPanel ipfPanel = new JPanel();
         ipfPanel.add(label);
         ipfPanel.add(instructionsPerFrameField);

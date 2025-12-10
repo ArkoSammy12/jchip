@@ -7,6 +7,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel.*;
+
 public class Debugger {
 
     private final List<TextEntry<?>> textSectionEntries = new ArrayList<>();
@@ -15,10 +17,10 @@ public class Debugger {
     private final List<TextEntry<?>> stackEntries = new ArrayList<>();
     private Supplier<Integer> scrollAddressSupplier;
 
-    private String textSectionName = "Current Quirks";
-    private String singleRegisterSectionName = "Single Registers";
-    private String registerSectionName = "Registers";
-    private String stackSectionName = "Stack";
+    private String textSectionName = DEFAULT_TEXT_SECTION_NAME;
+    private String singleRegisterSectionName = DEFAULT_SINGLE_REGISTERS_SECTION_NAME;
+    private String registerSectionName = DEFAULT_REGISTERS_SECTION_NAME;
+    private String stackSectionName = DEFAULT_STACK_SECTION_NAME;
 
     public void setScrollAddressSupplier(Supplier<Integer> scrollAddressSupplier) {
         this.scrollAddressSupplier = scrollAddressSupplier;

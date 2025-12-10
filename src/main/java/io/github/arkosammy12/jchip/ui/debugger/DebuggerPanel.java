@@ -13,6 +13,11 @@ import java.util.Objects;
 
 public class DebuggerPanel extends JPanel {
 
+    public static final String DEFAULT_TEXT_SECTION_NAME = "Current Quirks";
+    public static final String DEFAULT_SINGLE_REGISTERS_SECTION_NAME = "Single Registers";
+    public static final String DEFAULT_REGISTERS_SECTION_NAME = "Registers";
+    public static final String DEFAULT_STACK_SECTION_NAME = "Stack";
+
     private final Jchip jchip;
 
     private final JTextArea textArea;
@@ -50,9 +55,9 @@ public class DebuggerPanel extends JPanel {
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         caret.setVisible(false);
 
-        this.singleRegistersPanel = new JPanel(new GridLayout(0, 2, 1, 1));
-        this.registersPanel = new JPanel(new GridLayout(0, 2, 5, 1));
-        this.stackPanel = new JPanel(new GridLayout(0, 2, 5, 1));
+        this.singleRegistersPanel = new JPanel(new GridLayout(0, 2, 0, 0));
+        this.registersPanel = new JPanel(new GridLayout(0, 2, 0, 0));
+        this.stackPanel = new JPanel(new GridLayout(0, 2, 0, 0));
 
         this.memoryTable = new MemoryTable();
 
@@ -60,41 +65,45 @@ public class DebuggerPanel extends JPanel {
         textScrollPane.setPreferredSize(new Dimension(textScrollPane.getSize().width, 20));
         textScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "",
+                DEFAULT_TEXT_SECTION_NAME,
                 TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION));
+                TitledBorder.DEFAULT_POSITION,
+                this.textScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.singleRegistersScrollPane = new JScrollPane(singleRegistersPanel);
         singleRegistersScrollPane.setPreferredSize(new Dimension(singleRegistersScrollPane.getSize().width, 10));
         singleRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "",
+                DEFAULT_SINGLE_REGISTERS_SECTION_NAME,
                 TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION));
+                TitledBorder.DEFAULT_POSITION,
+                this.singleRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.registersScrollPane = new JScrollPane(registersPanel);
         registersScrollPane.setPreferredSize(new Dimension(registersScrollPane.getSize().width, 130));
         registersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "",
+                DEFAULT_REGISTERS_SECTION_NAME,
                 TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION));
+                TitledBorder.DEFAULT_POSITION,
+                this.registersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.stackScrollPane = new JScrollPane(stackPanel);
         stackScrollPane.setPreferredSize(new Dimension(stackScrollPane.getSize().width, 130));
         stackScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "",
+                DEFAULT_STACK_SECTION_NAME,
                 TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION));
+                TitledBorder.DEFAULT_POSITION,
+                this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
 
         JScrollPane memoryScrollPane = new JScrollPane(memoryTable);
-        memoryScrollPane.setPreferredSize(new Dimension(memoryScrollPane.getSize().width, 280));
+        memoryScrollPane.setPreferredSize(new Dimension(280, memoryScrollPane.getSize().height));
         memoryScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                 "Memory",
                 TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION));
+                TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
 
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
@@ -111,14 +120,16 @@ public class DebuggerPanel extends JPanel {
 
         JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         mainSplit.setResizeWeight(0.5);
+        mainSplit.setDividerSize(5);
 
         this.setPreferredSize(new Dimension(500, this.getSize().height));
         this.setLayout(new BorderLayout());
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "Live Debugger",
+                "Debugger",
                 TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION));
+                TitledBorder.DEFAULT_POSITION,
+                this.getFont().deriveFont(Font.BOLD)));
 
         this.add(mainSplit, BorderLayout.CENTER);
     }
@@ -131,16 +142,31 @@ public class DebuggerPanel extends JPanel {
 
             this.textScrollPane.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                    ""));
+                    DEFAULT_TEXT_SECTION_NAME,
+                    TitledBorder.DEFAULT_JUSTIFICATION,
+                    TitledBorder.DEFAULT_POSITION,
+                    this.textScrollPane.getFont().deriveFont(Font.BOLD)));
+
             this.singleRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                    ""));
+                    DEFAULT_SINGLE_REGISTERS_SECTION_NAME,
+                    TitledBorder.DEFAULT_JUSTIFICATION,
+                    TitledBorder.DEFAULT_POSITION,
+                    this.singleRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
+
             this.registersScrollPane.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                    ""));
+                    DEFAULT_REGISTERS_SECTION_NAME,
+                    TitledBorder.DEFAULT_JUSTIFICATION,
+                    TitledBorder.DEFAULT_POSITION,
+                    this.registersScrollPane.getFont().deriveFont(Font.BOLD)));
+
             this.stackScrollPane.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                    ""));
+                    DEFAULT_STACK_SECTION_NAME,
+                    TitledBorder.DEFAULT_JUSTIFICATION,
+                    TitledBorder.DEFAULT_POSITION,
+                    this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
 
             this.revalidate();
             this.repaint();
@@ -183,24 +209,40 @@ public class DebuggerPanel extends JPanel {
         this.registerLabels.addAll(this.debugger.getRegisterLabels());
         this.stackLabels.addAll(this.debugger.getStackLabels());
 
+        this.textPanelLabels.forEach(label -> label.setFont(label.getFont().deriveFont(Font.BOLD).deriveFont(15f)));
+        this.singleRegisterLabels.forEach(label -> label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15)));
+        this.registerLabels.forEach(label -> label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15)));
+        this.stackLabels.forEach(label -> label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15)));
+
         this.textScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                this.debugger.getTextSectionName()));
+                this.debugger.getTextSectionName(),
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.textScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.singleRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                this.debugger.getSingleRegisterSectionName()));
+                this.debugger.getSingleRegisterSectionName(),
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.singleRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.registersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                this.debugger.getRegisterSectionName()));
+                this.debugger.getRegisterSectionName(),
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.registersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.stackScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                this.debugger.getStackSectionName()));
+                this.debugger.getStackSectionName(),
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
 
         for (DebuggerLabel<?> label : this.singleRegisterLabels) {
-            label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
             this.singleRegistersPanel.add(label);
         }
 
@@ -212,7 +254,6 @@ public class DebuggerPanel extends JPanel {
                     continue;
                 }
                 DebuggerLabel<?> registerLabel = this.registerLabels.get(index);
-                registerLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
                 registersPanel.add(registerLabel);
             }
         }
@@ -225,7 +266,6 @@ public class DebuggerPanel extends JPanel {
                     continue;
                 }
                 DebuggerLabel<?> stackLabel = this.stackLabels.get(index);
-                stackLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
                 stackPanel.add(stackLabel);
             }
         }
@@ -248,4 +288,5 @@ public class DebuggerPanel extends JPanel {
 
         this.memoryTable.clear();
     }
+
 }

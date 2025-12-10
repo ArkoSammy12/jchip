@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
+import io.github.arkosammy12.jchip.ui.menus.InfoPanel;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,43 +24,41 @@ public class MainWindow extends JFrame implements Closeable {
     private final InfoPanel infoPanel;
 
     private final AtomicBoolean showingDebuggerPanel = new AtomicBoolean(false);
-    private final AtomicBoolean showingInfoPanel = new AtomicBoolean(true);
 
     public MainWindow(Jchip jchip) {
-        super();
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        super(DEFAULT_TITLE);
         this.setBackground(Color.BLACK);
-        this.getContentPane().setBackground(Color.BLACK);
-        this.setIgnoreRepaint(false);
-        this.pack();
-        this.setSize((int) (screenSize.getWidth() / 1.5), (int) (screenSize.getHeight() / 1.5));
-        this.setLocationRelativeTo(null);
-
         this.getContentPane().setLayout(new BorderLayout());
+        this.getContentPane().setBackground(Color.BLACK);
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setPreferredSize(new Dimension(((int) (screenSize.getWidth() / 1.5)), (int) (screenSize.getHeight() / 1.5)));
 
         this.emulatorViewport = new EmulatorViewport();
         this.emulatorViewport.setVisible(true);
 
         this.settingsBar = new SettingsBar(jchip);
-        this.setJMenuBar(this.settingsBar);
 
         this.infoPanel = new InfoPanel();
         this.infoPanel.setVisible(true);
-        this.getContentPane().add(this.infoPanel, BorderLayout.SOUTH);
 
         this.debuggerPanel = new DebuggerPanel(jchip);
         this.debuggerPanel.setVisible(false);
 
         this.mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debuggerPanel);
-        mainSplitPane.setContinuousLayout(true);
-        mainSplitPane.setResizeWeight(0.5);
-        mainSplitPane.setDividerSize(0);
+        this.mainSplitPane.setContinuousLayout(true);
+        this.mainSplitPane.setResizeWeight(0.5);
+        this.mainSplitPane.setDividerSize(0);
 
-        this.getContentPane().add(mainSplitPane, BorderLayout.CENTER);
+        this.setJMenuBar(this.settingsBar);
+        this.getContentPane().add(this.infoPanel, BorderLayout.SOUTH);
+        this.getContentPane().add(this.mainSplitPane, BorderLayout.CENTER);
 
         this.setTitle(DEFAULT_TITLE);
         this.requestFocusInWindow();
         this.setResizable(true);
+        this.pack();
+        this.setLocationRelativeTo(null);
     }
 
     public SettingsBar getSettingsBar() {
@@ -73,9 +72,7 @@ public class MainWindow extends JFrame implements Closeable {
         if (this.showingDebuggerPanel.get()) {
             this.debuggerPanel.onFrame(emulator);
         }
-        if (this.showingInfoPanel.get()) {
-            this.infoPanel.onFrame(emulator);
-        }
+        this.infoPanel.onFrame(emulator);
         emulator.getDisplay().getEmulatorRenderer().requestFrame();
     }
 
@@ -93,14 +90,18 @@ public class MainWindow extends JFrame implements Closeable {
         this.showingDebuggerPanel.set(enabled);
         SwingUtilities.invokeLater(() -> {
             this.debuggerPanel.setVisible(enabled);
-            this.mainSplitPane.setDividerSize(enabled ? 8 : 0);
+            this.mainSplitPane.setDividerSize(enabled ? 5 : 0);
+            if (enabled) {
+                SwingUtilities.invokeLater(() -> mainSplitPane.setDividerLocation(mainSplitPane.getLastDividerLocation()));
+            } else {
+                mainSplitPane.setLastDividerLocation(mainSplitPane.getDividerLocation());
+            }
             this.revalidate();
             this.repaint();
         });
     }
 
     public void setInfoPanelEnabled(boolean enabled) {
-        this.showingInfoPanel.set(enabled);
         SwingUtilities.invokeLater(() -> {
             this.infoPanel.setVisible(enabled);
             this.revalidate();

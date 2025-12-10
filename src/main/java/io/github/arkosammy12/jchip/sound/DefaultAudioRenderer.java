@@ -20,6 +20,7 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
     private final FloatControl volumeControl;
     private final Queue<byte[]> samples = new LinkedList<>();
     private boolean paused = true;
+    private boolean muted = false;
 
     public DefaultAudioRenderer() {
         try {
@@ -39,6 +40,11 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
 
     public void setPaused(boolean paused) {
         this.paused = paused;
+    }
+
+    @Override
+    public void setMuted(boolean muted) {
+        this.muted = muted;
     }
 
     @Override
@@ -83,7 +89,7 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
 
     public void onFrame() {
         byte[] samples = this.samples.poll();
-        if (samples == null) {
+        if (samples == null || this.muted) {
             samples = EMPTY_SAMPLES;
         }
         if (!this.audioLine.isRunning()) {

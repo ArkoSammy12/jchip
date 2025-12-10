@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;

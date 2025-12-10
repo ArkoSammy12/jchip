@@ -1,11 +1,13 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.CLIArgs;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
+import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 
 import javax.swing.*;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
 
@@ -27,6 +29,12 @@ public class SettingsMenu extends JMenu {
         volumePanel.add(volumeSlider);
         volumeMenu.add(volumePanel);
 
+        JRadioButtonMenuItem muteButton = new JRadioButtonMenuItem("Mute");
+        muteButton.addActionListener(_ -> jchip.getAudioRenderer().setMuted(muteButton.isSelected()));
+        muteButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK, true));
+        muteButton.setToolTipText("Mute emulator audio.");
+        muteButton.setSelected(false);
+
         this.keyboardLayoutMenu = new EnumMenu<>("Keyboard Layout", KeyboardLayout.class, false);
         this.keyboardLayoutMenu.setState(KeyboardLayout.QWERTY);
         this.keyboardLayoutMenu.setMnemonic(KeyEvent.VK_K);
@@ -37,6 +45,7 @@ public class SettingsMenu extends JMenu {
         this.showInfoPanelButton.addActionListener(_ -> jchip.getMainWindow().setInfoPanelEnabled(this.showInfoPanelButton.isSelected()));
 
         this.add(volumeMenu);
+        this.add(muteButton);
         this.addSeparator();
         this.add(keyboardLayoutMenu);
         this.addSeparator();

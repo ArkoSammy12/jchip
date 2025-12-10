@@ -217,7 +217,7 @@ public class Chip8Emulator implements Emulator {
         debugger.createTextSectionEntry()
                 .withName("VF Reset: " + this.emulatorSettings.doVFReset() + ".");
         debugger.createTextSectionEntry()
-                .withName("Increment I: " + this.emulatorSettings.getMemoryIncrementQuirk().getDisplayName() + ".");
+                .withName("I increment: " + this.emulatorSettings.getMemoryIncrementQuirk().getDisplayName() + ".");
         debugger.createTextSectionEntry()
                 .withName("Display Wait: " + this.emulatorSettings.doDisplayWait() + ".");
         debugger.createTextSectionEntry()

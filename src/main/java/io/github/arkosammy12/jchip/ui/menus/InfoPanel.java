@@ -1,10 +1,6 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.emulators.Emulator;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.Objects;
 
 import javax.swing.*;
 import java.awt.*;

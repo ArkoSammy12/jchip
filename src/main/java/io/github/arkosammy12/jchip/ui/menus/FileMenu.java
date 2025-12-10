@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.menus;
 
 import com.formdev.flatlaf.icons.*;
 import com.formdev.flatlaf.util.SystemFileChooser;
@@ -7,8 +7,6 @@ import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.nio.file.Path;

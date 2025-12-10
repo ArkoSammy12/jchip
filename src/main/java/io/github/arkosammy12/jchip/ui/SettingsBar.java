@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.ui;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
+import io.github.arkosammy12.jchip.ui.menus.*;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;

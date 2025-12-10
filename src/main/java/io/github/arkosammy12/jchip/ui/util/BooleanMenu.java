@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.util;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;

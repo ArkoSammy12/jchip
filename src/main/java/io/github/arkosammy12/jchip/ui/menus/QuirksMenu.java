@@ -1,7 +1,9 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
+import io.github.arkosammy12.jchip.ui.util.BooleanMenu;
+import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -55,6 +57,7 @@ public class QuirksMenu extends JMenu {
         this.doJumpWithVXMenu.setToolTipText("Toggle the Jump with VX quirk or leave unspecified.");
 
         this.add(this.forceVariantQuirksButton);
+        this.addSeparator();
         this.add(this.doVFResetMenu);
         this.add(this.memoryIncrementQuirkEnumMenu);
         this.add(this.doDisplayWaitMenu);

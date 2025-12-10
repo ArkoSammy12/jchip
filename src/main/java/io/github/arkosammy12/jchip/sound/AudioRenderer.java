@@ -8,4 +8,6 @@ public interface AudioRenderer {
 
     void setVolume(int volume);
 
+    void setMuted(boolean muted);
+
 }
