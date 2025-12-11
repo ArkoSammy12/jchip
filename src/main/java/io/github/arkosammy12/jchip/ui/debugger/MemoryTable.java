@@ -5,9 +5,10 @@ import io.github.arkosammy12.jchip.emulators.Emulator;
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
-
-import static io.github.arkosammy12.jchip.ui.debugger.MemoryTableModel.BYTES_PER_ROW;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class MemoryTable extends JTable {
 
@@ -29,22 +30,48 @@ public class MemoryTable extends JTable {
         this.setRowSelectionAllowed(false);
         this.setColumnSelectionAllowed(false);
         this.setTableHeader(null);
-        //this.setMaximumSize(new Dimension(260, Integer.M));
+        this.buildTable();
 
-        TableColumn addressColumn = this.getColumnModel().getColumn(0);
-        addressColumn.setPreferredWidth(ADDRESS_COLUMN_WIDTH);
-        addressColumn.setMinWidth(ADDRESS_COLUMN_WIDTH);
-        //addressColumn.setMaxWidth(ADDRESS_COLUMN_WIDTH);
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int currentBytesPerRow = memoryTableModel.getBytesPerRow();
+                int newBytesPerRow = 8;
 
-        for (int i = 1; i < this.getColumnModel().getColumnCount(); i++) {
-            TableColumn column = this.getColumnModel().getColumn(i);
-            column.setPreferredWidth(MEMORY_COLUMN_WIDTH);
-            column.setMinWidth(MEMORY_COLUMN_WIDTH);
-            //column.setMaxWidth(MEMORY_COLUMN_WIDTH);
-        }
-
+                if (getSize().width > (ADDRESS_COLUMN_WIDTH + (MEMORY_COLUMN_WIDTH * 32))) {
+                    newBytesPerRow = 32;
+                } else if (getSize().width > (ADDRESS_COLUMN_WIDTH + (MEMORY_COLUMN_WIDTH * 16))) {
+                    newBytesPerRow = 16;
+                }
+                if (newBytesPerRow != currentBytesPerRow) {
+                    memoryTableModel.setBytesPerRow(newBytesPerRow);
+                    buildTable();
+                }
+            }
+        });
 
     }
+
+    private void buildTable() {
+        this.memoryTableModel.rebuildColumns();
+        TableColumnModel colModel = this.getColumnModel();
+
+        TableColumn addressColumn = colModel.getColumn(0);
+        addressColumn.setPreferredWidth(ADDRESS_COLUMN_WIDTH);
+        addressColumn.setMinWidth(ADDRESS_COLUMN_WIDTH);
+
+        for (int i = 1; i < colModel.getColumnCount(); i++) {
+            TableColumn col = colModel.getColumn(i);
+            col.setPreferredWidth(MEMORY_COLUMN_WIDTH);
+            col.setMinWidth(MEMORY_COLUMN_WIDTH);
+        }
+
+        this.revalidate();
+        this.repaint();
+    }
+
+
+
 
     public void update(Emulator emulator) {
         this.memoryTableModel.update(emulator);
@@ -54,7 +81,6 @@ public class MemoryTable extends JTable {
         this.memoryTableModel.clear();
         this.scrollToAddress(0);
     }
-
 
     @Override
     public boolean getScrollableTracksViewportWidth() {
@@ -74,7 +100,7 @@ public class MemoryTable extends JTable {
     }
 
     public void scrollToAddress(int address) {
-        int targetY = (address / BYTES_PER_ROW) * this.getRowHeight();
+        int targetY = (address / this.memoryTableModel.getBytesPerRow()) * this.getRowHeight();
         if (targetY < 0) {
             targetY = 0;
         }
