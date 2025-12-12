@@ -1,7 +1,7 @@
 name: jpackage
 
 on:
-  workflow_dispatch: # allows manual triggering
+  workflow_dispatch:
 
 jobs:
   build:

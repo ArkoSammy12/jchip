@@ -18,7 +18,7 @@ public class DebuggerLabelTablePanel extends JTable {
     private final List<? extends DebuggerLabel<?>> labels;
     private final int columnCount;
     private final boolean columnMayor;
-    private final int minRows; // NEW
+    private final int minRows;
 
     public DebuggerLabelTablePanel(List<? extends DebuggerLabel<?>> labels, int columnCount, int minRows) {
         this(labels, columnCount, false, minRows);
