@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainWindow extends JFrame implements Closeable {
 
-    private static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
+    public static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
     private final JSplitPane mainSplitPane;
     private final EmulatorViewport emulatorViewport;
@@ -54,7 +54,6 @@ public class MainWindow extends JFrame implements Closeable {
         this.getContentPane().add(this.infoPanel, BorderLayout.SOUTH);
         this.getContentPane().add(this.mainSplitPane, BorderLayout.CENTER);
 
-        this.setTitle(DEFAULT_TITLE);
         this.requestFocusInWindow();
         this.setResizable(true);
         this.pack();

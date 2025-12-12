@@ -25,8 +25,8 @@ public class InfoPanel extends JPanel {
         super(new GridLayout(1, 6, 0, 0));
         this.setPreferredSize(new Dimension(100, 28));
 
-        this.add(createScrollPanel(variantField, "The variant being used to run the current ROM."));
-        this.add(createScrollPanel(romTitleField, "The name of the running ROM, or the file name."));
+        this.add(createScrollPanel(variantField, "The variant used by the currently running ROM."));
+        this.add(createScrollPanel(romTitleField, "The name or file name of the currently running ROM."));
         this.add(createScrollPanel(ipfField, "The current IPF value average."));
         this.add(createScrollPanel(mipsField, "The current MIPS value average."));
         this.add(createScrollPanel(frameTimeField, "The current frame time value average, in milliseconds."));
