@@ -21,10 +21,10 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
     private final DebuggerMenu debuggerMenu;
     private final HelpMenu helpMenu;
 
-    public SettingsBar(Jchip jchip) {
+    public SettingsBar(Jchip jchip, MainWindow mainWindow) {
         super();
 
-        this.fileMenu = new FileMenu(jchip);
+        this.fileMenu = new FileMenu(jchip, mainWindow);
         this.fileMenu.setToolTipText("File related options and actions.");
 
         this.emulatorMenu = new EmulatorMenu(jchip);

@@ -70,9 +70,6 @@ public class MemoryTable extends JTable {
         this.repaint();
     }
 
-
-
-
     public void update(Emulator emulator) {
         this.memoryTableModel.update(emulator);
     }
@@ -86,7 +83,6 @@ public class MemoryTable extends JTable {
     public boolean getScrollableTracksViewportWidth() {
         return getPreferredSize().width <= getParent().getWidth();
     }
-
 
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {

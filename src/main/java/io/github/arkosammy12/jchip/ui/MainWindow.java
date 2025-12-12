@@ -37,7 +37,7 @@ public class MainWindow extends JFrame implements Closeable {
         this.emulatorViewport = new EmulatorViewport();
         this.emulatorViewport.setVisible(true);
 
-        this.settingsBar = new SettingsBar(jchip);
+        this.settingsBar = new SettingsBar(jchip, this);
 
         this.infoPanel = new InfoPanel();
         this.infoPanel.setVisible(true);
@@ -59,6 +59,7 @@ public class MainWindow extends JFrame implements Closeable {
         this.setResizable(true);
         this.pack();
         this.setLocationRelativeTo(null);
+
     }
 
     public SettingsBar getSettingsBar() {
