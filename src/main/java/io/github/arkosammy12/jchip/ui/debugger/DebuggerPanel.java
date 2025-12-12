@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTablePanel;
+import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -23,18 +23,14 @@ public class DebuggerPanel extends JPanel {
 
     private final JTextArea textArea;
 
-    private final JPanel singleRegistersPanel;
-    private final JPanel registersPanel;
-    private final JPanel stackPanel;
-
     private final JScrollPane textScrollPane;
     private final JScrollPane singleRegistersScrollPane;
     private final JScrollPane registersScrollPane;
     private final JScrollPane stackScrollPane;
 
-    private final DebuggerLabelTablePanel singleRegistersTable;
-    private final DebuggerLabelTablePanel registersTable;
-    private final DebuggerLabelTablePanel stackTable;
+    private final DebuggerLabelTable singleRegistersTable;
+    private final DebuggerLabelTable registersTable;
+    private final DebuggerLabelTable stackTable;
 
     private Debugger debugger;
 
@@ -60,14 +56,9 @@ public class DebuggerPanel extends JPanel {
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         caret.setVisible(false);
 
-        this.singleRegistersPanel = new JPanel();
-        this.registersPanel = new JPanel();
-        this.stackPanel = new JPanel();
-
-        this.singleRegistersTable = new DebuggerLabelTablePanel(this.singleRegisterLabels, 2, 3);
-        this.registersTable = new DebuggerLabelTablePanel(this.registerLabels, 2, true, 8);
-        this.stackTable = new DebuggerLabelTablePanel(this.stackLabels, 2, true, 8);
-
+        this.singleRegistersTable = new DebuggerLabelTable(this.singleRegisterLabels, 2, 3);
+        this.registersTable = new DebuggerLabelTable(this.registerLabels, 2, true, 8);
+        this.stackTable = new DebuggerLabelTable(this.stackLabels, 2, true, 8);
         this.memoryTable = new MemoryTable();
 
         this.textScrollPane = new JScrollPane(textArea);
@@ -79,7 +70,7 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_POSITION,
                 this.textScrollPane.getFont().deriveFont(Font.BOLD)));
 
-        this.singleRegistersScrollPane = new JScrollPane(singleRegistersPanel);
+        this.singleRegistersScrollPane = new JScrollPane(this.singleRegistersTable);
         singleRegistersScrollPane.setPreferredSize(new Dimension(singleRegistersScrollPane.getSize().width, 10));
         singleRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
@@ -88,7 +79,7 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_POSITION,
                 this.singleRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
-        this.registersScrollPane = new JScrollPane(registersPanel);
+        this.registersScrollPane = new JScrollPane(this.registersTable);
         registersScrollPane.setPreferredSize(new Dimension(registersScrollPane.getSize().width, 130));
         registersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
@@ -97,7 +88,7 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_POSITION,
                 this.registersScrollPane.getFont().deriveFont(Font.BOLD)));
 
-        this.stackScrollPane = new JScrollPane(stackPanel);
+        this.stackScrollPane = new JScrollPane(this.stackTable);
         stackScrollPane.setPreferredSize(new Dimension(stackScrollPane.getSize().width, 130));
         stackScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
@@ -114,17 +105,25 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
 
-        singleRegistersScrollPane.setViewportView(this.singleRegistersTable);
-        registersScrollPane.setViewportView(this.registersTable);
-        stackScrollPane.setViewportView(this.stackTable);
+        JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScrollPane, singleRegistersScrollPane);
+        firstSplit.setResizeWeight(0.5);
+        firstSplit.setDividerSize(3);
+        firstSplit.setContinuousLayout(true);
+
+        JSplitPane secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, registersScrollPane);
+        secondSplit.setResizeWeight(0.5);
+        secondSplit.setDividerSize(3);
+        secondSplit.setContinuousLayout(true);
+
+        JSplitPane thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, stackScrollPane);
+        thirdSplit.setResizeWeight(0.5);
+        thirdSplit.setDividerSize(3);
+        thirdSplit.setContinuousLayout(true);
 
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setPreferredSize(new Dimension(150, leftPanel.getSize().height));
-        leftPanel.add(textScrollPane);
-        leftPanel.add(singleRegistersScrollPane);
-        leftPanel.add(registersScrollPane);
-        leftPanel.add(stackScrollPane);
+        leftPanel.add(thirdSplit);
 
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
@@ -134,6 +133,7 @@ public class DebuggerPanel extends JPanel {
         JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         mainSplit.setResizeWeight(0.5);
         mainSplit.setDividerSize(5);
+        mainSplit.setContinuousLayout(true);
 
         this.setPreferredSize(new Dimension(500, this.getSize().height));
         this.setLayout(new BorderLayout());

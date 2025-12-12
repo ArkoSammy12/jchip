@@ -9,7 +9,7 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.util.List;
 
-public class DebuggerLabelTablePanel extends JTable {
+public class DebuggerLabelTable extends JTable {
 
     private static final int COLUMN_WIDTH = 60;
     private static final int ROW_HEIGHT = 26;
@@ -20,11 +20,11 @@ public class DebuggerLabelTablePanel extends JTable {
     private final boolean columnMayor;
     private final int minRows;
 
-    public DebuggerLabelTablePanel(List<? extends DebuggerLabel<?>> labels, int columnCount, int minRows) {
+    public DebuggerLabelTable(List<? extends DebuggerLabel<?>> labels, int columnCount, int minRows) {
         this(labels, columnCount, false, minRows);
     }
 
-    public DebuggerLabelTablePanel(List<? extends DebuggerLabel<?>> labels, int columnCount, boolean columnMayor, int minRows) {
+    public DebuggerLabelTable(List<? extends DebuggerLabel<?>> labels, int columnCount, boolean columnMayor, int minRows) {
         super();
         this.labels = labels;
         this.columnCount = columnCount;
@@ -70,15 +70,11 @@ public class DebuggerLabelTablePanel extends JTable {
     }
 
     public void update() {
-        boolean changed = updateColumnWidths();
-        if (changed) {
-            revalidate();
-            repaint();
-        }
-        model.fireTableDataChanged();
+        this.updateColumnWidthIfNecessary();
+        this.model.fireTableDataChanged();
     }
 
-    private boolean updateColumnWidths() {
+    private void updateColumnWidthIfNecessary() {
         FontMetrics fm = getFontMetrics(getFont());
 
         int maxChars = 0;
@@ -103,8 +99,10 @@ public class DebuggerLabelTablePanel extends JTable {
                 changed = true;
             }
         }
-
-        return changed;
+        if (changed) {
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     private class Model extends DefaultTableModel {
@@ -134,4 +132,5 @@ public class DebuggerLabelTablePanel extends JTable {
             return labels.get(index).getText();
         }
     }
+
 }
