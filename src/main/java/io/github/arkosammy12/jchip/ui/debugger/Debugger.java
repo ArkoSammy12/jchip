@@ -12,14 +12,14 @@ import static io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel.*;
 public class Debugger {
 
     private final List<TextEntry<?>> textSectionEntries = new ArrayList<>();
-    private final List<TextEntry<?>> singleRegistersEntries = new ArrayList<>();
-    private final List<TextEntry<?>> registerEntries = new ArrayList<>();
+    private final List<TextEntry<?>> cpuRegisterEntries = new ArrayList<>();
+    private final List<TextEntry<?>> generalPurposeRegisterEntries = new ArrayList<>();
     private final List<TextEntry<?>> stackEntries = new ArrayList<>();
     private Supplier<Integer> scrollAddressSupplier;
 
     private String textSectionName = DEFAULT_TEXT_SECTION_NAME;
-    private String singleRegisterSectionName = DEFAULT_SINGLE_REGISTERS_SECTION_NAME;
-    private String registerSectionName = DEFAULT_REGISTERS_SECTION_NAME;
+    private String cpuRegistersSectionName = DEFAULT_CPU_REGISTERS_SECTION_NAME;
+    private String generalPurposeRegistersSectionName = DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME;
     private String stackSectionName = DEFAULT_STACK_SECTION_NAME;
 
     public void setScrollAddressSupplier(Supplier<Integer> scrollAddressSupplier) {
@@ -34,20 +34,20 @@ public class Debugger {
         this.textSectionEntries.clear();
     }
 
-    public void setSingleRegisterSectionName(String name) {
-        this.singleRegisterSectionName = name;
+    public void setCpuRegistersSectionName(String name) {
+        this.cpuRegistersSectionName = name;
     }
 
-    public void clearSingleRegisterSectionEntries() {
-        this.singleRegistersEntries.clear();
+    public void clearCpuRegistersSectionName() {
+        this.cpuRegisterEntries.clear();
     }
 
-    public void setRegisterSectionName(String name) {
-        this.registerSectionName = name;
+    public void setGeneralPurposeRegistersSectionName(String name) {
+        this.generalPurposeRegistersSectionName = name;
     }
 
-    public void clearRegisterSectionEntries() {
-        this.registerEntries.clear();
+    public void clearGeneralPurposeRegistersSectionName() {
+        this.generalPurposeRegisterEntries.clear();
     }
 
     public void setStackSectionName(String name) {
@@ -62,37 +62,37 @@ public class Debugger {
         return this.textSectionName;
     }
 
-    public String getSingleRegisterSectionName() {
-        return this.singleRegisterSectionName;
+    public String getCpuRegistersSectionName() {
+        return this.cpuRegistersSectionName;
     }
 
-    public String getRegisterSectionName() {
-        return this.registerSectionName;
+    public String getGeneralPurposeRegistersSectionName() {
+        return this.generalPurposeRegistersSectionName;
     }
 
     public String getStackSectionName() {
         return this.stackSectionName;
     }
 
-    public <T> TextEntry<T> createTextSectionEntry() {
+    public <T> TextEntry<T> createTextEntry() {
         TextEntry<T> entry = new TextEntry<>();
         this.textSectionEntries.add(entry);
         return entry;
     }
 
-    public <T> TextEntry<T> createSingleRegisterSectionEntry() {
+    public <T> TextEntry<T> createCpuRegisterEntry() {
         TextEntry<T> entry = new TextEntry<>();
-        this.singleRegistersEntries.add(entry);
+        this.cpuRegisterEntries.add(entry);
         return entry;
     }
 
-    public <T> TextEntry<T> createRegisterSectionEntry() {
+    public <T> TextEntry<T> createGeneralPurposeRegisterEntry() {
         TextEntry<T> entry = new TextEntry<>();
-        this.registerEntries.add(entry);
+        this.generalPurposeRegisterEntries.add(entry);
         return entry;
     }
 
-    public <T> TextEntry<T> createStackSectionEntry() {
+    public <T> TextEntry<T> createStackEntry() {
         TextEntry<T> entry = new TextEntry<>();
         this.stackEntries.add(entry);
         return entry;
@@ -102,12 +102,12 @@ public class Debugger {
         return this.textSectionEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
     }
 
-    List<DebuggerLabel<?>> getSingleRegisterLabels() {
-        return this.singleRegistersEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
+    List<DebuggerLabel<?>> getCpuRegisterLabels() {
+        return this.cpuRegisterEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
     }
 
-    List<DebuggerLabel<?>> getRegisterLabels() {
-        return this.registerEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
+    List<DebuggerLabel<?>> getGeneralPurposeRegisterLabels() {
+        return this.generalPurposeRegisterEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
     }
 
     List<DebuggerLabel<?>> getStackLabels() {
@@ -161,7 +161,7 @@ public class Debugger {
             return Optional.ofNullable(this.toStringFunction);
         }
 
-        DebuggerLabel<T> getDebuggerLabel() {
+        private DebuggerLabel<T> getDebuggerLabel() {
             return new DebuggerLabel<>(this);
         }
 

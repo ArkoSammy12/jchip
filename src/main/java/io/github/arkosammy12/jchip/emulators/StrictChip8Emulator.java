@@ -122,7 +122,7 @@ public final class StrictChip8Emulator extends Chip8Emulator {
         Debugger debugger = super.createDebuggerInfo();
         debugger.clearTextSectionEntries();
         debugger.setTextSectionName("Strict CHIP-8");
-        debugger.createTextSectionEntry()
+        debugger.createTextEntry()
                 .withName("No custom quirks supported.");
         return debugger;
     }

@@ -17,19 +17,19 @@ public class DebuggerLabelTable extends JTable {
     private final Model model;
     private final List<? extends DebuggerLabel<?>> labels;
     private final int columnCount;
+    private final int rowCount;
     private final boolean columnMayor;
-    private final int minRows;
 
-    public DebuggerLabelTable(List<? extends DebuggerLabel<?>> labels, int columnCount, int minRows) {
-        this(labels, columnCount, false, minRows);
+    public DebuggerLabelTable(List<? extends DebuggerLabel<?>> labels, int columnCount) {
+        this(labels, columnCount, false);
     }
 
-    public DebuggerLabelTable(List<? extends DebuggerLabel<?>> labels, int columnCount, boolean columnMayor, int minRows) {
+    public DebuggerLabelTable(List<? extends DebuggerLabel<?>> labels, int columnCount, boolean columnMayor) {
         super();
         this.labels = labels;
         this.columnCount = columnCount;
+        this.rowCount = (int) Math.ceil((double) labels.size() / columnCount);
         this.columnMayor = columnMayor;
-        this.minRows = minRows;
 
         this.model = new Model();
         this.setModel(this.model);
@@ -107,10 +107,24 @@ public class DebuggerLabelTable extends JTable {
 
     private class Model extends DefaultTableModel {
 
+        private int getNaturalRowCount() {
+            return (int) Math.ceil((double) labels.size() / columnCount);
+        }
+
         @Override
         public int getRowCount() {
-            int calculated = (int) Math.ceil((double) labels.size() / columnCount);
-            return Math.max(calculated, minRows);
+            int natural = getNaturalRowCount();
+
+            int viewportHeight = 0;
+            Container parent = getParent();
+
+            if (parent instanceof JViewport viewport) {
+                viewportHeight = viewport.getHeight();
+            }
+
+            int rowsToFill = viewportHeight > 0 ? viewportHeight / ROW_HEIGHT : 0;
+
+            return Math.max(natural, rowsToFill);
         }
 
         @Override
@@ -125,12 +139,24 @@ public class DebuggerLabelTable extends JTable {
 
         @Override
         public Object getValueAt(int row, int col) {
-            int index = columnMayor ? col * getRowCount() + row : row * getColumnCount() + col;
-            if (index < 0 || index >= labels.size()) {
+            int naturalRows = getNaturalRowCount();
+            int totalLabels = labels.size();
+
+            if (row >= naturalRows) {
                 return "";
             }
+
+            int index = columnMayor
+                    ? col * naturalRows + row
+                    : row * columnCount + col;
+
+            if (index < 0 || index >= totalLabels) {
+                return "";
+            }
+
             return labels.get(index).getText();
         }
     }
+
 
 }

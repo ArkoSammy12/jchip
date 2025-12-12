@@ -214,54 +214,54 @@ public class Chip8Emulator implements Emulator {
         Debugger debugger = new Debugger();
         debugger.setScrollAddressSupplier(() -> this.getProcessor().getIndexRegister());
 
-        debugger.createTextSectionEntry()
+        debugger.createTextEntry()
                 .withName("VF Reset: " + this.emulatorSettings.doVFReset() + ".");
-        debugger.createTextSectionEntry()
+        debugger.createTextEntry()
                 .withName("I increment: " + this.emulatorSettings.getMemoryIncrementQuirk().getDisplayName() + ".");
-        debugger.createTextSectionEntry()
+        debugger.createTextEntry()
                 .withName("Display Wait: " + this.emulatorSettings.doDisplayWait() + ".");
-        debugger.createTextSectionEntry()
+        debugger.createTextEntry()
                 .withName("Clipping: " + this.emulatorSettings.doDisplayWait() + ".");
-        debugger.createTextSectionEntry()
+        debugger.createTextEntry()
                 .withName("Shift VX In Place: " + this.emulatorSettings.doShiftVXInPlace() + ".");
-        debugger.createTextSectionEntry()
+        debugger.createTextEntry()
                 .withName("Jump With VX: " + this.emulatorSettings.doJumpWithVX() + ".");
 
         Function<Integer, String> byteFormatter = val -> String.format("%02X", val);
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("PC")
                 .withStateUpdater(this.getProcessor()::getProgramCounter)
                 .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("I")
                 .withStateUpdater(this.getProcessor()::getIndexRegister)
                 .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("DT")
                 .withStateUpdater(this.getProcessor()::getSoundTimer)
                 .withToStringFunction(byteFormatter);
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("ST")
                 .withStateUpdater(this.getProcessor()::getSoundTimer)
                 .withToStringFunction(byteFormatter);
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("SP")
                 .withStateUpdater(this.getProcessor()::getStackPointer)
                 .withToStringFunction(byteFormatter);
 
         for (int i = 0; i < 16; i++) {
             int finalI = i;
-            debugger.<Integer>createRegisterSectionEntry()
+            debugger.<Integer>createGeneralPurposeRegisterEntry()
                     .withName(String.format("V%01X", i))
                     .withStateUpdater(() -> this.getProcessor().getRegister(finalI))
                     .withToStringFunction(byteFormatter);
 
-            debugger.<Integer>createStackSectionEntry()
+            debugger.<Integer>createStackEntry()
                     .withName(String.format("%01X", i))
                     .withStateUpdater(() -> this.getProcessor().getStackElement(finalI))
                     .withToStringFunction(val -> String.format("%0" + hexDigitCount(this.getBus().getMemoryBoundsMask()) + "X", val));

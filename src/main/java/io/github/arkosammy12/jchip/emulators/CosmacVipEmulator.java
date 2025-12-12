@@ -235,50 +235,50 @@ public class CosmacVipEmulator implements Emulator {
         Function<Integer, String> nibbleFormatter = val -> String.format("%01X", val);
         Function<Boolean, String> booleanFormatter = val -> val ? "1" : "0";
 
-        debugger.createTextSectionEntry()
+        debugger.createTextEntry()
                 .withName("Cosmac VIP based variant. Does not support custom quirks.");
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("I")
                 .withStateUpdater(this.processor::getI)
                 .withToStringFunction(nibbleFormatter);
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("N")
                 .withStateUpdater(this.processor::getN)
                 .withToStringFunction(nibbleFormatter);
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("P")
                 .withStateUpdater(this.processor::getP)
                 .withToStringFunction(nibbleFormatter);
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("X")
                 .withStateUpdater(this.processor::getX)
                 .withToStringFunction(nibbleFormatter);
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("D")
                 .withStateUpdater(this.processor::getD)
                 .withToStringFunction(byteFormatter);
 
-        debugger.<Integer>createSingleRegisterSectionEntry()
+        debugger.<Integer>createCpuRegisterEntry()
                 .withName("T")
                 .withStateUpdater(this.processor::getT)
                 .withToStringFunction(byteFormatter);
 
-        debugger.<Boolean>createSingleRegisterSectionEntry()
+        debugger.<Boolean>createCpuRegisterEntry()
                 .withName("DF")
                 .withStateUpdater(this.processor::getDF)
                 .withToStringFunction(booleanFormatter);
 
-        debugger.<Boolean>createSingleRegisterSectionEntry()
+        debugger.<Boolean>createCpuRegisterEntry()
                 .withName("IE")
                 .withStateUpdater(this.processor::getIE)
                 .withToStringFunction(booleanFormatter);
 
-        debugger.<Boolean>createSingleRegisterSectionEntry()
+        debugger.<Boolean>createCpuRegisterEntry()
                 .withName("Q")
                 .withStateUpdater(this.processor::getQ)
                 .withToStringFunction(booleanFormatter);
@@ -287,12 +287,12 @@ public class CosmacVipEmulator implements Emulator {
 
         for (int i = 0; i < 16; i++) {
             int finalI = i;
-            debugger.<Integer>createRegisterSectionEntry()
+            debugger.<Integer>createGeneralPurposeRegisterEntry()
                     .withName(String.format("R%01X", i))
                     .withStateUpdater(() -> this.getProcessor().getR(finalI))
                     .withToStringFunction(val -> String.format("%04X", val));
 
-            debugger.<Integer>createStackSectionEntry()
+            debugger.<Integer>createStackEntry()
                     .withName(String.format("%01X", i))
                     .withStateUpdater(() -> this.getBus().getByte(this.processor.getR(finalI)))
                     .withToStringFunction(val -> String.format("%02X", val));
