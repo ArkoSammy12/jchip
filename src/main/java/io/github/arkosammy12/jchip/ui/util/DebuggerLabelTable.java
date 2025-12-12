@@ -17,7 +17,6 @@ public class DebuggerLabelTable extends JTable {
     private final Model model;
     private final List<? extends DebuggerLabel<?>> labels;
     private final int columnCount;
-    private final int rowCount;
     private final boolean columnMayor;
 
     public DebuggerLabelTable(List<? extends DebuggerLabel<?>> labels, int columnCount) {
@@ -28,7 +27,6 @@ public class DebuggerLabelTable extends JTable {
         super();
         this.labels = labels;
         this.columnCount = columnCount;
-        this.rowCount = (int) Math.ceil((double) labels.size() / columnCount);
         this.columnMayor = columnMayor;
 
         this.model = new Model();

@@ -2,11 +2,9 @@ package io.github.arkosammy12.jchip.ui.menus;
 
 import com.formdev.flatlaf.icons.*;
 import com.formdev.flatlaf.util.SystemFileChooser;
-import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.MainWindow;
-import org.tinylog.Logger;
 
 import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
@@ -23,12 +21,14 @@ public class FileMenu extends JMenu {
 
     private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8", "hc8", "cos", "bin"};
 
+    private final MainWindow mainWindow;
     private final AtomicReference<Path> romPath = new AtomicReference<>(null);
     private final AtomicReference<byte[]> rawRom = new AtomicReference<>(null);
     private Path currentDirectory;
 
-    public FileMenu(Jchip jchip, MainWindow mainWindow) {
+    public FileMenu(MainWindow mainWindow) {
         super("File");
+        this.mainWindow = mainWindow;
 
         this.setMnemonic(KeyEvent.VK_F);
 
@@ -42,8 +42,7 @@ public class FileMenu extends JMenu {
             if (chooser.showOpenDialog(SwingUtilities.getWindowAncestor(this)) == JFileChooser.APPROVE_OPTION) {
                 Path selectedFilePath =  chooser.getSelectedFile().toPath();
                 this.currentDirectory = selectedFilePath.getParent();
-                this.romPath.set(selectedFilePath);
-                this.rawRom.set(EmulatorSettings.readRawRom(this.romPath.get()));
+                loadFile(selectedFilePath);
             }
         });
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK, true));
@@ -67,16 +66,15 @@ public class FileMenu extends JMenu {
                 }
                 try {
                     List<File> files = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    Path filePath = files.getFirst().toPath();
-                    Logger.info(filePath);
-                    romPath.set(filePath);
-                    rawRom.set(EmulatorSettings.readRawRom(romPath.get()));
+                    loadFile(files.getFirst().toPath());
                     return true;
                 } catch (Exception e) {
                     return false;
                 }
             }
         });
+
+        this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | Selected File: none");
 
     }
 
@@ -95,6 +93,12 @@ public class FileMenu extends JMenu {
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
         primarySettingsProvider.getRawRom().ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
         primarySettingsProvider.getRomPath().map(Path::toAbsolutePath).ifPresent(this.romPath::set);
+    }
+
+    private void loadFile(Path filePath) {
+        romPath.set(filePath);
+        rawRom.set(EmulatorSettings.readRawRom(romPath.get()));
+        this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | Selected File: " + filePath.getFileName());
     }
 
 }
