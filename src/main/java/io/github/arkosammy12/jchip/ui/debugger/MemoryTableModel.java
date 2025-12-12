@@ -10,7 +10,6 @@ import java.util.Objects;
 
 public class MemoryTableModel extends DefaultTableModel {
 
-    public static final int BYTES_PER_ROW = 8;
     private static final int MAX_SHOWN_BYTES = 0xFFFFFF + 1;
 
     private Bus memory;
@@ -22,8 +21,6 @@ public class MemoryTableModel extends DefaultTableModel {
         super();
         this.rowCount = (int) Math.ceil(MAX_SHOWN_BYTES / (double) this.bytesPerRow);
     }
-
-
 
     public void setBytesPerRow(int bytesPerRow) {
         this.bytesPerRow = bytesPerRow;
@@ -42,6 +39,11 @@ public class MemoryTableModel extends DefaultTableModel {
     @Override
     public int getColumnCount() {
         return this.bytesPerRow + 1;
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
     }
 
     void rebuildColumns() {

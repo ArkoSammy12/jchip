@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
+import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTablePanel;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -31,6 +32,10 @@ public class DebuggerPanel extends JPanel {
     private final JScrollPane registersScrollPane;
     private final JScrollPane stackScrollPane;
 
+    private final DebuggerLabelTablePanel singleRegistersTable;
+    private final DebuggerLabelTablePanel registersTable;
+    private final DebuggerLabelTablePanel stackTable;
+
     private Debugger debugger;
 
     private final List<DebuggerLabel<?>> textPanelLabels = new ArrayList<>();
@@ -55,9 +60,13 @@ public class DebuggerPanel extends JPanel {
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         caret.setVisible(false);
 
-        this.singleRegistersPanel = new JPanel(new GridLayout(0, 2, 0, 0));
-        this.registersPanel = new JPanel(new GridLayout(0, 2, 0, 0));
-        this.stackPanel = new JPanel(new GridLayout(0, 2, 0, 0));
+        this.singleRegistersPanel = new JPanel();
+        this.registersPanel = new JPanel();
+        this.stackPanel = new JPanel();
+
+        this.singleRegistersTable = new DebuggerLabelTablePanel(this.singleRegisterLabels, 2, 3);
+        this.registersTable = new DebuggerLabelTablePanel(this.registerLabels, 2, true, 8);
+        this.stackTable = new DebuggerLabelTablePanel(this.stackLabels, 2, true, 8);
 
         this.memoryTable = new MemoryTable();
 
@@ -104,6 +113,10 @@ public class DebuggerPanel extends JPanel {
                 "Memory",
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
+
+        singleRegistersScrollPane.setViewportView(this.singleRegistersTable);
+        registersScrollPane.setViewportView(this.registersTable);
+        stackScrollPane.setViewportView(this.stackTable);
 
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
@@ -191,6 +204,10 @@ public class DebuggerPanel extends JPanel {
             this.registerLabels.forEach(DebuggerLabel::updateState);
             this.stackLabels.forEach(DebuggerLabel::updateState);
 
+            this.singleRegistersTable.update();
+            this.registersTable.update();
+            this.stackTable.update();
+
             this.memoryTable.update(emulator);
             this.debugger.getScrollAddressSupplier().ifPresent(supplier -> {
                 if (this.jchip.getMainWindow().getSettingsBar().getDebuggerSettingsMenu().isMemoryFollowEnabled()) {
@@ -242,6 +259,8 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_POSITION,
                 this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
 
+
+        /*
         for (DebuggerLabel<?> label : this.singleRegisterLabels) {
             this.singleRegistersPanel.add(label);
         }
@@ -270,6 +289,9 @@ public class DebuggerPanel extends JPanel {
             }
         }
 
+         */
+
+
         this.revalidate();
         this.repaint();
     }
@@ -278,13 +300,14 @@ public class DebuggerPanel extends JPanel {
         this.debugger = null;
 
         this.textPanelLabels.clear();
-        this.singleRegisterLabels.forEach(this.singleRegistersPanel::remove);
-        this.registerLabels.forEach(this.registersPanel::remove);
-        this.stackLabels.forEach(this.stackPanel::remove);
 
         this.singleRegisterLabels.clear();
         this.registerLabels.clear();
         this.stackLabels.clear();
+
+        this.singleRegistersTable.update();
+        this.registersTable.update();
+        this.stackTable.update();
 
         this.memoryTable.clear();
     }

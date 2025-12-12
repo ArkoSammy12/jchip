@@ -14,6 +14,7 @@ public class MemoryTable extends JTable {
 
     private static final int MEMORY_COLUMN_WIDTH = 24;
     private static final int ADDRESS_COLUMN_WIDTH = 70;
+    private static final int ROW_HEIGHT = 15;
 
     private final MemoryTableModel memoryTableModel;
 
@@ -23,7 +24,7 @@ public class MemoryTable extends JTable {
         this.memoryTableModel = memoryTableModel;
         this.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         this.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
-        this.setRowHeight(15);
+        this.setRowHeight(ROW_HEIGHT);
         this.getTableHeader().setReorderingAllowed(false);
         this.getTableHeader().setResizingAllowed(false);
         this.setFocusable(false);
