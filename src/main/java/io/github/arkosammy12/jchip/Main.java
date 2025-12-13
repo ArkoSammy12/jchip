@@ -17,7 +17,6 @@ public class Main {
 
     static void main(String[] args) throws Exception {
 
-        FlatOneDarkIJTheme.setUseNativeWindowDecorations(true);
         FlatOneDarkIJTheme.setup();
 
         ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
@@ -28,18 +27,21 @@ public class Main {
 
         JFrame.setDefaultLookAndFeelDecorated(false);
         JDialog.setDefaultLookAndFeelDecorated(false);
-        UIManager.put("TitlePane.useWindowDecorations", false);
-        System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
-        System.setProperty("apple.awt.application.appearance", "system");
 
-        UIManager.put("Component.arc", 8);
-        UIManager.put("Button.arc", 8);
+        UIManager.put("TitlePane.useWindowDecorations", false);
         UIManager.put("Component.hideMnemonics", false);
         UIManager.put("FileChooser.readOnly", true);
+        UIManager.put("Component.arc", 8);
+        UIManager.put("Button.arc", 8);
+
+        System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
+        System.setProperty("apple.awt.application.appearance", "system");
         System.setProperty("sun.awt.noerasebackground", Boolean.TRUE.toString());
-        if (Boolean.TRUE.equals(Toolkit.getDefaultToolkit().getDesktopProperty("awt.dynamicLayoutSupported"))) {
-            Toolkit.getDefaultToolkit().setDynamicLayout(true);
-        }
+        System.setProperty("flatlaf.uiScale.allowScaleDown", Boolean.TRUE.toString());
+        System.setProperty("flatlaf.menuBarEmbedded", Boolean.FALSE.toString());
+
+        Toolkit.getDefaultToolkit().setDynamicLayout(true);
+
         Jchip jchip = null;
         try {
             jchip = new Jchip(args);
