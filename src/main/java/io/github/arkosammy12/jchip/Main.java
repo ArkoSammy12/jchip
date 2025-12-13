@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip;
 
 import com.formdev.flatlaf.intellijthemes.FlatOneDarkIJTheme;
+import com.formdev.flatlaf.util.SystemInfo;
 import org.tinylog.Logger;
 
 import javax.swing.*;
@@ -18,10 +19,18 @@ public class Main {
 
         FlatOneDarkIJTheme.setUseNativeWindowDecorations(true);
         FlatOneDarkIJTheme.setup();
+
+        ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
+        toolTipManager.setLightWeightPopupEnabled(false);
+        toolTipManager.setInitialDelay(700);
+        toolTipManager.setReshowDelay(700);
+        toolTipManager.setDismissDelay(4000);
+
         JFrame.setDefaultLookAndFeelDecorated(false);
         JDialog.setDefaultLookAndFeelDecorated(false);
         UIManager.put("TitlePane.useWindowDecorations", false);
         System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
+        System.setProperty("apple.awt.application.appearance", "system");
 
         UIManager.put("Component.arc", 8);
         UIManager.put("Button.arc", 8);
