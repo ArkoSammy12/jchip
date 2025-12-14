@@ -47,11 +47,13 @@ public class MainWindow extends JFrame implements Closeable {
         this.add(this.mainSplitPane, new CC().grow().push().wrap());
         this.add(this.infoPanel, new CC().grow().pushX().dockSouth().height("28!"));
 
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
         this.requestFocusInWindow();
         this.setResizable(true);
+        this.setPreferredSize(new Dimension((int) (screenSize.getWidth() / 1.5), (int) (screenSize.getHeight() / 1.5)));
         this.pack();
         this.setLocationRelativeTo(null);
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
     public SettingsBar getSettingsBar() {
