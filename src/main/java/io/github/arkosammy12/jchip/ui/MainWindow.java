@@ -33,7 +33,7 @@ public class MainWindow extends JFrame implements Closeable {
         super(DEFAULT_TITLE);
         this.setBackground(Color.BLACK);
 
-    MigLayout migLayout = new MigLayout(new LC().insets("0"), new AC(), new AC().gap("0"));
+        MigLayout migLayout = new MigLayout(new LC().insets("0"), new AC(), new AC().gap("0"));
         this.setLayout(migLayout);
         this.setBackground(Color.BLACK);
 
