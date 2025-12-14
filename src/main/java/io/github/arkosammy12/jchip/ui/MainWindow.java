@@ -4,7 +4,6 @@ import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
-import io.github.arkosammy12.jchip.ui.menus.InfoPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
 import net.miginfocom.layout.AC;

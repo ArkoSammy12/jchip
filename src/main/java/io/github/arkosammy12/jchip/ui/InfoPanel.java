@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.ui.menus;
+package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import net.miginfocom.layout.AC;
@@ -7,7 +7,6 @@ import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.Objects;
 
 public class InfoPanel extends JPanel {
