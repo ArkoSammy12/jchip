@@ -14,6 +14,7 @@ public class EmulatorViewport extends JPanel {
     public EmulatorViewport() {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
+        this.setFocusable(false);
         this.setBackground(Color.BLACK);
     }
 
@@ -31,7 +32,6 @@ public class EmulatorViewport extends JPanel {
                 return;
             }
             this.add(displayRenderer, "grow, push");
-            this.displayRenderer.requestFocusInWindow();
             this.revalidate();
             this.repaint();
 

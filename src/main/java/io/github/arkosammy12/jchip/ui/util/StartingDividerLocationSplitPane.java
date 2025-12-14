@@ -9,6 +9,7 @@ public class StartingDividerLocationSplitPane extends JSplitPane {
 
     public StartingDividerLocationSplitPane(int newOrientation, Component newLeftComponent, Component newRightComponent, double startingProportionalDividerLocation) {
         super(newOrientation, newLeftComponent, newRightComponent);
+        this.setFocusable(false);
         this.addComponentListener(new ComponentAdapter() {
 
             private boolean alreadyShown = false;

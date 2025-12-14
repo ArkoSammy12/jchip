@@ -18,6 +18,7 @@ public class ToggleableSplitPane extends JPanel {
 
     public ToggleableSplitPane(int orientation, Component left, Component right, double startingProportionalDividerLocation, int dividerSize, double resizeWeight) {
         this.setLayout(layout);
+        this.setFocusable(false);
 
         this.left = left;
         this.currentProportionalDividerLocation = startingProportionalDividerLocation;
@@ -26,6 +27,7 @@ public class ToggleableSplitPane extends JPanel {
         this.splitPane.setDividerSize(dividerSize);
         this.splitPane.setResizeWeight(resizeWeight);
         this.splitPane.setContinuousLayout(true);
+        this.splitPane.setFocusable(false);
 
         this.add(this.splitPane, SPLIT);
         this.add(this.left, SINGLE);

@@ -65,7 +65,7 @@ public class DisplayRenderer extends JPanel implements Closeable {
             this.setFocusable(true);
             this.setOpaque(true);
             this.setBackground(Color.BLACK);
-            keyAdapters.forEach(this::addKeyListener);
+            keyAdapters.forEach(keyAdapter -> jchip.getMainWindow().addKeyListener(keyAdapter));
         });
         jchip.getMainWindow().setEmulatorRenderer(this);
         this.startRenderThread();

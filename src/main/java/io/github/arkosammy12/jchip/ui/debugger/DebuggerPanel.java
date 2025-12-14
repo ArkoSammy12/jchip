@@ -48,6 +48,7 @@ public class DebuggerPanel extends JPanel {
     public DebuggerPanel(Jchip jchip) {
         super();
         this.jchip = jchip;
+        this.setFocusable(false);
 
         this.textArea = new JTextArea();
         textArea.setEditable(false);

@@ -114,6 +114,7 @@
                         <option>-Dfile.encoding=UTF-8</option>
                         <option>--enable-native-access=ALL-UNNAMED</option>
                         <option>-XX:+UseZGC</option>
+                        <option>-XX:+UseCompactObjectHeaders</option>
                     </javaOptions>
                 </configuration>
             </plugin>
