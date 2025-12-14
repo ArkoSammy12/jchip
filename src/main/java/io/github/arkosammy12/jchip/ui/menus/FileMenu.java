@@ -74,7 +74,7 @@ public class FileMenu extends JMenu {
             }
         });
 
-        this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | Selected File: none");
+        this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | No file selected");
 
     }
 
