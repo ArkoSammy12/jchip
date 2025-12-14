@@ -41,7 +41,7 @@ public class MainWindow extends JFrame implements Closeable {
         this.settingsBar = new SettingsBar(jchip, this);
         this.infoPanel = new InfoPanel();
         this.debuggerPanel = new DebuggerPanel(jchip);
-        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debuggerPanel, 825, 5, 0.5);
+        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debuggerPanel, 0.65, 5, 0.5);
 
         this.setJMenuBar(this.settingsBar);
         this.add(this.mainSplitPane, new CC().grow().push().wrap());

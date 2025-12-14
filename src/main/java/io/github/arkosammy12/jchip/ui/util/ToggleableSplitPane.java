@@ -3,6 +3,9 @@ package io.github.arkosammy12.jchip.ui.util;
 import javax.swing.*;
 import java.awt.*;
 
+import static java.awt.ComponentOrientation.getOrientation;
+import static javax.swing.JSplitPane.VERTICAL_SPLIT;
+
 public class ToggleableSplitPane extends JPanel {
 
     private static final String SPLIT = "split";
@@ -11,15 +14,15 @@ public class ToggleableSplitPane extends JPanel {
     private final CardLayout layout = new CardLayout();
     private final JSplitPane splitPane;
     private final Component left;
-    private int currentDividerLocation;
+    private double currentProportionalDividerLocation;
 
-    public ToggleableSplitPane(int orientation, Component left, Component right, int dividerLocation, int dividerSize, double resizeWeight) {
+    public ToggleableSplitPane(int orientation, Component left, Component right, double startingProportionalDividerLocation, int dividerSize, double resizeWeight) {
         this.setLayout(layout);
 
         this.left = left;
-        this.currentDividerLocation = dividerLocation;
+        this.currentProportionalDividerLocation = startingProportionalDividerLocation;
+
         this.splitPane = new JSplitPane(orientation, null, right);
-        this.splitPane.setDividerLocation(dividerLocation);
         this.splitPane.setDividerSize(dividerSize);
         this.splitPane.setResizeWeight(resizeWeight);
         this.splitPane.setContinuousLayout(true);
@@ -34,18 +37,26 @@ public class ToggleableSplitPane extends JPanel {
     public void showSplit() {
         this.splitPane.setLeftComponent(this.left);
         this.left.setVisible(true);
-        this.splitPane.setDividerLocation(this.currentDividerLocation);
         this.layout.show(this, SPLIT);
+        this.splitPane.setDividerLocation(this.currentProportionalDividerLocation);
     }
 
     public void hideRightPanel() {
-        this.currentDividerLocation = this.splitPane.getDividerLocation();
+        this.currentProportionalDividerLocation = this.getProportionalDividerLocation();
         this.add(this.left, SINGLE);
         this.layout.show(this, SINGLE);
     }
 
     public boolean isSplitVisible() {
         return this.splitPane.isShowing();
+    }
+
+    private double getProportionalDividerLocation() {
+        if (this.splitPane.getOrientation() == VERTICAL_SPLIT) {
+            return (double) this.splitPane.getDividerLocation() / (this.splitPane.getHeight() - this.splitPane.getDividerSize());
+        } else {
+            return (double) this.splitPane.getDividerLocation() / (this.splitPane.getWidth() - this.splitPane.getDividerSize());
+        }
     }
 
 }

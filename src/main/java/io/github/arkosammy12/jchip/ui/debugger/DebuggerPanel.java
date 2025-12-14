@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.ui.debugger;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
+import io.github.arkosammy12.jchip.ui.util.StartingDividerLocationSplitPane;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -11,6 +12,8 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -111,22 +114,19 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
 
-        JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScrollPane, cpuRegistersScrollPane);
+        JSplitPane firstSplit = new StartingDividerLocationSplitPane(JSplitPane.VERTICAL_SPLIT, textScrollPane, cpuRegistersScrollPane, 0.7);
         firstSplit.setDividerSize(3);
         firstSplit.setResizeWeight(0.5);
-        firstSplit.setDividerLocation(135);
         firstSplit.setContinuousLayout(true);
 
-        JSplitPane secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, generalPurposeRegistersScrollPane);
+        JSplitPane secondSplit = new StartingDividerLocationSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, generalPurposeRegistersScrollPane, 0.8);
         secondSplit.setDividerSize(3);
         secondSplit.setResizeWeight(0.5);
-        secondSplit.setDividerLocation(245);
         secondSplit.setContinuousLayout(true);
 
-        JSplitPane thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, stackScrollPane);
+        JSplitPane thirdSplit = new StartingDividerLocationSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, stackScrollPane, 1);
         thirdSplit.setDividerSize(3);
         thirdSplit.setResizeWeight(0.5);
-        thirdSplit.setDividerLocation(480);
         thirdSplit.setContinuousLayout(true);
 
         MigLayout leftPanelLayout = new MigLayout("insets 0");
@@ -137,10 +137,9 @@ public class DebuggerPanel extends JPanel {
         JPanel rightPanel = new JPanel(rightPanelLayout);
         rightPanel.add(memoryScrollPane, new CC().grow().push().width("215"));
 
-        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+        JSplitPane mainSplit = new StartingDividerLocationSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel, 0.235);
         mainSplit.setDividerSize(5);
         mainSplit.setResizeWeight(0.5);
-        mainSplit.setDividerLocation(210);
         mainSplit.setContinuousLayout(true);
         mainSplit.setOneTouchExpandable(true);
 
