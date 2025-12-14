@@ -66,6 +66,12 @@
             <artifactId>flatlaf-intellij-themes</artifactId>
             <version>3.7</version>
         </dependency>
+        <dependency>
+            <groupId>com.miglayout</groupId>
+            <artifactId>miglayout-swing</artifactId>
+            <version>11.4.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>

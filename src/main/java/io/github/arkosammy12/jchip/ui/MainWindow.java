@@ -5,7 +5,12 @@ import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
 import io.github.arkosammy12.jchip.ui.menus.InfoPanel;
+import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
+import net.miginfocom.layout.AC;
+import net.miginfocom.layout.CC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -17,7 +22,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     public static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
-    private final JSplitPane mainSplitPane;
+    private final ToggleableSplitPane mainSplitPane;
     private final EmulatorViewport emulatorViewport;
     private final SettingsBar settingsBar;
     private final DebuggerPanel debuggerPanel;
@@ -28,37 +33,26 @@ public class MainWindow extends JFrame implements Closeable {
     public MainWindow(Jchip jchip) {
         super(DEFAULT_TITLE);
         this.setBackground(Color.BLACK);
-        this.getContentPane().setLayout(new BorderLayout());
-        this.getContentPane().setBackground(Color.BLACK);
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setPreferredSize(new Dimension(((int) (screenSize.getWidth() / 1.5)), (int) (screenSize.getHeight() / 1.5)));
+    MigLayout migLayout = new MigLayout(new LC().insets("0"), new AC(), new AC().gap("0"));
+        this.setLayout(migLayout);
+        this.setBackground(Color.BLACK);
 
         this.emulatorViewport = new EmulatorViewport();
-        this.emulatorViewport.setVisible(true);
-
         this.settingsBar = new SettingsBar(jchip, this);
-
         this.infoPanel = new InfoPanel();
-        this.infoPanel.setVisible(true);
-
         this.debuggerPanel = new DebuggerPanel(jchip);
-        this.debuggerPanel.setVisible(false);
-
-        this.mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debuggerPanel);
-        this.mainSplitPane.setContinuousLayout(true);
-        this.mainSplitPane.setResizeWeight(0.5);
-        this.mainSplitPane.setDividerSize(0);
+        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debuggerPanel, 825, 5, 0.5);
 
         this.setJMenuBar(this.settingsBar);
-        this.getContentPane().add(this.infoPanel, BorderLayout.SOUTH);
-        this.getContentPane().add(this.mainSplitPane, BorderLayout.CENTER);
+        this.add(this.mainSplitPane, new CC().grow().push().wrap());
+        this.add(this.infoPanel, new CC().grow().pushX().dockSouth().height("28!"));
 
         this.requestFocusInWindow();
         this.setResizable(true);
         this.pack();
         this.setLocationRelativeTo(null);
-
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
     public SettingsBar getSettingsBar() {
@@ -89,12 +83,10 @@ public class MainWindow extends JFrame implements Closeable {
     public void setDebuggerViewEnabled(boolean enabled) {
         this.showingDebuggerPanel.set(enabled);
         SwingUtilities.invokeLater(() -> {
-            this.debuggerPanel.setVisible(enabled);
-            this.mainSplitPane.setDividerSize(enabled ? 5 : 0);
-            if (enabled) {
-                SwingUtilities.invokeLater(() -> mainSplitPane.setDividerLocation(mainSplitPane.getLastDividerLocation()));
+            if (mainSplitPane.isSplitVisible()) {
+                this.mainSplitPane.hideRightPanel();
             } else {
-                mainSplitPane.setLastDividerLocation(mainSplitPane.getDividerLocation());
+                this.mainSplitPane.showSplit();
             }
             this.revalidate();
             this.repaint();

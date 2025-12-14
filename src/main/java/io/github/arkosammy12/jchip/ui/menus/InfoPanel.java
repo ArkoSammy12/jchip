@@ -1,6 +1,10 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.emulators.Emulator;
+import net.miginfocom.layout.AC;
+import net.miginfocom.layout.CC;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,15 +26,16 @@ public class InfoPanel extends JPanel {
     private double totalFrameTimeSinceLastUpdate = 0;
 
     public InfoPanel() {
-        super(new GridLayout(1, 6, 0, 0));
-        this.setPreferredSize(new Dimension(100, 28));
 
-        this.add(createScrollPanel(variantField, "The variant used by the currently running ROM."));
-        this.add(createScrollPanel(romTitleField, "The name or file name of the currently running ROM."));
-        this.add(createScrollPanel(ipfField, "The current IPF value average."));
-        this.add(createScrollPanel(mipsField, "The current MIPS value average."));
-        this.add(createScrollPanel(frameTimeField, "The current frame time value average, in milliseconds."));
-        this.add(createScrollPanel(fpsField, "The current frames per second value average."));
+        MigLayout migLayout = new MigLayout(new LC().insets("1"), new AC().gap("5").gap("5").gap("5").gap("5").gap("5"), new AC());
+        super(migLayout);
+
+        this.add(createScrollPanel(variantField, "The variant used by the currently running ROM."), new CC().grow().push());
+        this.add(createScrollPanel(romTitleField, "The name or file name of the currently running ROM."), new CC().grow().push());
+        this.add(createScrollPanel(ipfField, "The current IPF value average."), new CC().grow().push());
+        this.add(createScrollPanel(mipsField, "The current MIPS value average."), new CC().grow().push());
+        this.add(createScrollPanel(frameTimeField, "The current frame time value average, in milliseconds."), new CC().grow().push());
+        this.add(createScrollPanel(fpsField, "The current frames per second value average."), new CC().grow().push());
     }
 
     private static JTextField createField() {

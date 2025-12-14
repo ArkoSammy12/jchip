@@ -1,6 +1,8 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.video.EmulatorRenderer;
+import net.miginfocom.layout.LC;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,16 +12,9 @@ public class EmulatorViewport extends JPanel {
     private EmulatorRenderer emulatorRenderer;
 
     public EmulatorViewport() {
-        super(new BorderLayout());
+        MigLayout migLayout = new MigLayout(new LC().insets("0"));
+        super(migLayout);
         this.setBackground(Color.BLACK);
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        if (emulatorRenderer != null) {
-            return emulatorRenderer.getPreferredSize();
-        }
-        return new Dimension(300, 300);
     }
 
     public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
@@ -35,16 +30,7 @@ public class EmulatorViewport extends JPanel {
                 this.repaint();
                 return;
             }
-            this.add(emulatorRenderer, BorderLayout.CENTER);
-
-            int w = emulatorRenderer.getDisplayWidth();
-            int h = emulatorRenderer.getDisplayHeight();
-            int scale = emulatorRenderer.getInitialScale();
-
-            Dimension scaled = new Dimension(w * scale, h * scale);
-            this.setPreferredSize(scaled);
-            this.setMinimumSize(new Dimension(w * (scale / 2), h * (scale / 2)));
-
+            this.add(emulatorRenderer, "grow, push");
             this.emulatorRenderer.requestFocusInWindow();
             this.revalidate();
             this.repaint();
