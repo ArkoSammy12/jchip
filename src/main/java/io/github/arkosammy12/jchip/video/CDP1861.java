@@ -2,7 +2,6 @@ package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.util.vip.IODevice;
-import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements IODevice {
 
@@ -55,14 +54,6 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     @Override
     protected int getImageHeight() {
         return 128;
-    }
-
-    @Override
-    protected int getImageScale(DisplayAngle displayAngle) {
-        return switch (displayAngle) {
-            case DEG_90, DEG_270 -> 5;
-            default -> 7;
-        };
     }
 
     @Override

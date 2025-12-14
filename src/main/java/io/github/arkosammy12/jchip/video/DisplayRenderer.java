@@ -13,17 +13,13 @@ import java.io.Closeable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.swing.*;
-import java.awt.*;
-
-public class EmulatorRenderer extends JPanel implements Closeable {
+public class DisplayRenderer extends JPanel implements Closeable {
 
     private final Display<?> display;
     private final int[][] renderBuffer;
 
     private final int displayWidth;
     private final int displayHeight;
-    private final int initialScale;
     private final DisplayAngle displayAngle;
 
     private final BufferedImage bufferedImage;
@@ -41,23 +37,14 @@ public class EmulatorRenderer extends JPanel implements Closeable {
 
     private Thread renderThread;
 
-    public EmulatorRenderer(
-            Jchip jchip,
-            Display<?> display,
-            List<KeyAdapter> keyAdapters
-    ) {
+    public DisplayRenderer(Jchip jchip, Display<?> display, List<KeyAdapter> keyAdapters) {
         this.display = display;
         this.displayWidth = display.getImageWidth();
         this.displayHeight = display.getImageHeight();
         this.displayAngle = display.getDisplayAngle();
-        this.initialScale = display.getImageScale(displayAngle);
 
         this.renderBuffer = new int[displayWidth][displayHeight];
-        this.bufferedImage = new BufferedImage(
-                displayWidth,
-                displayHeight,
-                BufferedImage.TYPE_INT_ARGB
-        );
+        this.bufferedImage = new BufferedImage(displayWidth, displayHeight, BufferedImage.TYPE_INT_ARGB);
 
         switch (displayAngle) {
             case DEG_90 -> {
@@ -74,24 +61,14 @@ public class EmulatorRenderer extends JPanel implements Closeable {
             }
         }
 
-        this.setFocusable(true);
-        this.setOpaque(true);
-        this.setBackground(Color.BLACK);
-        keyAdapters.forEach(this::addKeyListener);
-        SwingUtilities.invokeLater(() -> jchip.getMainWindow().setEmulatorRenderer(this));
+        SwingUtilities.invokeLater(() -> {
+            this.setFocusable(true);
+            this.setOpaque(true);
+            this.setBackground(Color.BLACK);
+            keyAdapters.forEach(this::addKeyListener);
+        });
+        jchip.getMainWindow().setEmulatorRenderer(this);
         this.startRenderThread();
-    }
-
-    public int getDisplayWidth() {
-        return displayWidth;
-    }
-
-    public int getDisplayHeight() {
-        return displayHeight;
-    }
-
-    public int getInitialScale() {
-        return initialScale;
     }
 
     @Override
@@ -108,19 +85,15 @@ public class EmulatorRenderer extends JPanel implements Closeable {
     }
 
     private void updateTransformIfNeeded() {
-        int w = getWidth();
-        int h = getHeight();
+        int w = this.getWidth();
+        int h = this.getHeight();
 
-        if (w == lastWidth && h == lastHeight) {
+        if (w == this.lastWidth && h == this.lastHeight) {
             return;
         }
-        double logicalWidth = (displayAngle == DisplayAngle.DEG_90 || displayAngle == DisplayAngle.DEG_270)
-                        ? displayHeight
-                        : displayWidth;
 
-        double logicalHeight = (displayAngle == DisplayAngle.DEG_90 || displayAngle == DisplayAngle.DEG_270)
-                        ? displayWidth
-                        : displayHeight;
+        double logicalWidth = (this.displayAngle == DisplayAngle.DEG_90 || this.displayAngle == DisplayAngle.DEG_270) ? this.displayHeight : this.displayWidth;
+        double logicalHeight = (this.displayAngle == DisplayAngle.DEG_90 || this.displayAngle == DisplayAngle.DEG_270) ? this.displayWidth : this.displayHeight;
 
         double scale = Math.min(w / logicalWidth, h / logicalHeight);
 
@@ -140,15 +113,15 @@ public class EmulatorRenderer extends JPanel implements Closeable {
     }
 
     protected void updateRenderBuffer() {
-        synchronized (renderBufferLock) {
-            display.populateRenderBuffer(renderBuffer);
+        synchronized (this.renderBufferLock) {
+            this.display.populateRenderBuffer(this.renderBuffer);
         }
     }
 
     public void requestFrame() {
-        synchronized (renderLock) {
-            frameRequested.set(true);
-            renderLock.notify();
+        synchronized (this.renderLock) {
+            this.frameRequested.set(true);
+            this.renderLock.notify();
         }
     }
 
@@ -187,13 +160,13 @@ public class EmulatorRenderer extends JPanel implements Closeable {
 
     @Override
     public void close() {
-        running.set(false);
-        synchronized (renderLock) {
-            renderLock.notifyAll();
+        this.running.set(false);
+        synchronized (this.renderLock) {
+            this.renderLock.notifyAll();
         }
-        if (renderThread != null) {
+        if (this.renderThread != null) {
             try {
-                renderThread.join();
+                this.renderThread.join();
             } catch (InterruptedException ignored) {}
         }
     }

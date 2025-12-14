@@ -8,7 +8,7 @@ import java.io.Closeable;
 public abstract class Display<E extends Emulator> implements Closeable {
 
     protected final E emulator;
-    private final EmulatorRenderer emulatorRenderer;
+    private final DisplayRenderer displayRenderer;
 
     private final DisplayAngle displayAngle;
     protected final int imageWidth;
@@ -19,11 +19,11 @@ public abstract class Display<E extends Emulator> implements Closeable {
         this.displayAngle = emulator.getEmulatorSettings().getDisplayAngle();
         this.imageWidth = getImageWidth();
         this.imageHeight = getImageHeight();
-        this.emulatorRenderer = new EmulatorRenderer(emulator.getEmulatorSettings().getJchip(), this, emulator.getKeyAdapters());
+        this.displayRenderer = new DisplayRenderer(emulator.getEmulatorSettings().getJchip(), this, emulator.getKeyAdapters());
     }
 
-    public EmulatorRenderer getEmulatorRenderer() {
-        return this.emulatorRenderer;
+    public DisplayRenderer getEmulatorRenderer() {
+        return this.displayRenderer;
     }
 
     public DisplayAngle getDisplayAngle() {
@@ -38,17 +38,15 @@ public abstract class Display<E extends Emulator> implements Closeable {
 
     protected abstract int getImageHeight();
 
-    protected abstract int getImageScale(DisplayAngle displayAngle);
-
     protected abstract void populateRenderBuffer(int[][] renderBuffer);
 
     public void flush() {
-        this.emulatorRenderer.updateRenderBuffer();
+        this.displayRenderer.updateRenderBuffer();
     }
 
     @Override
     public void close() {
-        this.emulatorRenderer.close();
+        this.displayRenderer.close();
     }
 
 }

@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
-import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 import java.util.Arrays;
 
@@ -34,14 +33,6 @@ public class Chip8Display<E extends Chip8Emulator> extends Display<E> {
     @Override
     public int getImageHeight() {
         return 32;
-    }
-
-    @Override
-    public int getImageScale(DisplayAngle displayAngle) {
-        return switch (displayAngle) {
-            case DEG_90, DEG_270 -> 11;
-            default -> 20;
-        };
     }
 
     public boolean flipPixel(int column, int row) {

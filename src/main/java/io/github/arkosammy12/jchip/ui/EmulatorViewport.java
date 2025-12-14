@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.video.EmulatorRenderer;
+import io.github.arkosammy12.jchip.video.DisplayRenderer;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
@@ -9,7 +9,7 @@ import java.awt.*;
 
 public class EmulatorViewport extends JPanel {
 
-    private EmulatorRenderer emulatorRenderer;
+    private DisplayRenderer displayRenderer;
 
     public EmulatorViewport() {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
@@ -17,21 +17,21 @@ public class EmulatorViewport extends JPanel {
         this.setBackground(Color.BLACK);
     }
 
-    public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
+    public void setEmulatorRenderer(DisplayRenderer displayRenderer) {
         SwingUtilities.invokeLater(() -> {
-            if (this.emulatorRenderer != null) {
-                this.emulatorRenderer.close();
-                this.remove(this.emulatorRenderer);
+            if (this.displayRenderer != null) {
+                this.displayRenderer.close();
+                this.remove(this.displayRenderer);
             }
-            this.emulatorRenderer = emulatorRenderer;
+            this.displayRenderer = displayRenderer;
 
-            if (emulatorRenderer == null) {
+            if (displayRenderer == null) {
                 this.revalidate();
                 this.repaint();
                 return;
             }
-            this.add(emulatorRenderer, "grow, push");
-            this.emulatorRenderer.requestFocusInWindow();
+            this.add(displayRenderer, "grow, push");
+            this.displayRenderer.requestFocusInWindow();
             this.revalidate();
             this.repaint();
 

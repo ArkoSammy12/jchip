@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
-import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 public class MegaChipDisplay<E extends MegaChipEmulator> extends SChip11Display<E> {
 
@@ -47,14 +46,6 @@ public class MegaChipDisplay<E extends MegaChipEmulator> extends SChip11Display<
     @Override
     public int getImageHeight() {
         return 192;
-    }
-
-    @Override
-    public int getImageScale(DisplayAngle displayAngle) {
-        return switch (displayAngle) {
-            case DEG_90, DEG_270 -> 3;
-            default -> 4;
-        };
     }
 
     public void setSpriteWidth(int width) {

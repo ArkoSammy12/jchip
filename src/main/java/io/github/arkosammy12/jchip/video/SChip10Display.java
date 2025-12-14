@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.video;
 
 import io.github.arkosammy12.jchip.emulators.SChip10Emulator;
-import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 public class SChip10Display<E extends SChip10Emulator> extends Chip8Display<E> {
 
@@ -29,14 +28,6 @@ public class SChip10Display<E extends SChip10Emulator> extends Chip8Display<E> {
     @Override
     public int getImageHeight() {
         return 64;
-    }
-
-    @Override
-    public int getImageScale(DisplayAngle displayAngle) {
-        return switch (displayAngle) {
-            case DEG_90, DEG_270 -> 6;
-            default -> 10;
-        };
     }
 
     public void setHiresMode(boolean hiresMode) {

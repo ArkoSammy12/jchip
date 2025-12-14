@@ -62,12 +62,12 @@ public class Jchip {
                         }
                     }
                 });
-                this.mainWindow.setVisible(true);
             });
             if (cliArgs != null) {
                 this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
                 this.currentEmulator = Variant.getEmulator(this);
             }
+            SwingUtilities.invokeLater(() -> this.mainWindow.setVisible(true));
         } catch (Exception e) {
             throw new RuntimeException("Error initializing Jchip", e);
         }

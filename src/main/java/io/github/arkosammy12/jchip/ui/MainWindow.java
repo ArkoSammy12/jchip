@@ -5,7 +5,7 @@ import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
-import io.github.arkosammy12.jchip.video.EmulatorRenderer;
+import io.github.arkosammy12.jchip.video.DisplayRenderer;
 import net.miginfocom.layout.AC;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -75,8 +75,8 @@ public class MainWindow extends JFrame implements Closeable {
         this.settingsBar.onStopped();
     }
 
-    public void setEmulatorRenderer(EmulatorRenderer emulatorRenderer) {
-        this.emulatorViewport.setEmulatorRenderer(emulatorRenderer);
+    public void setEmulatorRenderer(DisplayRenderer displayRenderer) {
+        this.emulatorViewport.setEmulatorRenderer(displayRenderer);
     }
 
     public void setDebuggerViewEnabled(boolean enabled) {
