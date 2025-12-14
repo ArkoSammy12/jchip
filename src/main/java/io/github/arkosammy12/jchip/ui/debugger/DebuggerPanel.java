@@ -54,6 +54,15 @@ public class DebuggerPanel extends JPanel {
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         caret.setVisible(false);
 
+        this.setPreferredSize(new Dimension(500, this.getSize().height));
+        this.setLayout(new BorderLayout());
+        this.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
+                "Debugger",
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.getFont().deriveFont(Font.BOLD)));
+
         this.cpuRegistersTable = new DebuggerLabelTable(this.cpuRegisterLabels, 2);
         this.generalPurposeRegistersTable = new DebuggerLabelTable(this.generalPurposeRegisterLabels, 2, true);
         this.stackTable = new DebuggerLabelTable(this.stackLabels, 2, true);
@@ -104,17 +113,15 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
 
         JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScrollPane, cpuRegistersScrollPane);
-        firstSplit.setResizeWeight(0.5);
         firstSplit.setDividerSize(3);
         firstSplit.setContinuousLayout(true);
 
         JSplitPane secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, generalPurposeRegistersScrollPane);
-        secondSplit.setResizeWeight(0.5);
+        secondSplit.setResizeWeight(0);
         secondSplit.setDividerSize(3);
         secondSplit.setContinuousLayout(true);
 
         JSplitPane thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, stackScrollPane);
-        thirdSplit.setResizeWeight(0.5);
         thirdSplit.setDividerSize(3);
         thirdSplit.setContinuousLayout(true);
 
@@ -129,18 +136,10 @@ public class DebuggerPanel extends JPanel {
         rightPanel.add(memoryScrollPane);
 
         JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
-        mainSplit.setResizeWeight(0.5);
+        mainSplit.setResizeWeight(1);
+        mainSplit.setOneTouchExpandable(true);
         mainSplit.setDividerSize(5);
         mainSplit.setContinuousLayout(true);
-
-        this.setPreferredSize(new Dimension(500, this.getSize().height));
-        this.setLayout(new BorderLayout());
-        this.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "Debugger",
-                TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION,
-                this.getFont().deriveFont(Font.BOLD)));
 
         this.add(mainSplit, BorderLayout.CENTER);
 
