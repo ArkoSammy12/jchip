@@ -1,7 +1,5 @@
 package io.github.arkosammy12.jchip;
 
-import com.formdev.flatlaf.intellijthemes.FlatOneDarkIJTheme;
-import com.formdev.flatlaf.util.SystemInfo;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.tinylog.Logger;
 
@@ -20,7 +18,7 @@ public class Main {
 
         System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
         System.setProperty("apple.awt.application.appearance", "system");
-        System.setProperty("apple.awt.application.name", MainWindow.DEFAULT_TITLE);
+        System.setProperty("apple.awt.application.name", "jchip");
 
         System.setProperty("sun.awt.noerasebackground", Boolean.TRUE.toString());
         System.setProperty("flatlaf.uiScale.allowScaleDown", Boolean.TRUE.toString());
