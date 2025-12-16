@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip;
 
+import com.formdev.flatlaf.intellijthemes.FlatOneDarkIJTheme;
 import io.github.arkosammy12.jchip.config.CLIArgs;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Emulator;
@@ -49,6 +50,7 @@ public class Jchip {
                 }
             }
             SwingUtilities.invokeAndWait(() -> {
+                FlatOneDarkIJTheme.setup();
                 this.mainWindow = new MainWindow(this);
                 this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 this.mainWindow.addWindowListener(new WindowAdapter() {

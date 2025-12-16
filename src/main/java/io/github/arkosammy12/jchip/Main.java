@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip;
 
 import com.formdev.flatlaf.intellijthemes.FlatOneDarkIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.tinylog.Logger;
 
 import javax.swing.*;
@@ -17,7 +18,13 @@ public class Main {
 
     static void main(String[] args) throws Exception {
 
-        FlatOneDarkIJTheme.setup();
+        System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
+        System.setProperty("apple.awt.application.appearance", "system");
+        System.setProperty("apple.awt.application.name", MainWindow.DEFAULT_TITLE);
+
+        System.setProperty("sun.awt.noerasebackground", Boolean.TRUE.toString());
+        System.setProperty("flatlaf.uiScale.allowScaleDown", Boolean.TRUE.toString());
+        System.setProperty("flatlaf.menuBarEmbedded", Boolean.FALSE.toString());
 
         ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
         toolTipManager.setLightWeightPopupEnabled(false);
@@ -33,12 +40,6 @@ public class Main {
         UIManager.put("FileChooser.readOnly", true);
         UIManager.put("Component.arc", 8);
         UIManager.put("Button.arc", 8);
-
-        System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
-        System.setProperty("apple.awt.application.appearance", "system");
-        System.setProperty("sun.awt.noerasebackground", Boolean.TRUE.toString());
-        System.setProperty("flatlaf.uiScale.allowScaleDown", Boolean.TRUE.toString());
-        System.setProperty("flatlaf.menuBarEmbedded", Boolean.FALSE.toString());
 
         Toolkit.getDefaultToolkit().setDynamicLayout(true);
 
