@@ -38,10 +38,6 @@ public class HelpMenu extends JMenu {
             } else {
                 addAboutItem.run();
             }
-            if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
-                desktop.setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
-                desktop.setQuitHandler((_, response) -> response.performQuit());
-            }
         } else {
             addAboutItem.run();
         }
