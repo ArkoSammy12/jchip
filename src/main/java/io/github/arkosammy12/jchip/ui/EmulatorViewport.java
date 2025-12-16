@@ -16,6 +16,7 @@ public class EmulatorViewport extends JPanel {
         super(migLayout);
         this.setFocusable(false);
         this.setBackground(Color.BLACK);
+        this.setPreferredSize(new Dimension(960, this.getHeight()));
     }
 
     public void setEmulatorRenderer(DisplayRenderer displayRenderer) {

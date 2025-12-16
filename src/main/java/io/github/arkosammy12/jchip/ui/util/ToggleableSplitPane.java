@@ -15,13 +15,13 @@ public class ToggleableSplitPane extends JPanel {
     private final JSplitPane splitPane;
     private final Component left;
     private double currentProportionalDividerLocation;
+    private boolean firstTimeShown = false;
 
-    public ToggleableSplitPane(int orientation, Component left, Component right, double startingProportionalDividerLocation, int dividerSize, double resizeWeight) {
+    public ToggleableSplitPane(int orientation, Component left, Component right, int dividerSize, double resizeWeight) {
         this.setLayout(layout);
         this.setFocusable(false);
 
         this.left = left;
-        this.currentProportionalDividerLocation = startingProportionalDividerLocation;
 
         this.splitPane = new JSplitPane(orientation, null, right);
         this.splitPane.setDividerSize(dividerSize);
@@ -40,7 +40,12 @@ public class ToggleableSplitPane extends JPanel {
         this.splitPane.setLeftComponent(this.left);
         this.left.setVisible(true);
         this.layout.show(this, SPLIT);
-        this.splitPane.setDividerLocation(this.currentProportionalDividerLocation);
+        if (!this.firstTimeShown) {
+            this.splitPane.resetToPreferredSizes();
+            this.firstTimeShown = true;
+        } else {
+            this.splitPane.setDividerLocation(this.currentProportionalDividerLocation);
+        }
     }
 
     public void hideRightPanel() {

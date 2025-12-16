@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.ui.debugger;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
-import io.github.arkosammy12.jchip.ui.util.StartingDividerLocationSplitPane;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -17,6 +16,7 @@ import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class DebuggerPanel extends JPanel {
 
@@ -62,8 +62,9 @@ public class DebuggerPanel extends JPanel {
         caret.setVisible(false);
 
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
-
         this.setLayout(migLayout);
+        this.setPreferredSize(new Dimension(500, this.getHeight()));
+
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                 "Debugger",
@@ -77,6 +78,7 @@ public class DebuggerPanel extends JPanel {
         this.memoryTable = new MemoryTable();
 
         this.textScrollPane = new JScrollPane(textArea);
+        this.textScrollPane.setPreferredSize(new Dimension(this.textScrollPane.getWidth(), 120));
         textScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                 DEFAULT_TEXT_SECTION_NAME,
@@ -85,6 +87,7 @@ public class DebuggerPanel extends JPanel {
                 this.textScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.cpuRegistersScrollPane = new JScrollPane(this.cpuRegistersTable);
+        this.cpuRegistersScrollPane.setPreferredSize(new Dimension(this.cpuRegistersScrollPane.getWidth(), 105));
         cpuRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                 DEFAULT_CPU_REGISTERS_SECTION_NAME,
@@ -93,6 +96,7 @@ public class DebuggerPanel extends JPanel {
                 this.cpuRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.generalPurposeRegistersScrollPane = new JScrollPane(this.generalPurposeRegistersTable);
+        this.generalPurposeRegistersScrollPane.setPreferredSize(new Dimension(this.generalPurposeRegistersScrollPane.getWidth(), 230));
         generalPurposeRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                 DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME,
@@ -101,6 +105,7 @@ public class DebuggerPanel extends JPanel {
                 this.generalPurposeRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.stackScrollPane = new JScrollPane(this.stackTable);
+        this.stackScrollPane.setPreferredSize(new Dimension(this.stackScrollPane.getWidth(), 210));
         stackScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                 DEFAULT_STACK_SECTION_NAME,
@@ -115,34 +120,47 @@ public class DebuggerPanel extends JPanel {
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
 
-        JSplitPane firstSplit = new StartingDividerLocationSplitPane(JSplitPane.VERTICAL_SPLIT, textScrollPane, cpuRegistersScrollPane, 0.7);
+        Function<JSplitPane, ComponentAdapter> componentAdapterSupplier = jSplitPane -> new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                jSplitPane.resetToPreferredSizes();
+            }
+        };
+
+        JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScrollPane, cpuRegistersScrollPane);
         firstSplit.setDividerSize(3);
         firstSplit.setResizeWeight(0.5);
         firstSplit.setContinuousLayout(true);
+        firstSplit.addComponentListener(componentAdapterSupplier.apply(firstSplit));
 
-        JSplitPane secondSplit = new StartingDividerLocationSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, generalPurposeRegistersScrollPane, 0.8);
+        JSplitPane secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, generalPurposeRegistersScrollPane);
         secondSplit.setDividerSize(3);
         secondSplit.setResizeWeight(0.5);
         secondSplit.setContinuousLayout(true);
+        secondSplit.addComponentListener(componentAdapterSupplier.apply(secondSplit));
 
-        JSplitPane thirdSplit = new StartingDividerLocationSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, stackScrollPane, 1);
+        JSplitPane thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, stackScrollPane);
         thirdSplit.setDividerSize(3);
         thirdSplit.setResizeWeight(0.5);
         thirdSplit.setContinuousLayout(true);
+        thirdSplit.addComponentListener(componentAdapterSupplier.apply(thirdSplit));
 
-        MigLayout leftPanelLayout = new MigLayout("insets 0");
+        MigLayout leftPanelLayout = new MigLayout(new LC().insets("0"));
         JPanel leftPanel = new JPanel(leftPanelLayout);
-        leftPanel.add(thirdSplit, new CC().grow().push().width("150"));
+        leftPanel.add(thirdSplit, new CC().grow().push());
+        leftPanel.setPreferredSize(new Dimension(150, leftPanel.getHeight()));
 
         MigLayout rightPanelLayout = new MigLayout("insets 0");
         JPanel rightPanel = new JPanel(rightPanelLayout);
-        rightPanel.add(memoryScrollPane, new CC().grow().push().width("215"));
+        rightPanel.add(memoryScrollPane, new CC().grow().push());
+        rightPanel.setPreferredSize(new Dimension(200, rightPanel.getHeight()));
 
-        JSplitPane mainSplit = new StartingDividerLocationSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel, 0.235);
+        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         mainSplit.setDividerSize(5);
         mainSplit.setResizeWeight(0.5);
         mainSplit.setContinuousLayout(true);
         mainSplit.setOneTouchExpandable(true);
+        mainSplit.addComponentListener(componentAdapterSupplier.apply(mainSplit));
 
         this.add(mainSplit, new CC().grow().push().width("500"));
 
@@ -150,7 +168,7 @@ public class DebuggerPanel extends JPanel {
 
     public void onStopped() {
         SwingUtilities.invokeLater(() -> {
-            this.clearState();
+            this.clear();
             this.textArea.setText("");
 
             this.textScrollPane.setBorder(BorderFactory.createTitledBorder(
@@ -220,7 +238,7 @@ public class DebuggerPanel extends JPanel {
     }
 
     private void initializeDebuggerPanel(Debugger debugger) {
-        this.clearState();
+        this.clear();
         this.debugger = debugger;
 
         this.textPanelLabels.addAll(this.debugger.getTextSectionLabels());
@@ -265,7 +283,7 @@ public class DebuggerPanel extends JPanel {
         this.repaint();
     }
 
-    private void clearState() {
+    private void clear() {
         this.debugger = null;
 
         this.textPanelLabels.clear();

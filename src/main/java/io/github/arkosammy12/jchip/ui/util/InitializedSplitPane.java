@@ -5,9 +5,9 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-public class StartingDividerLocationSplitPane extends JSplitPane {
+public class InitializedSplitPane extends JSplitPane {
 
-    public StartingDividerLocationSplitPane(int newOrientation, Component newLeftComponent, Component newRightComponent, double startingProportionalDividerLocation) {
+    public InitializedSplitPane(int newOrientation, Component newLeftComponent, Component newRightComponent, double startingProportionalDividerLocation) {
         super(newOrientation, newLeftComponent, newRightComponent);
         this.setFocusable(false);
         this.addComponentListener(new ComponentAdapter() {

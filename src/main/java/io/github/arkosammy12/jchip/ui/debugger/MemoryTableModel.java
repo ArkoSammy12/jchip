@@ -69,12 +69,12 @@ public class MemoryTableModel extends DefaultTableModel {
             this.memory = memory;
             this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) this.bytesPerRow);
         }
-        SwingUtilities.invokeLater(this::fireTableDataChanged);
+        this.fireTableDataChanged();
     }
 
     public void clear() {
         this.memory = null;
-        SwingUtilities.invokeLater(this::fireTableDataChanged);
+        this.fireTableDataChanged();
     }
 
 }
