@@ -32,6 +32,7 @@ public class MainWindow extends JFrame implements Closeable {
     public MainWindow(Jchip jchip) {
         super(DEFAULT_TITLE);
         this.setBackground(Color.BLACK);
+        this.getRootPane().putClientProperty("apple.awt.fullscreenable", true);
 
         MigLayout migLayout = new MigLayout(new LC().insets("0"), new AC(), new AC().gap("0"));
         this.setLayout(migLayout);

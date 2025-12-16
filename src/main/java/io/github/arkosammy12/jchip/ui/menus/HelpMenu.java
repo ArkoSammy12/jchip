@@ -1,10 +1,12 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
+import com.formdev.flatlaf.util.SystemInfo;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.desktop.QuitStrategy;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 
@@ -15,15 +17,34 @@ public class HelpMenu extends JMenu {
 
         this.setMnemonic(KeyEvent.VK_H);
 
-        JMenuItem aboutItem = new JMenuItem("About");
-        aboutItem.setMnemonic(KeyEvent.VK_A);
-        aboutItem.addActionListener(_ -> JOptionPane.showMessageDialog(
+        Runnable showAboutDialog = () -> JOptionPane.showMessageDialog(
                 jchip.getMainWindow(),
                 String.format("Jchip\nVersion %s\n\nBy ArkoSammy12", Main.VERSION_STRING),
                 "About Jchip",
-                JOptionPane.INFORMATION_MESSAGE)
-        );
-        aboutItem.setToolTipText("Show the current jchip version.");
+                JOptionPane.INFORMATION_MESSAGE);
+
+        Runnable addAboutItem = () -> {
+            JMenuItem aboutItem = new JMenuItem("About");
+            aboutItem.setMnemonic(KeyEvent.VK_A);
+            aboutItem.addActionListener(_ -> showAboutDialog.run());
+            aboutItem.setToolTipText("Show the current jchip version.");
+            this.add(aboutItem);
+        };
+
+        if (SystemInfo.isMacOS) {
+            Desktop desktop = Desktop.getDesktop();
+            if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
+                desktop.setAboutHandler(_ -> showAboutDialog.run());
+            } else {
+                addAboutItem.run();
+            }
+            if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
+                desktop.setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
+                desktop.setQuitHandler((_, response) -> response.performQuit());
+            }
+        } else {
+            addAboutItem.run();
+        }
 
         JMenuItem sourceItem = new JMenuItem("Source");
         sourceItem.setMnemonic(KeyEvent.VK_S);
@@ -47,7 +68,6 @@ public class HelpMenu extends JMenu {
         });
         reportItem.setToolTipText("Open jchip's issue report page link.");
 
-        this.add(aboutItem);
         this.add(sourceItem);
         this.add(reportItem);
 

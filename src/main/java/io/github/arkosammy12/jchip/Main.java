@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip;
 
-import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.tinylog.Logger;
 
 import javax.swing.*;
