@@ -18,33 +18,23 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
     private final FileMenu fileMenu;
     private final EmulatorMenu emulatorMenu;
     private final SettingsMenu settingsMenu;
-    private final DebuggerMenu debuggerMenu;
+    private final DebugMenu debugMenu;
     private final HelpMenu helpMenu;
 
     public SettingsBar(Jchip jchip, MainWindow mainWindow) {
         super();
 
         this.fileMenu = new FileMenu(mainWindow);
-        this.fileMenu.setToolTipText("File related options and actions.");
-
         this.emulatorMenu = new EmulatorMenu(jchip);
-        this.emulatorMenu.setToolTipText("Emulation control and settings.");
-
         this.settingsMenu = new SettingsMenu(jchip);
-        this.settingsMenu.setToolTipText("Global application settings.");
-
-        this.debuggerMenu = new DebuggerMenu(jchip);
-        this.debuggerMenu.setToolTipText("Debugging related options and actions.");
-
+        this.debugMenu = new DebugMenu(jchip);
         this.helpMenu = new HelpMenu(jchip);
-        this.helpMenu.setToolTipText("Extra information and utilities.");
 
         this.add(fileMenu);
         this.add(emulatorMenu);
         this.add(settingsMenu);
-        this.add(debuggerMenu);
+        this.add(debugMenu);
         this.add(helpMenu);
-
     }
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
@@ -67,8 +57,8 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
         return this.fileMenu.getRomPath();
     }
 
-    public DebuggerMenu getDebuggerSettingsMenu() {
-        return this.debuggerMenu;
+    public DebugMenu getDebuggerSettingsMenu() {
+        return this.debugMenu;
     }
 
     @Override

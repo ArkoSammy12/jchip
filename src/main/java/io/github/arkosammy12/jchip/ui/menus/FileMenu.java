@@ -32,7 +32,7 @@ public class FileMenu extends JMenu {
 
         this.setMnemonic(KeyEvent.VK_F);
 
-        JMenuItem openItem = new JMenuItem("Load ROM");
+        JMenuItem openItem = new JMenuItem("Open");
         openItem.addActionListener(_ -> {
             SystemFileChooser chooser = new SystemFileChooser();
             chooser.setFileFilter(new SystemFileChooser.FileNameExtensionFilter("ROMs", FILE_EXTENSIONS));
@@ -48,8 +48,6 @@ public class FileMenu extends JMenu {
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK, true));
         openItem.setIcon(new FlatFileViewFileIcon());
         openItem.setToolTipText("Load binary ROM data from a file.");
-
-        this.add(openItem);
 
         mainWindow.setTransferHandler(new TransferHandler() {
 
@@ -73,8 +71,9 @@ public class FileMenu extends JMenu {
                 }
             }
         });
-
         this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | No file selected");
+
+        this.add(openItem);
 
     }
 

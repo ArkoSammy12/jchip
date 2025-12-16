@@ -9,7 +9,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.util.Objects;
 
-public class InfoPanel extends JPanel {
+public class InfoBar extends JPanel {
 
     private final JTextField variantField = createField();
     private final JTextField romTitleField = createField();
@@ -24,7 +24,7 @@ public class InfoPanel extends JPanel {
     private long totalIpfSinceLastUpdate = 0;
     private double totalFrameTimeSinceLastUpdate = 0;
 
-    public InfoPanel() {
+    public InfoBar() {
 
         MigLayout migLayout = new MigLayout(new LC().insets("1"), new AC().gap("5").gap("5").gap("5").gap("5").gap("5"), new AC());
         super(migLayout);

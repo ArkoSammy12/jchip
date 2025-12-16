@@ -27,7 +27,6 @@ public class HelpMenu extends JMenu {
             JMenuItem aboutItem = new JMenuItem("About");
             aboutItem.setMnemonic(KeyEvent.VK_A);
             aboutItem.addActionListener(_ -> showAboutDialog.run());
-            aboutItem.setToolTipText("Show the current jchip version.");
             this.add(aboutItem);
         };
 
@@ -51,7 +50,6 @@ public class HelpMenu extends JMenu {
                 JOptionPane.showMessageDialog(jchip.getMainWindow(), "Unable to open source link.");
             }
         });
-        sourceItem.setToolTipText("Open jchip's Github repository link.");
 
         JMenuItem reportItem = new JMenuItem("Report a Bug");
         reportItem.setMnemonic(KeyEvent.VK_R);
@@ -62,7 +60,6 @@ public class HelpMenu extends JMenu {
                 JOptionPane.showMessageDialog(jchip.getMainWindow(), "Unable to open issues link.");
             }
         });
-        reportItem.setToolTipText("Open jchip's issue report page link.");
 
         this.add(sourceItem);
         this.add(reportItem);

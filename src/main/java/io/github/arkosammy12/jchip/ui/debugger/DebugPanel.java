@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class DebuggerPanel extends JPanel {
+public class DebugPanel extends JPanel {
 
     public static final String DEFAULT_TEXT_SECTION_NAME = "Current Quirks";
     public static final String DEFAULT_CPU_REGISTERS_SECTION_NAME = "CPU Registers";
@@ -45,7 +45,7 @@ public class DebuggerPanel extends JPanel {
     private final DebuggerLabelTable stackTable;
     private final MemoryTable memoryTable;
 
-    public DebuggerPanel(Jchip jchip) {
+    public DebugPanel(Jchip jchip) {
         super();
         this.jchip = jchip;
         this.setFocusable(false);

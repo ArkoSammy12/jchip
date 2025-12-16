@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.ui;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
+import io.github.arkosammy12.jchip.ui.debugger.DebugPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
 import io.github.arkosammy12.jchip.video.DisplayRenderer;
 import net.miginfocom.layout.AC;
@@ -24,8 +24,8 @@ public class MainWindow extends JFrame implements Closeable {
     private final ToggleableSplitPane mainSplitPane;
     private final EmulatorViewport emulatorViewport;
     private final SettingsBar settingsBar;
-    private final DebuggerPanel debuggerPanel;
-    private final InfoPanel infoPanel;
+    private final DebugPanel debugPanel;
+    private final InfoBar infoBar;
 
     private final AtomicBoolean showingDebuggerPanel = new AtomicBoolean(false);
 
@@ -40,13 +40,13 @@ public class MainWindow extends JFrame implements Closeable {
 
         this.emulatorViewport = new EmulatorViewport();
         this.settingsBar = new SettingsBar(jchip, this);
-        this.infoPanel = new InfoPanel();
-        this.debuggerPanel = new DebuggerPanel(jchip);
-        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debuggerPanel, 5, 0.5);
+        this.infoBar = new InfoBar();
+        this.debugPanel = new DebugPanel(jchip);
+        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debugPanel, 5, 0.5);
 
         this.setJMenuBar(this.settingsBar);
         this.add(this.mainSplitPane, new CC().grow().push().wrap());
-        this.add(this.infoPanel, new CC().grow().pushX().dockSouth().height("28!"));
+        this.add(this.infoBar, new CC().grow().pushX().dockSouth().height("28!"));
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -66,15 +66,15 @@ public class MainWindow extends JFrame implements Closeable {
             return;
         }
         if (this.showingDebuggerPanel.get()) {
-            this.debuggerPanel.onFrame(emulator);
+            this.debugPanel.onFrame(emulator);
         }
-        this.infoPanel.onFrame(emulator);
+        this.infoBar.onFrame(emulator);
         emulator.getDisplay().getEmulatorRenderer().requestFrame();
     }
 
     public void onStopped() {
-        this.infoPanel.onStopped();
-        this.debuggerPanel.onStopped();
+        this.infoBar.onStopped();
+        this.debugPanel.onStopped();
         this.settingsBar.onStopped();
     }
 
@@ -95,9 +95,9 @@ public class MainWindow extends JFrame implements Closeable {
         });
     }
 
-    public void setInfoPanelEnabled(boolean enabled) {
+    public void setInfoBarEnabled(boolean enabled) {
         SwingUtilities.invokeLater(() -> {
-            this.infoPanel.setVisible(enabled);
+            this.infoBar.setVisible(enabled);
             this.revalidate();
             this.repaint();
         });

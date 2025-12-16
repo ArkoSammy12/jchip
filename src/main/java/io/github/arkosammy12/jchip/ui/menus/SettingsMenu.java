@@ -24,6 +24,11 @@ public class SettingsMenu extends JMenu {
 
         JMenu volumeMenu = new JMenu("Volume");
         JSlider volumeSlider = new JSlider(0, 100, 50);
+        volumeSlider.setPaintTrack(true);
+        volumeSlider.setPaintTicks(true);
+        volumeSlider.setPaintLabels(true);
+        volumeSlider.setMajorTickSpacing(25);
+        volumeSlider.setMinorTickSpacing(5);
         volumeSlider.addChangeListener(_ -> jchip.getAudioRenderer().setVolume(volumeSlider.getValue()));
         JPanel volumePanel = new JPanel();
         volumePanel.add(volumeSlider);
@@ -42,7 +47,7 @@ public class SettingsMenu extends JMenu {
 
         this.showInfoPanelButton = new JRadioButtonMenuItem("Show Info Bar");
         this.showInfoPanelButton.setSelected(true);
-        this.showInfoPanelButton.addActionListener(_ -> jchip.getMainWindow().setInfoPanelEnabled(this.showInfoPanelButton.isSelected()));
+        this.showInfoPanelButton.addActionListener(_ -> jchip.getMainWindow().setInfoBarEnabled(this.showInfoPanelButton.isSelected()));
 
         this.add(volumeMenu);
         this.add(muteButton);
