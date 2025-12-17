@@ -127,19 +127,19 @@ public class DebugPanel extends JPanel {
             }
         };
 
-        JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScrollPane, cpuRegistersScrollPane);
+        JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.textScrollPane, this.cpuRegistersScrollPane);
         firstSplit.setDividerSize(3);
         firstSplit.setResizeWeight(0.5);
         firstSplit.setContinuousLayout(true);
         firstSplit.addComponentListener(componentAdapterSupplier.apply(firstSplit));
 
-        JSplitPane secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, generalPurposeRegistersScrollPane);
+        JSplitPane secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, this.generalPurposeRegistersScrollPane);
         secondSplit.setDividerSize(3);
         secondSplit.setResizeWeight(0.5);
         secondSplit.setContinuousLayout(true);
         secondSplit.addComponentListener(componentAdapterSupplier.apply(secondSplit));
 
-        JSplitPane thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, stackScrollPane);
+        JSplitPane thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, this.stackScrollPane);
         thirdSplit.setDividerSize(3);
         thirdSplit.setResizeWeight(0.5);
         thirdSplit.setContinuousLayout(true);
@@ -150,7 +150,7 @@ public class DebugPanel extends JPanel {
         leftPanel.add(thirdSplit, new CC().grow().push());
         leftPanel.setPreferredSize(new Dimension(150, leftPanel.getHeight()));
 
-        MigLayout rightPanelLayout = new MigLayout("insets 0");
+        MigLayout rightPanelLayout = new MigLayout(new LC().insets("0"));
         JPanel rightPanel = new JPanel(rightPanelLayout);
         rightPanel.add(memoryScrollPane, new CC().grow().push());
         rightPanel.setPreferredSize(new Dimension(200, rightPanel.getHeight()));
