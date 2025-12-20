@@ -12,8 +12,8 @@ import java.awt.event.ComponentEvent;
 
 public class MemoryTable extends JTable {
 
-    private static final int MEMORY_COLUMN_WIDTH = 24;
-    private static final int ADDRESS_COLUMN_WIDTH = 70;
+    private static final int MEMORY_COLUMN_WIDTH = 26;
+    private static final int ADDRESS_COLUMN_WIDTH = 72;
     private static final int ROW_HEIGHT = 15;
 
     private final MemoryTableModel memoryTableModel;
