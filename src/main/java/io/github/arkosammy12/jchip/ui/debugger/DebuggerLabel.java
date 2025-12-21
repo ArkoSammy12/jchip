@@ -21,7 +21,8 @@ public class DebuggerLabel<T> extends JLabel {
         this.setState(this.state.get());
     }
 
-    public void setState(T val) {
+    private void setState(T val) {
+
         if (val == null) {
             if (this.state != null) {
                 this.setText(this.name);
@@ -29,6 +30,7 @@ public class DebuggerLabel<T> extends JLabel {
             }
             return;
         }
+
         this.state.set(val);
         String stateString = this.textEntry.getToStringFunction().orElse(Object::toString).apply(this.state.get());
         String descriptionString = this.textEntry.getDescription().orElse("");
@@ -42,7 +44,10 @@ public class DebuggerLabel<T> extends JLabel {
             labelString += " (" + descriptionString + ")";
         }
         labelString += ": " + stateString;
-        this.setText(labelString);
+
+        if (!labelString.equals(this.getText())) {
+            this.setText(labelString);
+        }
     }
 
 }
