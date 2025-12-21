@@ -72,6 +72,7 @@ public class Jchip {
                 this.mainWindow = new MainWindow(this);
                 this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 this.mainWindow.addWindowListener(new WindowAdapter() {
+
                     @Override
                     public void windowClosing(WindowEvent e) {
                         try {
@@ -81,8 +82,8 @@ public class Jchip {
                             Logger.error("Error releasing application resources: {}", ex);
                         }
                     }
-                });
 
+                });
             });
             if (cliArgs != null) {
                 this.mainWindow.getSettingsBar().initializeSettings(cliArgs);

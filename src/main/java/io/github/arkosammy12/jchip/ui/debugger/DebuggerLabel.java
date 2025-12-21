@@ -16,12 +16,12 @@ public class DebuggerLabel<T> extends JLabel {
         super(name);
     }
 
-    public void updateState() {
+    public void update() {
         this.textEntry.getStateUpdater().ifPresent(stateUpdater -> this.state.set(stateUpdater.get()));
-        this.setState(this.state.get());
+        this.setText(this.state.get());
     }
 
-    private void setState(T val) {
+    private void setText(T val) {
 
         if (val == null) {
             if (this.state != null) {

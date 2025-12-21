@@ -6,6 +6,7 @@ import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -120,37 +121,20 @@ public class DebugPanel extends JPanel {
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
 
-        Function<JSplitPane, ComponentAdapter> componentAdapterSupplier = jSplitPane -> new ComponentAdapter() {
-
-            private boolean firstTimeShown;
-
-            @Override
-            public void componentResized(ComponentEvent e) {
-                if (!this.firstTimeShown) {
-                    jSplitPane.resetToPreferredSizes();
-                    this.firstTimeShown = true;
-                }
-            }
-
-        };
-
         JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.textScrollPane, this.cpuRegistersScrollPane);
         firstSplit.setDividerSize(3);
         firstSplit.setResizeWeight(0.5);
         firstSplit.setContinuousLayout(true);
-        firstSplit.addComponentListener(componentAdapterSupplier.apply(firstSplit));
 
         JSplitPane secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, this.generalPurposeRegistersScrollPane);
         secondSplit.setDividerSize(3);
         secondSplit.setResizeWeight(0.5);
         secondSplit.setContinuousLayout(true);
-        secondSplit.addComponentListener(componentAdapterSupplier.apply(secondSplit));
 
         JSplitPane thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, this.stackScrollPane);
         thirdSplit.setDividerSize(3);
         thirdSplit.setResizeWeight(0.5);
         thirdSplit.setContinuousLayout(true);
-        thirdSplit.addComponentListener(componentAdapterSupplier.apply(thirdSplit));
 
         MigLayout leftPanelLayout = new MigLayout(new LC().insets("0"));
         JPanel leftPanel = new JPanel(leftPanelLayout);
@@ -167,7 +151,6 @@ public class DebugPanel extends JPanel {
         mainSplit.setResizeWeight(0.5);
         mainSplit.setContinuousLayout(true);
         mainSplit.setOneTouchExpandable(true);
-        mainSplit.addComponentListener(componentAdapterSupplier.apply(mainSplit));
 
         this.add(mainSplit, new CC().grow().push().width("500"));
 
@@ -221,13 +204,13 @@ public class DebugPanel extends JPanel {
             textArea.setText("");
             for (int i = 0; i < this.textPanelLabels.size(); i++) {
                 DebuggerLabel<?> label = this.textPanelLabels.get(i);
-                label.updateState();
+                label.update();
                 textArea.append(label.getText() + (i == this.textPanelLabels.size() - 1 ? "" : "\n"));
             }
 
-            this.cpuRegisterLabels.forEach(DebuggerLabel::updateState);
-            this.generalPurposeRegisterLabels.forEach(DebuggerLabel::updateState);
-            this.stackLabels.forEach(DebuggerLabel::updateState);
+            this.cpuRegisterLabels.forEach(DebuggerLabel::update);
+            this.generalPurposeRegisterLabels.forEach(DebuggerLabel::update);
+            this.stackLabels.forEach(DebuggerLabel::update);
 
             this.cpuRegistersTable.update();
             this.generalPurposeRegistersTable.update();

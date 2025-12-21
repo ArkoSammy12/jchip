@@ -71,10 +71,9 @@ public class FileMenu extends JMenu {
                 }
             }
         });
+
         this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | No file selected");
-
         this.add(openItem);
-
     }
 
     public Optional<Path> getRomPath() {

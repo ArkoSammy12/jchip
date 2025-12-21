@@ -53,7 +53,7 @@ public class DebuggerLabelTable extends JTable {
 
     @Override
     public boolean getScrollableTracksViewportWidth() {
-        return getPreferredSize().width <= getParent().getWidth();
+        return this.getPreferredSize().getWidth() <= this.getParent().getWidth();
     }
 
     @Override
@@ -143,15 +143,11 @@ public class DebuggerLabelTable extends JTable {
             if (row >= naturalRows) {
                 return "";
             }
-
-            int index = columnMayor
-                    ? col * naturalRows + row
-                    : row * columnCount + col;
+            int index = columnMayor ? col * naturalRows + row : row * columnCount + col;
 
             if (index < 0 || index >= totalLabels) {
                 return "";
             }
-
             return labels.get(index).getText();
         }
     }
