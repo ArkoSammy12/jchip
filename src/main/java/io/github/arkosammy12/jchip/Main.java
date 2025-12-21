@@ -17,11 +17,11 @@ public class Main {
 
     static void main(String[] args) throws Exception {
 
-        System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
-        System.setProperty("apple.awt.application.appearance", "system");
-        System.setProperty("apple.awt.application.name", "jchip");
-
         if (SystemInfo.isMacOS) {
+            System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
+            System.setProperty("apple.awt.application.appearance", "system");
+            System.setProperty("apple.awt.application.name", "jchip");
+
             Desktop desktop = Desktop.getDesktop();
             if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
                 desktop.setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
@@ -32,23 +32,6 @@ public class Main {
         System.setProperty("sun.awt.noerasebackground", Boolean.TRUE.toString());
         System.setProperty("flatlaf.uiScale.allowScaleDown", Boolean.TRUE.toString());
         System.setProperty("flatlaf.menuBarEmbedded", Boolean.FALSE.toString());
-
-        ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
-        toolTipManager.setLightWeightPopupEnabled(false);
-        toolTipManager.setInitialDelay(700);
-        toolTipManager.setReshowDelay(700);
-        toolTipManager.setDismissDelay(4000);
-
-        JFrame.setDefaultLookAndFeelDecorated(false);
-        JDialog.setDefaultLookAndFeelDecorated(false);
-
-        UIManager.put("TitlePane.useWindowDecorations", false);
-        UIManager.put("Component.hideMnemonics", false);
-        UIManager.put("FileChooser.readOnly", true);
-        UIManager.put("Component.arc", 8);
-        UIManager.put("Button.arc", 8);
-
-        Toolkit.getDefaultToolkit().setDynamicLayout(true);
 
         Jchip jchip = null;
         try {

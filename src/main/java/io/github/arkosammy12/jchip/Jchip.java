@@ -14,6 +14,7 @@ import org.tinylog.Logger;
 import picocli.CommandLine;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,6 +52,23 @@ public class Jchip {
             }
             SwingUtilities.invokeAndWait(() -> {
                 FlatOneDarkIJTheme.setup();
+
+                UIManager.put("TitlePane.useWindowDecorations", false);
+                UIManager.put("Component.hideMnemonics", false);
+                UIManager.put("FileChooser.readOnly", true);
+                UIManager.put("Component.arc", 8);
+                UIManager.put("Button.arc", 8);
+
+                ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
+                toolTipManager.setLightWeightPopupEnabled(false);
+                toolTipManager.setInitialDelay(700);
+                toolTipManager.setReshowDelay(700);
+                toolTipManager.setDismissDelay(4000);
+
+                JFrame.setDefaultLookAndFeelDecorated(false);
+                JDialog.setDefaultLookAndFeelDecorated(false);
+                Toolkit.getDefaultToolkit().setDynamicLayout(true);
+
                 this.mainWindow = new MainWindow(this);
                 this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 this.mainWindow.addWindowListener(new WindowAdapter() {
@@ -64,6 +82,7 @@ public class Jchip {
                         }
                     }
                 });
+
             });
             if (cliArgs != null) {
                 this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
