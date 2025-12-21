@@ -121,10 +121,17 @@ public class DebugPanel extends JPanel {
                 TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
 
         Function<JSplitPane, ComponentAdapter> componentAdapterSupplier = jSplitPane -> new ComponentAdapter() {
+
+            private boolean firstTimeShown;
+
             @Override
             public void componentResized(ComponentEvent e) {
-                jSplitPane.resetToPreferredSizes();
+                if (!this.firstTimeShown) {
+                    jSplitPane.resetToPreferredSizes();
+                    this.firstTimeShown = true;
+                }
             }
+
         };
 
         JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.textScrollPane, this.cpuRegistersScrollPane);
