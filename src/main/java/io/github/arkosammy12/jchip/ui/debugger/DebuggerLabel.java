@@ -18,20 +18,13 @@ public class DebuggerLabel<T> extends JLabel {
 
     public void update() {
         this.textEntry.getStateUpdater().ifPresent(stateUpdater -> this.state.set(stateUpdater.get()));
-        this.setText(this.state.get());
-    }
-
-    private void setText(T val) {
-
+        T val = this.state.get();
         if (val == null) {
-            if (this.state != null) {
-                this.setText(this.name);
-                this.state.set(null);
-            }
+            this.setText(this.name);
+            this.state.set(null);
             return;
         }
 
-        this.state.set(val);
         String stateString = this.textEntry.getToStringFunction().orElse(Object::toString).apply(this.state.get());
         String descriptionString = this.textEntry.getDescription().orElse("");
         String nameString = this.textEntry.getName().orElse("");

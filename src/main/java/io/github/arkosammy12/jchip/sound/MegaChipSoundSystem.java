@@ -1,10 +1,12 @@
 package io.github.arkosammy12.jchip.sound;
 
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.memory.MegaChipBus;
 
 public class MegaChipSoundSystem implements SoundSystem {
 
+    private final Jchip jchip;
     private final MegaChipEmulator emulator;
     private final Chip8SoundSystem megaOffSoundSystem;
 
@@ -16,6 +18,7 @@ public class MegaChipSoundSystem implements SoundSystem {
     private boolean isPlaying;
 
     public MegaChipSoundSystem(MegaChipEmulator emulator) {
+        this.jchip = emulator.getEmulatorSettings().getJchip();
         this.emulator = emulator;
         this.megaOffSoundSystem = new Chip8SoundSystem(emulator);
     }
@@ -66,7 +69,7 @@ public class MegaChipSoundSystem implements SoundSystem {
                 data[i] = 0;
             }
         }
-        this.emulator.getEmulatorSettings().getJchip().getAudioRenderer().pushSamples8(data);
+        this.jchip.getAudioRenderer().pushSamples8(data);
     }
 
 }

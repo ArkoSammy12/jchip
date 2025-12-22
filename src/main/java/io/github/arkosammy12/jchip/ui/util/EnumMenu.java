@@ -16,6 +16,7 @@ public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
 
     public EnumMenu(String name, Class<E> enumClass, boolean withUnspecifiedOption) {
         super(name);
+
         ButtonGroup buttonGroup = new ButtonGroup();
         if (withUnspecifiedOption) {
             JRadioButtonMenuItem unspecifiedItem = new JRadioButtonMenuItem("Unspecified");

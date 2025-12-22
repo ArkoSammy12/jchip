@@ -160,7 +160,7 @@ public class Chip8Database implements SettingsProvider {
     public Optional<Variant> getVariant() {
         return Optional.ofNullable(this.platformEntry)
                 .flatMap(PlatformEntry::getId)
-                .flatMap(Chip8Database::getVariantForPlatformIds);
+                .flatMap(Chip8Database::getVariantForPlatformId);
     }
 
     @Override
@@ -223,14 +223,12 @@ public class Chip8Database implements SettingsProvider {
             String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             return JsonParser.parseString(json);
         } catch (Exception e) {
-            throw new IllegalArgumentException(String.format("Unable to load resource %s.", resourcePath), e);
+            throw new IllegalArgumentException(String.format("Unable to load resource %s", resourcePath), e);
         }
     }
 
     private static String getSha1Hash(byte[] data) throws Exception {
-        MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-        byte[] hashBytes = sha1.digest(data);
-        return HexFormat.of().formatHex(hashBytes);
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(data));
     }
 
     private Optional<Hashes> getHashes() {
@@ -245,7 +243,7 @@ public class Chip8Database implements SettingsProvider {
         return Optional.ofNullable(this.platforms);
     }
 
-    private static Optional<Variant> getVariantForPlatformIds(String id) {
+    private static Optional<Variant> getVariantForPlatformId(String id) {
         return switch (id) {
             case "originalChip8", "modernChip8" -> Optional.of(CHIP_8);
             case "hybridVIP" -> Optional.of(HYBRID_CHIP_8);

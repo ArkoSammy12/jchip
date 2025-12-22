@@ -6,18 +6,14 @@ import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 public class DebugPanel extends JPanel {
 
@@ -80,39 +76,15 @@ public class DebugPanel extends JPanel {
 
         this.textScrollPane = new JScrollPane(textArea);
         this.textScrollPane.setPreferredSize(new Dimension(this.textScrollPane.getWidth(), 120));
-        textScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                DEFAULT_TEXT_SECTION_NAME,
-                TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION,
-                this.textScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.cpuRegistersScrollPane = new JScrollPane(this.cpuRegistersTable);
         this.cpuRegistersScrollPane.setPreferredSize(new Dimension(this.cpuRegistersScrollPane.getWidth(), 105));
-        cpuRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                DEFAULT_CPU_REGISTERS_SECTION_NAME,
-                TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION,
-                this.cpuRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.generalPurposeRegistersScrollPane = new JScrollPane(this.generalPurposeRegistersTable);
         this.generalPurposeRegistersScrollPane.setPreferredSize(new Dimension(this.generalPurposeRegistersScrollPane.getWidth(), 230));
-        generalPurposeRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME,
-                TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION,
-                this.generalPurposeRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.stackScrollPane = new JScrollPane(this.stackTable);
         this.stackScrollPane.setPreferredSize(new Dimension(this.stackScrollPane.getWidth(), 210));
-        stackScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                DEFAULT_STACK_SECTION_NAME,
-                TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION,
-                this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
 
         JScrollPane memoryScrollPane = new JScrollPane(memoryTable);
         memoryScrollPane.setBorder(BorderFactory.createTitledBorder(
@@ -120,6 +92,8 @@ public class DebugPanel extends JPanel {
                 "Memory",
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
+
+        this.setDefaultBorders();
 
         JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.textScrollPane, this.cpuRegistersScrollPane);
         firstSplit.setDividerSize(3);
@@ -160,35 +134,7 @@ public class DebugPanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             this.clear();
             this.textArea.setText("");
-
-            this.textScrollPane.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                    DEFAULT_TEXT_SECTION_NAME,
-                    TitledBorder.DEFAULT_JUSTIFICATION,
-                    TitledBorder.DEFAULT_POSITION,
-                    this.textScrollPane.getFont().deriveFont(Font.BOLD)));
-
-            this.cpuRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                    DEFAULT_CPU_REGISTERS_SECTION_NAME,
-                    TitledBorder.DEFAULT_JUSTIFICATION,
-                    TitledBorder.DEFAULT_POSITION,
-                    this.cpuRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
-
-            this.generalPurposeRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                    DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME,
-                    TitledBorder.DEFAULT_JUSTIFICATION,
-                    TitledBorder.DEFAULT_POSITION,
-                    this.generalPurposeRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
-
-            this.stackScrollPane.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                    DEFAULT_STACK_SECTION_NAME,
-                    TitledBorder.DEFAULT_JUSTIFICATION,
-                    TitledBorder.DEFAULT_POSITION,
-                    this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
-
+            this.setDefaultBorders();
             this.revalidate();
             this.repaint();
         });
@@ -287,6 +233,36 @@ public class DebugPanel extends JPanel {
         this.stackTable.update();
 
         this.memoryTable.clear();
+    }
+
+    private void setDefaultBorders() {
+        this.textScrollPane.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
+                DEFAULT_TEXT_SECTION_NAME,
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.textScrollPane.getFont().deriveFont(Font.BOLD)));
+
+        this.cpuRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
+                DEFAULT_CPU_REGISTERS_SECTION_NAME,
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.cpuRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
+
+        this.generalPurposeRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
+                DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME,
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.generalPurposeRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
+
+        this.stackScrollPane.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
+                DEFAULT_STACK_SECTION_NAME,
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
     }
 
 }

@@ -45,10 +45,9 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         this.variant = settings.getVariant().orElse(database.getVariant().orElse(CHIP_8));
 
         DefaultQuirkSet defaultQuirkset = getDefaultQuirkSet(this.variant).orElse(new DefaultQuirkSet(false, MemoryIncrementQuirk.NONE, false, false, false, false, _ -> 0));
-        boolean useVariantQuirks = settings.useVariantQuirks();
         this.hexSpriteFont = getHexSpriteFont(this.variant);
 
-        if (useVariantQuirks) {
+        if (settings.useVariantQuirks()) {
             this.doVFReset = defaultQuirkset.doVFReset();
             this.memoryIncrementQuirk = defaultQuirkset.memoryIncrementQuirk();
             this.doDisplayWait = defaultQuirkset.doDisplayWait();
@@ -121,7 +120,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     @Override
     public Emulator getEmulator() {
         return switch (this.variant) {
-            case CHIP_8-> new Chip8Emulator(this);
+            case CHIP_8 -> new Chip8Emulator(this);
             case STRICT_CHIP_8 -> new StrictChip8Emulator(this);
             case CHIP_8X -> new Chip8XEmulator(this);
             case CHIP_48 -> new Chip48Emulator(this);

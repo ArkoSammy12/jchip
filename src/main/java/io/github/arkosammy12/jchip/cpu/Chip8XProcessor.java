@@ -77,8 +77,6 @@ public class Chip8XProcessor<E extends Chip8XEmulator> extends Chip8Processor<E>
 
     @Override
     protected int executeEOpcode(int firstByte, int NN) {
-        //Keypad keyState = this.emulator.getKeyState();
-        //int hexKey = this.getRegister(secondNibble) & 0xF;
         return switch (NN) {
             case 0xF2 -> HANDLED; // EXF2: 0xeX 0xf2. Skip if key on keypad 2 is pressed. Stubbed
             case 0xF5 -> HANDLED; // EXF5: 0xeX 0xf5. Skip if key on keypad 2 is not pressed. Stubbed

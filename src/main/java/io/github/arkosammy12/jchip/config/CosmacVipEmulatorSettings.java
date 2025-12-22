@@ -20,6 +20,7 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
 
     public CosmacVipEmulatorSettings(Jchip jchip, Chip8Interpreter chip8Interpreter) {
         super(jchip);
+
         PrimarySettingsProvider settings = this.getJchip().getMainWindow().getSettingsBar();
         this.displayAngle = settings.getDisplayAngle().orElse(DisplayAngle.DEG_0);
         this.romTitle = settings.getRomPath().map(path -> path.getFileName().toString()).orElse(null);

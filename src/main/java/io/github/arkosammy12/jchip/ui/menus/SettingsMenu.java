@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.CLIArgs;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
@@ -37,7 +36,6 @@ public class SettingsMenu extends JMenu {
         JRadioButtonMenuItem muteButton = new JRadioButtonMenuItem("Mute");
         muteButton.addActionListener(_ -> jchip.getAudioRenderer().setMuted(muteButton.isSelected()));
         muteButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK, true));
-        muteButton.setToolTipText("Mute emulator audio.");
         muteButton.setSelected(false);
 
         this.keyboardLayoutMenu = new EnumMenu<>("Keyboard Layout", KeyboardLayout.class, false);
@@ -62,9 +60,7 @@ public class SettingsMenu extends JMenu {
     }
 
     public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        if (primarySettingsProvider instanceof CLIArgs cliArgs) {
-            cliArgs.getKeyboardLayout().ifPresent(this.keyboardLayoutMenu::setState);
-        }
+        primarySettingsProvider.getKeyboardLayout().ifPresent(this.keyboardLayoutMenu::setState);
     }
 
 }

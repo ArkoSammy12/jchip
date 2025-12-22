@@ -17,16 +17,12 @@ public class DebugMenu extends JMenu {
         this.setMnemonic(KeyEvent.VK_D);
 
         this.showDebuggerButton = new JRadioButtonMenuItem("Show debug view");
-        this.showDebuggerButton.addActionListener(_ ->
-                jchip.getMainWindow().setDebuggerViewEnabled(showDebuggerButton.isSelected())
-        );
+        this.showDebuggerButton.addActionListener(_ -> jchip.getMainWindow().setDebuggerViewEnabled(this.showDebuggerButton.isSelected()));
 
         this.memoryFollowButton = new JCheckBoxMenuItem("Memory Follow");
         this.memoryFollowButton.setSelected(memoryFollowEnabled);
         this.memoryFollowButton.setToolTipText("Automatically scroll memory viewer.");
-        this.memoryFollowButton.addActionListener(_ ->
-                memoryFollowEnabled = memoryFollowButton.isSelected()
-        );
+        this.memoryFollowButton.addActionListener(_ -> this.memoryFollowEnabled = this.memoryFollowButton.isSelected());
 
         this.add(showDebuggerButton);
         this.add(memoryFollowButton);

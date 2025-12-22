@@ -27,15 +27,11 @@ public class EmulatorViewport extends JPanel {
             }
             this.displayRenderer = displayRenderer;
 
-            if (displayRenderer == null) {
-                this.revalidate();
-                this.repaint();
-                return;
+            if (displayRenderer != null) {
+                this.add(displayRenderer, "grow, push");
             }
-            this.add(displayRenderer, "grow, push");
             this.revalidate();
             this.repaint();
-
         });
     }
 }

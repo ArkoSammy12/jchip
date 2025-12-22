@@ -22,7 +22,7 @@ public abstract class Display<E extends Emulator> implements Closeable {
         this.displayRenderer = new DisplayRenderer(emulator.getEmulatorSettings().getJchip(), this, emulator.getKeyAdapters());
     }
 
-    public DisplayRenderer getEmulatorRenderer() {
+    public DisplayRenderer getDisplayRenderer() {
         return this.displayRenderer;
     }
 

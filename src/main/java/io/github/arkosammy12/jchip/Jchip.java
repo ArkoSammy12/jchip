@@ -50,6 +50,7 @@ public class Jchip {
                     }
                 }
             }
+
             SwingUtilities.invokeAndWait(() -> {
                 FlatOneDarkIJTheme.setup();
 
@@ -79,19 +80,21 @@ public class Jchip {
                             running.set(false);
                             onShutdown();
                         } catch (Exception ex) {
-                            Logger.error("Error releasing application resources: {}", ex);
+                            Logger.error("Failed to release application resources: {}", ex);
                         }
                     }
 
                 });
             });
+
             if (cliArgs != null) {
                 this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
                 this.currentEmulator = Variant.getEmulator(this);
             }
+
             SwingUtilities.invokeLater(() -> this.mainWindow.setVisible(true));
         } catch (Exception e) {
-            throw new RuntimeException("Error initializing Jchip", e);
+            throw new RuntimeException("Failed to initialize Jchip", e);
         }
     }
 

@@ -146,6 +146,7 @@ public class CLIArgs implements PrimarySettingsProvider {
         return this.colorPalette;
     }
 
+    @Override
     public Optional<KeyboardLayout> getKeyboardLayout() {
         return this.keyboardLayout;
     }

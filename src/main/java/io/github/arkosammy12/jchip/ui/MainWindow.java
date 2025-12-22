@@ -69,7 +69,7 @@ public class MainWindow extends JFrame implements Closeable {
             this.debugPanel.onFrame(emulator);
         }
         this.infoBar.onFrame(emulator);
-        emulator.getDisplay().getEmulatorRenderer().requestFrame();
+        emulator.getDisplay().getDisplayRenderer().requestFrame();
     }
 
     public void onStopped() {
@@ -85,7 +85,7 @@ public class MainWindow extends JFrame implements Closeable {
     public void setDebuggerViewEnabled(boolean enabled) {
         this.showingDebuggerPanel.set(enabled);
         SwingUtilities.invokeLater(() -> {
-            if (mainSplitPane.isSplitVisible()) {
+            if (this.mainSplitPane.isSplitVisible()) {
                 this.mainSplitPane.hideRightPanel();
             } else {
                 this.mainSplitPane.showSplit();

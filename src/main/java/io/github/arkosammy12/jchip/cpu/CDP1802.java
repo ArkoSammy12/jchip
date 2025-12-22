@@ -874,46 +874,16 @@ public class CDP1802 implements Processor {
         S2_DMA_OUT,
         S3_INTERRUPT;
 
-        public boolean isS0Fetch() {
-            return this == S0_FETCH;
-        }
-
         public boolean isS1Execute() {
             return this == S1_RESET || this == S1_INIT || this == S1_EXECUTE;
         }
 
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         public boolean isS2Dma() {
             return this == S2_DMA_IN || this == S2_DMA_OUT;
         }
 
-        public boolean isS3Interrupt() {
-            return this == S3_INTERRUPT;
-        }
-
-        public boolean getSC0() {
-            return isS1Execute() || isS3Interrupt();
-        }
-
-        public boolean getSC1() {
-            return isS2Dma() || isS3Interrupt();
-        }
 
     }
-
-    /*
-    private void logTrace() {
-        String pc = String.format("[%04X]", getR(getP()));
-        String ins = String.format(" %02X |", getI() << 4 | getN());
-        String df = getDF() ? " DF:1" : " DF:0";
-        String d = String.format(" D: %02X ", getD());
-
-        StringBuilder regs = new StringBuilder(" ");
-        for (int i = 0; i < 16; i++) {
-            regs.append(String.format("R%01X:%04X ", i, getR(i)));
-        }
-
-        Logger.info(pc + ins + regs + " | " + d + df);
-    }
-     */
 
 }

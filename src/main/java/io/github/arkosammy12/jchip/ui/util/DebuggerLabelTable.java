@@ -43,7 +43,6 @@ public class DebuggerLabelTable extends JTable {
         this.setTableHeader(null);
 
         TableColumnModel colModel = this.getColumnModel();
-
         for (int i = 1; i < colModel.getColumnCount(); i++) {
             TableColumn col = colModel.getColumn(i);
             col.setPreferredWidth(COLUMN_WIDTH);
@@ -112,16 +111,11 @@ public class DebuggerLabelTable extends JTable {
         @Override
         public int getRowCount() {
             int natural = getNaturalRowCount();
-
             int viewportHeight = 0;
-            Container parent = getParent();
-
-            if (parent instanceof JViewport viewport) {
+            if (getParent() instanceof JViewport viewport) {
                 viewportHeight = viewport.getHeight();
             }
-
             int rowsToFill = viewportHeight > 0 ? viewportHeight / ROW_HEIGHT : 0;
-
             return Math.max(natural, rowsToFill);
         }
 

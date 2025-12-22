@@ -27,7 +27,6 @@ public abstract class AbstractEmulatorSettings implements EmulatorSettings {
 
         int[] rom = EmulatorSettings.loadRom(rawRom);
         this.rom = Arrays.copyOf(rom, rom.length);
-
     }
 
     @Override
