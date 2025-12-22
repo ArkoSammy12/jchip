@@ -28,6 +28,8 @@ public class MainWindow extends JFrame implements Closeable {
     private final InfoBar infoBar;
 
     private final AtomicBoolean showingDebuggerPanel = new AtomicBoolean(false);
+    private final CC infoBarConstraints;
+
 
     public MainWindow(Jchip jchip) {
         super(DEFAULT_TITLE);
@@ -44,9 +46,11 @@ public class MainWindow extends JFrame implements Closeable {
         this.debugPanel = new DebugPanel(jchip);
         this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debugPanel, 5, 0.5);
 
+        this.infoBarConstraints = new CC().grow().pushX().dockSouth().height("28!");
+
         this.setJMenuBar(this.settingsBar);
         this.add(this.mainSplitPane, new CC().grow().push().wrap());
-        this.add(this.infoBar, new CC().grow().pushX().dockSouth().height("28!"));
+        this.add(this.infoBar, this.infoBarConstraints);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -98,6 +102,7 @@ public class MainWindow extends JFrame implements Closeable {
     public void setInfoBarEnabled(boolean enabled) {
         SwingUtilities.invokeLater(() -> {
             this.infoBar.setVisible(enabled);
+            this.infoBarConstraints.setHideMode(enabled ? 0 : 3);
             this.revalidate();
             this.repaint();
         });
