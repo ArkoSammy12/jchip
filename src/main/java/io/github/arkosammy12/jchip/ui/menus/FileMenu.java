@@ -5,6 +5,7 @@ import com.formdev.flatlaf.util.SystemFileChooser;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.MainWindow;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
@@ -26,6 +27,10 @@ public class FileMenu extends JMenu {
     private final AtomicReference<byte[]> rawRom = new AtomicReference<>(null);
     private Path currentDirectory;
 
+    private final JMenu openRecentMenu;
+    private final JMenuItem clearRecentButton;
+    private final CircularFifoQueue<Path> recentFilePaths = new CircularFifoQueue<>(10);
+
     public FileMenu(MainWindow mainWindow) {
         super("File");
         this.mainWindow = mainWindow;
@@ -43,6 +48,7 @@ public class FileMenu extends JMenu {
                 Path selectedFilePath =  chooser.getSelectedFile().toPath();
                 this.currentDirectory = selectedFilePath.getParent();
                 loadFile(selectedFilePath);
+                addRecentFilePath(selectedFilePath);
             }
         });
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK, true));
@@ -64,7 +70,9 @@ public class FileMenu extends JMenu {
                 }
                 try {
                     List<File> files = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    loadFile(files.getFirst().toPath());
+                    Path filePath = files.getFirst().toPath();
+                    loadFile(filePath);
+                    addRecentFilePath(filePath);
                     return true;
                 } catch (Exception e) {
                     return false;
@@ -72,8 +80,19 @@ public class FileMenu extends JMenu {
             }
         });
 
+        this.openRecentMenu = new JMenu("Open Recent");
+        this.clearRecentButton = new JMenuItem("Clear all recents");
+        this.clearRecentButton.setEnabled(false);
+        this.clearRecentButton.addActionListener(_ -> {
+            this.recentFilePaths.clear();
+            this.rebuildOpenRecentMenu();
+        });
+
         this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | No file selected");
+
+        this.openRecentMenu.add(this.clearRecentButton);
         this.add(openItem);
+        this.add(openRecentMenu);
     }
 
     public Optional<Path> getRomPath() {
@@ -97,6 +116,33 @@ public class FileMenu extends JMenu {
         romPath.set(filePath);
         rawRom.set(EmulatorSettings.readRawRom(romPath.get()));
         this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | Selected File: " + filePath.getFileName());
+    }
+
+    private void addRecentFilePath(Path filePath) {
+        if (this.recentFilePaths.contains(filePath)) {
+            return;
+        }
+        this.recentFilePaths.offer(filePath);
+        this.rebuildOpenRecentMenu();
+    }
+
+    private void rebuildOpenRecentMenu() {
+        this.openRecentMenu.removeAll();
+        for (Path recentFilePath : this.recentFilePaths.stream().toList().reversed()) {
+            JMenuItem recentFileItem = new JMenuItem(recentFilePath.getFileName().toString());
+            recentFileItem.setToolTipText(recentFilePath.toString());
+            recentFileItem.addActionListener(_ -> this.loadFile(recentFilePath));
+            this.openRecentMenu.add(recentFileItem);
+        }
+        if (!this.recentFilePaths.isEmpty()) {
+            this.openRecentMenu.addSeparator();
+            this.clearRecentButton.setEnabled(true);
+        } else {
+            this.clearRecentButton.setEnabled(false);
+        }
+        this.openRecentMenu.add(this.clearRecentButton);
+        this.openRecentMenu.revalidate();
+        this.openRecentMenu.repaint();
     }
 
 }

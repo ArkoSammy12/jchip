@@ -25,7 +25,6 @@ public class DebuggerLabel<T> extends JLabel {
             return;
         }
 
-        String stateString = this.textEntry.getToStringFunction().orElse(Object::toString).apply(this.state.get());
         String descriptionString = this.textEntry.getDescription().orElse("");
         String nameString = this.textEntry.getName().orElse("");
 
@@ -36,7 +35,7 @@ public class DebuggerLabel<T> extends JLabel {
         if (!descriptionString.isEmpty()) {
             labelString += " (" + descriptionString + ")";
         }
-        labelString += ": " + stateString;
+        labelString += ": " + this.textEntry.getToStringFunction().orElse(Object::toString).apply(this.state.get());
 
         if (!labelString.equals(this.getText())) {
             this.setText(labelString);
