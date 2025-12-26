@@ -15,6 +15,8 @@ import java.util.Objects;
 
 public class MemoryTable extends JTable {
 
+    private static final int MAX_SHOWN_BYTES = 0xFFFFFF + 1;
+
     private static final int MEMORY_COLUMN_WIDTH = 26;
     private static final int ADDRESS_COLUMN_WIDTH = 72;
     private static final int ROW_HEIGHT = 15;
@@ -56,6 +58,10 @@ public class MemoryTable extends JTable {
 
         });
 
+    }
+
+    public int getCurrentMaximumAddress() {
+        return this.model.memory == null ? MAX_SHOWN_BYTES - 1 : this.model.memory.getMaximumAddress();
     }
 
     private void buildTable() {
@@ -111,8 +117,6 @@ public class MemoryTable extends JTable {
 
     private static class Model extends DefaultTableModel {
 
-        private static final int MAX_SHOWN_BYTES = 0xFFFFFF + 1;
-
         private Bus memory;
 
         private int bytesPerRow = 8;
@@ -125,7 +129,7 @@ public class MemoryTable extends JTable {
 
         public void setBytesPerRow(int bytesPerRow) {
             this.bytesPerRow = bytesPerRow;
-            this.rowCount = (int) Math.ceil(MAX_SHOWN_BYTES / (double) this.bytesPerRow);
+            this.updateRowCount();
         }
 
         public int getBytesPerRow() {
@@ -148,7 +152,7 @@ public class MemoryTable extends JTable {
         }
 
         void rebuildColumns() {
-            this.rowCount = (int) Math.ceil(MAX_SHOWN_BYTES / (double) this.bytesPerRow);
+            this.updateRowCount();
             this.fireTableStructureChanged();
         }
 
@@ -176,6 +180,14 @@ public class MemoryTable extends JTable {
         public void clear() {
             this.memory = null;
             this.fireTableDataChanged();
+        }
+
+        private void updateRowCount() {
+            if (this.memory == null) {
+                this.rowCount = (int) Math.ceil(MAX_SHOWN_BYTES / (double) this.bytesPerRow);
+            } else {
+                this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) this.bytesPerRow);
+            }
         }
 
     }

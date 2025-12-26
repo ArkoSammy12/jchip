@@ -8,4 +8,8 @@ public interface Bus {
 
     int getByte(int address);
 
+    default int getMaximumAddress() {
+        return this.getMemoryBoundsMask();
+    }
+
 }

@@ -78,6 +78,7 @@ public class FileMenu extends JMenu {
                     return false;
                 }
             }
+
         });
 
         this.openRecentMenu = new JMenu("Open Recent");
@@ -113,8 +114,8 @@ public class FileMenu extends JMenu {
     }
 
     private void loadFile(Path filePath) {
-        romPath.set(filePath);
-        rawRom.set(EmulatorSettings.readRawRom(romPath.get()));
+        this.romPath.set(filePath);
+        this.rawRom.set(EmulatorSettings.readRawRom(filePath));
         this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | Selected File: " + filePath.getFileName());
     }
 

@@ -3,16 +3,26 @@ package io.github.arkosammy12.jchip.ui.debugger;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
+import io.github.arkosammy12.jchip.ui.util.NumberOnlyTextField;
+import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class DebugPanel extends JPanel {
@@ -22,7 +32,6 @@ public class DebugPanel extends JPanel {
     public static final String DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME = "General Purpose Registers";
     public static final String DEFAULT_STACK_SECTION_NAME = "Stack";
 
-    private final Jchip jchip;
     private Debugger debugger;
 
     private final List<DebuggerLabel<?>> textPanelLabels = new ArrayList<>();
@@ -42,21 +51,11 @@ public class DebugPanel extends JPanel {
     private final DebuggerLabelTable stackTable;
     private final MemoryTable memoryTable;
 
+    private final JCheckBox memoryFollowCheckBox;
+
     public DebugPanel(Jchip jchip) {
         super();
-        this.jchip = jchip;
         this.setFocusable(false);
-
-        this.textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setFocusable(false);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        textArea.setKeymap(null);
-        textArea.setOpaque(false);
-        DefaultCaret caret = (DefaultCaret)textArea.getCaret();
-        caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
-        caret.setVisible(false);
 
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         this.setLayout(migLayout);
@@ -68,6 +67,17 @@ public class DebugPanel extends JPanel {
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION,
                 this.getFont().deriveFont(Font.BOLD)));
+
+        this.textArea = new JTextArea();
+        this.textArea.setEditable(false);
+        this.textArea.setFocusable(false);
+        this.textArea.setLineWrap(true);
+        this.textArea.setWrapStyleWord(true);
+        this.textArea.setKeymap(null);
+        this.textArea.setOpaque(false);
+        DefaultCaret caret = (DefaultCaret) this.textArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+        caret.setVisible(false);
 
         this.cpuRegistersTable = new DebuggerLabelTable(this.cpuRegisterLabels, 2);
         this.generalPurposeRegistersTable = new DebuggerLabelTable(this.generalPurposeRegisterLabels, 2, true);
@@ -87,11 +97,6 @@ public class DebugPanel extends JPanel {
         this.stackScrollPane.setPreferredSize(new Dimension(this.stackScrollPane.getWidth(), 210));
 
         JScrollPane memoryScrollPane = new JScrollPane(memoryTable);
-        memoryScrollPane.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "Memory",
-                TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION, memoryScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.setDefaultBorders();
 
@@ -117,8 +122,56 @@ public class DebugPanel extends JPanel {
 
         MigLayout rightPanelLayout = new MigLayout(new LC().insets("0"));
         JPanel rightPanel = new JPanel(rightPanelLayout);
-        rightPanel.add(memoryScrollPane, new CC().grow().push());
         rightPanel.setPreferredSize(new Dimension(200, rightPanel.getHeight()));
+        rightPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
+                "Memory",
+                TitledBorder.DEFAULT_JUSTIFICATION,
+                TitledBorder.DEFAULT_POSITION,
+                memoryScrollPane.getFont().deriveFont(Font.BOLD)));
+
+        JLabel goToAddressLabel = new JLabel("Go to address: ");
+        JTextField goToAddressField = new JTextField();
+        goToAddressField.addActionListener(_ -> {
+            String text = goToAddressField.getText().trim();
+            if (text.isEmpty()) {
+                return;
+            }
+            int maximumAddress = this.memoryTable.getCurrentMaximumAddress();
+            try {
+                int address = Integer.decode(text);
+                if (address >= 0 && address <= maximumAddress) {
+                    this.memoryTable.scrollToAddress(address);
+                } else {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException _) {
+                JOptionPane.showMessageDialog(
+                        jchip.getMainWindow(),
+                        "The address must be valid integer between 0 and " + maximumAddress + " (0x" + Integer.toHexString(maximumAddress).toUpperCase() + ")",
+                        "Invalid address value",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            }
+        });
+
+        goToAddressField.addFocusListener(new FocusAdapter() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                SwingUtilities.invokeLater(goToAddressField::selectAll);
+            }
+
+        });
+
+        this.memoryFollowCheckBox = new JCheckBox("Follow");
+        this.memoryFollowCheckBox.setFocusable(false);
+        this.memoryFollowCheckBox.addActionListener(_ -> goToAddressField.setEnabled(!this.memoryFollowCheckBox.isSelected()));
+
+        rightPanel.add(this.memoryFollowCheckBox, new CC().growX().pushX().alignX(AlignX.CENTER));
+        rightPanel.add(goToAddressLabel, new CC().split(2).alignX(AlignX.CENTER));
+        rightPanel.add(goToAddressField, new CC().growX().pushX().alignX(AlignX.CENTER).wrap());
+        rightPanel.add(memoryScrollPane, new CC().grow().push().spanX());
 
         JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         mainSplit.setDividerSize(5);
@@ -147,12 +200,16 @@ public class DebugPanel extends JPanel {
                 this.initializeDebuggerPanel(debugger);
             }
 
-            textArea.setText("");
-            for (int i = 0; i < this.textPanelLabels.size(); i++) {
-                DebuggerLabel<?> label = this.textPanelLabels.get(i);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < textPanelLabels.size(); i++) {
+                DebuggerLabel<?> label = textPanelLabels.get(i);
                 label.update();
-                textArea.append(label.getText() + (i == this.textPanelLabels.size() - 1 ? "" : "\n"));
+                sb.append(label.getText());
+                if (i < textPanelLabels.size() - 1) {
+                    sb.append('\n');
+                }
             }
+            this.textArea.setText(sb.toString());
 
             this.cpuRegisterLabels.forEach(DebuggerLabel::update);
             this.generalPurposeRegisterLabels.forEach(DebuggerLabel::update);
@@ -163,14 +220,11 @@ public class DebugPanel extends JPanel {
             this.stackTable.update();
 
             this.memoryTable.update(emulator);
-            this.debugger.getScrollAddressSupplier().ifPresent(supplier -> {
-                if (this.jchip.getMainWindow().getSettingsBar().getDebuggerSettingsMenu().isMemoryFollowEnabled()) {
-                    this.memoryTable.scrollToAddress(supplier.get());
-                }
-            });
+            if (this.memoryFollowCheckBox.isSelected()) {
+                this.debugger.getScrollAddressSupplier().ifPresent(supplier -> this.memoryTable.scrollToAddress(supplier.get()));
+            }
 
         });
-
     }
 
     private void initializeDebuggerPanel(Debugger debugger) {

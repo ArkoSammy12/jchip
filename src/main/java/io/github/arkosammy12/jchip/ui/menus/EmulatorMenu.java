@@ -12,6 +12,8 @@ import io.github.arkosammy12.jchip.video.ColorPalette;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
@@ -122,7 +124,7 @@ public class EmulatorMenu extends JMenu {
             } catch (NumberFormatException ignored) {
                 JOptionPane.showMessageDialog(
                         jchip.getMainWindow(),
-                        "The IPF value must be a valid integer!",
+                        "The IPF value must be a valid positive integer!",
                         "Incorrect formatting",
                         JOptionPane.WARNING_MESSAGE
                 );
@@ -158,6 +160,15 @@ public class EmulatorMenu extends JMenu {
             @Override
             public void changedUpdate(DocumentEvent e) {
                 update();
+            }
+
+        });
+
+        instructionsPerFrameField.addFocusListener(new FocusAdapter() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                SwingUtilities.invokeLater(instructionsPerFrameField::selectAll);
             }
 
         });
