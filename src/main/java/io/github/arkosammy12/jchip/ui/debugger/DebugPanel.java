@@ -54,11 +54,10 @@ public class DebugPanel extends JPanel {
     private final JCheckBox memoryFollowCheckBox;
 
     public DebugPanel(Jchip jchip) {
-        super();
-        this.setFocusable(false);
-
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
-        this.setLayout(migLayout);
+        super(migLayout);
+
+        this.setFocusable(false);
         this.setPreferredSize(new Dimension(500, this.getHeight()));
 
         this.setBorder(BorderFactory.createTitledBorder(
