@@ -57,10 +57,6 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
         return this.fileMenu.getRomPath();
     }
 
-    public DebugMenu getDebuggerSettingsMenu() {
-        return this.debugMenu;
-    }
-
     @Override
     public Optional<Integer> getInstructionsPerFrame() {
         return this.emulatorMenu.getInstructionsPerFrame();

@@ -64,25 +64,6 @@ public class MainWindow extends JFrame implements Closeable {
         return this.settingsBar;
     }
 
-    public void onFrame(@Nullable Emulator emulator) {
-        if (emulator == null) {
-            return;
-        }
-        if (this.showingDebuggerPanel.get()) {
-            this.debugPanel.onFrame(emulator);
-        }
-        this.leftPanel.onFrame(emulator);
-        this.infoBar.onFrame(emulator);
-        emulator.getDisplay().getDisplayRenderer().requestFrame();
-    }
-
-    public void onStopped() {
-        this.leftPanel.onStopped();
-        this.infoBar.onStopped();
-        this.debugPanel.onStopped();
-        this.settingsBar.onStopped();
-    }
-
     public void setEmulatorRenderer(DisplayRenderer displayRenderer) {
         this.leftPanel.setEmulatorRenderer(displayRenderer);
     }
@@ -119,6 +100,25 @@ public class MainWindow extends JFrame implements Closeable {
                 "Emulation has stopped unexpectedly!",
                 JOptionPane.ERROR_MESSAGE
         ));
+    }
+
+    public void onFrame(@Nullable Emulator emulator) {
+        if (emulator == null) {
+            return;
+        }
+        if (this.showingDebuggerPanel.get()) {
+            this.debugPanel.onFrame(emulator);
+        }
+        this.leftPanel.onFrame(emulator);
+        this.infoBar.onFrame(emulator);
+        emulator.getDisplay().getDisplayRenderer().requestFrame();
+    }
+
+    public void onStopped() {
+        this.leftPanel.onStopped();
+        this.infoBar.onStopped();
+        this.debugPanel.onStopped();
+        this.settingsBar.onStopped();
     }
 
     @Override

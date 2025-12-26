@@ -25,7 +25,6 @@ public class InfoBar extends JPanel {
     private double totalFrameTimeSinceLastUpdate = 0;
 
     public InfoBar() {
-
         MigLayout migLayout = new MigLayout(new LC().insets("1"), new AC().gap("5").gap("5").gap("5").gap("5").gap("5"), new AC());
         super(migLayout);
 

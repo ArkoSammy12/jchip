@@ -144,7 +144,7 @@ public class DebuggerLabelTable extends JTable {
             }
             return labels.get(index).getText();
         }
-    }
 
+    }
 
 }

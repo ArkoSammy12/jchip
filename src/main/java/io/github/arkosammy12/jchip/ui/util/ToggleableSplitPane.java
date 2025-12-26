@@ -33,7 +33,6 @@ public class ToggleableSplitPane extends JPanel {
         this.add(this.left, SINGLE);
 
         this.layout.show(this.left.getParent(), SINGLE);
-
     }
 
     public void showSplit() {

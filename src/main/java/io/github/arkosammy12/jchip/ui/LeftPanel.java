@@ -27,7 +27,6 @@ public class LeftPanel extends JPanel {
         this.splitPane = new ToggleableSplitPane(JSplitPane.VERTICAL_SPLIT, this.emulatorViewport, this.disassemblyPanel, 5, 0.75);
 
         this.add(this.splitPane, new CC().grow().push());
-
     }
 
     public void setEmulatorRenderer(DisplayRenderer displayRenderer) {
@@ -56,6 +55,5 @@ public class LeftPanel extends JPanel {
     public void onStopped() {
         this.disassemblyPanel.onStopped();
     }
-
 
 }

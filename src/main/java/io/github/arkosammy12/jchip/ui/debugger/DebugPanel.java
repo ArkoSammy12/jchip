@@ -179,7 +179,6 @@ public class DebugPanel extends JPanel {
         mainSplit.setOneTouchExpandable(true);
 
         this.add(mainSplit, new CC().grow().push().width("500"));
-
     }
 
     public void onStopped() {

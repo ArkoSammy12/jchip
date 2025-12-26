@@ -192,7 +192,6 @@ public class EmulatorMenu extends JMenu {
 
         this.instructionsPerFrameMenu.add(ipfPanel);
         this.add(this.instructionsPerFrameMenu);
-
     }
 
     public QuirksMenu getQuirksMenu() {
