@@ -43,7 +43,7 @@ public class SettingsMenu extends JMenu {
         this.keyboardLayoutMenu.setMnemonic(KeyEvent.VK_K);
         this.keyboardLayoutMenu.setToolTipText("Select the desired keyboard layout configuration for using the CHIP-8 keypad.");
 
-        this.showInfoPanelButton = new JRadioButtonMenuItem("Show Info Bar");
+        this.showInfoPanelButton = new JRadioButtonMenuItem("Show info bar");
         this.showInfoPanelButton.setSelected(true);
         this.showInfoPanelButton.addActionListener(_ -> jchip.getMainWindow().setInfoBarEnabled(this.showInfoPanelButton.isSelected()));
 
