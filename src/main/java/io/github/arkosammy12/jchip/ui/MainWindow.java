@@ -22,14 +22,13 @@ public class MainWindow extends JFrame implements Closeable {
     public static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
     private final ToggleableSplitPane mainSplitPane;
-    private final EmulatorViewport emulatorViewport;
+    private final LeftPanel leftPanel;
     private final SettingsBar settingsBar;
     private final DebugPanel debugPanel;
     private final InfoBar infoBar;
 
     private final AtomicBoolean showingDebuggerPanel = new AtomicBoolean(false);
     private final CC infoBarConstraints;
-
 
     public MainWindow(Jchip jchip) {
         super(DEFAULT_TITLE);
@@ -40,11 +39,11 @@ public class MainWindow extends JFrame implements Closeable {
         this.setLayout(migLayout);
         this.setBackground(Color.BLACK);
 
-        this.emulatorViewport = new EmulatorViewport();
+        this.leftPanel = new LeftPanel();
         this.settingsBar = new SettingsBar(jchip, this);
         this.infoBar = new InfoBar();
         this.debugPanel = new DebugPanel(jchip);
-        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.emulatorViewport, this.debugPanel, 5, 0.5);
+        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.leftPanel, this.debugPanel, 5, 0.5);
 
         this.infoBarConstraints = new CC().grow().pushX().dockSouth().height("28!");
 
@@ -72,18 +71,20 @@ public class MainWindow extends JFrame implements Closeable {
         if (this.showingDebuggerPanel.get()) {
             this.debugPanel.onFrame(emulator);
         }
+        this.leftPanel.onFrame(emulator);
         this.infoBar.onFrame(emulator);
         emulator.getDisplay().getDisplayRenderer().requestFrame();
     }
 
     public void onStopped() {
+        this.leftPanel.onStopped();
         this.infoBar.onStopped();
         this.debugPanel.onStopped();
         this.settingsBar.onStopped();
     }
 
     public void setEmulatorRenderer(DisplayRenderer displayRenderer) {
-        this.emulatorViewport.setEmulatorRenderer(displayRenderer);
+        this.leftPanel.setEmulatorRenderer(displayRenderer);
     }
 
     public void setDebuggerViewEnabled(boolean enabled) {
@@ -97,6 +98,10 @@ public class MainWindow extends JFrame implements Closeable {
             this.revalidate();
             this.repaint();
         });
+    }
+
+    public void setDisassemblyViewEnabled(boolean enabled) {
+        this.leftPanel.setDisassemblyViewEnabled(enabled);
     }
 
     public void setInfoBarEnabled(boolean enabled) {
