@@ -36,8 +36,6 @@ public class MemoryTable extends JTable {
         this.setRowSelectionAllowed(false);
         this.setColumnSelectionAllowed(false);
         this.setTableHeader(null);
-        this.buildTable();
-
         this.addComponentListener(new ComponentAdapter() {
 
             @Override
@@ -57,6 +55,7 @@ public class MemoryTable extends JTable {
             }
 
         });
+        this.buildTable();
 
     }
 
@@ -129,7 +128,6 @@ public class MemoryTable extends JTable {
 
         public void setBytesPerRow(int bytesPerRow) {
             this.bytesPerRow = bytesPerRow;
-            this.updateRowCount();
         }
 
         public int getBytesPerRow() {
