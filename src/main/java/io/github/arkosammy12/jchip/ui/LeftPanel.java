@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.video.DisplayRenderer;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.tinylog.Logger;
 
 import javax.swing.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -16,8 +17,6 @@ public class LeftPanel extends JPanel {
     private final ToggleableSplitPane splitPane;
     private final EmulatorViewport emulatorViewport;
     private final DisassemblyPanel disassemblyPanel;
-
-    private final AtomicBoolean showingDisassemblyPanel = new AtomicBoolean(false);
 
     public LeftPanel() {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
@@ -34,7 +33,7 @@ public class LeftPanel extends JPanel {
     }
 
     public void setDisassemblyViewEnabled(boolean enabled) {
-        this.showingDisassemblyPanel.set(enabled);
+        this.disassemblyPanel.setDisassemblerEnabled(enabled);
         SwingUtilities.invokeLater(() -> {
             if (this.splitPane.isSplitVisible()) {
                 this.splitPane.hideRightPanel();
@@ -47,9 +46,7 @@ public class LeftPanel extends JPanel {
     }
 
     public void onFrame(Emulator emulator) {
-        if (this.showingDisassemblyPanel.get()) {
-            this.disassemblyPanel.onFrame(emulator);
-        }
+        this.disassemblyPanel.onFrame(emulator);
     }
 
     public void onStopped() {

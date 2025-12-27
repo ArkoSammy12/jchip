@@ -3,6 +3,9 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.*;
+import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
+import io.github.arkosammy12.jchip.disassembler.Chip8Disassembler;
+import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
@@ -41,6 +44,7 @@ public class Chip8Emulator implements Emulator {
     private final Variant variant;
     private final Chip8EmulatorSettings emulatorSettings;
     private final DebuggerSchema debuggerSchema;
+    private final AbstractDisassembler disassembler;
     private final int targetInstructionsPerFrame;
 
     private long instructionCounter;
@@ -62,6 +66,7 @@ public class Chip8Emulator implements Emulator {
 
             this.getBus().loadFont(emulatorSettings.getHexSpriteFont());
             this.debuggerSchema = this.createDebuggerSchema();
+            this.disassembler = this.createDisassembler();
         } catch (Exception e) {
             this.close();
             throw new EmulatorException(e);
@@ -132,6 +137,12 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
+    @Nullable
+    public Disassembler getDisassembler() {
+        return this.disassembler;
+    }
+
+    @Override
     public Chip8EmulatorSettings getEmulatorSettings() {
         return this.emulatorSettings;
     }
@@ -162,6 +173,7 @@ public class Chip8Emulator implements Emulator {
             return;
         }
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
+            this.disassembler.disassembleAt(this.getProcessor().getProgramCounter());
             if (this.waitVBlank(this.getProcessor().cycle())) {
                 break;
             }
@@ -268,6 +280,12 @@ public class Chip8Emulator implements Emulator {
 
         }
         return debuggerSchema;
+    }
+
+    protected AbstractDisassembler createDisassembler() {
+        Chip8Disassembler disassembler = new Chip8Disassembler(this);
+        disassembler.setCurrentAddressSupplier(() -> this.getProcessor().getProgramCounter());
+        return disassembler;
     }
 
     private static int hexDigitCount(int x) {

@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
+import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.memory.CosmacVipBus;
 import io.github.arkosammy12.jchip.memory.HybridChip8XBus;
@@ -15,6 +16,7 @@ import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.vip.CosmacVIPKeypad;
 import io.github.arkosammy12.jchip.video.CDP1861;
 import io.github.arkosammy12.jchip.video.VP590;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -104,6 +106,11 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public DebuggerSchema getDebuggerSchema() {
         return this.debuggerSchema;
+    }
+
+    @Override
+    public @Nullable Disassembler getDisassembler() {
+        return null;
     }
 
     public CosmacVipEmulatorSettings.Chip8Interpreter getChip8Interpreter() {

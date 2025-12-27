@@ -41,4 +41,8 @@ public class DisassemblyPanel extends JPanel {
         SwingUtilities.invokeLater(this.disassemblerTable::clear);
     }
 
+    public void setDisassemblerEnabled(boolean enabled) {
+        this.disassemblerTable.setDisassemblerEnabled(enabled);
+    }
+
 }
