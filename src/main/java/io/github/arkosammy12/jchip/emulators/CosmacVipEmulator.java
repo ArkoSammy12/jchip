@@ -9,7 +9,7 @@ import io.github.arkosammy12.jchip.memory.HybridChip8XBus;
 import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import io.github.arkosammy12.jchip.sound.VP595;
-import io.github.arkosammy12.jchip.ui.debugger.Debugger;
+import io.github.arkosammy12.jchip.ui.debugger.DebuggerSchema;
 import io.github.arkosammy12.jchip.util.vip.IODevice;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.vip.CosmacVIPKeypad;
@@ -29,7 +29,7 @@ public class CosmacVipEmulator implements Emulator {
 
     private final CosmacVipEmulatorSettings settings;
     private final CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter;
-    private final Debugger debugger;
+    private final DebuggerSchema debuggerSchema;
     private final Variant variant;
 
     private final CDP1802 processor;
@@ -60,7 +60,7 @@ public class CosmacVipEmulator implements Emulator {
                 this.soundSystem = new Chip8SoundSystem(this);
                 this.ioDevices = List.of(this.display, this.keypad);
             }
-            this.debugger = this.createDebuggerInfo();
+            this.debuggerSchema = this.createDebuggerSchema();
         } catch (Exception e) {
             throw new EmulatorException(e);
         }
@@ -102,8 +102,8 @@ public class CosmacVipEmulator implements Emulator {
     }
 
     @Override
-    public Debugger getDebugger() {
-        return this.debugger;
+    public DebuggerSchema getDebuggerSchema() {
+        return this.debuggerSchema;
     }
 
     public CosmacVipEmulatorSettings.Chip8Interpreter getChip8Interpreter() {
@@ -226,79 +226,79 @@ public class CosmacVipEmulator implements Emulator {
         }
     }
 
-    protected Debugger createDebuggerInfo() {
-        Debugger debugger = new Debugger();
-        debugger.setTextSectionName("Cosmac VIP");
-        debugger.setScrollAddressSupplier(() -> this.processor.getR(this.processor.getX()));
+    protected DebuggerSchema createDebuggerSchema() {
+        DebuggerSchema debuggerSchema = new DebuggerSchema();
+        debuggerSchema.setTextSectionName("Cosmac VIP");
+        debuggerSchema.setScrollAddressSupplier(() -> this.processor.getR(this.processor.getX()));
 
         Function<Integer, String> byteFormatter = val -> String.format("%02X", val);
         Function<Integer, String> nibbleFormatter = val -> String.format("%01X", val);
         Function<Boolean, String> booleanFormatter = val -> val ? "1" : "0";
 
-        debugger.createTextEntry()
+        debuggerSchema.createTextEntry()
                 .withName("Cosmac VIP based variant. Does not support custom quirks.");
 
-        debugger.<Integer>createCpuRegisterEntry()
+        debuggerSchema.<Integer>createCpuRegisterEntry()
                 .withName("I")
                 .withStateUpdater(this.processor::getI)
                 .withToStringFunction(nibbleFormatter);
 
-        debugger.<Integer>createCpuRegisterEntry()
+        debuggerSchema.<Integer>createCpuRegisterEntry()
                 .withName("N")
                 .withStateUpdater(this.processor::getN)
                 .withToStringFunction(nibbleFormatter);
 
-        debugger.<Integer>createCpuRegisterEntry()
+        debuggerSchema.<Integer>createCpuRegisterEntry()
                 .withName("P")
                 .withStateUpdater(this.processor::getP)
                 .withToStringFunction(nibbleFormatter);
 
-        debugger.<Integer>createCpuRegisterEntry()
+        debuggerSchema.<Integer>createCpuRegisterEntry()
                 .withName("X")
                 .withStateUpdater(this.processor::getX)
                 .withToStringFunction(nibbleFormatter);
 
-        debugger.<Integer>createCpuRegisterEntry()
+        debuggerSchema.<Integer>createCpuRegisterEntry()
                 .withName("D")
                 .withStateUpdater(this.processor::getD)
                 .withToStringFunction(byteFormatter);
 
-        debugger.<Integer>createCpuRegisterEntry()
+        debuggerSchema.<Integer>createCpuRegisterEntry()
                 .withName("T")
                 .withStateUpdater(this.processor::getT)
                 .withToStringFunction(byteFormatter);
 
-        debugger.<Boolean>createCpuRegisterEntry()
+        debuggerSchema.<Boolean>createCpuRegisterEntry()
                 .withName("DF")
                 .withStateUpdater(this.processor::getDF)
                 .withToStringFunction(booleanFormatter);
 
-        debugger.<Boolean>createCpuRegisterEntry()
+        debuggerSchema.<Boolean>createCpuRegisterEntry()
                 .withName("IE")
                 .withStateUpdater(this.processor::getIE)
                 .withToStringFunction(booleanFormatter);
 
-        debugger.<Boolean>createCpuRegisterEntry()
+        debuggerSchema.<Boolean>createCpuRegisterEntry()
                 .withName("Q")
                 .withStateUpdater(this.processor::getQ)
                 .withToStringFunction(booleanFormatter);
 
-        debugger.setStackSectionName("X Data");
+        debuggerSchema.setStackSectionName("X Data");
 
         for (int i = 0; i < 16; i++) {
             int finalI = i;
-            debugger.<Integer>createGeneralPurposeRegisterEntry()
+            debuggerSchema.<Integer>createGeneralPurposeRegisterEntry()
                     .withName(String.format("R%01X", i))
                     .withStateUpdater(() -> this.getProcessor().getR(finalI))
                     .withToStringFunction(val -> String.format("%04X", val));
 
-            debugger.<Integer>createStackEntry()
+            debuggerSchema.<Integer>createStackEntry()
                     .withName(String.format("%01X", i))
                     .withStateUpdater(() -> this.getBus().getByte(this.processor.getR(finalI)))
                     .withToStringFunction(val -> String.format("%02X", val));
 
         }
-        return debugger;
+        return debuggerSchema;
     }
 
 }

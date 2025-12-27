@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import static io.github.arkosammy12.jchip.ui.debugger.DebugPanel.*;
 
-public class Debugger {
+public class DebuggerSchema {
 
     private final List<TextEntry<?>> textSectionEntries = new ArrayList<>();
     private final List<TextEntry<?>> cpuRegisterEntries = new ArrayList<>();

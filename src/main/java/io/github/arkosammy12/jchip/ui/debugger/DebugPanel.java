@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.ui.debugger;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
-import io.github.arkosammy12.jchip.ui.util.NumberOnlyTextField;
 import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -11,18 +10,12 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
-import javax.swing.text.PlainDocument;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class DebugPanel extends JPanel {
@@ -32,7 +25,7 @@ public class DebugPanel extends JPanel {
     public static final String DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME = "General Purpose Registers";
     public static final String DEFAULT_STACK_SECTION_NAME = "Stack";
 
-    private Debugger debugger;
+    private DebuggerSchema debuggerSchema;
 
     private final List<DebuggerLabel<?>> textPanelLabels = new ArrayList<>();
     private final List<DebuggerLabel<?>> cpuRegisterLabels = new ArrayList<>();
@@ -62,7 +55,7 @@ public class DebugPanel extends JPanel {
 
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "Debugger",
+                "DebuggerSchema",
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION,
                 this.getFont().deriveFont(Font.BOLD)));
@@ -192,10 +185,10 @@ public class DebugPanel extends JPanel {
     }
 
     public void onFrame(Emulator emulator) {
-        Debugger debugger = emulator.getDebugger();
+        DebuggerSchema debuggerSchema = emulator.getDebuggerSchema();
         SwingUtilities.invokeLater(() -> {
-            if (!Objects.equals(debugger, this.debugger)) {
-                this.initializeDebuggerPanel(debugger);
+            if (!Objects.equals(debuggerSchema, this.debuggerSchema)) {
+                this.initializeDebuggerPanel(debuggerSchema);
             }
 
             StringBuilder sb = new StringBuilder();
@@ -219,20 +212,20 @@ public class DebugPanel extends JPanel {
 
             this.memoryTable.update(emulator);
             if (this.memoryFollowCheckBox.isSelected()) {
-                this.debugger.getScrollAddressSupplier().ifPresent(supplier -> this.memoryTable.scrollToAddress(supplier.get()));
+                this.debuggerSchema.getScrollAddressSupplier().ifPresent(supplier -> this.memoryTable.scrollToAddress(supplier.get()));
             }
 
         });
     }
 
-    private void initializeDebuggerPanel(Debugger debugger) {
+    private void initializeDebuggerPanel(DebuggerSchema debuggerSchema) {
         this.clear();
-        this.debugger = debugger;
+        this.debuggerSchema = debuggerSchema;
 
-        this.textPanelLabels.addAll(this.debugger.getTextSectionLabels());
-        this.cpuRegisterLabels.addAll(this.debugger.getCpuRegisterLabels());
-        this.generalPurposeRegisterLabels.addAll(this.debugger.getGeneralPurposeRegisterLabels());
-        this.stackLabels.addAll(this.debugger.getStackLabels());
+        this.textPanelLabels.addAll(this.debuggerSchema.getTextSectionLabels());
+        this.cpuRegisterLabels.addAll(this.debuggerSchema.getCpuRegisterLabels());
+        this.generalPurposeRegisterLabels.addAll(this.debuggerSchema.getGeneralPurposeRegisterLabels());
+        this.stackLabels.addAll(this.debuggerSchema.getStackLabels());
 
         this.textPanelLabels.forEach(label -> label.setFont(label.getFont().deriveFont(Font.BOLD).deriveFont(15f)));
         this.cpuRegisterLabels.forEach(label -> label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15)));
@@ -241,28 +234,28 @@ public class DebugPanel extends JPanel {
 
         this.textScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                this.debugger.getTextSectionName(),
+                this.debuggerSchema.getTextSectionName(),
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION,
                 this.textScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.cpuRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                this.debugger.getCpuRegistersSectionName(),
+                this.debuggerSchema.getCpuRegistersSectionName(),
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION,
                 this.cpuRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.generalPurposeRegistersScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                this.debugger.getGeneralPurposeRegistersSectionName(),
+                this.debuggerSchema.getGeneralPurposeRegistersSectionName(),
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION,
                 this.generalPurposeRegistersScrollPane.getFont().deriveFont(Font.BOLD)));
 
         this.stackScrollPane.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                this.debugger.getStackSectionName(),
+                this.debuggerSchema.getStackSectionName(),
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION,
                 this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
@@ -272,7 +265,7 @@ public class DebugPanel extends JPanel {
     }
 
     private void clear() {
-        this.debugger = null;
+        this.debuggerSchema = null;
 
         this.textPanelLabels.clear();
 

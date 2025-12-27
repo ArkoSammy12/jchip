@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
 import io.github.arkosammy12.jchip.memory.StrictChip8Bus;
-import io.github.arkosammy12.jchip.ui.debugger.Debugger;
+import io.github.arkosammy12.jchip.ui.debugger.DebuggerSchema;
 import io.github.arkosammy12.jchip.video.StrictChip8Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -118,13 +118,13 @@ public final class StrictChip8Emulator extends Chip8Emulator {
     }
 
     @Override
-    protected Debugger createDebuggerInfo() {
-        Debugger debugger = super.createDebuggerInfo();
-        debugger.clearTextSectionEntries();
-        debugger.setTextSectionName("Strict CHIP-8");
-        debugger.createTextEntry()
+    protected DebuggerSchema createDebuggerSchema() {
+        DebuggerSchema debuggerSchema = super.createDebuggerSchema();
+        debuggerSchema.clearTextSectionEntries();
+        debuggerSchema.setTextSectionName("Strict CHIP-8");
+        debuggerSchema.createTextEntry()
                 .withName("No custom quirks supported.");
-        return debugger;
+        return debuggerSchema;
     }
 
 }
