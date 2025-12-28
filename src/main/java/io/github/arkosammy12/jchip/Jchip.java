@@ -110,6 +110,10 @@ public class Jchip {
         return this.audioRenderer;
     }
 
+    public State getState() {
+        return this.currentState.get();
+    }
+
     public void setFlagRegister(int index, int value) {
         this.flagsStorage[index] = value;
     }
@@ -134,7 +138,8 @@ public class Jchip {
                 }
                 switch (this.currentState.get()) {
                     case IDLE, PAUSED -> onIdle();
-                    case RESETTING -> onResetting();
+                    case RESETTING_AND_RUNNING -> onResetting(false);
+                    case RESETTING_AND_PAUSING -> onResetting(true);
                     case STOPPING -> onStopping();
                     case RUNNING -> onRunning();
                     case STEPPING_FRAME -> onSteppingFrame();
@@ -150,8 +155,8 @@ public class Jchip {
         }
     }
 
-    public void reset() {
-        this.currentState.set(State.RESETTING);
+    public void reset(boolean startPaused) {
+        this.currentState.set(startPaused ? State.RESETTING_AND_PAUSING : State.RESETTING_AND_RUNNING);
     }
 
     public void stop() {
@@ -181,14 +186,14 @@ public class Jchip {
         this.currentState.set(State.IDLE);
     }
 
-    private void onResetting() throws Exception {
+    private void onResetting(boolean startPaused) throws Exception {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
             this.mainWindow.setEmulatorRenderer(null);
         }
         this.audioRenderer.setPaused(true);
         this.currentEmulator = Variant.getEmulator(this);
-        this.currentState.set(State.RUNNING);
+        this.currentState.set(startPaused ? State.PAUSED : State.RUNNING);
     }
 
     private void onRunning() {
@@ -230,10 +235,11 @@ public class Jchip {
         this.audioRenderer.close();
     }
 
-    private enum State {
+    public enum State {
         RUNNING,
         STOPPING,
-        RESETTING,
+        RESETTING_AND_RUNNING,
+        RESETTING_AND_PAUSING,
         PAUSED,
         STEPPING_FRAME,
         STEPPING_CYCLE,

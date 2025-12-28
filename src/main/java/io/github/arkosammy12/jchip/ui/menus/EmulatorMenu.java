@@ -42,32 +42,31 @@ public class EmulatorMenu extends JMenu {
         this.setMnemonic(KeyEvent.VK_E);
 
         this.resetButton.addActionListener(_ -> {
-            jchip.reset();
-            this.pauseButton.setEnabled(true);
-            this.pauseButton.setSelected(false);
-
+            jchip.reset(this.pauseButton.isSelected());
             this.stopButton.setEnabled(true);
-            this.stepFrameButton.setEnabled(false);
-            this.stepCycleButton.setEnabled(false);
+            this.stepFrameButton.setEnabled(this.pauseButton.isSelected());
+            this.stepCycleButton.setEnabled(this.pauseButton.isSelected());
         });
         this.resetButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK, true));
         this.resetButton.setEnabled(true);
 
         this.pauseButton.addActionListener(_ -> {
-            boolean isSelected = pauseButton.isSelected();
-            jchip.setPaused(isSelected);
-            this.stepFrameButton.setEnabled(isSelected);
-            this.stepCycleButton.setEnabled(isSelected);
+            boolean pauseSelected = pauseButton.isSelected();
+            boolean enableStepButtons = jchip.getState() == Jchip.State.RUNNING && pauseSelected;
+
+            jchip.setPaused(pauseSelected);
+
+            this.stepFrameButton.setEnabled(enableStepButtons);
+            this.stepCycleButton.setEnabled(enableStepButtons);
         });
         this.pauseButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK, true));
-        this.pauseButton.setEnabled(false);
+        this.pauseButton.setEnabled(true);
         this.pauseButton.setSelected(false);
 
         this.stopButton.addActionListener(_ -> {
             jchip.setPaused(false);
             jchip.stop();
             this.pauseButton.setSelected(false);
-            this.pauseButton.setEnabled(false);
 
             this.stepFrameButton.setEnabled(false);
             this.stepCycleButton.setEnabled(false);
@@ -230,7 +229,6 @@ public class EmulatorMenu extends JMenu {
     }
 
     public void onStopped() {
-        this.pauseButton.setEnabled(false);
         this.pauseButton.setSelected(false);
 
         this.stopButton.setEnabled(false);

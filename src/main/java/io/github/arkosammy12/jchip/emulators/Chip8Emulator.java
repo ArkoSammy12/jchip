@@ -190,6 +190,7 @@ public class Chip8Emulator implements Emulator {
         if (this.instructionCounter % this.currentInstructionsPerFrame == 0) {
             this.getProcessor().decrementTimers();
         }
+        this.disassembler.disassembleAt(this.getProcessor().getProgramCounter());
         this.getProcessor().cycle();
         if (this.getProcessor().shouldExit()) {
             this.terminate();
