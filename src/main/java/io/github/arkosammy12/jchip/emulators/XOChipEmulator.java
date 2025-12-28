@@ -2,6 +2,8 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
+import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
+import io.github.arkosammy12.jchip.disassembler.XOChipDisassembler;
 import io.github.arkosammy12.jchip.memory.XOChipBus;
 import io.github.arkosammy12.jchip.sound.XOChipSoundSystem;
 import io.github.arkosammy12.jchip.video.XOChipDisplay;
@@ -74,6 +76,10 @@ public class XOChipEmulator extends SChipModernEmulator {
     protected XOChipSoundSystem createSoundSystem() {
         this.soundSystem = new XOChipSoundSystem(this);
         return this.soundSystem;
+    }
+
+    protected AbstractDisassembler<?> createDisassembler() {
+        return new XOChipDisassembler<>(this);
     }
 
 }

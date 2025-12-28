@@ -1,13 +1,13 @@
 package io.github.arkosammy12.jchip.disassembler;
 
-import io.github.arkosammy12.jchip.emulators.Emulator;
+import io.github.arkosammy12.jchip.emulators.Chip8Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.*;
 
-public class Chip8Disassembler extends AbstractDisassembler {
+public class Chip8Disassembler<E extends Chip8Emulator> extends AbstractDisassembler<E> {
 
-    public Chip8Disassembler(Emulator emulator) {
+    public Chip8Disassembler(E emulator) {
         super(emulator);
     }
 
@@ -21,15 +21,22 @@ public class Chip8Disassembler extends AbstractDisassembler {
     }
 
     @Override
+    protected int getBytecodeForEntry(Entry entry) {
+        int address = entry.getInstructionAddress();
+        Bus bus = this.emulator.getBus();
+        return (bus.getByte(address) << 8) | bus.getByte(address + 1);
+    }
+
+    @Override
     protected String getTextForEntry(Entry entry) {
         int address = entry.getInstructionAddress();
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
         return switch (firstByte >>> 4) {
-            case 0x0 -> switch (secondByte) {
-                case 0xE0 -> "clear";
-                case 0xEE -> "return";
+            case 0x0 -> switch (getNNN(firstByte, secondByte)) {
+                case 0x0E0 -> "clear";
+                case 0x0EE -> "return";
                 default -> "invalid";
             };
             case 0x1 -> "jump " + getNNNFormatted(firstByte, secondByte);
@@ -65,7 +72,13 @@ public class Chip8Disassembler extends AbstractDisassembler {
                 }
             }
             case 0xA -> "i := " + getNNNFormatted(firstByte, secondByte);
-            case 0xB -> "jump0 " + getNNNFormatted(firstByte, secondByte);
+            case 0xB -> {
+                if (emulator.getEmulatorSettings().doJumpWithVX()) {
+                    yield "jump0 " + getNNNFormatted(firstByte, secondByte) + " + v" + getXFormatted(firstByte, secondByte);
+                } else {
+                    yield "jump0 " + getNNNFormatted(firstByte, secondByte);
+                }
+            }
             case 0xC -> "v" + getXFormatted(firstByte, secondByte) + " := random " + getNNFormatted(firstByte, secondByte);
             case 0xD -> "sprite v" + getXFormatted(firstByte, secondByte) + " v" + getYFormatted(firstByte, secondByte) + " " + getNFormatted(firstByte, secondByte);
             case 0xE -> switch (secondByte) {
@@ -88,20 +101,6 @@ public class Chip8Disassembler extends AbstractDisassembler {
             default -> "invalid";
         };
     }
-
-    /*
-    @Override
-    protected String getTextForEntry(Entry entry) {
-        int address = entry.getInstructionAddress();
-        Bus bus = this.emulator.getBus();
-        int firstByte = bus.getByte(address);
-        int secondByte = bus.getByte(address + 1);
-        return switch (firstByte >>> 4) {
-
-        };
-    }
-
-     */
 
     public static String getXFormatted(int firstByte, int secondByte) {
         return String.format("%01X", getX(firstByte, secondByte));

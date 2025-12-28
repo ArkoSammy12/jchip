@@ -44,7 +44,7 @@ public class Chip8Emulator implements Emulator {
     private final Variant variant;
     private final Chip8EmulatorSettings emulatorSettings;
     private final DebuggerSchema debuggerSchema;
-    private final AbstractDisassembler disassembler;
+    private final AbstractDisassembler<?> disassembler;
     private final int targetInstructionsPerFrame;
 
     private long instructionCounter;
@@ -67,6 +67,7 @@ public class Chip8Emulator implements Emulator {
             this.getBus().loadFont(emulatorSettings.getHexSpriteFont());
             this.debuggerSchema = this.createDebuggerSchema();
             this.disassembler = this.createDisassembler();
+            this.disassembler.setCurrentAddressSupplier(() -> this.getProcessor().getProgramCounter());
         } catch (Exception e) {
             this.close();
             throw new EmulatorException(e);
@@ -282,10 +283,8 @@ public class Chip8Emulator implements Emulator {
         return debuggerSchema;
     }
 
-    protected AbstractDisassembler createDisassembler() {
-        Chip8Disassembler disassembler = new Chip8Disassembler(this);
-        disassembler.setCurrentAddressSupplier(() -> this.getProcessor().getProgramCounter());
-        return disassembler;
+    protected AbstractDisassembler<?> createDisassembler() {
+        return new Chip8Disassembler<>(this);
     }
 
     private static int hexDigitCount(int x) {

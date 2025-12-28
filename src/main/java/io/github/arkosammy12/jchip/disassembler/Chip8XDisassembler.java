@@ -1,13 +1,13 @@
 package io.github.arkosammy12.jchip.disassembler;
 
-import io.github.arkosammy12.jchip.emulators.Emulator;
+import io.github.arkosammy12.jchip.emulators.Chip8XEmulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.*;
 
-public class Chip8XDisassembler extends Chip8Disassembler {
+public class Chip8XDisassembler<E extends Chip8XEmulator> extends Chip8Disassembler<E> {
 
-    public Chip8XDisassembler(Emulator emulator) {
+    public Chip8XDisassembler(E emulator) {
         super(emulator);
     }
 
@@ -34,9 +34,9 @@ public class Chip8XDisassembler extends Chip8Disassembler {
             }
             case 0xB -> {
                 if (getN(firstByte, secondByte) == 0x0) {
-                    yield "col-low " + getXFormatted(firstByte, secondByte) + " " + getYFormatted(firstByte, secondByte);
+                    yield "col-low 0x" + getXFormatted(firstByte, secondByte) + " 0x" + getYFormatted(firstByte, secondByte);
                 } else {
-                    yield "col-high " + getXFormatted(firstByte, secondByte) + " " + getYFormatted(firstByte, secondByte) + " " + getNFormatted(firstByte, secondByte);
+                    yield "col-high 0x" + getXFormatted(firstByte, secondByte) + " 0x" + getYFormatted(firstByte, secondByte) + " " + getNFormatted(firstByte, secondByte);
                 }
             }
             case 0xE -> switch (secondByte) {

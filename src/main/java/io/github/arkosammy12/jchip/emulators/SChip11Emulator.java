@@ -2,6 +2,8 @@ package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.SChip11Processor;
+import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
+import io.github.arkosammy12.jchip.disassembler.SChip11Disassembler;
 import io.github.arkosammy12.jchip.video.SChip11Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +44,10 @@ public class SChip11Emulator extends SChip10Emulator {
     protected SChip11Display<?> createDisplay() {
         this.display = new SChip11Display<>(this);
         return this.display;
+    }
+
+    protected AbstractDisassembler<?> createDisassembler() {
+        return new SChip11Disassembler<>(this);
     }
 
 }

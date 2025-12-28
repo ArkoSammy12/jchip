@@ -7,9 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.function.IntSupplier;
 
-public abstract class AbstractDisassembler implements Disassembler {
+public abstract class AbstractDisassembler<E extends Emulator> implements Disassembler {
 
-    protected final Emulator emulator;
+    protected final E emulator;
 
     private final Int2ObjectSortedMap<Entry> disassemblyEntries = new Int2ObjectAVLTreeMap<>();
     private final IntArrayList ordinalToAddress = new IntArrayList();
@@ -19,13 +19,13 @@ public abstract class AbstractDisassembler implements Disassembler {
     private boolean enabled;
     private boolean ordinalsDirty = true;
 
-    public AbstractDisassembler(Emulator emulator) {
+    public AbstractDisassembler(E emulator) {
         this.emulator = emulator;
 
         Entry currentEntry = null;
         for (int i = 0; i < emulator.getBus().getMemorySize(); i++) {
             if ((i & 1) == 0) {
-                currentEntry = new Entry(i, 2, 0);
+                currentEntry = new Entry(i, 2, -1);
             }
             disassemblyEntries.put(i, currentEntry);
         }
@@ -68,6 +68,9 @@ public abstract class AbstractDisassembler implements Disassembler {
         }
         int address = ordinalToAddress.getInt(index);
         Entry entry = disassemblyEntries.get(address);
+        if (entry.getByteCode() < 0) {
+            entry.setBytecode(this.getBytecodeForEntry(entry));
+        }
         if (entry.getText() == null) {
             entry.setText(getTextForEntry(entry));
         }
@@ -84,7 +87,6 @@ public abstract class AbstractDisassembler implements Disassembler {
 
     protected void addDisassemblerEntry(int address, int length, int bytecode) {
         Entry existingEntry = disassemblyEntries.get(address);
-
         if (existingEntry == null || existingEntry.getLength() != length) {
             existingEntry = new Entry(address, length, bytecode);
             for (int i = address; i < address + length; i++) {
@@ -92,13 +94,14 @@ public abstract class AbstractDisassembler implements Disassembler {
             }
             ordinalsDirty = true;
         }
-
         ordinalsDirty |= existingEntry.setInstructionAddress(address);
         ordinalsDirty |= existingEntry.setLength(length);
         existingEntry.setBytecode(bytecode);
     }
 
     protected abstract String getTextForEntry(Entry entry);
+
+    protected abstract int getBytecodeForEntry(Entry entry);
 
     private void recalculateOrdinalsIfNecessary() {
         if (!ordinalsDirty) {
@@ -184,5 +187,7 @@ public abstract class AbstractDisassembler implements Disassembler {
         public String getText() {
             return text;
         }
+
     }
+
 }

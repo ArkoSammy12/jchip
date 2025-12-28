@@ -3,6 +3,8 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.SChip10Processor;
+import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
+import io.github.arkosammy12.jchip.disassembler.SChip10Disassembler;
 import io.github.arkosammy12.jchip.video.SChip10Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +52,10 @@ public class SChip10Emulator extends Chip48Emulator {
     @Override
     protected boolean waitVBlank(int flags) {
         return this.getEmulatorSettings().doDisplayWait() && isSet(flags, Chip8Processor.DRAW_EXECUTED) && !this.getDisplay().isHiresMode();
+    }
+
+    protected AbstractDisassembler<?> createDisassembler() {
+        return new SChip10Disassembler<>(this);
     }
 
 }
