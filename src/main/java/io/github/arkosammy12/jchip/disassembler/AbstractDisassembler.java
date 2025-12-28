@@ -2,38 +2,36 @@ package io.github.arkosammy12.jchip.disassembler;
 
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
-import org.apache.commons.collections4.SortedBidiMap;
-import org.apache.commons.collections4.bidimap.DualTreeBidiMap;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.IntSupplier;
 
 public abstract class AbstractDisassembler implements Disassembler {
 
     protected final Emulator emulator;
+
     private final Int2ObjectSortedMap<Entry> disassemblyEntries = new Int2ObjectAVLTreeMap<>();
-    private final SortedBidiMap<Integer, Integer> ordinalToEntry = new DualTreeBidiMap<>();
+    private final IntArrayList ordinalToAddress = new IntArrayList();
+    private final Int2IntMap addressToOrdinal = new Int2IntOpenHashMap();
 
     private IntSupplier currentAddressSupplier;
     private boolean enabled;
+    private boolean ordinalsDirty = true;
 
     public AbstractDisassembler(Emulator emulator) {
         this.emulator = emulator;
 
         Entry currentEntry = null;
-        for (int i = 0; i < this.emulator.getBus().getMemorySize(); i++) {
-            if (i % 2 == 0) {
+        for (int i = 0; i < emulator.getBus().getMemorySize(); i++) {
+            if ((i & 1) == 0) {
                 currentEntry = new Entry(i, 2, 0);
             }
-            this.disassemblyEntries.put(i, currentEntry);
+            disassemblyEntries.put(i, currentEntry);
         }
 
-        this.rebuildOrdinalMap();
+        addressToOrdinal.defaultReturnValue(-1);
+        recalculateOrdinalsIfNecessary();
     }
 
     public void setCurrentAddressSupplier(IntSupplier addressSupplier) {
@@ -42,12 +40,13 @@ public abstract class AbstractDisassembler implements Disassembler {
 
     @Override
     public Optional<IntSupplier> getCurrentAddressSupplier() {
-        return Optional.ofNullable(this.currentAddressSupplier);
+        return Optional.ofNullable(currentAddressSupplier);
     }
 
     @Override
     public int getSize() {
-        return this.ordinalToEntry.size();
+        recalculateOrdinalsIfNecessary();
+        return ordinalToAddress.size();
     }
 
     @Override
@@ -57,62 +56,70 @@ public abstract class AbstractDisassembler implements Disassembler {
 
     @Override
     public boolean isEnabled() {
-        return this.enabled;
+        return enabled;
     }
 
     @Override
     @Nullable
     public Entry getEntry(int index) {
-        if (!this.ordinalToEntry.containsKey(index)) {
+        recalculateOrdinalsIfNecessary();
+        if (index < 0 || index >= ordinalToAddress.size()) {
             return null;
         }
-        Entry entry = this.disassemblyEntries.get((int)this.ordinalToEntry.get(index));
+        int address = ordinalToAddress.getInt(index);
+        Entry entry = disassemblyEntries.get(address);
         if (entry.getText() == null) {
-            entry.setText(this.getTextForEntry(entry));
+            entry.setText(getTextForEntry(entry));
         }
         return entry;
     }
 
     @Override
     public int getOrdinalForAddress(int address) {
-        Integer ordinal = this.ordinalToEntry.getKey(address);
-        return ordinal != null ? ordinal : -1;
+        recalculateOrdinalsIfNecessary();
+        return addressToOrdinal.get(address);
     }
 
     public abstract void disassembleAt(int address);
 
     protected void addDisassemblerEntry(int address, int length, int bytecode) {
-        boolean rebuildOrdinals = false;
-        Entry existingEntry = this.disassemblyEntries.get(address);
+        Entry existingEntry = disassemblyEntries.get(address);
+
         if (existingEntry == null || existingEntry.getLength() != length) {
             existingEntry = new Entry(address, length, bytecode);
             for (int i = address; i < address + length; i++) {
-                this.disassemblyEntries.put(i, existingEntry);
+                disassemblyEntries.put(i, existingEntry);
             }
-            rebuildOrdinals = true;
+            ordinalsDirty = true;
         }
-        rebuildOrdinals |= existingEntry.setInstructionAddress(address);
-        rebuildOrdinals |= existingEntry.setLength(length);
-        if (rebuildOrdinals) {
-            this.rebuildOrdinalMap();
-        }
+
+        ordinalsDirty |= existingEntry.setInstructionAddress(address);
+        ordinalsDirty |= existingEntry.setLength(length);
         existingEntry.setBytecode(bytecode);
     }
 
     protected abstract String getTextForEntry(Entry entry);
 
-    private void rebuildOrdinalMap() {
-        this.ordinalToEntry.clear();
+    private void recalculateOrdinalsIfNecessary() {
+        if (!ordinalsDirty) {
+            return;
+        }
+        ordinalsDirty = false;
+
+        ordinalToAddress.clear();
+        addressToOrdinal.clear();
 
         int ordinal = 0;
-        for (Int2ObjectMap.Entry<Entry> mapEntry : this.disassemblyEntries.int2ObjectEntrySet()) {
+        for (Int2ObjectMap.Entry<Entry> mapEntry : disassemblyEntries.int2ObjectEntrySet()) {
             int address = mapEntry.getIntKey();
             Entry entry = mapEntry.getValue();
 
-            if (entry.getInstructionAddress() == address) {
-                this.ordinalToEntry.put(ordinal, address);
-                ordinal++;
+            if (entry.getInstructionAddress() != address) {
+                continue;
             }
+
+            ordinalToAddress.add(address);
+            addressToOrdinal.put(address, ordinal++);
         }
     }
 
@@ -140,11 +147,11 @@ public abstract class AbstractDisassembler implements Disassembler {
 
         @Override
         public int getInstructionAddress() {
-            return this.instructionAddress;
+            return instructionAddress;
         }
 
         private boolean setLength(int length) {
-            if (length != this.length) {
+            if (this.length != length) {
                 this.text = null;
                 this.length = length;
                 return true;
@@ -154,7 +161,7 @@ public abstract class AbstractDisassembler implements Disassembler {
 
         @Override
         public int getLength() {
-            return this.length;
+            return length;
         }
 
         private void setBytecode(int bytecode) {
@@ -166,7 +173,7 @@ public abstract class AbstractDisassembler implements Disassembler {
 
         @Override
         public int getByteCode() {
-            return this.bytecode;
+            return bytecode;
         }
 
         private void setText(String text) {
@@ -175,10 +182,7 @@ public abstract class AbstractDisassembler implements Disassembler {
 
         @Override
         public String getText() {
-            return this.text;
+            return text;
         }
-
     }
-
 }
-

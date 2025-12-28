@@ -22,73 +22,86 @@ public class Chip8Disassembler extends AbstractDisassembler {
 
     @Override
     protected String getTextForEntry(Entry entry) {
-        String text = "invalid";
         int address = entry.getInstructionAddress();
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
-        switch (firstByte >>> 4) {
-            case 0x0 -> {
-                switch (secondByte) {
-                    case 0xE0 -> text = "clear";
-                    case 0xEE -> text = "return";
-                }
-            }
-            case 0x1 -> text = "jump " + getNNNFormatted(firstByte, secondByte);
-            case 0x2 -> text = ":call " + getNNNFormatted(firstByte, secondByte);
-            case 0x3 -> text = "if v" + getXFormatted(firstByte, secondByte) + " != " + getNNFormatted(firstByte, secondByte) + " then";
-            case 0x4 -> text = "if v" + getXFormatted(firstByte, secondByte) + " == " + getNNFormatted(firstByte, secondByte) + " then";
+        return switch (firstByte >>> 4) {
+            case 0x0 -> switch (secondByte) {
+                case 0xE0 -> "clear";
+                case 0xEE -> "return";
+                default -> "invalid";
+            };
+            case 0x1 -> "jump " + getNNNFormatted(firstByte, secondByte);
+            case 0x2 -> ":call " + getNNNFormatted(firstByte, secondByte);
+            case 0x3 -> "if v" + getXFormatted(firstByte, secondByte) + " != " + getNNFormatted(firstByte, secondByte) + " then";
+            case 0x4 -> "if v" + getXFormatted(firstByte, secondByte) + " == " + getNNFormatted(firstByte, secondByte) + " then";
             case 0x5 -> {
                 if (getN(firstByte, secondByte) == 0x0) {
-                    text = "if v" + getXFormatted(firstByte, secondByte) + " != v" + getYFormatted(firstByte, secondByte) + " then";
+                    yield "if v" + getXFormatted(firstByte, secondByte) + " != v" + getYFormatted(firstByte, secondByte) + " then";
+                } else {
+                    yield "invalid";
                 }
             }
-            case 0x6 -> text = "v" + getXFormatted(firstByte, secondByte) + " := " + getNNFormatted(firstByte, secondByte);
-            case 0x7 -> text = "v" + getXFormatted(firstByte, secondByte) + " += " + getNNFormatted(firstByte, secondByte);
-            case 0x8 -> {
-                switch (getN(firstByte, secondByte)) {
-                    case 0x0 -> text = "v" + getXFormatted(firstByte, secondByte) + " := v" + getYFormatted(firstByte, secondByte);
-                    case 0x1 -> text = "v" + getXFormatted(firstByte, secondByte) + " |= v" + getYFormatted(firstByte, secondByte);
-                    case 0x2 -> text = "v" + getXFormatted(firstByte, secondByte) + " &= v" + getYFormatted(firstByte, secondByte);
-                    case 0x3 -> text = "v" + getXFormatted(firstByte, secondByte) + " ^= v" + getYFormatted(firstByte, secondByte);
-                    case 0x4 -> text = "v" + getXFormatted(firstByte, secondByte) + " += v" + getYFormatted(firstByte, secondByte);
-                    case 0x5 -> text = "v" + getXFormatted(firstByte, secondByte) + " -= v" + getYFormatted(firstByte, secondByte);
-                    case 0x6 -> text = "v" + getXFormatted(firstByte, secondByte) + " >>= v" + getYFormatted(firstByte, secondByte);
-                    case 0x7 -> text = "v" + getXFormatted(firstByte, secondByte) + " =- v" + getYFormatted(firstByte, secondByte);
-                    case 0xE -> text = "v" + getXFormatted(firstByte, secondByte) + " <<= v" + getYFormatted(firstByte, secondByte);
-                }
-            }
+            case 0x6 -> "v" + getXFormatted(firstByte, secondByte) + " := " + getNNFormatted(firstByte, secondByte);
+            case 0x7 -> "v" + getXFormatted(firstByte, secondByte) + " += " + getNNFormatted(firstByte, secondByte);
+            case 0x8 -> switch (getN(firstByte, secondByte)) {
+                case 0x0 -> "v" + getXFormatted(firstByte, secondByte) + " := v" + getYFormatted(firstByte, secondByte);
+                case 0x1 -> "v" + getXFormatted(firstByte, secondByte) + " |= v" + getYFormatted(firstByte, secondByte);
+                case 0x2 -> "v" + getXFormatted(firstByte, secondByte) + " &= v" + getYFormatted(firstByte, secondByte);
+                case 0x3 -> "v" + getXFormatted(firstByte, secondByte) + " ^= v" + getYFormatted(firstByte, secondByte);
+                case 0x4 -> "v" + getXFormatted(firstByte, secondByte) + " += v" + getYFormatted(firstByte, secondByte);
+                case 0x5 -> "v" + getXFormatted(firstByte, secondByte) + " -= v" + getYFormatted(firstByte, secondByte);
+                case 0x6 -> "v" + getXFormatted(firstByte, secondByte) + " >>= v" + getYFormatted(firstByte, secondByte);
+                case 0x7 -> "v" + getXFormatted(firstByte, secondByte) + " =- v" + getYFormatted(firstByte, secondByte);
+                case 0xE -> "v" + getXFormatted(firstByte, secondByte) + " <<= v" + getYFormatted(firstByte, secondByte);
+                default -> "invalid";
+            };
             case 0x9 -> {
                 if (getN(firstByte, secondByte) == 0x0) {
-                    text = "if v" + getXFormatted(firstByte, secondByte) + " == v" + getYFormatted(firstByte, secondByte) + " then";
+                    yield "if v" + getXFormatted(firstByte, secondByte) + " == v" + getYFormatted(firstByte, secondByte) + " then";
+                } else {
+                    yield "invalid";
                 }
             }
-            case 0xA -> text = "i := " + getNNNFormatted(firstByte, secondByte);
-            case 0xB -> text = "jump0 " + getNNNFormatted(firstByte, secondByte);
-            case 0xC -> text = "v" + getXFormatted(firstByte, secondByte) + " := random " + getNNFormatted(firstByte, secondByte);
-            case 0xD -> text = "sprite v" + getXFormatted(firstByte, secondByte) + " v" + getYFormatted(firstByte, secondByte) + " " + getNFormatted(firstByte, secondByte);
-            case 0xE -> {
-                switch (secondByte) {
-                    case 0x9E -> text = "if v" + getXFormatted(firstByte, secondByte) + " -key then";
-                    case 0xA1 -> text = "if v" + getXFormatted(firstByte, secondByte) + " key then";
-                }
-            }
-            case 0xF -> {
-                switch (secondByte) {
-                    case 0x07 -> text = "v" + getXFormatted(firstByte, secondByte) + " := delay";
-                    case 0x0A -> text = "v" + getXFormatted(firstByte, secondByte) + " := key";
-                    case 0x15 -> text = "delay := v" + getXFormatted(firstByte, secondByte);
-                    case 0x18 -> text = "buzzer := v" + getXFormatted(firstByte, secondByte);
-                    case 0x1E -> text = "i += v" + getXFormatted(firstByte, secondByte);
-                    case 0x29 -> text = "i := hex v" + getXFormatted(firstByte, secondByte);
-                    case 0x33 -> text = "bcd v" + getXFormatted(firstByte, secondByte);
-                    case 0x55 -> text = "save v" + getXFormatted(firstByte, secondByte);
-                    case 0x65 -> text = "load v" + getXFormatted(firstByte, secondByte);
-                }
-            }
-        }
-        return text;
+            case 0xA -> "i := " + getNNNFormatted(firstByte, secondByte);
+            case 0xB -> "jump0 " + getNNNFormatted(firstByte, secondByte);
+            case 0xC -> "v" + getXFormatted(firstByte, secondByte) + " := random " + getNNFormatted(firstByte, secondByte);
+            case 0xD -> "sprite v" + getXFormatted(firstByte, secondByte) + " v" + getYFormatted(firstByte, secondByte) + " " + getNFormatted(firstByte, secondByte);
+            case 0xE -> switch (secondByte) {
+                case 0x9E -> "if v" + getXFormatted(firstByte, secondByte) + " -key then";
+                case 0xA1 -> "if v" + getXFormatted(firstByte, secondByte) + " key then";
+                default -> "invalid";
+            };
+            case 0xF -> switch (secondByte) {
+                case 0x07 -> "v" + getXFormatted(firstByte, secondByte) + " := delay";
+                case 0x0A -> "v" + getXFormatted(firstByte, secondByte) + " := key";
+                case 0x15 -> "delay := v" + getXFormatted(firstByte, secondByte);
+                case 0x18 -> "buzzer := v" + getXFormatted(firstByte, secondByte);
+                case 0x1E -> "i += v" + getXFormatted(firstByte, secondByte);
+                case 0x29 -> "i := hex v" + getXFormatted(firstByte, secondByte);
+                case 0x33 -> "bcd v" + getXFormatted(firstByte, secondByte);
+                case 0x55 -> "save v" + getXFormatted(firstByte, secondByte);
+                case 0x65 -> "load v" + getXFormatted(firstByte, secondByte);
+                default -> "invalid";
+            };
+            default -> "invalid";
+        };
     }
+
+    /*
+    @Override
+    protected String getTextForEntry(Entry entry) {
+        int address = entry.getInstructionAddress();
+        Bus bus = this.emulator.getBus();
+        int firstByte = bus.getByte(address);
+        int secondByte = bus.getByte(address + 1);
+        return switch (firstByte >>> 4) {
+
+        };
+    }
+
+     */
 
     public static String getXFormatted(int firstByte, int secondByte) {
         return String.format("%01X", getX(firstByte, secondByte));
