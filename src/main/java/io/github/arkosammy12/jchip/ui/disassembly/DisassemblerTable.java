@@ -33,7 +33,6 @@ public class DisassemblerTable extends JTable {
         this.setColumnSelectionAllowed(false);
         this.setTableHeader(null);
         this.setCellRenderers();
-
     }
 
     @Override
@@ -131,7 +130,7 @@ public class DisassemblerTable extends JTable {
         public Object getValueAt(int row, int col) {
             if (this.disassembler == null) {
                 return switch (col) {
-                    case 0 -> String.format("%04X: ", row * 2);
+                    case 0 -> String.format("%06X: ", row * 2);
                     case 1 -> "0000";
                     default -> "invalid";
                 };
@@ -139,7 +138,7 @@ public class DisassemblerTable extends JTable {
             Disassembler.Entry entry = this.disassembler.getEntry(row);
             if (entry == null) {
                 return switch (col) {
-                    case 0 -> String.format("%04X: ", row * 2);
+                    case 0 -> String.format("%06X: ", row * 2);
                     case 1 -> "0000";
                     default -> "invalid";
                 };
@@ -170,7 +169,7 @@ public class DisassemblerTable extends JTable {
         public void clear() {
             this.disassembler = null;
             this.rowCount = 0;
-            MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
+            this.fireTableDataChanged();
         }
 
     }

@@ -178,7 +178,7 @@ public class MemoryTable extends JTable {
 
         public void clear() {
             this.memory = null;
-            MainWindow.fireVisibleRowsUpdated(MemoryTable.this);
+            this.fireTableDataChanged();
         }
 
         private void updateRowCount() {
