@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -24,9 +25,9 @@ public class MemoryTable extends JTable {
     private final Model model;
 
     public MemoryTable() {
-        Model model = new Model();
-        super(model);
-        this.model = model;
+        super();
+        this.model = new Model();
+        this.setModel(model);
         this.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         this.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
         this.setRowHeight(ROW_HEIGHT);
@@ -114,7 +115,7 @@ public class MemoryTable extends JTable {
         ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
     }
 
-    private static class Model extends DefaultTableModel {
+    private class Model extends DefaultTableModel {
 
         private Bus memory;
 
@@ -172,12 +173,12 @@ public class MemoryTable extends JTable {
                 this.memory = memory;
                 this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) this.bytesPerRow);
             }
-            this.fireTableDataChanged();
+            MainWindow.fireVisibleRowsUpdated(MemoryTable.this);
         }
 
         public void clear() {
             this.memory = null;
-            this.fireTableDataChanged();
+            MainWindow.fireVisibleRowsUpdated(MemoryTable.this);
         }
 
         private void updateRowCount() {

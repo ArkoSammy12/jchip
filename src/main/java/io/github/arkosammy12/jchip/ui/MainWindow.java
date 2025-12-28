@@ -13,6 +13,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -124,6 +125,25 @@ public class MainWindow extends JFrame implements Closeable {
     @Override
     public void close() {
         SwingUtilities.invokeLater(this::dispose);
+    }
+
+    public static void fireVisibleRowsUpdated(JTable table) {
+        Rectangle visibleRect = table.getVisibleRect();
+
+        int firstRow = table.rowAtPoint(visibleRect.getLocation());
+        int lastRow = table.rowAtPoint(new Point(visibleRect.x, visibleRect.y + visibleRect.height));
+
+        if (firstRow < 0) {
+            firstRow = 0;
+        }
+        if (lastRow < 0) {
+            lastRow = table.getRowCount() - 1;
+        }
+
+        int modelFirstRow = table.convertRowIndexToModel(firstRow);
+        int modelLastRow = table.convertRowIndexToModel(lastRow);
+
+        ((AbstractTableModel) table.getModel()).fireTableRowsUpdated(modelFirstRow, modelLastRow);
     }
 
 }

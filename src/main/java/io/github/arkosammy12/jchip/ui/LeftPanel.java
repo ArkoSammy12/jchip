@@ -18,6 +18,8 @@ public class LeftPanel extends JPanel {
     private final EmulatorViewport emulatorViewport;
     private final DisassemblyPanel disassemblyPanel;
 
+    private final AtomicBoolean showingDisassemblyPanel = new AtomicBoolean(false);
+
     public LeftPanel() {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
@@ -33,7 +35,7 @@ public class LeftPanel extends JPanel {
     }
 
     public void setDisassemblyViewEnabled(boolean enabled) {
-        this.disassemblyPanel.setDisassemblerEnabled(enabled);
+        this.showingDisassemblyPanel.set(enabled);
         SwingUtilities.invokeLater(() -> {
             if (this.splitPane.isSplitVisible()) {
                 this.splitPane.hideRightPanel();
@@ -46,6 +48,7 @@ public class LeftPanel extends JPanel {
     }
 
     public void onFrame(Emulator emulator) {
+        this.disassemblyPanel.setDisassemblerEnabled(this.showingDisassemblyPanel.get());
         this.disassemblyPanel.onFrame(emulator);
     }
 

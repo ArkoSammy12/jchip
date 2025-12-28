@@ -17,10 +17,16 @@ public class Chip8Disassembler extends AbstractDisassembler {
             return;
         }
         Bus bus = this.emulator.getBus();
+        this.addDisassemblerEntry(address, 2, (bus.getByte(address) << 8) | bus.getByte(address + 1));
+    }
+
+    @Override
+    protected String getTextForEntry(Entry entry) {
+        String text = "invalid";
+        int address = entry.getInstructionAddress();
+        Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
-        int bytecode = (firstByte << 8) | secondByte;
-        String text = "invalid";
         switch (firstByte >>> 4) {
             case 0x0 -> {
                 switch (secondByte) {
@@ -81,7 +87,7 @@ public class Chip8Disassembler extends AbstractDisassembler {
                 }
             }
         }
-        this.addDisassemblerEntry(address, 2, bytecode, text);
+        return text;
     }
 
     public static String getXFormatted(int firstByte, int secondByte) {

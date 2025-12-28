@@ -9,7 +9,7 @@ public interface Disassembler {
 
     int getSize();
 
-    int getIndexForAddress(int address);
+    int getOrdinalForAddress(int address);
 
     void setEnabled(boolean enabled);
 

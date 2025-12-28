@@ -1,5 +1,7 @@
 package io.github.arkosammy12.jchip.ui.util;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerLabel;
+import io.github.arkosammy12.jchip.ui.debugger.MemoryTable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -68,7 +70,7 @@ public class DebuggerLabelTable extends JTable {
 
     public void update() {
         this.updateColumnWidthIfNecessary();
-        this.model.fireTableDataChanged();
+        MainWindow.fireVisibleRowsUpdated(this);
     }
 
     private void updateColumnWidthIfNecessary() {

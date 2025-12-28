@@ -2,20 +2,20 @@ package io.github.arkosammy12.jchip.ui.disassembly;
 
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.memory.Bus;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.tinylog.Logger;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.util.Objects;
 
 public class DisassemblerTable extends JTable {
 
-    private static final int ROW_HEIGHT = 15;
+    private static final int ROW_HEIGHT = 20;
 
     private final Model model;
 
@@ -32,6 +32,8 @@ public class DisassemblerTable extends JTable {
         this.setRowSelectionAllowed(false);
         this.setColumnSelectionAllowed(false);
         this.setTableHeader(null);
+        this.setCellRenderers();
+
     }
 
     @Override
@@ -52,9 +54,6 @@ public class DisassemblerTable extends JTable {
 
     public void update(Emulator emulator) {
         this.model.update(emulator);
-        if (this.model.disassembler != null && this.model.disassembler.isEnabled()) {
-            this.model.disassembler.getCurrentAddressSupplier().ifPresent(supplier -> this.scrollToAddress(supplier.getAsInt()));
-        }
     }
 
     public void clear() {
@@ -67,16 +66,40 @@ public class DisassemblerTable extends JTable {
         }
     }
 
-    public void scrollToAddress(int address) {
+    public void scrollToCurrentAddress() {
         if (this.model.disassembler == null) {
             return;
         }
-        int ordinal = this.model.disassembler.getIndexForAddress(address);
-        if (ordinal < 0) {
+        if (!this.model.disassembler.isEnabled()) {
             return;
         }
-        int targetY = ordinal * this.getRowHeight();
-        ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
+        this.model.disassembler.getCurrentAddressSupplier().ifPresent(supplier -> {
+            int ordinal = this.model.disassembler.getOrdinalForAddress(supplier.getAsInt());
+            if (ordinal < 0) {
+                return;
+            }
+            int targetY = ordinal * this.getRowHeight();
+            ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
+        });
+    }
+
+    private void setCellRenderers() {
+        DefaultTableCellRenderer addressColumnRenderer = new DefaultTableCellRenderer();
+        addressColumnRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+        addressColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        DefaultTableCellRenderer bytecodeColumnRenderer = new DefaultTableCellRenderer();
+        bytecodeColumnRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+        bytecodeColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        DefaultTableCellRenderer textColumnRenderer = new DefaultTableCellRenderer();
+        textColumnRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+        textColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        TableColumnModel columnModel = this.getColumnModel();
+        columnModel.getColumn(0).setCellRenderer(addressColumnRenderer);
+        columnModel.getColumn(1).setCellRenderer(bytecodeColumnRenderer);
+        columnModel.getColumn(2).setCellRenderer(textColumnRenderer);
     }
 
     private class Model extends DefaultTableModel {
@@ -108,7 +131,7 @@ public class DisassemblerTable extends JTable {
         public Object getValueAt(int row, int col) {
             if (this.disassembler == null) {
                 return switch (col) {
-                    case 0 -> String.format("%04X", row * 2);
+                    case 0 -> String.format("%04X: ", row * 2);
                     case 1 -> "0000";
                     default -> "invalid";
                 };
@@ -116,13 +139,13 @@ public class DisassemblerTable extends JTable {
             Disassembler.Entry entry = this.disassembler.getEntry(row);
             if (entry == null) {
                 return switch (col) {
-                    case 0 -> String.format("%04X", row * 2);
+                    case 0 -> String.format("%04X: ", row * 2);
                     case 1 -> "0000";
                     default -> "invalid";
                 };
             }
             return switch (col) {
-                case 0 -> String.format("%06X", entry.getInstructionAddress());
+                case 0 -> String.format("%06X: ", entry.getInstructionAddress());
                 case 1 -> String.format("%0" + (entry.getLength() * 2) + "X", entry.getByteCode());
                 default -> entry.getText();
             };
@@ -132,16 +155,22 @@ public class DisassemblerTable extends JTable {
             Disassembler disassembler = emulator.getDisassembler();
             if (!Objects.equals(disassembler, this.disassembler)) {
                 this.disassembler = disassembler;
-                this.rowCount = disassembler.getSize();
             }
             if (this.disassembler != null && this.disassembler.isEnabled()) {
-                this.fireTableDataChanged();
+                int size = disassembler.getSize();
+                if (size != this.rowCount) {
+                    this.rowCount = disassembler.getSize();
+                    this.fireTableStructureChanged();
+                    setCellRenderers();
+                }
+                MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
             }
         }
 
         public void clear() {
             this.disassembler = null;
-            this.fireTableDataChanged();
+            this.rowCount = 0;
+            MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
         }
 
     }
