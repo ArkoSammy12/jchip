@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static io.github.arkosammy12.jchip.ui.debugger.DebugPanel.*;
+import static io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel.*;
 
 public class DebuggerSchema {
 

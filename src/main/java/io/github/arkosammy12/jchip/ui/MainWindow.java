@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.ui;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.ui.debugger.DebugPanel;
+import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
 import io.github.arkosammy12.jchip.video.DisplayRenderer;
 import net.miginfocom.layout.AC;
@@ -25,7 +25,7 @@ public class MainWindow extends JFrame implements Closeable {
     private final ToggleableSplitPane mainSplitPane;
     private final LeftPanel leftPanel;
     private final SettingsBar settingsBar;
-    private final DebugPanel debugPanel;
+    private final DebuggerPanel debuggerPanel;
     private final InfoBar infoBar;
 
     private final AtomicBoolean showingDebuggerPanel = new AtomicBoolean(false);
@@ -43,8 +43,8 @@ public class MainWindow extends JFrame implements Closeable {
         this.leftPanel = new LeftPanel();
         this.settingsBar = new SettingsBar(jchip, this);
         this.infoBar = new InfoBar();
-        this.debugPanel = new DebugPanel(jchip);
-        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.leftPanel, this.debugPanel, 5, 0.5);
+        this.debuggerPanel = new DebuggerPanel(jchip);
+        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.leftPanel, this.debuggerPanel, 5, 0.5);
 
         this.infoBarConstraints = new CC().grow().pushX().dockSouth().height("28!");
 
@@ -108,7 +108,7 @@ public class MainWindow extends JFrame implements Closeable {
             return;
         }
         if (this.showingDebuggerPanel.get()) {
-            this.debugPanel.onFrame(emulator);
+            this.debuggerPanel.onFrame(emulator);
         }
         this.leftPanel.onFrame(emulator);
         this.infoBar.onFrame(emulator);
@@ -118,7 +118,7 @@ public class MainWindow extends JFrame implements Closeable {
     public void onStopped() {
         this.leftPanel.onStopped();
         this.infoBar.onStopped();
-        this.debugPanel.onStopped();
+        this.debuggerPanel.onStopped();
         this.settingsBar.onStopped();
     }
 

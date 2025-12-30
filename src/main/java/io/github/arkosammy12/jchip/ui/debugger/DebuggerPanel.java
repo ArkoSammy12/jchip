@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class DebugPanel extends JPanel {
+public class DebuggerPanel extends JPanel {
 
     public static final String DEFAULT_TEXT_SECTION_NAME = "Current Quirks";
     public static final String DEFAULT_CPU_REGISTERS_SECTION_NAME = "CPU Registers";
@@ -46,7 +46,7 @@ public class DebugPanel extends JPanel {
 
     private final JCheckBox memoryFollowCheckBox;
 
-    public DebugPanel(Jchip jchip) {
+    public DebuggerPanel(Jchip jchip) {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
 
@@ -55,7 +55,7 @@ public class DebugPanel extends JPanel {
 
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
-                "DebuggerSchema",
+                "Debugger",
                 TitledBorder.DEFAULT_JUSTIFICATION,
                 TitledBorder.DEFAULT_POSITION,
                 this.getFont().deriveFont(Font.BOLD)));
