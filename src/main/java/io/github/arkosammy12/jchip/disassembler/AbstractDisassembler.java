@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.IntSupplier;
@@ -18,7 +18,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     protected final E emulator;
     private final AtomicReference<IntSupplier> currentAddressSupplier = new AtomicReference<>(null);
 
-    private final Map<Integer, Entry> entries = new ConcurrentHashMap<>();
+    private final ConcurrentSkipListMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
     private final IntArrayList addressOrdinalList = new IntArrayList();
 
     private final MpscArrayQueue<Integer> addressQueue = new MpscArrayQueue<>(10000);
@@ -163,24 +163,38 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         int address = entry.getAddress();
         int length = entry.getLength();
         this.removeOverlappingEntries(address, length);
-        for (int i = address; i < address + length; i++) {
-            this.entries.put(i, entry);
-        }
+        this.entries.put(address, entry);
         this.addOrdinalAddress(address);
     }
 
-    private void removeOverlappingEntries(int address, int length) {
-        for (int i = address; i < address + length; i++) {
-            Entry overlapping = this.entries.get(i);
-            if (overlapping != null) {
-                int overlappingEntryAddress = overlapping.getAddress();
-                this.addressOrdinalList.removeIf(e -> e >= overlappingEntryAddress && e < overlappingEntryAddress + overlapping.getLength());
-                for (int j = overlappingEntryAddress; j < overlappingEntryAddress + overlapping.getLength(); j++) {
-                    this.entries.remove(j);
-                }
+    private void removeOverlappingEntries(int start, int length) {
+        int end = start + length;
+
+        Map.Entry<Integer, Entry> lower = entries.floorEntry(start);
+        if (lower != null) {
+            Entry e = lower.getValue();
+            int eEnd = e.getAddress() + e.getLength();
+            if (eEnd > start) {
+                this.removeEntry(e);
             }
         }
+
+        Map.Entry<Integer, Entry> curr = entries.ceilingEntry(start);
+        while (curr != null && curr.getKey() < end) {
+            Entry e = curr.getValue();
+            curr = entries.higherEntry(curr.getKey());
+            this.removeEntry(e);
+        }
     }
+
+    private void removeEntry(Entry entry) {
+        int start = entry.getAddress();
+        int end = start + entry.getLength();
+
+        this.entries.remove(start);
+        this.addressOrdinalList.removeIf(a -> a >= start && a < end);
+    }
+
 
     private void addOrdinalAddress(int address) {
         int idx = Collections.binarySearch(this.addressOrdinalList, address);
