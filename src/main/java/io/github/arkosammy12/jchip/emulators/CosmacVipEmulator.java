@@ -199,7 +199,7 @@ public class CosmacVipEmulator implements Emulator {
                 this.currentInstructionsPerFrame++;
             }
 
-            this.disassembler.disassemble(this.getCurrentInstructionsPerFrame());
+            this.disassembler.disassemble(this.processor.getCurrentInstructionAddress());
         }
         this.display.flush();
         this.soundSystem.pushSamples(this.processor.getQ() ? 1 : 0);
