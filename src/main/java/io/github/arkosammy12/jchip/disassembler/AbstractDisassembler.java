@@ -11,6 +11,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.IntSupplier;
 
 public abstract class AbstractDisassembler<E extends Emulator> implements Disassembler {
@@ -26,6 +28,9 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     private final AtomicBoolean running = new AtomicBoolean(true);
 
     private final Thread disassemblerThread;
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock readLock = this.readWriteLock.readLock();
+    private final Lock writeLock = this.readWriteLock.writeLock();
 
     private int currentStaticDisassemblerPointer = 0;
     private boolean staticDisassemblyFinished = false;
@@ -40,25 +45,41 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     @Override
     @Nullable
     public Disassembler.Entry getEntry(int ordinal) {
-        if (ordinal < 0 || ordinal >= this.addressOrdinalList.size()) {
-            return null;
+        this.readLock.lock();
+        try {
+            if (ordinal < 0 || ordinal >= addressOrdinalList.size()) {
+                return null;
+            }
+            int address = this.addressOrdinalList.get(ordinal);
+            Entry entry = this.entries.get(address);
+            if (entry == null) {
+                return null;
+            }
+            this.validateEntry(entry);
+            return entry;
+        } finally {
+            this.readLock.unlock();
         }
-        Entry entry = this.entries.get(this.addressOrdinalList.get(ordinal));
-        if (entry == null) {
-            return null;
-        }
-        this.validateEntry(entry);
-        return entry;
     }
 
     @Override
     public int getSize() {
-        return this.addressOrdinalList.size();
+        this.readLock.lock();
+        try {
+            return this.addressOrdinalList.size();
+        } finally {
+            this.readLock.unlock();
+        }
     }
 
     @Override
     public int getOrdinalForAddress(int address) {
-        return this.addressOrdinalList.indexOf(address);
+        this.readLock.lock();
+        try {
+            return this.addressOrdinalList.indexOf(address);
+        } finally {
+            this.readLock.unlock();
+        }
     }
 
     @Override
@@ -160,11 +181,16 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     protected abstract String getTextForInstructionAt(int address);
 
     private void addEntry(Entry entry) {
-        int address = entry.getAddress();
-        int length = entry.getLength();
-        this.removeOverlappingEntries(address, length);
-        this.entries.put(address, entry);
-        this.addOrdinalAddress(address);
+        this.writeLock.lock();
+        try {
+            int address = entry.getAddress();
+            int length = entry.getLength();
+            this.removeOverlappingEntries(address, length);
+            this.entries.put(address, entry);
+            this.addOrdinalAddress(address);
+        } finally {
+            this.writeLock.unlock();
+        }
     }
 
     private void removeOverlappingEntries(int start, int length) {
@@ -192,16 +218,15 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         int end = start + entry.getLength();
 
         this.entries.remove(start);
-        this.addressOrdinalList.removeIf(a -> a >= start && a < end);
+        this.addressOrdinalList.removeIf(e -> e >= start && e < end);
     }
 
 
     private void addOrdinalAddress(int address) {
-        int idx = Collections.binarySearch(this.addressOrdinalList, address);
-        if (idx >= 0) {
-            return;
+        int idx = Collections.binarySearch(addressOrdinalList, address);
+        if (idx < 0) {
+            addressOrdinalList.add(-idx - 1, address);
         }
-        this.addressOrdinalList.add(-idx - 1, address);
     }
 
     private void validateEntry(Entry entry) {
