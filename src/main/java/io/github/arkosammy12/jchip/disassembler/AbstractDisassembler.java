@@ -1,137 +1,219 @@
 package io.github.arkosammy12.jchip.disassembler;
 
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import it.unimi.dsi.fastutil.ints.*;
+import io.github.arkosammy12.jchip.memory.Bus;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.jctools.queues.MpscArrayQueue;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.IntSupplier;
 
 public abstract class AbstractDisassembler<E extends Emulator> implements Disassembler {
 
     protected final E emulator;
+    private final AtomicReference<IntSupplier> currentAddressSupplier = new AtomicReference<>(null);
 
-    private final Int2ObjectSortedMap<Entry> disassemblyEntries = new Int2ObjectAVLTreeMap<>();
-    private final IntArrayList ordinalToAddress = new IntArrayList();
-    private final Int2IntMap addressToOrdinal = new Int2IntOpenHashMap();
+    private final Map<Integer, Entry> entries = new ConcurrentHashMap<>();
+    private final IntArrayList addressOrdinalList = new IntArrayList();
 
-    private IntSupplier currentAddressSupplier;
-    private boolean enabled;
-    private boolean ordinalsDirty = true;
+    private final MpscArrayQueue<Integer> addressQueue = new MpscArrayQueue<>(10000);
+    private final AtomicBoolean enabled = new AtomicBoolean(false);
+    private final AtomicBoolean running = new AtomicBoolean(true);
+
+    private final Thread disassemblerThread;
+
+    private int currentStaticDisassemblerPointer = 0;
+    private boolean staticDisassemblyFinished = false;
 
     public AbstractDisassembler(E emulator) {
         this.emulator = emulator;
-
-        Entry currentEntry = null;
-        for (int i = 0; i < emulator.getBus().getMemorySize(); i++) {
-            if ((i & 1) == 0) {
-                currentEntry = new Entry(i, 2, -1);
-            }
-            disassemblyEntries.put(i, currentEntry);
-        }
-
-        addressToOrdinal.defaultReturnValue(-1);
-        recalculateOrdinalsIfNecessary();
-    }
-
-    public void setCurrentAddressSupplier(IntSupplier addressSupplier) {
-        this.currentAddressSupplier = addressSupplier;
-    }
-
-    @Override
-    public Optional<IntSupplier> getCurrentAddressSupplier() {
-        return Optional.ofNullable(currentAddressSupplier);
-    }
-
-    @Override
-    public int getSize() {
-        recalculateOrdinalsIfNecessary();
-        return ordinalToAddress.size();
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
+        this.disassemblerThread = new Thread(this::disassemblerLoop, "jchip-disassembler-thread");
+        this.disassemblerThread.setDaemon(true);
+        this.disassemblerThread.start();
     }
 
     @Override
     @Nullable
-    public Entry getEntry(int index) {
-        recalculateOrdinalsIfNecessary();
-        if (index < 0 || index >= ordinalToAddress.size()) {
+    public Disassembler.Entry getEntry(int ordinal) {
+        if (ordinal < 0 || ordinal >= this.addressOrdinalList.size()) {
             return null;
         }
-        int address = ordinalToAddress.getInt(index);
-        Entry entry = disassemblyEntries.get(address);
-        if (entry.getByteCode() < 0) {
-            entry.setBytecode(this.getBytecodeForEntry(entry));
+        Entry entry = this.entries.get(this.addressOrdinalList.get(ordinal));
+        if (entry == null) {
+            return null;
         }
-        if (entry.getText() == null) {
-            entry.setText(getTextForEntry(entry));
-        }
+        this.validateEntry(entry);
         return entry;
     }
 
     @Override
+    public int getSize() {
+        return this.addressOrdinalList.size();
+    }
+
+    @Override
     public int getOrdinalForAddress(int address) {
-        recalculateOrdinalsIfNecessary();
-        return addressToOrdinal.get(address);
+        return this.addressOrdinalList.indexOf(address);
     }
 
-    public abstract void disassembleAt(int address);
-
-    protected void addDisassemblerEntry(int address, int length, int bytecode) {
-        Entry existingEntry = disassemblyEntries.get(address);
-        if (existingEntry == null || existingEntry.getLength() != length) {
-            existingEntry = new Entry(address, length, bytecode);
-            for (int i = address; i < address + length; i++) {
-                disassemblyEntries.put(i, existingEntry);
-            }
-            ordinalsDirty = true;
-        }
-        ordinalsDirty |= existingEntry.setInstructionAddress(address);
-        ordinalsDirty |= existingEntry.setLength(length);
-        existingEntry.setBytecode(bytecode);
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled.set(enabled);
     }
 
-    protected abstract String getTextForEntry(Entry entry);
+    @Override
+    public boolean isEnabled() {
+        return this.enabled.get();
+    }
 
-    protected abstract int getBytecodeForEntry(Entry entry);
+    @Override
+    public Optional<IntSupplier> getCurrentAddressSupplier() {
+        return Optional.ofNullable(this.currentAddressSupplier.get());
+    }
 
-    private void recalculateOrdinalsIfNecessary() {
-        if (!ordinalsDirty) {
+    @Override
+    public void close() throws IOException {
+        this.running.set(false);
+        this.disassemblerThread.interrupt();
+        try {
+            this.disassemblerThread.join();
+        } catch (InterruptedException _) {}
+    }
+
+
+    public void disassemble(int address) {
+        if (!this.isEnabled()) {
             return;
         }
-        ordinalsDirty = false;
+        this.addressQueue.offer(address);
+    }
 
-        ordinalToAddress.clear();
-        addressToOrdinal.clear();
-
-        int ordinal = 0;
-        for (Int2ObjectMap.Entry<Entry> mapEntry : disassemblyEntries.int2ObjectEntrySet()) {
-            int address = mapEntry.getIntKey();
-            Entry entry = mapEntry.getValue();
-
-            if (entry.getInstructionAddress() != address) {
-                continue;
-            }
-
-            ordinalToAddress.add(address);
-            addressToOrdinal.put(address, ordinal++);
+    public void disassembleRange(int address, int range) {
+        if (!this.isEnabled()) {
+            return;
+        }
+        int currentAddress = address;
+        for (int i = 0; i < range; i++) {
+            this.addressQueue.offer(currentAddress);
+            currentAddress += this.getLengthForInstructionAt(currentAddress);
         }
     }
 
-    public static class Entry implements Disassembler.Entry {
+    public void setCurrentAddressSupplier(IntSupplier supplier) {
+        this.currentAddressSupplier.set(supplier);
+    }
 
-        private int instructionAddress;
-        private int length;
-        private int bytecode;
-        private String text;
+    private void disassemblerLoop() {
+        while (this.running.get()) {
+            Integer address = this.addressQueue.poll();
+            if (address == null) {
+                if (this.staticDisassemblyFinished) {
+                    Thread.onSpinWait();
+                } else {
+                    this.disassembleStatic();
+                }
+            } else {
+                this.disassembleAt(address);
+            }
+        }
+    }
+
+    private void disassembleStatic() {
+        Bus bus = this.emulator.getBus();
+        if (this.currentStaticDisassemblerPointer >= bus.getMemorySize()) {
+            this.staticDisassemblyFinished = true;
+            return;
+        }
+        int length = this.getLengthForInstructionAt(this.currentStaticDisassemblerPointer);
+        for (int i = this.currentStaticDisassemblerPointer; i < this.currentStaticDisassemblerPointer + length; i++) {
+            if (this.entries.containsKey(i)) {
+                this.currentStaticDisassemblerPointer += length;
+                return;
+            }
+        }
+        this.addEntry(new Entry(this.currentStaticDisassemblerPointer, length, this.getBytecodeForInstructionAt(this.currentStaticDisassemblerPointer)));
+        this.currentStaticDisassemblerPointer += length;
+    }
+
+    private void disassembleAt(int address) {
+        Entry entry = this.entries.get(address);
+        int length = this.getLengthForInstructionAt(address);
+        int bytecode = this.getBytecodeForInstructionAt(address);
+        if (entry == null || entry.getLength() != length || entry.getAddress() != address) {
+            entry = new Entry(address, length, bytecode);
+            this.addEntry(entry);
+        }
+        entry.setAddress(address);
+        entry.setLength(length);
+        entry.setBytecode(bytecode);
+    }
+
+    protected abstract int getLengthForInstructionAt(int address);
+
+    protected abstract int getBytecodeForInstructionAt(int address);
+
+    protected abstract String getTextForInstructionAt(int address);
+
+    private void addEntry(Entry entry) {
+        int address = entry.getAddress();
+        int length = entry.getLength();
+        this.removeOverlappingEntries(address, length);
+        for (int i = address; i < address + length; i++) {
+            this.entries.put(i, entry);
+        }
+        this.addOrdinalAddress(address);
+    }
+
+    private void removeOverlappingEntries(int address, int length) {
+        for (int i = address; i < address + length; i++) {
+            Entry overlapping = this.entries.get(i);
+            if (overlapping != null) {
+                int overlappingEntryAddress = overlapping.getAddress();
+                this.addressOrdinalList.removeIf(e -> e >= overlappingEntryAddress && e < overlappingEntryAddress + overlapping.getLength());
+                for (int j = overlappingEntryAddress; j < overlappingEntryAddress + overlapping.getLength(); j++) {
+                    this.entries.remove(j);
+                }
+            }
+        }
+    }
+
+    private void addOrdinalAddress(int address) {
+        int idx = Collections.binarySearch(this.addressOrdinalList, address);
+        if (idx >= 0) {
+            return;
+        }
+        this.addressOrdinalList.add(-idx - 1, address);
+    }
+
+    private void validateEntry(Entry entry) {
+        int address = entry.getAddress();
+        int length = entry.getLength();
+        int bytecode = entry.getByteCode();
+
+        int currentLength = this.getLengthForInstructionAt(address);
+        int currentBytecode = this.getBytecodeForInstructionAt(address);
+
+        if (length != currentLength) {
+            this.disassemble(address);
+        } else if (bytecode != currentBytecode) {
+            entry.setBytecode(currentBytecode);
+        }
+        if (entry.getText() == null) {
+            entry.setText(this.getTextForInstructionAt(address));
+        }
+    }
+
+    protected static class Entry implements Disassembler.Entry {
+
+        private volatile int instructionAddress;
+        private volatile int length;
+        private volatile int bytecode;
+        private volatile String text;
 
         public Entry(int address, int length, int bytecode) {
             this.instructionAddress = address;
@@ -139,27 +221,23 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
             this.bytecode = bytecode;
         }
 
-        private boolean setInstructionAddress(int address) {
+        private void setAddress(int address) {
             if (this.instructionAddress != address) {
                 this.text = null;
                 this.instructionAddress = address;
-                return true;
             }
-            return false;
         }
 
         @Override
-        public int getInstructionAddress() {
+        public int getAddress() {
             return instructionAddress;
         }
 
-        private boolean setLength(int length) {
+        private void setLength(int length) {
             if (this.length != length) {
                 this.text = null;
                 this.length = length;
-                return true;
             }
-            return false;
         }
 
         @Override

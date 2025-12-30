@@ -13,36 +13,26 @@ public class MegaChipDisassembler<E extends MegaChipEmulator> extends SChip11Dis
     }
 
     @Override
-    public void disassembleAt(int address) {
-        if (!this.isEnabled()) {
-            return;
-        }
+    protected int getLengthForInstructionAt(int address) {
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
-        int secondByte = bus.getByte(address + 1);
-        if (firstByte == 0x01) {
-            this.addDisassemblerEntry(address, 4, ((firstByte) << 24) | ((secondByte) << 16) | (bus.getByte(address + 2) << 8) | (bus.getByte(address + 3)));
-        } else {
-            this.addDisassemblerEntry(address, 2, (bus.getByte(address) << 8) | bus.getByte(address + 1));
-        }
+        return (firstByte == 0x01) ? 4 : 2;
     }
 
     @Override
-    protected int getBytecodeForEntry(Entry entry) {
-        int address = entry.getInstructionAddress();
+    protected int getBytecodeForInstructionAt(int address) {
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
-        if (firstByte == 0x01) {
+        if (this.getLengthForInstructionAt(address) == 4) {
             return ((firstByte) << 24) | ((secondByte) << 16) | (bus.getByte(address + 2) << 8) | (bus.getByte(address + 3));
         } else {
-            return (bus.getByte(address) << 8) | bus.getByte(address + 1);
+            return (firstByte << 8) | secondByte;
         }
     }
 
     @Override
-    protected String getTextForEntry(Entry entry) {
-        int address = entry.getInstructionAddress();
+    protected String getTextForInstructionAt(int address) {
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
@@ -55,7 +45,7 @@ public class MegaChipDisassembler<E extends MegaChipEmulator> extends SChip11Dis
                         if (getY(firstByte, secondByte) == 0xB) {
                             yield "scroll_up " + getNFormatted(firstByte, secondByte);
                         } else {
-                            yield super.getTextForEntry(entry);
+                            yield super.getTextForInstructionAt(address);
                         }
                     }
                 };
@@ -68,22 +58,22 @@ public class MegaChipDisassembler<E extends MegaChipEmulator> extends SChip11Dis
                     if (getY(firstByte, secondByte) == 0x0) {
                         yield "digisnd " + getNFormatted(firstByte, secondByte);
                     } else {
-                        yield super.getTextForEntry(entry);
+                        yield super.getTextForInstructionAt(address);
                     }
                 }
                 case 0x7 -> {
                     if (secondByte == 0x00) {
                         yield "stopsnd";
                     } else {
-                        yield super.getTextForEntry(entry);
+                        yield super.getTextForInstructionAt(address);
                     }
                 }
                 case 0x8 -> "bmode " + getNFormatted(firstByte, secondByte);
                 case 0x9 -> "ccol " + getNNFormatted(firstByte, secondByte);
-                default -> super.getTextForEntry(entry);
+                default -> super.getTextForInstructionAt(address);
             };
         } else {
-            return super.getTextForEntry(entry);
+            return super.getTextForInstructionAt(address);
         }
     }
 

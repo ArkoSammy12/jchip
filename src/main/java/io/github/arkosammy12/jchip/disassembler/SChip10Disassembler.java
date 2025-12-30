@@ -12,8 +12,7 @@ public class SChip10Disassembler<E extends SChip10Emulator> extends Chip8Disasse
     }
 
     @Override
-    protected String getTextForEntry(Entry entry) {
-        int address = entry.getInstructionAddress();
+    protected String getTextForInstructionAt(int address) {
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
@@ -22,15 +21,15 @@ public class SChip10Disassembler<E extends SChip10Emulator> extends Chip8Disasse
                 case 0x0FD -> "exit";
                 case 0x0FE -> "lores";
                 case 0x0FF -> "hires";
-                default -> super.getTextForEntry(entry);
+                default -> super.getTextForInstructionAt(address);
             };
             case 0xF -> switch (secondByte) {
                 case 0x30 -> "i := bighex v" + getXFormatted(firstByte, secondByte);
                 case 0x75 -> "saveflags v" + getXFormatted(firstByte, secondByte);
                 case 0x85 -> "loadflags v" + getXFormatted(firstByte, secondByte);
-                default -> super.getTextForEntry(entry);
+                default -> super.getTextForInstructionAt(address);
             };
-            default -> super.getTextForEntry(entry);
+            default -> super.getTextForInstructionAt(address);
         };
     }
 

@@ -3,9 +3,9 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.*;
-import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.disassembler.Chip8Disassembler;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
+import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
@@ -174,7 +174,7 @@ public class Chip8Emulator implements Emulator {
             return;
         }
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-            this.disassembler.disassembleAt(this.getProcessor().getProgramCounter());
+            this.disassembler.disassemble(this.getProcessor().getProgramCounter());
             if (this.waitVBlank(this.getProcessor().cycle())) {
                 break;
             }
@@ -190,13 +190,14 @@ public class Chip8Emulator implements Emulator {
         if (this.instructionCounter % this.currentInstructionsPerFrame == 0) {
             this.getProcessor().decrementTimers();
         }
-        this.disassembler.disassembleAt(this.getProcessor().getProgramCounter());
+        this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 10);
         this.getProcessor().cycle();
         if (this.getProcessor().shouldExit()) {
             this.terminate();
         }
         this.getDisplay().flush();
         this.instructionCounter++;
+        this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 10);
     }
 
     protected boolean waitVBlank(int flags) {
@@ -219,6 +220,9 @@ public class Chip8Emulator implements Emulator {
     public void close() {
         try {
             this.getDisplay().close();
+            if (this.disassembler != null) {
+                this.disassembler.close();
+            }
         } catch (Exception e) {
             throw new EmulatorException("Error releasing current emulator resources: ", e);
         }

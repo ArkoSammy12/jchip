@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.ui.disassembly;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.MainWindow;
-import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -144,7 +143,7 @@ public class DisassemblerTable extends JTable {
                 };
             }
             return switch (col) {
-                case 0 -> String.format("%06X: ", entry.getInstructionAddress());
+                case 0 -> String.format("%06X: ", entry.getAddress());
                 case 1 -> String.format("%0" + (entry.getLength() * 2) + "X", entry.getByteCode());
                 default -> entry.getText();
             };

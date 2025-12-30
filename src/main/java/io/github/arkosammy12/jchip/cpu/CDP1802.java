@@ -12,6 +12,7 @@ import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isHandled;
 public class CDP1802 implements Processor {
 
     private final CosmacVipEmulator emulator;
+    private int currentInstructionAddress;
     private State currentState = State.S1_RESET;
     private boolean longInstruction = false;
     private boolean idling = false;
@@ -177,6 +178,10 @@ public class CDP1802 implements Processor {
         return flags;
     }
 
+    public int getCurrentInstructionAddress() {
+        return this.currentInstructionAddress;
+    }
+
     public void nextState() {
         this.currentState = switch (currentState) {
             case S1_RESET -> S1_INIT;
@@ -242,8 +247,10 @@ public class CDP1802 implements Processor {
     }
 
     private int onFetch() {
-        int opcode = this.emulator.getBus().readByte(getR(getP()));
-        setR(getP(), getR(getP()) + 1);
+        int pc = getR(getP());
+        this.currentInstructionAddress = pc;
+        int opcode = this.emulator.getBus().readByte(pc);
+        setR(getP(), pc + 1);
         setI((opcode & 0xF0) >>> 4);
         setN(opcode & 0x0F);
         return HANDLED;

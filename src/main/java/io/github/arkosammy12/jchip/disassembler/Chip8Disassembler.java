@@ -12,24 +12,18 @@ public class Chip8Disassembler<E extends Chip8Emulator> extends AbstractDisassem
     }
 
     @Override
-    public void disassembleAt(int address) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        Bus bus = this.emulator.getBus();
-        this.addDisassemblerEntry(address, 2, (bus.getByte(address) << 8) | bus.getByte(address + 1));
+    protected int getLengthForInstructionAt(int address) {
+        return 2;
     }
 
     @Override
-    protected int getBytecodeForEntry(Entry entry) {
-        int address = entry.getInstructionAddress();
+    protected int getBytecodeForInstructionAt(int address) {
         Bus bus = this.emulator.getBus();
         return (bus.getByte(address) << 8) | bus.getByte(address + 1);
     }
 
     @Override
-    protected String getTextForEntry(Entry entry) {
-        int address = entry.getInstructionAddress();
+    protected String getTextForInstructionAt(int address) {
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);

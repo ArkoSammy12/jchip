@@ -205,5 +205,9 @@ public class CosmacVipBus implements Bus {
         this.addressMsbLatched = false;
     }
 
+    public boolean isAddressMsbUnlatched() {
+        return !this.addressMsbLatched;
+    }
+
 }
 

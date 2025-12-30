@@ -12,8 +12,7 @@ public class Chip8XDisassembler<E extends Chip8XEmulator> extends Chip8Disassemb
     }
 
     @Override
-    protected String getTextForEntry(Entry entry) {
-        int address = entry.getInstructionAddress();
+    protected String getTextForInstructionAt(int address) {
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
@@ -22,14 +21,14 @@ public class Chip8XDisassembler<E extends Chip8XEmulator> extends Chip8Disassemb
                 if (getNNN(firstByte, secondByte) == 0x2A0) {
                     yield "cycle-bgcol";
                 } else {
-                    yield super.getTextForEntry(entry);
+                    yield super.getTextForInstructionAt(address);
                 }
             }
             case 0x5 -> {
                 if (getN(firstByte, secondByte) == 0x1) {
                     yield "0x5" + getXFormatted(firstByte, secondByte) + " 0x" + getYFormatted(firstByte, secondByte) + "1";
                 } else {
-                    yield super.getTextForEntry(entry);
+                    yield super.getTextForInstructionAt(address);
                 }
             }
             case 0xB -> {
@@ -42,14 +41,14 @@ public class Chip8XDisassembler<E extends Chip8XEmulator> extends Chip8Disassemb
             case 0xE -> switch (secondByte) {
                 case 0xF2 -> "0xE" + getXFormatted(firstByte, secondByte) + " 0xF2";
                 case 0xF5 -> "0xE" + getXFormatted(firstByte, secondByte) + " 0xF5";
-                default -> super.getTextForEntry(entry);
+                default -> super.getTextForInstructionAt(address);
             };
             case 0xF -> switch (secondByte) {
                 case 0xF8 -> "0xF" + getXFormatted(firstByte, secondByte) + " 0xF8";
                 case 0xFB -> "0xF" + getXFormatted(firstByte, secondByte) + " 0xFB";
-                default -> super.getTextForEntry(entry);
+                default -> super.getTextForInstructionAt(address);
             };
-            default -> super.getTextForEntry(entry);
+            default -> super.getTextForInstructionAt(address);
         };
     }
 

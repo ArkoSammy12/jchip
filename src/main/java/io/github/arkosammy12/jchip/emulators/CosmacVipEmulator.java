@@ -3,7 +3,9 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
+import io.github.arkosammy12.jchip.disassembler.CosmacVipDisassembler;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
+import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.memory.CosmacVipBus;
 import io.github.arkosammy12.jchip.memory.HybridChip8XBus;
@@ -32,6 +34,7 @@ public class CosmacVipEmulator implements Emulator {
     private final CosmacVipEmulatorSettings settings;
     private final CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter;
     private final DebuggerSchema debuggerSchema;
+    private final AbstractDisassembler<?> disassembler;
     private final Variant variant;
 
     private final CDP1802 processor;
@@ -63,6 +66,8 @@ public class CosmacVipEmulator implements Emulator {
                 this.ioDevices = List.of(this.display, this.keypad);
             }
             this.debuggerSchema = this.createDebuggerSchema();
+            this.disassembler = new CosmacVipDisassembler<>(this);
+            this.disassembler.setCurrentAddressSupplier(this.processor::getCurrentInstructionAddress);
         } catch (Exception e) {
             throw new EmulatorException(e);
         }
@@ -110,7 +115,7 @@ public class CosmacVipEmulator implements Emulator {
 
     @Override
     public @Nullable Disassembler getDisassembler() {
-        return null;
+        return this.disassembler;
     }
 
     public CosmacVipEmulatorSettings.Chip8Interpreter getChip8Interpreter() {
@@ -185,17 +190,16 @@ public class CosmacVipEmulator implements Emulator {
         for (int i = 0; i < CYCLES_PER_FRAME; i++) {
 
             CDP1802.State currentState = this.processor.getCurrentState();
-
             this.processor.cycle();
             this.cycleIoDevices();
             this.processor.nextState();
 
             CDP1802.State nextState = this.processor.getCurrentState();
-
             if (currentState.isS1Execute() && !nextState.isS1Execute()) {
                 this.currentInstructionsPerFrame++;
             }
 
+            this.disassembler.disassemble(this.getCurrentInstructionsPerFrame());
         }
         this.display.flush();
         this.soundSystem.pushSamples(this.processor.getQ() ? 1 : 0);
@@ -207,6 +211,7 @@ public class CosmacVipEmulator implements Emulator {
         this.cycleIoDevices();
         this.processor.nextState();
         this.display.flush();
+        this.disassembler.disassembleRange(this.processor.getCurrentInstructionAddress(), 10);
     }
 
     private void cycleIoDevices() {
@@ -227,6 +232,9 @@ public class CosmacVipEmulator implements Emulator {
         try {
             if (this.getDisplay() != null) {
                 this.getDisplay().close();
+            }
+            if (this.disassembler != null) {
+                this.disassembler.close();
             }
         } catch (Exception e) {
             throw new EmulatorException("Error releasing current emulator resources: ", e);

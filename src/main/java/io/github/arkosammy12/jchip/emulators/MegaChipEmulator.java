@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.disassembler.MegaChipDisassembler;
+import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.memory.MegaChipBus;
 import io.github.arkosammy12.jchip.cpu.Chip8Processor;
 import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;

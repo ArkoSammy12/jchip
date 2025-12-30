@@ -12,8 +12,7 @@ public class SChip11Disassembler<E extends SChip11Emulator> extends SChip10Disas
     }
 
     @Override
-    protected String getTextForEntry(Entry entry) {
-        int address = entry.getInstructionAddress();
+    protected String getTextForInstructionAt(int address) {
         Bus bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
@@ -25,12 +24,12 @@ public class SChip11Disassembler<E extends SChip11Emulator> extends SChip10Disas
                     if (getY(firstByte, secondByte) == 0xC) {
                         yield "scroll-down " + getNFormatted(firstByte, secondByte);
                     } else {
-                        yield super.getTextForEntry(entry);
+                        yield super.getTextForInstructionAt(address);
                     }
                 }
             };
         } else {
-            return super.getTextForEntry(entry);
+            return super.getTextForInstructionAt(address);
         }
     }
 

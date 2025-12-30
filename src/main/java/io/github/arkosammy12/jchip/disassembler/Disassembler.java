@@ -1,10 +1,14 @@
 package io.github.arkosammy12.jchip.disassembler;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.io.Closeable;
 import java.util.Optional;
 import java.util.function.IntSupplier;
 
-public interface Disassembler {
+public interface Disassembler extends Closeable {
 
+    @Nullable
     Entry getEntry(int ordinal);
 
     int getSize();
@@ -19,7 +23,7 @@ public interface Disassembler {
 
     interface Entry {
 
-        int getInstructionAddress();
+        int getAddress();
 
         int getLength();
 

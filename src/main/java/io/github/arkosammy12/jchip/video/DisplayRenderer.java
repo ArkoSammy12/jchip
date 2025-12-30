@@ -162,7 +162,7 @@ public class DisplayRenderer extends JPanel implements Closeable {
         if (this.renderThread != null) {
             try {
                 this.renderThread.join();
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException _) {}
         }
     }
 
