@@ -38,7 +38,6 @@ public class Chip48SoundSystem implements SoundSystem {
         this.jchip = emulator.getEmulatorSettings().getJchip();
     }
 
-
     @Override
     public void pushSamples(int soundTimer) {
         if (soundTimer <= 0) {

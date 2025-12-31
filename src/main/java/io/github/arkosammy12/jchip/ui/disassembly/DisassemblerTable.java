@@ -64,6 +64,25 @@ public class DisassemblerTable extends JTable {
         }
     }
 
+    public boolean isAddressVisible(int address) {
+        return this.model.disassembler != null && this.model.disassembler.getOrdinalForAddress(address) >= 0;
+    }
+
+    public void scrollToAddress(int address) {
+        if (this.model.disassembler == null) {
+            return;
+        }
+        if (!this.model.disassembler.isEnabled()) {
+            return;
+        }
+        int ordinal = this.model.disassembler.getOrdinalForAddress(address);
+        if (ordinal < 0) {
+            return;
+        }
+        int targetY = ordinal * this.getRowHeight();
+        ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
+    }
+
     public void scrollToCurrentAddress() {
         if (this.model.disassembler == null) {
             return;
@@ -71,14 +90,7 @@ public class DisassemblerTable extends JTable {
         if (!this.model.disassembler.isEnabled()) {
             return;
         }
-        this.model.disassembler.getCurrentAddressSupplier().ifPresent(supplier -> {
-            int ordinal = this.model.disassembler.getOrdinalForAddress(supplier.getAsInt());
-            if (ordinal < 0) {
-                return;
-            }
-            int targetY = ordinal * this.getRowHeight();
-            ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
-        });
+        this.model.disassembler.getCurrentAddressSupplier().ifPresent(supplier -> this.scrollToAddress(supplier.getAsInt()));
     }
 
     private void setCellRenderers() {

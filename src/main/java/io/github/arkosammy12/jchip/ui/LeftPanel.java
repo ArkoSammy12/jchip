@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.disassembly.DisassemblyPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
@@ -20,11 +21,11 @@ public class LeftPanel extends JPanel {
 
     private final AtomicBoolean showingDisassemblyPanel = new AtomicBoolean(false);
 
-    public LeftPanel() {
+    public LeftPanel(Jchip jchip) {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
         this.emulatorViewport = new EmulatorViewport();
-        this.disassemblyPanel = new DisassemblyPanel();
+        this.disassemblyPanel = new DisassemblyPanel(jchip);
         this.splitPane = new ToggleableSplitPane(JSplitPane.VERTICAL_SPLIT, this.emulatorViewport, this.disassemblyPanel, 5, 0.75);
 
         this.add(this.splitPane, new CC().grow().push());

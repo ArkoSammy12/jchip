@@ -40,7 +40,7 @@ public class MainWindow extends JFrame implements Closeable {
         this.setLayout(migLayout);
         this.setBackground(Color.BLACK);
 
-        this.leftPanel = new LeftPanel();
+        this.leftPanel = new LeftPanel(jchip);
         this.settingsBar = new SettingsBar(jchip, this);
         this.infoBar = new InfoBar();
         this.debuggerPanel = new DebuggerPanel(jchip);
