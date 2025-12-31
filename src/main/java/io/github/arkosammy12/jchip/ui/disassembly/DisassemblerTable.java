@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.ui.disassembly;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.MainWindow;
+import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -65,7 +66,7 @@ public class DisassemblerTable extends JTable {
             public void mouseClicked(MouseEvent e) {
                 int row = rowAtPoint(e.getPoint());
                 int col = columnAtPoint(e.getPoint());
-                if (row >= 0 && col >= 0) {
+                if (row >= 0 && col == 0) {
                     if (model.containsBreakpoint(row)) {
                         model.removeBreakpoint(row);
                     } else {
