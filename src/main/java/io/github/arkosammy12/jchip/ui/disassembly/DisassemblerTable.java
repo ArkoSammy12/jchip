@@ -10,13 +10,19 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.util.Objects;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.util.*;
+import java.util.function.IntSupplier;
 
 public class DisassemblerTable extends JTable {
 
     private static final int ROW_HEIGHT = 20;
 
     private final Model model;
+    private int hoveredRow = -1;
+    private int hoveredColumn = -1;
 
     public DisassemblerTable() {
         super();
@@ -32,17 +38,126 @@ public class DisassemblerTable extends JTable {
         this.setColumnSelectionAllowed(false);
         this.setTableHeader(null);
         this.setCellRenderers();
+        this.addMouseMotionListener(new MouseMotionAdapter() {
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                int row = rowAtPoint(e.getPoint());
+                int col = columnAtPoint(e.getPoint());
+                if (row != hoveredRow || col != hoveredColumn) {
+                    hoveredRow = row;
+                    hoveredColumn = col;
+                    repaint();
+                }
+            }
+
+        });
+        this.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                hoveredRow = -1;
+                hoveredColumn = -1;
+                repaint();
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = rowAtPoint(e.getPoint());
+                int col = columnAtPoint(e.getPoint());
+                if (row >= 0 && col >= 0) {
+                    if (model.containsBreakpoint(row)) {
+                        model.removeBreakpoint(row);
+                    } else {
+                        model.addBreakpoint(row);
+                    }
+                    repaint();
+                }
+            }
+
+        });
+
     }
 
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
         Component c = super.prepareRenderer(renderer, row, column);
-        Color baseColor = getBackground();
+
+        Color base = getBackground();
         if (row % 2 != 0) {
-            baseColor = baseColor.darker();
+            base = base.darker();
         }
-        c.setBackground(baseColor);
+
+        if (this.isCurrentInstructionRow(row)) {
+            Color accent = UIManager.getColor("Table.selectionBackground");
+            if (accent == null) {
+                accent = new Color(255, 220, 120);
+            }
+            base = blend(base, accent, 0.35f);
+        }
+
+        c.setBackground(base);
         return c;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int circleDiameter = 10;
+            int gutterX = 6;
+
+            if (hoveredRow >= 0 && hoveredColumn == 0) {
+                Rectangle rowRect = getCellRect(hoveredRow, 0, true);
+                int cy = rowRect.y + (rowRect.height - circleDiameter) / 2;
+
+                g2.setColor(new Color(255, 0, 0, 120));
+                g2.fillOval(gutterX, cy, circleDiameter, circleDiameter);
+            }
+
+            if (this.model.disassembler != null) {
+                g2.setColor(Color.RED);
+                for (int breakpoint : this.model.disassembler.getCurrentBreakpoints()) {
+                    int ordinal = this.model.disassembler.getOrdinalForAddress(breakpoint);
+                    if (ordinal < 0 || ordinal >= this.getRowCount()) {
+                        continue;
+                    }
+                    Rectangle rowRect = getCellRect(ordinal, 0, true);
+                    int cy = rowRect.y + (rowRect.height - circleDiameter) / 2;
+                    g2.fillOval(gutterX, cy, circleDiameter, circleDiameter);
+                }
+            }
+
+            if (this.hoveredRow >= 0 && this.hoveredRow < this.getRowCount()) {
+                Rectangle r = getCellRect(hoveredRow, 0, true);
+                r.x = 0;
+                r.width = getWidth();
+                Color outline = UIManager.getColor("Table.selectionBackground");
+                if (outline == null) {
+                    outline = Color.GRAY;
+                }
+                g2.setColor(new Color(outline.getRed(), outline.getGreen(), outline.getBlue(), 120));
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(r.x + 1, r.y + 1, r.width - 3, r.height - 3, 6, 6);
+            }
+        } finally {
+            g2.dispose();
+        }
+    }
+
+    private boolean isCurrentInstructionRow(int row) {
+        if (this.model.disassembler == null) {
+            return false;
+        }
+        Optional<IntSupplier> currentInstructionSupplier = this.model.disassembler.getCurrentAddressSupplier();
+        if (currentInstructionSupplier.isEmpty()) {
+            return false;
+        }
+        int ordinal = this.model.disassembler.getOrdinalForAddress(currentInstructionSupplier.get().getAsInt());
+        return ordinal >= 0 && ordinal == row;
     }
 
     @Override
@@ -112,6 +227,15 @@ public class DisassemblerTable extends JTable {
         columnModel.getColumn(2).setCellRenderer(textColumnRenderer);
     }
 
+    private static Color blend(Color base, Color overlay, float alpha) {
+        float inv = 1.0f - alpha;
+        return new Color(
+                (int) (base.getRed() * inv + overlay.getRed() * alpha),
+                (int) (base.getGreen() * inv + overlay.getGreen() * alpha),
+                (int) (base.getBlue() * inv + overlay.getBlue() * alpha)
+        );
+    }
+
     private class Model extends DefaultTableModel {
 
         private Disassembler disassembler;
@@ -165,6 +289,7 @@ public class DisassemblerTable extends JTable {
             Disassembler disassembler = emulator.getDisassembler();
             if (!Objects.equals(disassembler, this.disassembler)) {
                 this.disassembler = disassembler;
+                this.clearBreakpoints();
             }
             if (this.disassembler != null && this.disassembler.isEnabled()) {
                 int size = disassembler.getSize();
@@ -178,9 +303,49 @@ public class DisassemblerTable extends JTable {
         }
 
         public void clear() {
+            this.clearBreakpoints();
             this.disassembler = null;
             this.rowCount = 0;
             this.fireTableDataChanged();
+        }
+
+        private void addBreakpoint(int row) {
+            if (this.disassembler == null) {
+                return;
+            }
+            Disassembler.Entry entry = this.disassembler.getEntry(row);
+            if (entry == null) {
+                return;
+            }
+            this.disassembler.addBreakpoint(entry.getAddress());
+        }
+
+        private void removeBreakpoint(int row) {
+            if (this.disassembler == null) {
+                return;
+            }
+            Disassembler.Entry entry = this.disassembler.getEntry(row);
+            if (entry == null) {
+                return;
+            }
+            this.disassembler.removeBreakpoint(entry.getAddress());
+        }
+
+        private boolean containsBreakpoint(int row) {
+            if (this.disassembler == null) {
+                return false;
+            }
+            Disassembler.Entry entry = this.disassembler.getEntry(row);
+            if (entry == null) {
+                return false;
+            }
+            return this.disassembler.getCurrentBreakpoints().contains(entry.getAddress());
+        }
+
+        private void clearBreakpoints() {
+            if (this.disassembler != null) {
+                this.disassembler.clearBreakpoints();
+            }
         }
 
     }

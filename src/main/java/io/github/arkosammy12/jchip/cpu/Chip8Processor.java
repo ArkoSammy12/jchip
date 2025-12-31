@@ -23,7 +23,6 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     public static final int BASE_SLICE_MASK_8 = 1 << 7;
 
     protected final E emulator;
-    private int currentInstructionAddress;
     private final Random random = new Random();
     private final int memoryBoundsMask;
     protected boolean shouldExit;
@@ -132,7 +131,6 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     public final int cycle() throws InvalidInstructionException {
         Chip8Bus memory = this.emulator.getBus();
         int programCounter = this.getProgramCounter();
-        this.currentInstructionAddress = programCounter;
         this.incrementProgramCounter();
         return this.execute(memory.readByte(programCounter), memory.readByte(programCounter + 1));
     }

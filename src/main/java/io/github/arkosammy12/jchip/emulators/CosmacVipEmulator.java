@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
@@ -31,6 +32,7 @@ public class CosmacVipEmulator implements Emulator {
 
     public static final int CYCLES_PER_FRAME = 3668;
 
+    private final Jchip jchip;
     private final CosmacVipEmulatorSettings settings;
     private final CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter;
     private final DebuggerSchema debuggerSchema;
@@ -48,6 +50,7 @@ public class CosmacVipEmulator implements Emulator {
 
     public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter) {
         try {
+            this.jchip = emulatorSettings.getJchip();
             this.settings = emulatorSettings;
             this.chip8Interpreter = chip8Interpreter;
             this.variant = emulatorSettings.getVariant();
@@ -67,7 +70,7 @@ public class CosmacVipEmulator implements Emulator {
             }
             this.debuggerSchema = this.createDebuggerSchema();
             this.disassembler = new CosmacVipDisassembler<>(this);
-            this.disassembler.setCurrentAddressSupplier(this.processor::getCurrentInstructionAddress);
+            this.disassembler.setCurrentAddressSupplier(this::getActualCurrentInstructionAddress);
         } catch (Exception e) {
             throw new EmulatorException(e);
         }
@@ -199,7 +202,11 @@ public class CosmacVipEmulator implements Emulator {
                 this.currentInstructionsPerFrame++;
             }
 
-            this.disassembler.disassemble(this.processor.getCurrentInstructionAddress());
+            this.disassembler.disassemble(this.getActualCurrentInstructionAddress());
+            if (currentState == CDP1802.State.S0_FETCH && this.disassembler.checkBreakpoint(this.getActualCurrentInstructionAddress())) {
+                this.jchip.onBreakpoint();
+                break;
+            }
         }
         this.display.flush();
         this.soundSystem.pushSamples(this.processor.getQ() ? 1 : 0);
@@ -211,7 +218,12 @@ public class CosmacVipEmulator implements Emulator {
         this.cycleIoDevices();
         this.processor.nextState();
         this.display.flush();
-        this.disassembler.disassembleRange(this.processor.getCurrentInstructionAddress(), 10);
+        this.disassembler.disassembleRange(this.getActualCurrentInstructionAddress(), 10);
+    }
+
+    private int getActualCurrentInstructionAddress() {
+        int address = this.processor.getCurrentInstructionAddress();
+        return this.bus.isAddressMsbLatched() ? address | 0x8000 : address;
     }
 
     private void cycleIoDevices() {

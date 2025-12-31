@@ -222,6 +222,10 @@ public class Jchip {
         this.currentState.set(State.PAUSED);
     }
 
+    public void onBreakpoint() {
+        this.mainWindow.onBreakpoint();
+    }
+
     void onShutdown() throws Exception {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();

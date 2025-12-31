@@ -122,6 +122,10 @@ public class MainWindow extends JFrame implements Closeable {
         this.settingsBar.onStopped();
     }
 
+    public void onBreakpoint() {
+        this.settingsBar.onBreakpoint();
+    }
+
     @Override
     public void close() {
         SwingUtilities.invokeLater(this::dispose);

@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import io.github.arkosammy12.jchip.ui.util.NumberOnlyTextField;
 import io.github.arkosammy12.jchip.util.Variant;
@@ -20,6 +21,8 @@ import java.util.Optional;
 
 public class EmulatorMenu extends JMenu {
 
+    private final MainWindow mainWindow;
+
     private final JMenuItem resetButton = new JMenuItem("Reset");
     private final JRadioButtonMenuItem pauseButton = new JRadioButtonMenuItem("Pause");
     private final JMenuItem stopButton = new JMenuItem("Stop");
@@ -36,8 +39,9 @@ public class EmulatorMenu extends JMenu {
 
     private Integer instructionsPerFrame;
 
-    public EmulatorMenu(Jchip jchip) {
+    public EmulatorMenu(Jchip jchip, MainWindow mainWindow) {
         super("Emulator");
+        this.mainWindow = mainWindow;
 
         this.setMnemonic(KeyEvent.VK_E);
 
@@ -228,13 +232,29 @@ public class EmulatorMenu extends JMenu {
         this.resetButton.doClick();
     }
 
+    public void onBreakpoint() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            try {
+                SwingUtilities.invokeAndWait(() -> {
+                    if (!this.pauseButton.isSelected()) {
+                        this.pauseButton.doClick();
+                    }
+                });
+            } catch (Exception e) {
+                this.mainWindow.showExceptionDialog(e);
+            }
+        }
+    }
+
     public void onStopped() {
-        this.pauseButton.setSelected(false);
+        SwingUtilities.invokeLater(() -> {
+            this.pauseButton.setSelected(false);
 
-        this.stopButton.setEnabled(false);
+            this.stopButton.setEnabled(false);
 
-        this.stepFrameButton.setEnabled(false);
-        this.stepCycleButton.setEnabled(false);
+            this.stepFrameButton.setEnabled(false);
+            this.stepCycleButton.setEnabled(false);
+        });
     }
 
 }

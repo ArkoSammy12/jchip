@@ -1,5 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.*;
@@ -28,6 +29,8 @@ public class Chip8Emulator implements Emulator {
 
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
+    private final Jchip jchip;
+
     @Nullable
     private final Chip8Processor<?> processor;
 
@@ -53,6 +56,7 @@ public class Chip8Emulator implements Emulator {
 
     public Chip8Emulator(Chip8EmulatorSettings emulatorSettings) {
         try {
+            this.jchip = emulatorSettings.getJchip();
             this.emulatorSettings = emulatorSettings;
             this.variant = emulatorSettings.getVariant();
             this.targetInstructionsPerFrame = emulatorSettings.getInstructionsPerFrame();
@@ -175,6 +179,10 @@ public class Chip8Emulator implements Emulator {
         }
         for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
             this.disassembler.disassemble(this.getProcessor().getProgramCounter());
+            if (this.disassembler.checkBreakpoint(this.getProcessor().getProgramCounter())) {
+                this.jchip.onBreakpoint();
+                break;
+            }
             if (this.waitVBlank(this.getProcessor().cycle())) {
                 break;
             }
@@ -182,6 +190,7 @@ public class Chip8Emulator implements Emulator {
                 this.terminate();
                 break;
             }
+            this.instructionCounter++;
         }
     }
 

@@ -8,8 +8,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -34,6 +36,10 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
 
     private int currentStaticDisassemblerPointer = 0;
     private boolean staticDisassemblyFinished = false;
+
+    private final Set<Integer> breakpoints = ConcurrentHashMap.newKeySet();
+    private final Collection<Integer> immutableBreakpointsView = Collections.unmodifiableSet(this.breakpoints);
+    private final AtomicInteger lastSeenPC = new AtomicInteger(-1);
 
     public AbstractDisassembler(E emulator) {
         this.emulator = emulator;
@@ -106,6 +112,34 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         } catch (InterruptedException _) {}
     }
 
+    @Override
+    public Collection<Integer> getCurrentBreakpoints() {
+        return this.immutableBreakpointsView;
+    }
+
+    @Override
+    public void addBreakpoint(int address) {
+        this.breakpoints.add(address);
+    }
+
+    @Override
+    public void removeBreakpoint(int address) {
+        this.breakpoints.remove(address);
+    }
+
+    @Override
+    public boolean checkBreakpoint(int address) {
+        int previousPC = this.lastSeenPC.getAndSet(address);
+        if (previousPC == address) {
+            return false;
+        }
+        return this.breakpoints.contains(address);
+    }
+
+    @Override
+    public void clearBreakpoints() {
+        this.breakpoints.clear();
+    }
 
     public void disassemble(int address) {
         if (!this.isEnabled()) {

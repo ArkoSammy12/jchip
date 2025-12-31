@@ -25,7 +25,7 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
         super();
 
         this.fileMenu = new FileMenu(mainWindow);
-        this.emulatorMenu = new EmulatorMenu(jchip);
+        this.emulatorMenu = new EmulatorMenu(jchip, mainWindow);
         this.settingsMenu = new SettingsMenu(jchip);
         this.debugMenu = new DebugMenu(jchip);
         this.helpMenu = new HelpMenu(jchip);
@@ -41,6 +41,10 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
         this.fileMenu.initializeSettings(primarySettingsProvider);
         this.emulatorMenu.initializeSettings(primarySettingsProvider);
         this.settingsMenu.initializeSettings(primarySettingsProvider);
+    }
+
+    public void onBreakpoint() {
+        this.emulatorMenu.onBreakpoint();
     }
 
     public void onStopped() {
