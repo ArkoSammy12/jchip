@@ -84,6 +84,13 @@ public class DisassemblyPanel extends JPanel {
         this.add(goToAddressLabel, new CC().split(2).alignX(AlignX.CENTER));
         this.add(goToAddressField, new CC().growX().pushX().alignX(AlignX.CENTER).wrap());
         this.add(disassemblerScrollPane, new CC().grow().push().spanX());
+
+        jchip.addStateChangedListener((_, newState) -> {
+            if (newState.isStopped()) {
+                SwingUtilities.invokeLater(this.disassemblerTable::clear);
+            }
+        });
+
     }
 
     public void onFrame(Emulator emulator) {
@@ -93,10 +100,6 @@ public class DisassemblyPanel extends JPanel {
                 this.disassemblerTable.scrollToCurrentAddress();
             }
         });
-    }
-
-    public void onStopped() {
-        SwingUtilities.invokeLater(this.disassemblerTable::clear);
     }
 
     public void setDisassemblerEnabled(boolean enabled) {

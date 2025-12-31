@@ -8,7 +8,6 @@ import io.github.arkosammy12.jchip.video.DisplayRenderer;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.tinylog.Logger;
 
 import javax.swing.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,6 +28,7 @@ public class LeftPanel extends JPanel {
         this.splitPane = new ToggleableSplitPane(JSplitPane.VERTICAL_SPLIT, this.emulatorViewport, this.disassemblyPanel, 5, 0.75);
 
         this.add(this.splitPane, new CC().grow().push());
+
     }
 
     public void setEmulatorRenderer(DisplayRenderer displayRenderer) {
@@ -51,10 +51,6 @@ public class LeftPanel extends JPanel {
     public void onFrame(Emulator emulator) {
         this.disassemblyPanel.setDisassemblerEnabled(this.showingDisassemblyPanel.get());
         this.disassemblyPanel.onFrame(emulator);
-    }
-
-    public void onStopped() {
-        this.disassemblyPanel.onStopped();
     }
 
 }

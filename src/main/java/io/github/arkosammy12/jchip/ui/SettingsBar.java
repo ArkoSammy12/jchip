@@ -47,10 +47,6 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
         this.emulatorMenu.onBreakpoint();
     }
 
-    public void onStopped() {
-        this.emulatorMenu.onStopped();
-    }
-
     @Override
     public Optional<byte[]> getRawRom() {
         return this.fileMenu.getRawRom();

@@ -130,6 +130,12 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     @Override
     public boolean checkBreakpoint(int address) {
         int previousPC = this.lastSeenPC.getAndSet(address);
+        if (!this.isEnabled()) {
+            return false;
+        }
+        if (this.breakpoints.isEmpty()) {
+            return false;
+        }
         if (previousPC == address) {
             return false;
         }

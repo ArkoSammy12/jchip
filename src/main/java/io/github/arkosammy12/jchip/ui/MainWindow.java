@@ -5,6 +5,7 @@ import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
+import io.github.arkosammy12.jchip.ui.util.WindowTitleManager;
 import io.github.arkosammy12.jchip.video.DisplayRenderer;
 import net.miginfocom.layout.AC;
 import net.miginfocom.layout.CC;
@@ -22,6 +23,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     public static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
+    private final WindowTitleManager windowTitleManager;
     private final ToggleableSplitPane mainSplitPane;
     private final LeftPanel leftPanel;
     private final SettingsBar settingsBar;
@@ -33,6 +35,8 @@ public class MainWindow extends JFrame implements Closeable {
 
     public MainWindow(Jchip jchip) {
         super(DEFAULT_TITLE);
+        this.windowTitleManager = new WindowTitleManager(this);
+        this.setTitleSection(0, DEFAULT_TITLE);
         this.setBackground(Color.BLACK);
         this.getRootPane().putClientProperty("apple.awt.fullscreenable", true);
 
@@ -42,7 +46,7 @@ public class MainWindow extends JFrame implements Closeable {
 
         this.leftPanel = new LeftPanel(jchip);
         this.settingsBar = new SettingsBar(jchip, this);
-        this.infoBar = new InfoBar();
+        this.infoBar = new InfoBar(jchip);
         this.debuggerPanel = new DebuggerPanel(jchip);
         this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.leftPanel, this.debuggerPanel, 5, 0.5);
 
@@ -63,6 +67,10 @@ public class MainWindow extends JFrame implements Closeable {
 
     public SettingsBar getSettingsBar() {
         return this.settingsBar;
+    }
+
+    public void setTitleSection(int index, String text) {
+        this.windowTitleManager.setSection(index, text);
     }
 
     public void setEmulatorRenderer(DisplayRenderer displayRenderer) {
@@ -113,13 +121,6 @@ public class MainWindow extends JFrame implements Closeable {
         this.leftPanel.onFrame(emulator);
         this.infoBar.onFrame(emulator);
         emulator.getDisplay().getDisplayRenderer().requestFrame();
-    }
-
-    public void onStopped() {
-        this.leftPanel.onStopped();
-        this.infoBar.onStopped();
-        this.debuggerPanel.onStopped();
-        this.settingsBar.onStopped();
     }
 
     public void onBreakpoint() {

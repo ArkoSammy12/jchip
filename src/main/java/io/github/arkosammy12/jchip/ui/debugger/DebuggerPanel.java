@@ -172,15 +172,17 @@ public class DebuggerPanel extends JPanel {
         mainSplit.setOneTouchExpandable(true);
 
         this.add(mainSplit, new CC().grow().push().width("500"));
-    }
 
-    public void onStopped() {
-        SwingUtilities.invokeLater(() -> {
-            this.clear();
-            this.textArea.setText("");
-            this.setDefaultBorders();
-            this.revalidate();
-            this.repaint();
+        jchip.addStateChangedListener((_, newState) -> {
+            if (newState.isStopped()) {
+                SwingUtilities.invokeLater(() -> {
+                    this.clear();
+                    this.textArea.setText("");
+                    this.setDefaultBorders();
+                    this.revalidate();
+                    this.repaint();
+                });
+            }
         });
     }
 

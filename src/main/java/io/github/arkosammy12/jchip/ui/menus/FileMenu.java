@@ -89,7 +89,7 @@ public class FileMenu extends JMenu {
             this.rebuildOpenRecentMenu();
         });
 
-        this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | No file selected");
+        this.mainWindow.setTitleSection(1, "No file selected");
 
         this.openRecentMenu.add(this.clearRecentButton);
         this.add(openItem);
@@ -116,7 +116,7 @@ public class FileMenu extends JMenu {
     private void loadFile(Path filePath) {
         this.romPath.set(filePath);
         this.rawRom.set(EmulatorSettings.readRawRom(filePath));
-        this.mainWindow.setTitle(MainWindow.DEFAULT_TITLE + " | Selected File: " + filePath.getFileName());
+        this.mainWindow.setTitleSection(1, filePath.getFileName().toString());
     }
 
     private void addRecentFilePath(Path filePath) {

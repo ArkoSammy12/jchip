@@ -17,6 +17,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -24,12 +27,13 @@ public class Jchip {
 
     private MainWindow mainWindow;
     private Emulator currentEmulator;
+    private final List<StateChangedListener> stateChangedEventListeners = Collections.synchronizedList(new ArrayList<>());
     private final Chip8Database database = new Chip8Database();
     private final DefaultAudioRenderer audioRenderer = new DefaultAudioRenderer();
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
     private final int[] flagsStorage = new int[16];
 
-    private final AtomicReference<State> currentState = new AtomicReference<>(State.IDLE);
+    private final AtomicReference<State> currentState = new AtomicReference<>(State.STOPPED);
     private final AtomicBoolean running = new AtomicBoolean(true);
 
     Jchip(String[] args) {
@@ -98,6 +102,10 @@ public class Jchip {
         }
     }
 
+    public void addStateChangedListener(StateChangedListener l) {
+        this.stateChangedEventListeners.add(l);
+    }
+
     public MainWindow getMainWindow() {
         return this.mainWindow;
     }
@@ -122,14 +130,6 @@ public class Jchip {
         return this.flagsStorage[index];
     }
 
-    public void setPaused(boolean paused) {
-        if (paused) {
-            this.currentState.set(State.PAUSED);
-        } else {
-            this.currentState.set(State.RUNNING);
-        }
-    }
-
     public void start() throws Exception {
         while (this.running.get()) {
             try {
@@ -137,7 +137,7 @@ public class Jchip {
                     continue;
                 }
                 switch (this.currentState.get()) {
-                    case IDLE, PAUSED -> onIdle();
+                    case STOPPED, PAUSED, PAUSED_STOPPED -> onIdle();
                     case RESETTING_AND_RUNNING -> onResetting(false);
                     case RESETTING_AND_PAUSING -> onResetting(true);
                     case STOPPING -> onStopping();
@@ -156,19 +156,27 @@ public class Jchip {
     }
 
     public void reset(boolean startPaused) {
-        this.currentState.set(startPaused ? State.RESETTING_AND_PAUSING : State.RESETTING_AND_RUNNING);
+        this.setNewState(startPaused ? State.RESETTING_AND_PAUSING : State.RESETTING_AND_RUNNING);
+    }
+
+    public void setPaused(boolean paused) {
+        if (paused) {
+            this.setNewState(this.currentEmulator == null ? State.PAUSED_STOPPED : State.PAUSED);
+        } else {
+            this.setNewState(this.currentEmulator == null ? State.STOPPED : State.RUNNING);
+        }
     }
 
     public void stop() {
-        this.currentState.set(State.STOPPING);
+        this.setNewState(State.STOPPING);
     }
 
     public void stepFrame() {
-        this.currentState.set(State.STEPPING_FRAME);
+        this.setNewState(State.STEPPING_FRAME);
     }
 
     public void stepCycle() {
-        this.currentState.set(State.STEPPING_CYCLE);
+        this.setNewState(State.STEPPING_CYCLE);
     }
 
     private void onIdle() {
@@ -182,8 +190,7 @@ public class Jchip {
             this.mainWindow.setEmulatorRenderer(null);
         }
         this.audioRenderer.setPaused(true);
-        this.mainWindow.onStopped();
-        this.currentState.set(State.IDLE);
+        this.setNewState(State.STOPPED);
     }
 
     private void onResetting(boolean startPaused) throws Exception {
@@ -193,7 +200,7 @@ public class Jchip {
         }
         this.audioRenderer.setPaused(true);
         this.currentEmulator = Variant.getEmulator(this);
-        this.currentState.set(startPaused ? State.PAUSED : State.RUNNING);
+        this.setNewState(startPaused ? State.PAUSED : State.RUNNING);
     }
 
     private void onRunning() {
@@ -210,7 +217,7 @@ public class Jchip {
         }
         this.audioRenderer.setPaused(true);
         this.currentEmulator.executeFrame();
-        this.currentState.set(State.PAUSED);
+        this.setNewState(State.PAUSED);
     }
 
     private void onSteppingCycle() {
@@ -219,7 +226,7 @@ public class Jchip {
         }
         this.audioRenderer.setPaused(true);
         this.currentEmulator.executeSingleCycle();
-        this.currentState.set(State.PAUSED);
+        this.setNewState(State.PAUSED);
     }
 
     public void onBreakpoint() {
@@ -233,10 +240,15 @@ public class Jchip {
         }
         if (this.mainWindow != null) {
             this.mainWindow.setEmulatorRenderer(null);
-            this.mainWindow.onStopped();
             this.mainWindow.close();
         }
         this.audioRenderer.close();
+    }
+
+    private void setNewState(State newState) {
+        State oldState = this.currentState.get();
+        this.currentState.set(newState);
+        this.stateChangedEventListeners.forEach(l -> l.onStateChanged(oldState, newState));
     }
 
     public enum State {
@@ -247,7 +259,20 @@ public class Jchip {
         PAUSED,
         STEPPING_FRAME,
         STEPPING_CYCLE,
-        IDLE
+        STOPPED,
+        PAUSED_STOPPED;
+
+        public boolean isStopped() {
+            return this == STOPPED || this == PAUSED_STOPPED;
+        }
+
+    }
+
+    @FunctionalInterface
+    public interface StateChangedListener {
+
+        void onStateChanged(State oldState, State newState);
+
     }
 
 }
