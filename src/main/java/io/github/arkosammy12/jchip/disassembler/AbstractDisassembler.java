@@ -229,8 +229,8 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         }
 
         // If the structure didn't change, or if we were trying to overwrite trace entries with range entries,
-        // check if the current entry is a range entry and that we were trying to add a range entry, in which case update its bytecode
-        if (isRangeAddress && entry.getType() == Entry.Type.RANGE) {
+        // check if the current entry isn't a trace entry and that we were trying to add a range entry, in which case just update its bytecode
+        if (isRangeAddress && entry.getType() != Entry.Type.TRACE) {
             entry.setBytecode(bytecode);
             return;
         }
