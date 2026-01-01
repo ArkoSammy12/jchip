@@ -38,11 +38,11 @@ public class InfoBar extends JPanel {
 
         jchip.addStateChangedListener((_, newState) -> {
             if (newState.isStopped()) {
-                lastWindowTitleUpdate = 0;
-                lastFrameTime = System.nanoTime();
-                framesSinceLastUpdate = 0;
-                totalIpfSinceLastUpdate = 0;
-                totalFrameTimeSinceLastUpdate = 0;
+                this.lastWindowTitleUpdate = 0;
+                this.lastFrameTime = System.nanoTime();
+                this.framesSinceLastUpdate = 0;
+                this.totalIpfSinceLastUpdate = 0;
+                this.totalFrameTimeSinceLastUpdate = 0;
                 SwingUtilities.invokeLater(() -> {
                     this.variantField.setText("");
 
@@ -71,9 +71,7 @@ public class InfoBar extends JPanel {
 
     private static JScrollPane createScrollPanel(JTextField field, String tooltip) {
         field.setToolTipText(tooltip);
-        return new JScrollPane(field,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        return new JScrollPane(field, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     }
 
     public void onFrame(Emulator emulator) {

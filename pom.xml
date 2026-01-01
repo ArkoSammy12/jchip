@@ -27,6 +27,11 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>enjarai-maven</id>
+            <name>Trans Fish Maven</name>
+            <url>https://maven.enjarai.dev/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -85,6 +90,16 @@
             <groupId>org.jctools</groupId>
             <artifactId>jctools-core</artifactId>
             <version>4.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>net.harawata</groupId>
+            <artifactId>appdirs</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.arkosammy12</groupId>
+            <artifactId>monkey-config</artifactId>
+            <version>1.0.5</version>
         </dependency>
     </dependencies>
 
