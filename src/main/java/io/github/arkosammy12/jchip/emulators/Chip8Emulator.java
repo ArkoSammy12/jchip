@@ -199,14 +199,14 @@ public class Chip8Emulator implements Emulator {
         if (this.instructionCounter % this.currentInstructionsPerFrame == 0) {
             this.getProcessor().decrementTimers();
         }
-        this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 10);
+        this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 30, true);
         this.getProcessor().cycle();
         if (this.getProcessor().shouldExit()) {
             this.terminate();
         }
         this.getDisplay().flush();
         this.instructionCounter++;
-        this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 10);
+        this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 30, false);
     }
 
     protected boolean waitVBlank(int flags) {

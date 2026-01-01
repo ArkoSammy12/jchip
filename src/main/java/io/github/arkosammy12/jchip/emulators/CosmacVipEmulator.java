@@ -218,7 +218,7 @@ public class CosmacVipEmulator implements Emulator {
         this.cycleIoDevices();
         this.processor.nextState();
         this.display.flush();
-        this.disassembler.disassembleRange(this.getActualCurrentInstructionAddress(), 10);
+        this.disassembler.disassembleRange(this.getActualCurrentInstructionAddress(), 30, true);
     }
 
     private int getActualCurrentInstructionAddress() {

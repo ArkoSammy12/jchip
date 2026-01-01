@@ -146,8 +146,7 @@ public class HybridChip8XBus extends CosmacVipBus {
 
     @Override
     public int getByte(int address) {
-        int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
-        if (actualAddress >= 0xC000 && this.emulator.getDisplay() instanceof VP590<?> vp590) {
+        if (address >= 0xC000 && this.emulator.getDisplay() instanceof VP590<?> vp590) {
             return vp590.readColorRam(address);
         } else {
             return super.getByte(address);

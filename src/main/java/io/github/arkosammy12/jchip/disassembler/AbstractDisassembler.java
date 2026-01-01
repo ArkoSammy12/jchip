@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jctools.queues.MpscArrayQueue;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -18,6 +19,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.IntSupplier;
 
 public abstract class AbstractDisassembler<E extends Emulator> implements Disassembler {
+
+    private static final int RANGE_ADDRESS_FLAG = 0x8000_0000;
 
     protected final E emulator;
     private final AtomicReference<IntSupplier> currentAddressSupplier = new AtomicReference<>(null);
@@ -98,6 +101,10 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         return this.enabled.get();
     }
 
+    public void setCurrentAddressSupplier(IntSupplier supplier) {
+        this.currentAddressSupplier.set(supplier);
+    }
+
     @Override
     public Optional<IntSupplier> getCurrentAddressSupplier() {
         return Optional.ofNullable(this.currentAddressSupplier.get());
@@ -154,19 +161,20 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         this.addressQueue.offer(address);
     }
 
-    public void disassembleRange(int address, int range) {
+    public void disassembleRange(int address, int range, boolean addressIsProgramCounter) {
         if (!this.isEnabled()) {
             return;
         }
         int currentAddress = address;
-        for (int i = 0; i < range; i++) {
-            this.addressQueue.offer(currentAddress);
-            currentAddress += this.getLengthForInstructionAt(currentAddress);
+        if (addressIsProgramCounter) {
+            this.addressQueue.offer(address);
+            currentAddress += this.getLengthForInstructionAt(address);
         }
-    }
-
-    public void setCurrentAddressSupplier(IntSupplier supplier) {
-        this.currentAddressSupplier.set(supplier);
+        for (int i = 0; i < range; i++) {
+            int length = this.getLengthForInstructionAt(currentAddress);
+            this.addressQueue.offer(currentAddress | RANGE_ADDRESS_FLAG);
+            currentAddress += length;
+        }
     }
 
     private void disassemblerLoop() {
@@ -179,7 +187,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
                     this.disassembleStatic();
                 }
             } else {
-                this.disassembleAt(address);
+                this.disassembleDynamic(address);
             }
         }
     }
@@ -191,27 +199,47 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
             return;
         }
         int length = this.getLengthForInstructionAt(this.currentStaticDisassemblerPointer);
-        for (int i = this.currentStaticDisassemblerPointer; i < this.currentStaticDisassemblerPointer + length; i++) {
-            if (this.entries.containsKey(i)) {
-                this.currentStaticDisassemblerPointer += length;
-                return;
-            }
+        if (!this.isAddressCovered(this.currentStaticDisassemblerPointer, length, null)) {
+            this.addEntry(new Entry(this.currentStaticDisassemblerPointer, length, this.getBytecodeForInstructionAt(this.currentStaticDisassemblerPointer), Entry.Type.STATIC));
         }
-        this.addEntry(new Entry(this.currentStaticDisassemblerPointer, length, this.getBytecodeForInstructionAt(this.currentStaticDisassemblerPointer)));
         this.currentStaticDisassemblerPointer += length;
     }
 
-    private void disassembleAt(int address) {
-        Entry entry = this.entries.get(address);
+    private void disassembleDynamic(int address) {
+        boolean isRangeAddress = (address & RANGE_ADDRESS_FLAG) != 0;
+        address = isRangeAddress ? address & ~RANGE_ADDRESS_FLAG : address;
         int length = this.getLengthForInstructionAt(address);
         int bytecode = this.getBytecodeForInstructionAt(address);
-        if (entry == null || entry.getLength() != length || entry.getAddress() != address) {
-            entry = new Entry(address, length, bytecode);
-            this.addEntry(entry);
+
+        // Add a new entry if one doesn't currently exist at address, unless we are adding
+        // a range entry, and it is currently covered by trace entries.
+        Entry entry = this.entries.get(address);
+        if (entry == null) {
+            if (!isRangeAddress || !this.isAddressCovered(address, length, Entry.Type.RANGE)) {
+                this.addEntry(new Entry(address, length, bytecode, isRangeAddress ? Entry.Type.RANGE : Entry.Type.TRACE));
+            }
+            return;
         }
+
+        // If the structure changed, overwrite the existing entry with a new entry, unless we are attempting to overwrite
+        // with a range entry and it is currently covered by trace entries.
+        if ((entry.getLength() != length || entry.getAddress() != address) && (!isRangeAddress || !this.isAddressCovered(address, length, Entry.Type.RANGE))) {
+            this.addEntry(new Entry(address, length, bytecode, isRangeAddress ? Entry.Type.RANGE : Entry.Type.TRACE));
+            return;
+        }
+
+        // If the structure didn't change, or if we were trying to overwrite trace entries with range entries,
+        // check if the current entry is a range entry and that we were trying to add a range entry, in which case update its bytecode
+        if (isRangeAddress && entry.getType() == Entry.Type.RANGE) {
+            entry.setBytecode(bytecode);
+            return;
+        }
+
+        // Otherwise, refresh the current entry and mark it as a trace
         entry.setAddress(address);
         entry.setLength(length);
         entry.setBytecode(bytecode);
+        entry.setType(Entry.Type.TRACE);
     }
 
     protected abstract int getLengthForInstructionAt(int address);
@@ -233,23 +261,22 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         }
     }
 
-    private void removeOverlappingEntries(int start, int length) {
-        int end = start + length;
+    private void removeOverlappingEntries(int beginAddress, int length) {
+        int endAddress = beginAddress + length;
 
-        Map.Entry<Integer, Entry> lower = entries.floorEntry(start);
+        Map.Entry<Integer, Entry> lower = entries.floorEntry(beginAddress);
         if (lower != null) {
-            Entry e = lower.getValue();
-            int eEnd = e.getAddress() + e.getLength();
-            if (eEnd > start) {
-                this.removeEntry(e);
+            Entry lowerEntry = lower.getValue();
+            int lowerAddressEnd = lowerEntry.getAddress() + lowerEntry.getLength();
+            if (lowerAddressEnd > beginAddress) {
+                this.removeEntry(lowerEntry);
             }
         }
 
-        Map.Entry<Integer, Entry> curr = entries.ceilingEntry(start);
-        while (curr != null && curr.getKey() < end) {
-            Entry e = curr.getValue();
-            curr = entries.higherEntry(curr.getKey());
-            this.removeEntry(e);
+        Map.Entry<Integer, Entry> higher = entries.ceilingEntry(beginAddress);
+        while (higher != null && higher.getKey() < endAddress) {
+            this.removeEntry(higher.getValue());
+            higher = this.entries.higherEntry(higher.getKey());
         }
     }
 
@@ -261,11 +288,10 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         this.addressOrdinalList.removeIf(e -> e >= start && e < end);
     }
 
-
     private void addOrdinalAddress(int address) {
-        int idx = Collections.binarySearch(addressOrdinalList, address);
+        int idx = Collections.binarySearch(this.addressOrdinalList, address);
         if (idx < 0) {
-            addressOrdinalList.add(-idx - 1, address);
+            this.addressOrdinalList.add(-idx - 1, address);
         }
     }
 
@@ -287,17 +313,39 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isAddressCovered(int address, int length, @Nullable Entry.Type allowOverWriteUpTo) {
+        for (int i = address; i < address + length; i++) {
+            Map.Entry<Integer, Entry> entry = this.entries.floorEntry(i);
+            if (entry == null) {
+                continue;
+            }
+            Entry overlappingEntry = entry.getValue();
+            int overlappingEnd = entry.getKey() + overlappingEntry.getLength();
+            if (overlappingEnd <= i) {
+                continue;
+            }
+            if (allowOverWriteUpTo != null && allowOverWriteUpTo.canOverwrite(overlappingEntry.getType())) {
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
     protected static class Entry implements Disassembler.Entry {
 
+        private volatile Type type;
         private volatile int instructionAddress;
         private volatile int length;
         private volatile int bytecode;
         private volatile String text;
 
-        public Entry(int address, int length, int bytecode) {
+        public Entry(int address, int length, int bytecode, @NotNull Type type) {
             this.instructionAddress = address;
             this.length = length;
             this.bytecode = bytecode;
+            this.type = type;
         }
 
         private void setAddress(int address) {
@@ -343,6 +391,31 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         @Override
         public String getText() {
             return text;
+        }
+
+        private void setType(@NotNull Type type) {
+            this.type = type;
+        }
+
+        @NotNull
+        private Type getType() {
+            return this.type;
+        }
+
+        private enum Type {
+            STATIC(0),
+            RANGE(1),
+            TRACE(2);
+
+            private final int strength;
+
+            Type(int strength) {
+                this.strength = strength;
+            }
+
+            boolean canOverwrite(Type other) {
+                return this.strength >= other.strength;
+            }
         }
 
     }

@@ -198,11 +198,10 @@ public class CosmacVipBus implements Bus {
 
     @Override
     public int getByte(int address) {
-        int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
-        if (actualAddress >= 0x8000) {
-            return MONITOR_ROM[actualAddress & 0x1FF];
+        if (address >= 0x8000) {
+            return MONITOR_ROM[address & 0x1FF];
         } else {
-            return this.bytes[actualAddress & 0xFFF];
+            return this.bytes[address & 0xFFF];
         }
     }
 
