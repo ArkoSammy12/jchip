@@ -177,20 +177,35 @@ public class Chip8Emulator implements Emulator {
             this.waitFrames--;
             return;
         }
-        for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-            this.disassembler.disassemble(this.getProcessor().getProgramCounter());
-            if (this.disassembler.checkBreakpoint(this.getProcessor().getProgramCounter())) {
-                this.jchip.onBreakpoint();
-                break;
+        if (this.disassembler.isEnabled()) {
+            for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
+                this.disassembler.disassemble(this.getProcessor().getProgramCounter());
+                if (this.disassembler.checkBreakpoint(this.getProcessor().getProgramCounter())) {
+                    this.jchip.onBreakpoint();
+                    break;
+                }
+                int flags = this.getProcessor().cycle();
+                this.instructionCounter++;
+                if (this.waitVBlank(flags)) {
+                    break;
+                }
+                if (this.getProcessor().shouldExit()) {
+                    this.terminate();
+                    break;
+                }
             }
-            if (this.waitVBlank(this.getProcessor().cycle())) {
-                break;
+        } else {
+            for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
+                int flags = this.getProcessor().cycle();
+                this.instructionCounter++;
+                if (this.waitVBlank(flags)) {
+                    break;
+                }
+                if (this.getProcessor().shouldExit()) {
+                    this.terminate();
+                    break;
+                }
             }
-            if (this.getProcessor().shouldExit()) {
-                this.terminate();
-                break;
-            }
-            this.instructionCounter++;
         }
     }
 

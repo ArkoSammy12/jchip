@@ -190,22 +190,35 @@ public class CosmacVipEmulator implements Emulator {
 
     @Override
     public void executeFrame() {
-        for (int i = 0; i < CYCLES_PER_FRAME; i++) {
+        if (this.disassembler.isEnabled()) {
+            for (int i = 0; i < CYCLES_PER_FRAME; i++) {
+                CDP1802.State currentState = this.processor.getCurrentState();
+                this.processor.cycle();
+                this.cycleIoDevices();
+                this.processor.nextState();
 
-            CDP1802.State currentState = this.processor.getCurrentState();
-            this.processor.cycle();
-            this.cycleIoDevices();
-            this.processor.nextState();
+                CDP1802.State nextState = this.processor.getCurrentState();
+                if (currentState.isS1Execute() && !nextState.isS1Execute()) {
+                    this.currentInstructionsPerFrame++;
+                }
 
-            CDP1802.State nextState = this.processor.getCurrentState();
-            if (currentState.isS1Execute() && !nextState.isS1Execute()) {
-                this.currentInstructionsPerFrame++;
+                this.disassembler.disassemble(this.getActualCurrentInstructionAddress());
+                if (currentState == CDP1802.State.S0_FETCH && this.disassembler.checkBreakpoint(this.getActualCurrentInstructionAddress())) {
+                    this.jchip.onBreakpoint();
+                    break;
+                }
             }
+        } else {
+            for (int i = 0; i < CYCLES_PER_FRAME; i++) {
+                CDP1802.State currentState = this.processor.getCurrentState();
+                this.processor.cycle();
+                this.cycleIoDevices();
+                this.processor.nextState();
 
-            this.disassembler.disassemble(this.getActualCurrentInstructionAddress());
-            if (currentState == CDP1802.State.S0_FETCH && this.disassembler.checkBreakpoint(this.getActualCurrentInstructionAddress())) {
-                this.jchip.onBreakpoint();
-                break;
+                CDP1802.State nextState = this.processor.getCurrentState();
+                if (currentState.isS1Execute() && !nextState.isS1Execute()) {
+                    this.currentInstructionsPerFrame++;
+                }
             }
         }
         this.display.flush();
