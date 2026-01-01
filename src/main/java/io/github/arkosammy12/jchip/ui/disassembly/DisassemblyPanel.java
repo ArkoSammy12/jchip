@@ -74,6 +74,9 @@ public class DisassemblyPanel extends JPanel {
 
         });
 
+        JButton clearBreakpointsButton = new JButton("Clear Breakpoints");
+        clearBreakpointsButton.addActionListener(_ -> this.disassemblerTable.clearBreakpoints());
+
         this.followCheckbox = new JCheckBox("Follow");
         this.followCheckbox.setFocusable(false);
         this.followCheckbox.addActionListener(_ -> goToAddressField.setEnabled(!this.followCheckbox.isSelected()));
@@ -82,7 +85,8 @@ public class DisassemblyPanel extends JPanel {
 
         this.add(this.followCheckbox, new CC().growX().pushX().alignX(AlignX.CENTER));
         this.add(goToAddressLabel, new CC().split(2).alignX(AlignX.CENTER));
-        this.add(goToAddressField, new CC().growX().pushX().alignX(AlignX.CENTER).wrap());
+        this.add(goToAddressField, new CC().growX().pushX().alignX(AlignX.CENTER));
+        this.add(clearBreakpointsButton, new CC().growX().pushX().alignX(AlignX.CENTER).wrap());
         this.add(disassemblerScrollPane, new CC().grow().push().spanX());
 
         jchip.addStateChangedListener((_, newState) -> {

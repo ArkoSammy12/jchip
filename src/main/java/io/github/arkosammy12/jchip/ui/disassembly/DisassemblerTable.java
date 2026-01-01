@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.ui.disassembly;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.MainWindow;
-import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -207,6 +206,10 @@ public class DisassemblerTable extends JTable {
             return;
         }
         this.model.disassembler.getCurrentAddressSupplier().ifPresent(supplier -> this.scrollToAddress(supplier.getAsInt()));
+    }
+
+    public void clearBreakpoints() {
+        this.model.clearBreakpoints();
     }
 
     private void setCellRenderers() {
