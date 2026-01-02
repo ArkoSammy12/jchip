@@ -116,6 +116,10 @@ public class Jchip {
         this.frameListeners.add(l);
     }
 
+    public State getState() {
+        return this.currentState.get();
+    }
+
     public MainWindow getMainWindow() {
         return this.mainWindow;
     }

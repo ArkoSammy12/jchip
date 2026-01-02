@@ -2,6 +2,9 @@ package io.github.arkosammy12.jchip.ui.util;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerLabel;
 import io.github.arkosammy12.jchip.ui.debugger.MemoryTable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -65,6 +68,10 @@ public class DebuggerLabelTable extends JTable {
             baseColor = baseColor.darker();
         }
         c.setBackground(baseColor);
+        DebuggerLabel<?> label = getLabelAt(row, column);
+        if (label != null) {
+            c.setForeground(label.stateHasChanged() ? Color.YELLOW : UIManager.getColor("Table.foreground"));
+        }
         return c;
     }
 
@@ -104,6 +111,20 @@ public class DebuggerLabelTable extends JTable {
         }
     }
 
+    @Nullable
+    private DebuggerLabel<?> getLabelAt(int row, int column) {
+        int naturalRows = this.model.getNaturalRowCount();
+        int totalLabels = labels.size();
+        if (row >= naturalRows) {
+            return null;
+        }
+        int index = columnMayor ? column * naturalRows + row : row * columnCount + column;
+        if (index < 0 || index >= totalLabels) {
+            return null;
+        }
+        return labels.get(index);
+    }
+
     private class Model extends DefaultTableModel {
 
         private int getNaturalRowCount() {
@@ -133,18 +154,11 @@ public class DebuggerLabelTable extends JTable {
 
         @Override
         public Object getValueAt(int row, int col) {
-            int naturalRows = getNaturalRowCount();
-            int totalLabels = labels.size();
-
-            if (row >= naturalRows) {
+            DebuggerLabel<?> label = getLabelAt(row, col);
+            if (label == null) {
                 return "";
             }
-            int index = columnMayor ? col * naturalRows + row : row * columnCount + col;
-
-            if (index < 0 || index >= totalLabels) {
-                return "";
-            }
-            return labels.get(index).getText();
+            return label.getText();
         }
 
     }
