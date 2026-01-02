@@ -204,9 +204,7 @@ public class DebuggerPanel extends JPanel {
             if (!Objects.equals(debuggerSchema, this.debuggerSchema)) {
                 this.initializeDebuggerPanel(debuggerSchema);
             }
-            if (this.jchip.getState() != Jchip.State.RUNNING) {
-                return;
-            }
+            // TODO: Properly prevent change detections while the rom is not running
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < textPanelLabels.size(); i++) {
                 DebuggerLabel<?> label = textPanelLabels.get(i);
