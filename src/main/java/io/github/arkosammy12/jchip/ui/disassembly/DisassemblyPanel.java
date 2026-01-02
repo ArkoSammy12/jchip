@@ -6,6 +6,7 @@ import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -95,19 +96,24 @@ public class DisassemblyPanel extends JPanel {
             }
         });
 
+        jchip.addFrameListener(emulator -> {
+            if (emulator != null) {
+                this.onFrame(emulator);
+            }
+        });
+
     }
 
-    public void onFrame(Emulator emulator) {
+    private void onFrame(@NotNull Emulator emulator) {
         SwingUtilities.invokeLater(() -> {
             this.disassemblerTable.update(emulator);
+            if (!this.isShowing()) {
+                return;
+            }
             if (this.followCheckbox.isSelected()) {
                 this.disassemblerTable.scrollToCurrentAddress();
             }
         });
-    }
-
-    public void setDisassemblerEnabled(boolean enabled) {
-        this.disassemblerTable.setDisassemblerEnabled(enabled);
     }
 
 }

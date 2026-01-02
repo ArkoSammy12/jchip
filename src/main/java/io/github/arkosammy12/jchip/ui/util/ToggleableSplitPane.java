@@ -3,7 +3,6 @@ package io.github.arkosammy12.jchip.ui.util;
 import javax.swing.*;
 import java.awt.*;
 
-import static java.awt.ComponentOrientation.getOrientation;
 import static javax.swing.JSplitPane.VERTICAL_SPLIT;
 
 public class ToggleableSplitPane extends JPanel {
@@ -14,6 +13,7 @@ public class ToggleableSplitPane extends JPanel {
     private final CardLayout layout = new CardLayout();
     private final JSplitPane splitPane;
     private final Component left;
+    private final Component right;
     private double currentProportionalDividerLocation;
     private boolean firstTimeShown = false;
 
@@ -22,6 +22,7 @@ public class ToggleableSplitPane extends JPanel {
         this.setFocusable(false);
 
         this.left = left;
+        this.right = right;
 
         this.splitPane = new JSplitPane(orientation, null, right);
         this.splitPane.setDividerSize(dividerSize);
@@ -29,13 +30,28 @@ public class ToggleableSplitPane extends JPanel {
         this.splitPane.setContinuousLayout(true);
         this.splitPane.setFocusable(false);
 
+        this.left.setVisible(true);
+        this.right.setVisible(false);
+
         this.add(this.splitPane, SPLIT);
         this.add(this.left, SINGLE);
 
         this.layout.show(this.left.getParent(), SINGLE);
     }
 
-    public void showSplit() {
+    public void toggleShowSplit(boolean enabled) {
+        if (enabled) {
+            if (!this.isSplitVisible()) {
+                this.showSplit();
+            }
+        } else {
+            if (this.isSplitVisible()) {
+                this.hideRightPanel();
+            }
+        }
+    }
+
+    private void showSplit() {
         this.splitPane.setLeftComponent(this.left);
         this.left.setVisible(true);
         this.layout.show(this, SPLIT);
@@ -45,15 +61,17 @@ public class ToggleableSplitPane extends JPanel {
         } else {
             this.splitPane.setDividerLocation(this.currentProportionalDividerLocation);
         }
+        this.right.setVisible(true);
     }
 
-    public void hideRightPanel() {
+    private void hideRightPanel() {
         this.currentProportionalDividerLocation = this.getProportionalDividerLocation();
         this.add(this.left, SINGLE);
         this.layout.show(this, SINGLE);
+        this.right.setVisible(false);
     }
 
-    public boolean isSplitVisible() {
+    private boolean isSplitVisible() {
         return this.splitPane.isShowing();
     }
 

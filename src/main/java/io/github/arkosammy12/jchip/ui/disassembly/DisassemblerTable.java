@@ -173,12 +173,6 @@ public class DisassemblerTable extends JTable {
         this.model.clear();
     }
 
-    void setDisassemblerEnabled(boolean enabled) {
-        if (this.model.disassembler != null) {
-            this.model.disassembler.setEnabled(enabled);
-        }
-    }
-
     public boolean isAddressVisible(int address) {
         return this.model.disassembler != null && this.model.disassembler.getOrdinalForAddress(address) >= 0;
     }
@@ -301,16 +295,24 @@ public class DisassemblerTable extends JTable {
             };
         }
 
+        private void setDisassemblerEnabled(boolean enabled) {
+            if (this.disassembler != null) {
+                this.disassembler.setEnabled(enabled);
+            }
+        }
+
         private void update(Emulator emulator) {
             Disassembler disassembler = emulator.getDisassembler();
             if (!Objects.equals(disassembler, this.disassembler)) {
                 this.disassembler = disassembler;
                 this.clearBreakpoints();
             }
+            this.setDisassemblerEnabled(isShowing());
             if (this.disassembler != null && this.disassembler.isEnabled()) {
-                int size = disassembler.getSize();
+                this.disassembler.setEnabled(true);
+                int size = this.disassembler.getSize();
                 if (size != this.rowCount) {
-                    this.rowCount = disassembler.getSize();
+                    this.rowCount = this.disassembler.getSize();
                     this.fireTableDataChanged();
                 } else {
                     MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);

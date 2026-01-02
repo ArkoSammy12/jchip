@@ -6,6 +6,7 @@ import net.miginfocom.layout.AC;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.Objects;
@@ -58,6 +59,12 @@ public class InfoBar extends JPanel {
             }
         });
 
+        jchip.addFrameListener(emulator -> {
+            if (emulator != null) {
+                this.onFrame(emulator);
+            }
+        });
+
     }
 
     private static JTextField createField() {
@@ -74,7 +81,7 @@ public class InfoBar extends JPanel {
         return new JScrollPane(field, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     }
 
-    public void onFrame(Emulator emulator) {
+    private void onFrame(@NotNull Emulator emulator) {
         String romTitle = emulator.getEmulatorSettings().getRomTitle().orElse("N/A");
         String variantName = emulator.getVariant().getDisplayName();
 

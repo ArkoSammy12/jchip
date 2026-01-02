@@ -23,32 +23,70 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     private static final int RANGE_ADDRESS_FLAG = 0x8000_0000;
 
     protected final E emulator;
-    private final AtomicReference<IntSupplier> currentAddressSupplier = new AtomicReference<>(null);
-
-    private final ConcurrentSkipListMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
-    private final IntArrayList addressOrdinalList = new IntArrayList();
-
-    private final MpscArrayQueue<Integer> addressQueue = new MpscArrayQueue<>(10000);
     private final AtomicBoolean enabled = new AtomicBoolean(false);
     private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicReference<IntSupplier> currentAddressSupplier = new AtomicReference<>(null);
 
     private final Thread disassemblerThread;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = this.readWriteLock.readLock();
     private final Lock writeLock = this.readWriteLock.writeLock();
 
-    private int currentStaticDisassemblerPointer = 0;
-    private boolean staticDisassemblyFinished = false;
+    private final MpscArrayQueue<Integer> addressQueue = new MpscArrayQueue<>(10000);
+    private final ConcurrentSkipListMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
+    private final IntArrayList addressOrdinalList = new IntArrayList();
 
     private final Set<Integer> breakpoints = ConcurrentHashMap.newKeySet();
     private final Collection<Integer> immutableBreakpointsView = Collections.unmodifiableSet(this.breakpoints);
     private final AtomicInteger lastSeenPC = new AtomicInteger(-1);
+
+    private int currentStaticDisassemblerPointer = 0;
+    private boolean staticDisassemblyFinished = false;
 
     public AbstractDisassembler(E emulator) {
         this.emulator = emulator;
         this.disassemblerThread = new Thread(this::disassemblerLoop, "jchip-disassembler-thread");
         this.disassemblerThread.setDaemon(true);
         this.disassemblerThread.start();
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled.set(enabled);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled.get();
+    }
+
+    @Override
+    public int getSize() {
+        this.readLock.lock();
+        try {
+            return this.addressOrdinalList.size();
+        } finally {
+            this.readLock.unlock();
+        }
+    }
+
+    public void setCurrentAddressSupplier(IntSupplier supplier) {
+        this.currentAddressSupplier.set(supplier);
+    }
+
+    @Override
+    public Optional<IntSupplier> getCurrentAddressSupplier() {
+        return Optional.ofNullable(this.currentAddressSupplier.get());
+    }
+
+    @Override
+    public int getOrdinalForAddress(int address) {
+        this.readLock.lock();
+        try {
+            return this.addressOrdinalList.indexOf(address);
+        } finally {
+            this.readLock.unlock();
+        }
     }
 
     @Override
@@ -69,59 +107,6 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         } finally {
             this.readLock.unlock();
         }
-    }
-
-    @Override
-    public int getSize() {
-        this.readLock.lock();
-        try {
-            return this.addressOrdinalList.size();
-        } finally {
-            this.readLock.unlock();
-        }
-    }
-
-    @Override
-    public int getOrdinalForAddress(int address) {
-        this.readLock.lock();
-        try {
-            return this.addressOrdinalList.indexOf(address);
-        } finally {
-            this.readLock.unlock();
-        }
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        this.enabled.set(enabled);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.enabled.get();
-    }
-
-    public void setCurrentAddressSupplier(IntSupplier supplier) {
-        this.currentAddressSupplier.set(supplier);
-    }
-
-    @Override
-    public Optional<IntSupplier> getCurrentAddressSupplier() {
-        return Optional.ofNullable(this.currentAddressSupplier.get());
-    }
-
-    @Override
-    public void close() throws IOException {
-        this.running.set(false);
-        this.disassemblerThread.interrupt();
-        try {
-            this.disassemblerThread.join();
-        } catch (InterruptedException _) {}
-    }
-
-    @Override
-    public Collection<Integer> getCurrentBreakpoints() {
-        return this.immutableBreakpointsView;
     }
 
     @Override
@@ -154,6 +139,20 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         this.breakpoints.clear();
     }
 
+    @Override
+    public Collection<Integer> getCurrentBreakpoints() {
+        return this.immutableBreakpointsView;
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.running.set(false);
+        this.disassemblerThread.interrupt();
+        try {
+            this.disassemblerThread.join();
+        } catch (InterruptedException _) {}
+    }
+
     public void disassemble(int address) {
         if (!this.isEnabled()) {
             return;
@@ -176,6 +175,12 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
             currentAddress += length;
         }
     }
+
+    protected abstract int getLengthForInstructionAt(int address);
+
+    protected abstract int getBytecodeForInstructionAt(int address);
+
+    protected abstract String getTextForInstructionAt(int address);
 
     private void disassemblerLoop() {
         while (this.running.get()) {
@@ -241,12 +246,6 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         entry.setBytecode(bytecode);
         entry.setType(Entry.Type.TRACE);
     }
-
-    protected abstract int getLengthForInstructionAt(int address);
-
-    protected abstract int getBytecodeForInstructionAt(int address);
-
-    protected abstract String getTextForInstructionAt(int address);
 
     private void addEntry(Entry entry) {
         this.writeLock.lock();

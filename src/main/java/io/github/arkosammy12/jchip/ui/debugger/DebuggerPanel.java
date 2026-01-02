@@ -7,6 +7,7 @@ import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -184,15 +185,23 @@ public class DebuggerPanel extends JPanel {
                 });
             }
         });
+
+        jchip.addFrameListener(emulator -> {
+            if (emulator != null) {
+                this.onFrame(emulator);
+            }
+        });
     }
 
-    public void onFrame(Emulator emulator) {
+    private void onFrame(@NotNull Emulator emulator) {
         DebuggerSchema debuggerSchema = emulator.getDebuggerSchema();
         SwingUtilities.invokeLater(() -> {
+            if (!this.isShowing()) {
+                return;
+            }
             if (!Objects.equals(debuggerSchema, this.debuggerSchema)) {
                 this.initializeDebuggerPanel(debuggerSchema);
             }
-
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < textPanelLabels.size(); i++) {
                 DebuggerLabel<?> label = textPanelLabels.get(i);

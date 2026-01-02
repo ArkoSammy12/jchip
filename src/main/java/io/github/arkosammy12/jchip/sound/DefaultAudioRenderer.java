@@ -1,5 +1,7 @@
 package io.github.arkosammy12.jchip.sound;
 
+import io.github.arkosammy12.jchip.Jchip;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
@@ -22,7 +24,7 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
     private boolean paused = true;
     private boolean muted = false;
 
-    public DefaultAudioRenderer() {
+    public DefaultAudioRenderer(Jchip jchip) {
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
             audioLine = AudioSystem.getSourceDataLine(format);
@@ -33,6 +35,7 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
                 control.setValue(20.0f * (float) Math.log10(50 / 100.0));
             }
             this.volumeControl = control;
+            jchip.addFrameListener(_ -> this.onFrame());
         } catch (Exception e) {
             throw new RuntimeException("Failed to create Source Data Line for audio", e);
         }
@@ -87,7 +90,7 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
         }
     }
 
-    public void onFrame() {
+    private void onFrame() {
         byte[] samples = this.samples.poll();
         if (samples == null || this.muted) {
             samples = EMPTY_SAMPLES;

@@ -10,6 +10,7 @@ import io.github.arkosammy12.jchip.sound.AudioRenderer;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.FrameLimiter;
+import org.jetbrains.annotations.Nullable;
 import org.tinylog.Logger;
 import picocli.CommandLine;
 
@@ -28,11 +29,14 @@ public class Jchip {
 
     private MainWindow mainWindow;
     private Emulator currentEmulator;
-    private final List<StateChangedListener> stateChangedEventListeners = new CopyOnWriteArrayList<>();
-    private final Chip8Database database = new Chip8Database();
-    private final DefaultAudioRenderer audioRenderer = new DefaultAudioRenderer();
+
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
+    private final Chip8Database database = new Chip8Database();
+    private final DefaultAudioRenderer audioRenderer;
     private final int[] flagsStorage = new int[16];
+
+    private final List<StateChangedListener> stateChangedEventListeners = new CopyOnWriteArrayList<>();
+    private final List<FrameListener> frameListeners = new CopyOnWriteArrayList<>();
 
     private final Queue<State> queuedStates = new ConcurrentLinkedQueue<>();
     private final AtomicReference<State> currentState = new AtomicReference<>(State.STOPPED);
@@ -97,7 +101,7 @@ public class Jchip {
                 this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
                 this.currentEmulator = Variant.getEmulator(this);
             }
-
+            this.audioRenderer = new DefaultAudioRenderer(this);
             SwingUtilities.invokeLater(() -> this.mainWindow.setVisible(true));
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize Jchip", e);
@@ -106,6 +110,10 @@ public class Jchip {
 
     public void addStateChangedListener(StateChangedListener l) {
         this.stateChangedEventListeners.add(l);
+    }
+
+    public void addFrameListener(FrameListener l) {
+        this.frameListeners.add(l);
     }
 
     public MainWindow getMainWindow() {
@@ -144,8 +152,7 @@ public class Jchip {
                     case STEPPING_FRAME -> onSteppingFrame();
                     case STEPPING_CYCLE -> onSteppingCycle();
                 }
-                this.mainWindow.onFrame(this.currentEmulator);
-                this.audioRenderer.onFrame();
+                this.notifyFrameListeners();
             } catch (EmulatorException e) {
                 Logger.error("Error while running emulator: {}", e);
                 this.mainWindow.showExceptionDialog(e);
@@ -253,8 +260,14 @@ public class Jchip {
         if (oldState == enqueuedState) {
             return;
         }
-        for (StateChangedListener l : stateChangedEventListeners) {
+        for (StateChangedListener l : this.stateChangedEventListeners) {
             l.onStateChanged(oldState, enqueuedState);
+        }
+    }
+
+    private void notifyFrameListeners() {
+        for (FrameListener l : this.frameListeners) {
+            l.onFrame(this.currentEmulator);
         }
     }
 
@@ -276,6 +289,12 @@ public class Jchip {
         public boolean isStopped() {
             return this == STOPPED || this == PAUSED_STOPPED;
         }
+
+    }
+
+    public interface FrameListener {
+
+        void onFrame(@Nullable Emulator emulator);
 
     }
 

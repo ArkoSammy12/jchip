@@ -7,22 +7,19 @@ import java.awt.event.KeyEvent;
 
 public class DebugMenu extends JMenu {
 
-    private final JRadioButtonMenuItem showDebuggerButton;
-    private final JRadioButtonMenuItem showDisassemblerButton;
-
     public DebugMenu(Jchip jchip) {
         super("Debug");
 
         this.setMnemonic(KeyEvent.VK_D);
 
-        this.showDebuggerButton = new JRadioButtonMenuItem("Show debugger");
-        this.showDebuggerButton.addActionListener(_ -> jchip.getMainWindow().setDebuggerViewEnabled(this.showDebuggerButton.isSelected()));
+        JRadioButtonMenuItem showDebuggerButton = new JRadioButtonMenuItem("Show debugger");
+        showDebuggerButton.addActionListener(_ -> jchip.getMainWindow().setDebuggerEnabled(showDebuggerButton.isSelected()));
 
-        this.showDisassemblerButton = new JRadioButtonMenuItem("Show disassembler");
-        this.showDisassemblerButton.addActionListener(_ -> jchip.getMainWindow().setDisassemblyViewEnabled(this.showDisassemblerButton.isSelected()));
+        JRadioButtonMenuItem showDisassemblerButton = new JRadioButtonMenuItem("Show disassembler");
+        showDisassemblerButton.addActionListener(_ -> jchip.getMainWindow().setDisassemblerEnabled(showDisassemblerButton.isSelected()));
 
-        this.add(this.showDebuggerButton);
-        this.add(this.showDisassemblerButton);
+        this.add(showDebuggerButton);
+        this.add(showDisassemblerButton);
     }
 
 }

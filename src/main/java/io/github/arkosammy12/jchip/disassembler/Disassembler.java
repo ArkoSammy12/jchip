@@ -9,17 +9,18 @@ import java.util.function.IntSupplier;
 
 public interface Disassembler extends Closeable {
 
-    int getSize();
-
-    int getOrdinalForAddress(int address);
-
-    Optional<IntSupplier> getCurrentAddressSupplier();
-
     void setEnabled(boolean enabled);
 
     boolean isEnabled();
 
-    Collection<Integer> getCurrentBreakpoints();
+    int getSize();
+
+    Optional<IntSupplier> getCurrentAddressSupplier();
+
+    int getOrdinalForAddress(int address);
+
+    @Nullable
+    Entry getEntry(int ordinal);
 
     void addBreakpoint(int address);
 
@@ -29,8 +30,7 @@ public interface Disassembler extends Closeable {
 
     void clearBreakpoints();
 
-    @Nullable
-    Entry getEntry(int ordinal);
+    Collection<Integer> getCurrentBreakpoints();
 
     interface Entry {
 

@@ -2,7 +2,6 @@ package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
 import io.github.arkosammy12.jchip.ui.util.WindowTitleManager;
@@ -11,13 +10,11 @@ import net.miginfocom.layout.AC;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.io.Closeable;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainWindow extends JFrame implements Closeable {
 
@@ -27,10 +24,8 @@ public class MainWindow extends JFrame implements Closeable {
     private final ToggleableSplitPane mainSplitPane;
     private final LeftPanel leftPanel;
     private final SettingsBar settingsBar;
-    private final DebuggerPanel debuggerPanel;
     private final InfoBar infoBar;
 
-    private final AtomicBoolean showingDebuggerPanel = new AtomicBoolean(false);
     private final CC infoBarConstraints;
 
     public MainWindow(Jchip jchip) {
@@ -47,8 +42,8 @@ public class MainWindow extends JFrame implements Closeable {
         this.leftPanel = new LeftPanel(jchip);
         this.settingsBar = new SettingsBar(jchip, this);
         this.infoBar = new InfoBar(jchip);
-        this.debuggerPanel = new DebuggerPanel(jchip);
-        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.leftPanel, this.debuggerPanel, 5, 0.5);
+        DebuggerPanel debuggerPanel = new DebuggerPanel(jchip);
+        this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.leftPanel, debuggerPanel, 5, 0.5);
 
         this.infoBarConstraints = new CC().grow().pushX().dockSouth().height("28!");
 
@@ -63,6 +58,13 @@ public class MainWindow extends JFrame implements Closeable {
         this.setPreferredSize(new Dimension((int) (screenSize.getWidth() / 1.5), (int) (screenSize.getHeight() / 1.5)));
         this.pack();
         this.setLocationRelativeTo(null);
+
+        jchip.addFrameListener(emulator -> {
+            if (emulator != null) {
+                emulator.getDisplay().getDisplayRenderer().requestFrame();
+            }
+        });
+
     }
 
     public SettingsBar getSettingsBar() {
@@ -77,21 +79,16 @@ public class MainWindow extends JFrame implements Closeable {
         this.leftPanel.setEmulatorRenderer(displayRenderer);
     }
 
-    public void setDebuggerViewEnabled(boolean enabled) {
-        this.showingDebuggerPanel.set(enabled);
+    public void setDebuggerEnabled(boolean enabled) {
         SwingUtilities.invokeLater(() -> {
-            if (this.mainSplitPane.isSplitVisible()) {
-                this.mainSplitPane.hideRightPanel();
-            } else {
-                this.mainSplitPane.showSplit();
-            }
+            this.mainSplitPane.toggleShowSplit(enabled);
             this.revalidate();
             this.repaint();
         });
     }
 
-    public void setDisassemblyViewEnabled(boolean enabled) {
-        this.leftPanel.setDisassemblyViewEnabled(enabled);
+    public void setDisassemblerEnabled(boolean enabled) {
+        this.leftPanel.setDisassemblerEnabled(enabled);
     }
 
     public void setInfoBarEnabled(boolean enabled) {
@@ -109,18 +106,6 @@ public class MainWindow extends JFrame implements Closeable {
                 "Emulation has stopped unexpectedly!",
                 JOptionPane.ERROR_MESSAGE
         ));
-    }
-
-    public void onFrame(@Nullable Emulator emulator) {
-        if (emulator == null) {
-            return;
-        }
-        if (this.showingDebuggerPanel.get()) {
-            this.debuggerPanel.onFrame(emulator);
-        }
-        this.leftPanel.onFrame(emulator);
-        this.infoBar.onFrame(emulator);
-        emulator.getDisplay().getDisplayRenderer().requestFrame();
     }
 
     public void onBreakpoint() {
