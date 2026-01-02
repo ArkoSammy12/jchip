@@ -5,10 +5,7 @@ import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -18,6 +15,9 @@ import java.util.function.IntSupplier;
 
 public class DisassemblerTable extends JTable {
 
+    private static final int ADDRESS_COLUMN_WIDTH = 115;
+    private static final int BYTECODE_COLUMN_WIDTH = 100;
+    private static final int TEXT_COLUMN_WIDTH = 200;
     private static final int ROW_HEIGHT = 20;
 
     private final Model model;
@@ -37,7 +37,7 @@ public class DisassemblerTable extends JTable {
         this.setRowSelectionAllowed(false);
         this.setColumnSelectionAllowed(false);
         this.setTableHeader(null);
-        this.setCellRenderers();
+        this.setupColumns();
         this.addMouseMotionListener(new MouseMotionAdapter() {
 
             @Override
@@ -212,7 +212,7 @@ public class DisassemblerTable extends JTable {
         this.model.clearBreakpoints();
     }
 
-    private void setCellRenderers() {
+    private void setupColumns() {
         DefaultTableCellRenderer addressColumnRenderer = new DefaultTableCellRenderer();
         addressColumnRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         addressColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
@@ -226,9 +226,21 @@ public class DisassemblerTable extends JTable {
         textColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
 
         TableColumnModel columnModel = this.getColumnModel();
-        columnModel.getColumn(0).setCellRenderer(addressColumnRenderer);
-        columnModel.getColumn(1).setCellRenderer(bytecodeColumnRenderer);
-        columnModel.getColumn(2).setCellRenderer(textColumnRenderer);
+
+        TableColumn addressColumn = columnModel.getColumn(0);
+        addressColumn.setMinWidth(ADDRESS_COLUMN_WIDTH);
+        addressColumn.setPreferredWidth(ADDRESS_COLUMN_WIDTH);
+        addressColumn.setCellRenderer(addressColumnRenderer);
+
+        TableColumn bytecodeColumn = columnModel.getColumn(1);
+        bytecodeColumn.setMinWidth(BYTECODE_COLUMN_WIDTH);
+        bytecodeColumn.setPreferredWidth(BYTECODE_COLUMN_WIDTH);
+        bytecodeColumn.setCellRenderer(bytecodeColumnRenderer);
+
+        TableColumn textColumn = columnModel.getColumn(2);
+        textColumn.setMinWidth(TEXT_COLUMN_WIDTH);
+        textColumn.setPreferredWidth(TEXT_COLUMN_WIDTH);
+        textColumn.setCellRenderer(textColumnRenderer);
     }
 
     private static Color blend(Color base, Color overlay, float alpha) {
@@ -289,7 +301,7 @@ public class DisassemblerTable extends JTable {
             };
         }
 
-        public void update(Emulator emulator) {
+        private void update(Emulator emulator) {
             Disassembler disassembler = emulator.getDisassembler();
             if (!Objects.equals(disassembler, this.disassembler)) {
                 this.disassembler = disassembler;
@@ -299,14 +311,14 @@ public class DisassemblerTable extends JTable {
                 int size = disassembler.getSize();
                 if (size != this.rowCount) {
                     this.rowCount = disassembler.getSize();
-                    this.fireTableStructureChanged();
-                    setCellRenderers();
+                    this.fireTableDataChanged();
+                } else {
+                    MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
                 }
-                MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
             }
         }
 
-        public void clear() {
+        private void clear() {
             this.clearBreakpoints();
             this.disassembler = null;
             this.rowCount = 0;
