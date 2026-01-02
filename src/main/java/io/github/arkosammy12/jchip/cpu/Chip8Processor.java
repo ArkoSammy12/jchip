@@ -23,6 +23,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
     public static final int BASE_SLICE_MASK_8 = 1 << 7;
 
     protected final E emulator;
+    private long instructionCounter;
     private final Random random = new Random();
     private final int memoryBoundsMask;
     protected boolean shouldExit;
@@ -39,6 +40,10 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
         this.emulator = emulator;
         this.programCounter = emulator.getBus().getProgramStart();
         this.memoryBoundsMask = emulator.getBus().getMemoryBoundsMask();
+    }
+
+    public long getInstructionCounter() {
+        return this.instructionCounter;
     }
 
     protected void setProgramCounter(int programCounter) {
@@ -132,6 +137,7 @@ public class Chip8Processor<E extends Chip8Emulator> implements Processor {
         Chip8Bus memory = this.emulator.getBus();
         int programCounter = this.getProgramCounter();
         this.incrementProgramCounter();
+        this.instructionCounter++;
         return this.execute(memory.readByte(programCounter), memory.readByte(programCounter + 1));
     }
 

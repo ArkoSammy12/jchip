@@ -191,42 +191,46 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public void executeFrame() {
         if (this.disassembler.isEnabled()) {
-            for (int i = 0; i < CYCLES_PER_FRAME; i++) {
-                CDP1802.State currentState = this.processor.getCurrentState();
-                this.processor.cycle();
-                this.cycleIoDevices();
-                this.processor.nextState();
-
-                CDP1802.State nextState = this.processor.getCurrentState();
-                if (currentState.isS1Execute() && !nextState.isS1Execute()) {
-                    this.currentInstructionsPerFrame++;
-                }
-
-                this.disassembler.disassemble(this.getActualCurrentInstructionAddress());
-                if (currentState == CDP1802.State.S0_FETCH && this.disassembler.checkBreakpoint(this.getActualCurrentInstructionAddress())) {
-                    this.jchip.onBreakpoint();
-                    break;
-                }
-            }
+            this.runCyclesDebug();
         } else {
-            for (int i = 0; i < CYCLES_PER_FRAME; i++) {
-                CDP1802.State currentState = this.processor.getCurrentState();
-                this.processor.cycle();
-                this.cycleIoDevices();
-                this.processor.nextState();
-
-                CDP1802.State nextState = this.processor.getCurrentState();
-                if (currentState.isS1Execute() && !nextState.isS1Execute()) {
-                    this.currentInstructionsPerFrame++;
-                }
-            }
+            this.runCycles();
         }
         this.display.flush();
         this.soundSystem.pushSamples(this.processor.getQ() ? 1 : 0);
     }
 
+    private void runCycles() {
+        for (int i = 0; i < CYCLES_PER_FRAME; i++) {
+            this.runCycle();
+        }
+    }
+
+    private void runCyclesDebug() {
+        for (int i = 0; i < CYCLES_PER_FRAME; i++) {
+            CDP1802.State currentState = this.processor.getCurrentState();
+            this.runCycle();
+            this.disassembler.disassemble(this.getActualCurrentInstructionAddress());
+            if (currentState == CDP1802.State.S0_FETCH && this.disassembler.checkBreakpoint(this.getActualCurrentInstructionAddress())) {
+                this.jchip.onBreakpoint();
+                break;
+            }
+        }
+    }
+
+    private void runCycle() {
+        CDP1802.State currentState = this.processor.getCurrentState();
+        this.processor.cycle();
+        this.cycleIoDevices();
+        this.processor.nextState();
+
+        CDP1802.State nextState = this.processor.getCurrentState();
+        if (currentState.isS1Execute() && !nextState.isS1Execute()) {
+            this.currentInstructionsPerFrame++;
+        }
+    }
+
     @Override
-    public void executeSingleCycle() {
+    public void executeCycle() {
         this.processor.cycle();
         this.cycleIoDevices();
         this.processor.nextState();

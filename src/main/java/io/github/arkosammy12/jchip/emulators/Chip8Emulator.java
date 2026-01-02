@@ -17,6 +17,7 @@ import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -29,7 +30,7 @@ public class Chip8Emulator implements Emulator {
 
     private static final int IPF_THROTTLE_THRESHOLD = 1000000;
 
-    private final Jchip jchip;
+    protected final Jchip jchip;
 
     @Nullable
     private final Chip8Processor<?> processor;
@@ -47,10 +48,9 @@ public class Chip8Emulator implements Emulator {
     private final Variant variant;
     private final Chip8EmulatorSettings emulatorSettings;
     private final DebuggerSchema debuggerSchema;
-    private final AbstractDisassembler<?> disassembler;
+    protected final AbstractDisassembler<?> disassembler;
     private final int targetInstructionsPerFrame;
 
-    private long instructionCounter;
     private int currentInstructionsPerFrame;
     private int waitFrames = 0;
 
@@ -158,7 +158,6 @@ public class Chip8Emulator implements Emulator {
 
     @Override
     public void executeFrame() throws InvalidInstructionException {
-        this.instructionCounter = 0;
         long startOfFrame = System.nanoTime();
         this.runInstructionLoop();
         this.getDisplay().flush();
@@ -171,47 +170,54 @@ public class Chip8Emulator implements Emulator {
         }
     }
 
-    protected void runInstructionLoop() throws InvalidInstructionException {
+    private void runInstructionLoop() throws InvalidInstructionException {
         this.getProcessor().decrementTimers();
         if (this.waitFrames > 0) {
             this.waitFrames--;
             return;
         }
         if (this.disassembler.isEnabled()) {
-            for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-                this.disassembler.disassemble(this.getProcessor().getProgramCounter());
-                if (this.disassembler.checkBreakpoint(this.getProcessor().getProgramCounter())) {
-                    this.jchip.onBreakpoint();
-                    break;
-                }
-                int flags = this.getProcessor().cycle();
-                this.instructionCounter++;
-                if (this.waitVBlank(flags)) {
-                    break;
-                }
-                if (this.getProcessor().shouldExit()) {
-                    this.terminate();
-                    break;
-                }
-            }
+            this.runInstructionsDebug();
         } else {
-            for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
-                int flags = this.getProcessor().cycle();
-                this.instructionCounter++;
-                if (this.waitVBlank(flags)) {
-                    break;
-                }
-                if (this.getProcessor().shouldExit()) {
-                    this.terminate();
-                    break;
-                }
+            this.runInstructions();
+        }
+    }
+
+    private void runInstructions() {
+        for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
+            if (this.runInstruction()) {
+                break;
             }
         }
     }
 
+    private void runInstructionsDebug() {
+        for (int i = 0; i < this.currentInstructionsPerFrame; i++) {
+            this.disassembler.disassemble(this.getProcessor().getProgramCounter());
+            if (this.disassembler.checkBreakpoint(this.getProcessor().getProgramCounter())) {
+                this.jchip.onBreakpoint();
+                break;
+            }
+            if (this.runInstruction()) {
+                break;
+            }
+        }
+    }
+
+    private boolean runInstruction() {
+        if (this.waitVBlank(this.getProcessor().cycle())) {
+            return true;
+        }
+        if (this.getProcessor().shouldExit()) {
+            this.terminate();
+            return true;
+        }
+        return false;
+    }
+
     @Override
-    public void executeSingleCycle() {
-        if (this.instructionCounter % this.currentInstructionsPerFrame == 0) {
+    public void executeCycle() {
+        if (this.getProcessor().getInstructionCounter() % this.currentInstructionsPerFrame == 0) {
             this.getProcessor().decrementTimers();
         }
         this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 30, true);
@@ -220,7 +226,6 @@ public class Chip8Emulator implements Emulator {
             this.terminate();
         }
         this.getDisplay().flush();
-        this.instructionCounter++;
         this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 30, false);
     }
 

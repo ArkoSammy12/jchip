@@ -32,8 +32,8 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     private final Lock readLock = this.readWriteLock.readLock();
     private final Lock writeLock = this.readWriteLock.writeLock();
 
-    private final MpscArrayQueue<Integer> addressQueue = new MpscArrayQueue<>(10000);
-    private final ConcurrentSkipListMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
+    private final Queue<Integer> addressQueue = new MpscArrayQueue<>(10000);
+    private final NavigableMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
     private final IntArrayList addressOrdinalList = new IntArrayList();
 
     private final Set<Integer> breakpoints = ConcurrentHashMap.newKeySet();

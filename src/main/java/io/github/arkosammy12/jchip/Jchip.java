@@ -235,7 +235,7 @@ public class Jchip {
             return;
         }
         this.audioRenderer.setPaused(true);
-        this.currentEmulator.executeSingleCycle();
+        this.currentEmulator.executeCycle();
         this.enqueueState(State.PAUSED);
     }
 
@@ -302,7 +302,6 @@ public class Jchip {
 
     }
 
-    @FunctionalInterface
     public interface StateChangedListener {
 
         void onStateChanged(State oldState, State newState);

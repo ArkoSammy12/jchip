@@ -80,17 +80,43 @@ public final class StrictChip8Emulator extends Chip8Emulator {
 
     @Override
     public void executeFrame() {
+        if (this.disassembler.isEnabled()) {
+            this.runCyclesDebug();
+        } else {
+            this.runCycles();
+        }
+    }
+
+    private void runCycles() {
         long nextFrame = this.nextFrame;
         while (this.machineCycles < nextFrame) {
-            this.executeSingleCycle();
+            this.runCycle();
+        }
+    }
+
+    private void runCyclesDebug() {
+        long nextFrame = this.nextFrame;
+        while (this.machineCycles < nextFrame) {
+            this.disassembler.disassemble(this.getProcessor().getProgramCounter());
+            if (this.disassembler.checkBreakpoint(this.getProcessor().getProgramCounter())) {
+                this.jchip.onBreakpoint();
+                break;
+            }
+            this.runCycle();
+        }
+    }
+
+    private void runCycle() {
+        if (!isSet(this.getProcessor().cycle(), WAITING)) {
+            this.cycleCounter++;
         }
     }
 
     @Override
-    public void executeSingleCycle() {
-        if (!isSet(this.getProcessor().cycle(), WAITING)) {
-            this.cycleCounter++;
-        }
+    public void executeCycle() {
+        this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 30, true);
+        this.runCycle();
+        this.disassembler.disassembleRange(this.getProcessor().getProgramCounter(), 30, false);
     }
 
     public void addCycles(long cycles) {

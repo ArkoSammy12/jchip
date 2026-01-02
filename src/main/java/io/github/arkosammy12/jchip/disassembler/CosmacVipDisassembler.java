@@ -85,9 +85,9 @@ public class CosmacVipDisassembler<E extends CosmacVipEmulator> extends Abstract
                 if (N == 0x0) {
                     yield "IRX";
                 } else if (N >= 0x1 && N <= 0x7) {
-                    yield "OUT " + Integer.toHexString(N).toUpperCase();
+                    yield "OUT " + Integer.toHexString(N & 7).toUpperCase();
                 } else if (N >= 0x9 && N <= 0xF) {
-                    yield "INP " + Integer.toHexString(N - 8).toUpperCase();
+                    yield "INP " + Integer.toHexString(N & 7).toUpperCase();
                 } else {
                     yield "invalid";
                 }

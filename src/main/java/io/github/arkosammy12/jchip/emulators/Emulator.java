@@ -36,7 +36,7 @@ public interface Emulator extends AutoCloseable {
 
     void executeFrame();
 
-    void executeSingleCycle();
+    void executeCycle();
 
     int getCurrentInstructionsPerFrame();
 
