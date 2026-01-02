@@ -26,7 +26,6 @@ public class DebuggerPanel extends JPanel {
     public static final String DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME = "General Purpose Registers";
     public static final String DEFAULT_STACK_SECTION_NAME = "Stack";
 
-    private final Jchip jchip;
     private DebuggerSchema debuggerSchema;
 
     private final List<DebuggerLabel<?>> textPanelLabels = new ArrayList<>();
@@ -51,7 +50,6 @@ public class DebuggerPanel extends JPanel {
     public DebuggerPanel(Jchip jchip) {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
-        this.jchip = jchip;
 
         this.setFocusable(false);
         this.setPreferredSize(new Dimension(500, this.getHeight()));

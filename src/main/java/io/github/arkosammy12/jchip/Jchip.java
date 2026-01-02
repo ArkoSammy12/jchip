@@ -104,7 +104,7 @@ public class Jchip {
             this.audioRenderer = new DefaultAudioRenderer(this);
             SwingUtilities.invokeLater(() -> this.mainWindow.setVisible(true));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize Jchip", e);
+            throw new RuntimeException("Failed to initialize jchip", e);
         }
     }
 
