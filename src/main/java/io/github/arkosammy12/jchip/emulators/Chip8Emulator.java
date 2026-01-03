@@ -288,7 +288,7 @@ public class Chip8Emulator implements Emulator {
 
         debuggerSchema.<Integer>createCpuRegisterEntry()
                 .withName("DT")
-                .withStateUpdater(this.getProcessor()::getSoundTimer)
+                .withStateUpdater(this.getProcessor()::getDelayTimer)
                 .withToStringFunction(byteFormatter);
 
         debuggerSchema.<Integer>createCpuRegisterEntry()
