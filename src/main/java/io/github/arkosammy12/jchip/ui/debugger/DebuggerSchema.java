@@ -121,17 +121,11 @@ public class DebuggerSchema {
     public static class TextEntry<T> {
 
         private String name = null;
-        private String description = null;
         private Supplier<T> stateUpdater;
         private Function<T, String> toStringFunction;
 
         public TextEntry<T> withName(String name) {
             this.name = name;
-            return this;
-        }
-
-        public TextEntry<T> withDescription(String description) {
-            this.description = description;
             return this;
         }
 
@@ -147,10 +141,6 @@ public class DebuggerSchema {
 
         public Optional<String> getName() {
             return Optional.ofNullable(this.name);
-        }
-
-        public Optional<String> getDescription() {
-            return Optional.ofNullable(this.description);
         }
 
         public Optional<Supplier<T>> getStateUpdater() {

@@ -1,8 +1,10 @@
 package io.github.arkosammy12.jchip.ui.disassembly;
 
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.MainWindow;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -24,7 +26,7 @@ public class DisassemblerTable extends JTable {
     private int hoveredRow = -1;
     private int hoveredColumn = -1;
 
-    public DisassemblerTable() {
+    public DisassemblerTable(Jchip jchip) {
         super();
         this.model = new Model();
         this.setModel(this.model);
@@ -77,6 +79,23 @@ public class DisassemblerTable extends JTable {
 
         });
 
+        jchip.addFrameListener(emulator -> {
+            if (emulator != null) {
+                this.onFrame(emulator);
+            }
+        });
+
+        jchip.addStateChangedListener((_, newState) -> {
+            if (newState.isStopped()) {
+                this.onStopped();
+            }
+        });
+
+    }
+
+    @Override
+    public boolean getScrollableTracksViewportWidth() {
+        return this.getPreferredSize().getWidth() <= this.getParent().getWidth();
     }
 
     @Override
@@ -148,64 +167,6 @@ public class DisassemblerTable extends JTable {
         }
     }
 
-    private boolean isCurrentInstructionRow(int row) {
-        if (this.model.disassembler == null) {
-            return false;
-        }
-        Optional<IntSupplier> currentInstructionSupplier = this.model.disassembler.getCurrentAddressSupplier();
-        if (currentInstructionSupplier.isEmpty()) {
-            return false;
-        }
-        int ordinal = this.model.disassembler.getOrdinalForAddress(currentInstructionSupplier.get().getAsInt());
-        return ordinal >= 0 && ordinal == row;
-    }
-
-    @Override
-    public boolean getScrollableTracksViewportWidth() {
-        return this.getPreferredSize().getWidth() <= this.getParent().getWidth();
-    }
-
-    public void update(Emulator emulator) {
-        this.model.update(emulator);
-    }
-
-    public void clear() {
-        this.model.clear();
-    }
-
-    public boolean isAddressVisible(int address) {
-        return this.model.disassembler != null && this.model.disassembler.getOrdinalForAddress(address) >= 0;
-    }
-
-    public void scrollToAddress(int address) {
-        if (this.model.disassembler == null) {
-            return;
-        }
-        if (!this.model.disassembler.isEnabled()) {
-            return;
-        }
-        int ordinal = this.model.disassembler.getOrdinalForAddress(address);
-        if (ordinal < 0) {
-            return;
-        }
-        int targetY = ordinal * this.getRowHeight();
-        ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
-    }
-
-    public void scrollToCurrentAddress() {
-        if (this.model.disassembler == null) {
-            return;
-        }
-        if (!this.model.disassembler.isEnabled()) {
-            return;
-        }
-        this.model.disassembler.getCurrentAddressSupplier().ifPresent(supplier -> this.scrollToAddress(supplier.getAsInt()));
-    }
-
-    public void clearBreakpoints() {
-        this.model.clearBreakpoints();
-    }
-
     private void setupColumns() {
         DefaultTableCellRenderer addressColumnRenderer = new DefaultTableCellRenderer();
         addressColumnRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -235,6 +196,59 @@ public class DisassemblerTable extends JTable {
         textColumn.setMinWidth(TEXT_COLUMN_WIDTH);
         textColumn.setPreferredWidth(TEXT_COLUMN_WIDTH);
         textColumn.setCellRenderer(textColumnRenderer);
+    }
+
+    private boolean isCurrentInstructionRow(int row) {
+        if (this.model.disassembler == null) {
+            return false;
+        }
+        Optional<IntSupplier> currentInstructionSupplier = this.model.disassembler.getCurrentAddressSupplier();
+        if (currentInstructionSupplier.isEmpty()) {
+            return false;
+        }
+        int ordinal = this.model.disassembler.getOrdinalForAddress(currentInstructionSupplier.get().getAsInt());
+        return ordinal >= 0 && ordinal == row;
+    }
+
+    public boolean isAddressVisible(int address) {
+        return this.model.disassembler != null && this.model.disassembler.getOrdinalForAddress(address) >= 0;
+    }
+
+    public void scrollToCurrentAddress() {
+        if (this.model.disassembler == null) {
+            return;
+        }
+        if (!this.model.disassembler.isEnabled()) {
+            return;
+        }
+        this.model.disassembler.getCurrentAddressSupplier().ifPresent(supplier -> this.scrollToAddress(supplier.getAsInt()));
+    }
+
+    public void clearBreakpoints() {
+        this.model.clearBreakpoints();
+    }
+
+    public void scrollToAddress(int address) {
+        if (this.model.disassembler == null) {
+            return;
+        }
+        if (!this.model.disassembler.isEnabled()) {
+            return;
+        }
+        int ordinal = this.model.disassembler.getOrdinalForAddress(address);
+        if (ordinal < 0) {
+            return;
+        }
+        int targetY = ordinal * this.getRowHeight();
+        ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
+    }
+
+    private void onFrame(@NotNull Emulator emulator) {
+        this.model.update(emulator);
+    }
+
+    private void onStopped() {
+        this.model.clear();
     }
 
     private static Color blend(Color base, Color overlay, float alpha) {
@@ -303,28 +317,31 @@ public class DisassemblerTable extends JTable {
 
         private void update(Emulator emulator) {
             Disassembler disassembler = emulator.getDisassembler();
-            if (!Objects.equals(disassembler, this.disassembler)) {
-                this.disassembler = disassembler;
-                this.clearBreakpoints();
-            }
-            this.setDisassemblerEnabled(isShowing());
-            if (this.disassembler != null && this.disassembler.isEnabled()) {
-                this.disassembler.setEnabled(true);
-                int size = this.disassembler.getSize();
-                if (size != this.rowCount) {
-                    this.rowCount = this.disassembler.getSize();
-                    this.fireTableDataChanged();
-                } else {
-                    MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
+            SwingUtilities.invokeLater(() -> {
+                if (!Objects.equals(disassembler, this.disassembler)) {
+                    this.disassembler = disassembler;
+                    this.clearBreakpoints();
                 }
-            }
+                this.setDisassemblerEnabled(isShowing());
+                if (this.disassembler != null && this.disassembler.isEnabled()) {
+                    int size = this.disassembler.getSize();
+                    if (size != this.rowCount) {
+                        this.rowCount = this.disassembler.getSize();
+                        this.fireTableDataChanged();
+                    } else {
+                        MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
+                    }
+                }
+            });
         }
 
         private void clear() {
-            this.clearBreakpoints();
-            this.disassembler = null;
-            this.rowCount = 0;
-            this.fireTableDataChanged();
+            SwingUtilities.invokeLater(() -> {
+                this.rowCount = 0;
+                this.clearBreakpoints();
+                this.disassembler = null;
+                this.fireTableDataChanged();
+            });
         }
 
         private void addBreakpoint(int row) {

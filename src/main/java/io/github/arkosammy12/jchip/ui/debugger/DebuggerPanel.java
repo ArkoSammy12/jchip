@@ -8,6 +8,7 @@ import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -26,6 +27,7 @@ public class DebuggerPanel extends JPanel {
     public static final String DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME = "General Purpose Registers";
     public static final String DEFAULT_STACK_SECTION_NAME = "Stack";
 
+    @Nullable
     private DebuggerSchema debuggerSchema;
 
     private final List<DebuggerLabel<?>> textPanelLabels = new ArrayList<>();
@@ -174,21 +176,15 @@ public class DebuggerPanel extends JPanel {
 
         this.add(mainSplit, new CC().grow().push().width("500"));
 
-        jchip.addStateChangedListener((_, newState) -> {
-            if (newState.isStopped()) {
-                SwingUtilities.invokeLater(() -> {
-                    this.clear();
-                    this.textArea.setText("");
-                    this.setDefaultBorders();
-                    this.revalidate();
-                    this.repaint();
-                });
-            }
-        });
-
         jchip.addFrameListener(emulator -> {
             if (emulator != null) {
                 this.onFrame(emulator);
+            }
+        });
+
+        jchip.addStateChangedListener((_, newState) -> {
+            if (newState.isStopped()) {
+                this.onStopped();
             }
         });
     }
@@ -200,9 +196,10 @@ public class DebuggerPanel extends JPanel {
                 return;
             }
             if (!Objects.equals(debuggerSchema, this.debuggerSchema)) {
-                this.initializeDebuggerPanel(debuggerSchema);
+                this.debuggerSchema = debuggerSchema;
+                this.initializeDebuggerPanel();
             }
-            // TODO: Properly prevent change detections while the rom is not running
+
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < textPanelLabels.size(); i++) {
                 DebuggerLabel<?> label = textPanelLabels.get(i);
@@ -223,16 +220,29 @@ public class DebuggerPanel extends JPanel {
             this.stackTable.update();
 
             this.memoryTable.update(emulator);
-            if (this.memoryFollowCheckBox.isSelected()) {
+            if (this.memoryFollowCheckBox.isSelected() && this.debuggerSchema != null) {
                 this.debuggerSchema.getScrollAddressSupplier().ifPresent(supplier -> this.memoryTable.scrollToAddress(supplier.get()));
             }
-
         });
     }
 
-    private void initializeDebuggerPanel(DebuggerSchema debuggerSchema) {
+    private void onStopped() {
+        SwingUtilities.invokeLater(() -> {
+            this.debuggerSchema = null;
+            this.clear();
+            this.textArea.setText("");
+            this.setDefaultBorders();
+            this.revalidate();
+            this.repaint();
+        });
+    }
+
+    private void initializeDebuggerPanel() {
         this.clear();
-        this.debuggerSchema = debuggerSchema;
+
+        if (this.debuggerSchema == null) {
+            return;
+        }
 
         this.textPanelLabels.addAll(this.debuggerSchema.getTextSectionLabels());
         this.cpuRegisterLabels.addAll(this.debuggerSchema.getCpuRegisterLabels());
@@ -277,8 +287,6 @@ public class DebuggerPanel extends JPanel {
     }
 
     private void clear() {
-        this.debuggerSchema = null;
-
         this.textPanelLabels.clear();
 
         this.cpuRegisterLabels.clear();

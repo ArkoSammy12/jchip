@@ -57,7 +57,6 @@ public class MemoryTable extends JTable {
 
         });
         this.buildTable();
-
     }
 
     public int getCurrentMaximumAddress() {

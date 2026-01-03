@@ -1,12 +1,10 @@
 package io.github.arkosammy12.jchip.ui.disassembly;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.emulators.Emulator;
 import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -23,7 +21,7 @@ public class DisassemblyPanel extends JPanel {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
 
-        this.disassemblerTable = new DisassemblerTable();
+        this.disassemblerTable = new DisassemblerTable(jchip);
 
         this.setFocusable(false);
         this.setPreferredSize(new Dimension(this.getWidth(), 100));
@@ -90,23 +88,12 @@ public class DisassemblyPanel extends JPanel {
         this.add(clearBreakpointsButton, new CC().growX().pushX().alignX(AlignX.CENTER).wrap());
         this.add(disassemblerScrollPane, new CC().grow().push().spanX());
 
-        jchip.addStateChangedListener((_, newState) -> {
-            if (newState.isStopped()) {
-                SwingUtilities.invokeLater(this.disassemblerTable::clear);
-            }
-        });
-
-        jchip.addFrameListener(emulator -> {
-            if (emulator != null) {
-                this.onFrame(emulator);
-            }
-        });
+        jchip.addFrameListener(_ -> this.onFrame());
 
     }
 
-    private void onFrame(@NotNull Emulator emulator) {
+    private void onFrame() {
         SwingUtilities.invokeLater(() -> {
-            this.disassemblerTable.update(emulator);
             if (!this.isShowing()) {
                 return;
             }
