@@ -12,15 +12,21 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DebuggerLabelTable extends JTable {
 
     private static final int COLUMN_WIDTH = 60;
     private static final int ROW_HEIGHT = 26;
 
+    private final AtomicBoolean updateHighlightsFlag = new AtomicBoolean(true);
+    private Color lastTextColor;
+
     private final Model model;
     private final List<? extends DebuggerLabel<?>> labels;
+    private final List<Color> lastTextColors = new ArrayList<>();
     private final int columnCount;
     private final boolean columnMayor;
 
@@ -53,6 +59,7 @@ public class DebuggerLabelTable extends JTable {
             col.setPreferredWidth(COLUMN_WIDTH);
             col.setMinWidth(COLUMN_WIDTH);
         }
+        this.lastTextColor = UIManager.getColor("Table.foreground");
     }
 
     @Override
@@ -70,12 +77,17 @@ public class DebuggerLabelTable extends JTable {
         c.setBackground(baseColor);
         DebuggerLabel<?> label = getLabelAt(row, column);
         if (label != null) {
-            c.setForeground(label.stateHasChanged() ? Color.YELLOW : UIManager.getColor("Table.foreground"));
+            c.setForeground(label.getForegroundColor());
         }
         return c;
     }
 
-    public void update() {
+    public void update(boolean updateChangedHighlightings) {
+        if (updateChangedHighlightings) {
+            for (DebuggerLabel<?> label : this.labels) {
+                label.updateForegroundColor();
+            }
+        }
         this.updateColumnWidthIfNecessary();
         MainWindow.fireVisibleRowsUpdated(this);
     }

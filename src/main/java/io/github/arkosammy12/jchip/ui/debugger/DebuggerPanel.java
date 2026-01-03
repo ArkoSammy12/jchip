@@ -191,6 +191,8 @@ public class DebuggerPanel extends JPanel {
 
     private void onFrame(@NotNull Emulator emulator) {
         DebuggerSchema debuggerSchema = emulator.getDebuggerSchema();
+        Jchip.State state = emulator.getEmulatorSettings().getJchip().getState();
+        boolean updateChangeHighlights = state == Jchip.State.RUNNING || state == Jchip.State.STEPPING_CYCLE || state == Jchip.State.STEPPING_FRAME;
         SwingUtilities.invokeLater(() -> {
             if (!this.isShowing()) {
                 return;
@@ -215,9 +217,9 @@ public class DebuggerPanel extends JPanel {
             this.generalPurposeRegisterLabels.forEach(DebuggerLabel::update);
             this.stackLabels.forEach(DebuggerLabel::update);
 
-            this.cpuRegistersTable.update();
-            this.generalPurposeRegistersTable.update();
-            this.stackTable.update();
+            this.cpuRegistersTable.update(updateChangeHighlights);
+            this.generalPurposeRegistersTable.update(updateChangeHighlights);
+            this.stackTable.update(updateChangeHighlights);
 
             this.memoryTable.update(emulator);
             if (this.memoryFollowCheckBox.isSelected() && this.debuggerSchema != null) {
@@ -293,9 +295,9 @@ public class DebuggerPanel extends JPanel {
         this.generalPurposeRegisterLabels.clear();
         this.stackLabels.clear();
 
-        this.cpuRegistersTable.update();
-        this.generalPurposeRegistersTable.update();
-        this.stackTable.update();
+        this.cpuRegistersTable.update(true);
+        this.generalPurposeRegistersTable.update(true);
+        this.stackTable.update(true);
 
         this.memoryTable.clear();
     }

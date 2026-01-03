@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,13 +13,14 @@ public class DebuggerLabel<T> extends JLabel {
     private final DebuggerSchema.TextEntry<T> textEntry;
     private final AtomicReference<T> state = new AtomicReference<>(null);
     private final AtomicBoolean stateChanged = new AtomicBoolean(false);
+    private final AtomicReference<Color> lastForegroundColor = new AtomicReference<>(UIManager.getColor("Table.foreground"));
 
     public DebuggerLabel(DebuggerSchema.TextEntry<T> textEntry) {
         super(textEntry.getName().orElse(""));
         this.textEntry = textEntry;
     }
 
-    public boolean stateHasChanged() {
+    private boolean stateHasChanged() {
         return this.stateChanged.get();
     }
 
@@ -49,6 +51,15 @@ public class DebuggerLabel<T> extends JLabel {
         if (!text.equals(this.getText())) {
             this.setText(text);
         }
+    }
+
+
+    public Color getForegroundColor() {
+        return this.lastForegroundColor.get();
+    }
+
+    public void updateForegroundColor() {
+        this.lastForegroundColor.set(this.stateHasChanged() ? Color.YELLOW : UIManager.getColor("Table.foreground"));
     }
 
 }
