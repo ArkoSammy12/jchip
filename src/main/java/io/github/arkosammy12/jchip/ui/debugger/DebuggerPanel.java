@@ -221,7 +221,7 @@ public class DebuggerPanel extends JPanel {
             this.generalPurposeRegistersTable.update(updateChangeHighlights);
             this.stackTable.update(updateChangeHighlights);
 
-            this.memoryTable.update(emulator);
+            this.memoryTable.update(emulator, updateChangeHighlights);
             if (this.memoryFollowCheckBox.isSelected() && this.debuggerSchema != null) {
                 this.debuggerSchema.getScrollAddressSupplier().ifPresent(supplier -> this.memoryTable.scrollToAddress(supplier.get()));
             }

@@ -23,6 +23,7 @@ public class DisassemblerTable extends JTable {
     private static final int ROW_HEIGHT = 20;
 
     private final Model model;
+    private int currentAddress = -1;
     private int hoveredRow = -1;
     private int hoveredColumn = -1;
 
@@ -202,11 +203,7 @@ public class DisassemblerTable extends JTable {
         if (this.model.disassembler == null) {
             return false;
         }
-        Optional<IntSupplier> currentInstructionSupplier = this.model.disassembler.getCurrentAddressSupplier();
-        if (currentInstructionSupplier.isEmpty()) {
-            return false;
-        }
-        int ordinal = this.model.disassembler.getOrdinalForAddress(currentInstructionSupplier.get().getAsInt());
+        int ordinal = this.model.disassembler.getOrdinalForAddress(currentAddress);
         return ordinal >= 0 && ordinal == row;
     }
 
@@ -221,7 +218,7 @@ public class DisassemblerTable extends JTable {
         if (!this.model.disassembler.isEnabled()) {
             return;
         }
-        this.model.disassembler.getCurrentAddressSupplier().ifPresent(supplier -> this.scrollToAddress(supplier.getAsInt()));
+        this.scrollToAddress(currentAddress);
     }
 
     public void clearBreakpoints() {
@@ -325,6 +322,7 @@ public class DisassemblerTable extends JTable {
                 this.setDisassemblerEnabled(isShowing());
                 if (this.disassembler != null && this.disassembler.isEnabled()) {
                     int size = this.disassembler.getSize();
+                    this.disassembler.getCurrentAddressSupplier().ifPresent(addr -> currentAddress = addr.getAsInt());
                     if (size != this.rowCount) {
                         this.rowCount = this.disassembler.getSize();
                         this.fireTableDataChanged();
@@ -337,6 +335,7 @@ public class DisassemblerTable extends JTable {
 
         private void clear() {
             SwingUtilities.invokeLater(() -> {
+                currentAddress = -1;
                 this.rowCount = 0;
                 this.clearBreakpoints();
                 this.disassembler = null;

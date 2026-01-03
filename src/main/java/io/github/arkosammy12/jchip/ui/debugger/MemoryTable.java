@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.ui.debugger;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 import io.github.arkosammy12.jchip.ui.MainWindow;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -16,6 +17,9 @@ import java.util.Objects;
 
 public class MemoryTable extends JTable {
 
+    private static final int HIGHLIGHT_FLAG = 0x8000_0000;
+    private static final int CHANGED_FLAG = 0x4000_0000;
+
     private static final int MAX_SHOWN_BYTES = 0xFFFFFF + 1;
 
     private static final int MEMORY_COLUMN_WIDTH = 26;
@@ -23,6 +27,8 @@ public class MemoryTable extends JTable {
     private static final int ROW_HEIGHT = 15;
 
     private final Model model;
+
+    private int @Nullable [] bytes;
 
     public MemoryTable() {
         super();
@@ -81,7 +87,17 @@ public class MemoryTable extends JTable {
         this.repaint();
     }
 
-    public void update(Emulator emulator) {
+    public void update(Emulator emulator, boolean updateChangeHighlights) {
+        if (updateChangeHighlights && this.bytes != null) {
+            for (int i = 0; i < this.bytes.length; i++) {
+                int val = this.bytes[i];
+                if ((val & CHANGED_FLAG) != 0) {
+                    this.bytes[i] |= HIGHLIGHT_FLAG;
+                } else {
+                    this.bytes[i] &= ~HIGHLIGHT_FLAG;
+                }
+            }
+        }
         this.model.update(emulator);
     }
 
@@ -103,6 +119,15 @@ public class MemoryTable extends JTable {
             baseColor = baseColor.darker();
         }
         c.setBackground(baseColor);
+        if (column == 0) {
+            c.setForeground(UIManager.getColor("Table.foreground"));
+            return c;
+        }
+
+        int idx = row * this.model.bytesPerRow + (column - 1);
+        if (this.bytes != null && idx >= 0 && idx < this.bytes.length) {
+            c.setForeground((this.bytes[idx] & HIGHLIGHT_FLAG) != 0 ? Color.YELLOW : UIManager.getColor("Table.foreground"));
+        }
         return c;
     }
 
@@ -160,7 +185,16 @@ public class MemoryTable extends JTable {
                 return String.format("%06X", row * this.bytesPerRow);
             } else if (this.memory != null) {
                 int idx = row * this.bytesPerRow + (col - 1);
-                return idx < this.memory.getMemorySize() ? String.format("%02X", this.memory.getByte(idx)) : "";
+                int currentByte = this.memory.getByte(idx);
+
+                if (bytes != null && idx >= 0 && idx < bytes.length) {
+                    int previousVal = bytes[idx];
+                    int previousByte = previousVal & 0xFF;
+                    int highlightFlag = previousVal & HIGHLIGHT_FLAG;
+                    bytes[idx] = previousByte != currentByte ? currentByte | CHANGED_FLAG | highlightFlag : currentByte | highlightFlag;
+                }
+
+                return idx < this.memory.getMemorySize() ? String.format("%02X", currentByte) : "";
             } else {
                 return "00";
             }
@@ -170,9 +204,10 @@ public class MemoryTable extends JTable {
             Bus memory = emulator.getBus();
             if (!Objects.equals(memory, this.memory)) {
                 this.memory = memory;
+                bytes = new int[memory.getMemorySize()];
                 this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) this.bytesPerRow);
             }
-            MainWindow.fireVisibleRowsUpdated(MemoryTable.this);
+            this.fireTableDataChanged();
         }
 
         public void clear() {
