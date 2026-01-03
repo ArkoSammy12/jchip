@@ -4,6 +4,7 @@ import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.jetbrains.annotations.Nullable;
+import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -89,12 +90,20 @@ public class MemoryTable extends JTable {
 
     public void update(Emulator emulator, boolean updateChangeHighlights) {
         if (updateChangeHighlights && this.bytes != null) {
-            for (int i = 0; i < this.bytes.length; i++) {
-                int val = this.bytes[i];
-                if ((val & CHANGED_FLAG) != 0) {
-                    this.bytes[i] |= HIGHLIGHT_FLAG;
+            JViewport vp = (JViewport) getParent();
+            Rectangle view = vp.getViewRect();
+
+            int firstRow = view.y / getRowHeight();
+            int lastRow  = (view.y + view.height) / getRowHeight();
+
+            int startIdx = firstRow * model.bytesPerRow;
+            int endIdx = Math.min((lastRow + 1) * model.bytesPerRow, bytes.length);
+
+            for (int i = startIdx; i < endIdx; i++) {
+                if ((bytes[i] & CHANGED_FLAG) != 0) {
+                    bytes[i] |= HIGHLIGHT_FLAG;
                 } else {
-                    this.bytes[i] &= ~HIGHLIGHT_FLAG;
+                    bytes[i] &= ~HIGHLIGHT_FLAG;
                 }
             }
         }
@@ -102,6 +111,7 @@ public class MemoryTable extends JTable {
     }
 
     public void clear() {
+        this.bytes = null;
         this.model.clear();
         this.scrollToAddress(0);
     }
@@ -207,7 +217,7 @@ public class MemoryTable extends JTable {
                 bytes = new int[memory.getMemorySize()];
                 this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) this.bytesPerRow);
             }
-            this.fireTableDataChanged();
+            MainWindow.fireVisibleRowsUpdated(MemoryTable.this);
         }
 
         public void clear() {
