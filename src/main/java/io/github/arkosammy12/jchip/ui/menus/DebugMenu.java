@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
-import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 
 import javax.swing.*;
@@ -8,7 +7,7 @@ import java.awt.event.KeyEvent;
 
 public class DebugMenu extends JMenu {
 
-    public DebugMenu(Jchip jchip, MainWindow mainWindow) {
+    public DebugMenu(MainWindow mainWindow) {
         super("Debug");
 
         this.setMnemonic(KeyEvent.VK_D);

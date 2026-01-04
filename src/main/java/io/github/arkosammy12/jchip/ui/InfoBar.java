@@ -37,7 +37,7 @@ public class InfoBar extends JPanel {
         this.add(createScrollPanel(frameTimeField, "The current frame time value average, in milliseconds."), new CC().grow().push());
         this.add(createScrollPanel(fpsField, "The current frames per second value average."), new CC().grow().push());
 
-        jchip.addStateChangedListener((_, newState) -> {
+        jchip.addStateChangedListener((_, _, newState) -> {
             if (newState.isStopped()) {
                 this.lastWindowTitleUpdate = 0;
                 this.lastFrameTime = System.nanoTime();
@@ -58,13 +58,11 @@ public class InfoBar extends JPanel {
                 });
             }
         });
-
         jchip.addFrameListener(emulator -> {
             if (emulator != null) {
                 this.onFrame(emulator);
             }
         });
-
     }
 
     private static JTextField createField() {

@@ -56,7 +56,6 @@ public class DebuggerPanel extends JPanel {
 
         this.setFocusable(false);
         this.setPreferredSize(new Dimension(500, this.getHeight()));
-
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                 "Debugger",
@@ -150,7 +149,6 @@ public class DebuggerPanel extends JPanel {
                 );
             }
         });
-
         goToAddressField.addFocusListener(new FocusAdapter() {
 
             @Override
@@ -182,8 +180,7 @@ public class DebuggerPanel extends JPanel {
                 this.onFrame(emulator);
             }
         });
-
-        jchip.addStateChangedListener((_, newState) -> {
+        jchip.addStateChangedListener((_, _, newState) -> {
             if (newState.isStopped()) {
                 this.onStopped();
             }
@@ -193,7 +190,7 @@ public class DebuggerPanel extends JPanel {
     private void onFrame(@NotNull Emulator emulator) {
         DebuggerSchema debuggerSchema = emulator.getDebuggerSchema();
         Jchip.State state = emulator.getEmulatorSettings().getJchip().getState();
-        boolean updateChangeHighlights = state == Jchip.State.RUNNING || state == Jchip.State.STEPPING_CYCLE || state == Jchip.State.STEPPING_FRAME;
+        boolean updateChangeHighlights = state.isRunning() || state.isStepping();
         SwingUtilities.invokeLater(() -> {
             if (!this.isShowing()) {
                 return;
@@ -224,7 +221,7 @@ public class DebuggerPanel extends JPanel {
 
             this.memoryTable.update(emulator, updateChangeHighlights);
             if (this.memoryFollowCheckBox.isSelected() && this.debuggerSchema != null) {
-                this.debuggerSchema.getScrollAddressSupplier().ifPresent(supplier -> this.memoryTable.scrollToAddress(supplier.get()));
+                this.debuggerSchema.getMemoryPointerSupplier().ifPresent(addr -> this.memoryTable.scrollToAddress(addr.get()));
             }
         });
     }

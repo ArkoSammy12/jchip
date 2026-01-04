@@ -57,7 +57,6 @@ public class QuirksMenu extends JMenu {
         this.add(this.doClippingMenu);
         this.add(this.doShiftVXInPlaceMenu);
         this.add(this.doJumpWithVXMenu);
-
     }
 
     public boolean forceVariantQuirks() {

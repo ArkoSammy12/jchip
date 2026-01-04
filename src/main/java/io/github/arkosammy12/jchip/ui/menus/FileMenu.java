@@ -6,6 +6,7 @@ import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.tinylog.Logger;
 
 import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
@@ -75,6 +76,7 @@ public class FileMenu extends JMenu {
                     addRecentFilePath(filePath);
                     return true;
                 } catch (Exception e) {
+                    Logger.error("Failed to accept drag-and-drop file! {}", e);
                     return false;
                 }
             }
@@ -82,6 +84,7 @@ public class FileMenu extends JMenu {
         });
 
         this.openRecentMenu = new JMenu("Open Recent");
+
         this.clearRecentButton = new JMenuItem("Clear all recents");
         this.clearRecentButton.setEnabled(false);
         this.clearRecentButton.addActionListener(_ -> {

@@ -142,11 +142,14 @@ public class MemoryTable extends JTable {
     }
 
     public void scrollToAddress(int address) {
+        if (!(this.getParent() instanceof JViewport viewport)) {
+            return;
+        }
         int targetY = (address / this.model.getBytesPerRow()) * this.getRowHeight();
         if (targetY < 0) {
             targetY = 0;
         }
-        ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
+        viewport.setViewPosition(new Point(viewport.getViewPosition().x, targetY));
     }
 
     private class Model extends DefaultTableModel {

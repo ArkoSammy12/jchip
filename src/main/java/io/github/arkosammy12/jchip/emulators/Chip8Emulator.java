@@ -63,7 +63,7 @@ public class Chip8Emulator implements Emulator {
             this.getBus().loadFont(emulatorSettings.getHexSpriteFont());
             this.debuggerSchema = this.createDebuggerSchema();
             this.disassembler = this.createDisassembler();
-            this.disassembler.setCurrentAddressSupplier(() -> this.getProcessor().getProgramCounter());
+            this.disassembler.setProgramCounterSupplier(() -> this.getProcessor().getProgramCounter());
         } catch (Exception e) {
             this.close();
             throw new EmulatorException(e);
@@ -253,7 +253,7 @@ public class Chip8Emulator implements Emulator {
 
     protected DebuggerSchema createDebuggerSchema() {
         DebuggerSchema debuggerSchema = new DebuggerSchema();
-        debuggerSchema.setScrollAddressSupplier(() -> this.getProcessor().getIndexRegister());
+        debuggerSchema.setMemoryPointerSupplier(() -> this.getProcessor().getIndexRegister());
 
         debuggerSchema.createTextEntry()
                 .withName("VF Reset: " + this.emulatorSettings.doVFReset() + ".");

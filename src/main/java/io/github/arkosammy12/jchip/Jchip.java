@@ -35,8 +35,9 @@ public class Jchip {
     private final DefaultAudioRenderer audioRenderer;
     private final int[] flagsStorage = new int[16];
 
-    private final List<StateChangedListener> stateChangedEventListeners = new CopyOnWriteArrayList<>();
+    private final List<StateChangedListener> stateChangedListeners = new CopyOnWriteArrayList<>();
     private final List<FrameListener> frameListeners = new CopyOnWriteArrayList<>();
+    private final List<OnShutdownListener> shutdownListeners = new CopyOnWriteArrayList<>();
 
     private final Queue<State> queuedStates = new ConcurrentLinkedQueue<>();
     private final AtomicReference<State> currentState = new AtomicReference<>(State.STOPPED);
@@ -109,11 +110,15 @@ public class Jchip {
     }
 
     public void addStateChangedListener(StateChangedListener l) {
-        this.stateChangedEventListeners.add(l);
+        this.stateChangedListeners.add(l);
     }
 
     public void addFrameListener(FrameListener l) {
         this.frameListeners.add(l);
+    }
+
+    public void addShutdownListener(OnShutdownListener l) {
+        this.shutdownListeners.add(l);
     }
 
     public State getState() {
@@ -146,7 +151,7 @@ public class Jchip {
                 if (!this.pacer.isFrameReady(true)) {
                     continue;
                 }
-                this.updateState();
+                State oldState = this.updateState();
                 switch (this.currentState.get()) {
                     case STOPPED, PAUSED, PAUSED_STOPPED -> onIdle();
                     case RESETTING_AND_RUNNING -> onResetting(false);
@@ -156,9 +161,10 @@ public class Jchip {
                     case STEPPING_FRAME -> onSteppingFrame();
                     case STEPPING_CYCLE -> onSteppingCycle();
                 }
+                this.notifyStateChangedListeners(oldState, this.getState());
                 this.notifyFrameListeners();
             } catch (EmulatorException e) {
-                Logger.error("Error while running emulator: {}", e);
+                Logger.error("Exception while running emulator: {}", e);
                 this.mainWindow.showExceptionDialog(e);
                 this.stop();
             }
@@ -197,7 +203,6 @@ public class Jchip {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
             this.currentEmulator = null;
-            this.mainWindow.setEmulatorRenderer(null);
         }
         this.audioRenderer.setPaused(true);
         this.enqueueState(State.STOPPED);
@@ -206,7 +211,6 @@ public class Jchip {
     private void onResetting(boolean resetAndPause) throws Exception {
         if (this.currentEmulator != null) {
             this.currentEmulator.close();
-            this.mainWindow.setEmulatorRenderer(null);
         }
         this.audioRenderer.setPaused(true);
         this.currentEmulator = Variant.getEmulator(this, this.mainWindow.getSettingsBar());
@@ -249,29 +253,38 @@ public class Jchip {
             this.currentEmulator = null;
         }
         if (this.mainWindow != null) {
-            this.mainWindow.setEmulatorRenderer(null);
             this.mainWindow.close();
         }
         this.audioRenderer.close();
+        this.notifyShutdownListeners();
     }
 
-    private void updateState() {
+    private State updateState() {
         State enqueuedState = queuedStates.poll();
         if (enqueuedState == null) {
+            return this.getState();
+        }
+        return currentState.getAndSet(enqueuedState);
+    }
+
+    private void notifyStateChangedListeners(State oldState, State newState) {
+        if (oldState == newState) {
             return;
         }
-        State oldState = currentState.getAndSet(enqueuedState);
-        if (oldState == enqueuedState) {
-            return;
-        }
-        for (StateChangedListener l : this.stateChangedEventListeners) {
-            l.onStateChanged(oldState, enqueuedState);
+        for (StateChangedListener l : this.stateChangedListeners) {
+            l.onStateChanged(this.currentEmulator, oldState, newState);
         }
     }
 
     private void notifyFrameListeners() {
         for (FrameListener l : this.frameListeners) {
             l.onFrame(this.currentEmulator);
+        }
+    }
+
+    private void notifyShutdownListeners() {
+        for (OnShutdownListener l : this.shutdownListeners) {
+            l.onShutdown();
         }
     }
 
@@ -290,8 +303,24 @@ public class Jchip {
         STOPPED,
         PAUSED_STOPPED;
 
+        public boolean isRunning() {
+            return this == RUNNING;
+        }
+
+        public boolean isStopping() {
+            return this == STOPPING;
+        }
+
         public boolean isStopped() {
             return this == STOPPED || this == PAUSED_STOPPED;
+        }
+
+        public boolean isResetting() {
+            return this == RESETTING_AND_RUNNING || this == RESETTING_AND_PAUSING;
+        }
+
+        public boolean isStepping() {
+            return this == STEPPING_CYCLE || this == STEPPING_FRAME;
         }
 
     }
@@ -304,7 +333,13 @@ public class Jchip {
 
     public interface StateChangedListener {
 
-        void onStateChanged(State oldState, State newState);
+        void onStateChanged(@Nullable Emulator emulator, State oldState, State newState);
+
+    }
+
+    public interface OnShutdownListener {
+
+        void onShutdown();
 
     }
 

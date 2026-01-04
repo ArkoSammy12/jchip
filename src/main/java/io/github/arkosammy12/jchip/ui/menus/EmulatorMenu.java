@@ -33,7 +33,6 @@ public class EmulatorMenu extends JMenu {
     private final EnumMenu<Variant> variantMenu;
     private final EnumMenu<BuiltInColorPalette> colorPaletteMenu;
     private final EnumMenu<DisplayAngle> displayAngleMenu;
-    private final JMenuItem instructionsPerFrameMenu;
 
     private final JTextField instructionsPerFrameField;
 
@@ -89,8 +88,8 @@ public class EmulatorMenu extends JMenu {
         this.displayAngleMenu = new EnumMenu<>("Display Angle", DisplayAngle.class, true);
         this.displayAngleMenu.setMnemonic(KeyEvent.VK_D);
 
-        this.instructionsPerFrameMenu = new JMenu("Instructions per frame");
-        this.instructionsPerFrameMenu.setMnemonic(KeyEvent.VK_I);
+        JMenuItem instructionsPerFrameMenu = new JMenu("Instructions per frame");
+        instructionsPerFrameMenu.setMnemonic(KeyEvent.VK_I);
 
         JLabel label = new JLabel("IPF: ");
         this.instructionsPerFrameField = new NumberOnlyTextField();
@@ -176,12 +175,12 @@ public class EmulatorMenu extends JMenu {
         this.add(colorPaletteMenu);
         this.add(displayAngleMenu);
 
-        this.instructionsPerFrameMenu.add(ipfPanel);
-        this.add(this.instructionsPerFrameMenu);
+        instructionsPerFrameMenu.add(ipfPanel);
+        this.add(instructionsPerFrameMenu);
 
         this.mainWindow.setTitleSection(2, "Stopped");
 
-        jchip.addStateChangedListener(((_, newState) -> {
+        jchip.addStateChangedListener(((_, _, newState) -> {
             SwingUtilities.invokeLater(() -> {
                 switch (newState) {
                     case RUNNING -> { // Loaded rom state

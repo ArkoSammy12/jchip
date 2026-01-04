@@ -26,7 +26,6 @@ public class DisassemblyPanel extends JPanel {
 
         this.setFocusable(false);
         this.setPreferredSize(new Dimension(this.getWidth(), 100));
-
         this.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2, true),
                 "Disassembler",
@@ -64,7 +63,6 @@ public class DisassemblyPanel extends JPanel {
             }
             this.disassemblerTable.scrollToAddress(address);
         });
-
         goToAddressField.addFocusListener(new FocusAdapter() {
 
             @Override
@@ -90,7 +88,6 @@ public class DisassemblyPanel extends JPanel {
         this.add(disassemblerScrollPane, new CC().grow().push().spanX());
 
         jchip.addFrameListener(_ -> this.onFrame());
-
     }
 
     private void onFrame() {

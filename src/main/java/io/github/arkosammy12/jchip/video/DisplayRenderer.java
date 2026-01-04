@@ -1,6 +1,5 @@
 package io.github.arkosammy12.jchip.video;
 
-import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 
 import javax.swing.*;
@@ -37,7 +36,7 @@ public class DisplayRenderer extends JPanel implements Closeable {
 
     private Thread renderThread;
 
-    public DisplayRenderer(Jchip jchip, Display<?> display, List<KeyAdapter> keyAdapters) {
+    public DisplayRenderer(Display<?> display, List<KeyAdapter> keyAdapters) {
         this.display = display;
         this.displayWidth = display.getImageWidth();
         this.displayHeight = display.getImageHeight();
@@ -62,7 +61,6 @@ public class DisplayRenderer extends JPanel implements Closeable {
         }
 
         SwingUtilities.invokeLater(() -> keyAdapters.forEach(this::addKeyListener));
-        jchip.getMainWindow().setEmulatorRenderer(this);
         this.startRenderThread();
     }
 

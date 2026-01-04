@@ -13,7 +13,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.*;
-import java.util.function.IntSupplier;
 
 public class DisassemblerTable extends JTable {
 
@@ -23,7 +22,8 @@ public class DisassemblerTable extends JTable {
     private static final int ROW_HEIGHT = 20;
 
     private final Model model;
-    private int currentAddress = -1;
+
+    private int currentProgramCounter = -1;
     private int hoveredRow = -1;
     private int hoveredColumn = -1;
 
@@ -40,7 +40,6 @@ public class DisassemblerTable extends JTable {
         this.setRowSelectionAllowed(false);
         this.setColumnSelectionAllowed(false);
         this.setTableHeader(null);
-        this.setupColumns();
         this.addMouseMotionListener(new MouseMotionAdapter() {
 
             @Override
@@ -80,13 +79,41 @@ public class DisassemblerTable extends JTable {
 
         });
 
+        DefaultTableCellRenderer addressColumnRenderer = new DefaultTableCellRenderer();
+        addressColumnRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+        addressColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        DefaultTableCellRenderer bytecodeColumnRenderer = new DefaultTableCellRenderer();
+        bytecodeColumnRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+        bytecodeColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        DefaultTableCellRenderer textColumnRenderer = new DefaultTableCellRenderer();
+        textColumnRenderer.setHorizontalAlignment(SwingConstants.LEFT);
+        textColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        TableColumnModel columnModel = this.getColumnModel();
+
+        TableColumn addressColumn = columnModel.getColumn(0);
+        addressColumn.setMinWidth(ADDRESS_COLUMN_WIDTH);
+        addressColumn.setPreferredWidth(ADDRESS_COLUMN_WIDTH);
+        addressColumn.setCellRenderer(addressColumnRenderer);
+
+        TableColumn bytecodeColumn = columnModel.getColumn(1);
+        bytecodeColumn.setMinWidth(BYTECODE_COLUMN_WIDTH);
+        bytecodeColumn.setPreferredWidth(BYTECODE_COLUMN_WIDTH);
+        bytecodeColumn.setCellRenderer(bytecodeColumnRenderer);
+
+        TableColumn textColumn = columnModel.getColumn(2);
+        textColumn.setMinWidth(TEXT_COLUMN_WIDTH);
+        textColumn.setPreferredWidth(TEXT_COLUMN_WIDTH);
+        textColumn.setCellRenderer(textColumnRenderer);
+
         jchip.addFrameListener(emulator -> {
             if (emulator != null) {
                 this.onFrame(emulator);
             }
         });
-
-        jchip.addStateChangedListener((_, newState) -> {
+        jchip.addStateChangedListener((_, _, newState) -> {
             if (newState.isStopped()) {
                 this.onStopped();
             }
@@ -168,42 +195,11 @@ public class DisassemblerTable extends JTable {
         }
     }
 
-    private void setupColumns() {
-        DefaultTableCellRenderer addressColumnRenderer = new DefaultTableCellRenderer();
-        addressColumnRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-        addressColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
-
-        DefaultTableCellRenderer bytecodeColumnRenderer = new DefaultTableCellRenderer();
-        bytecodeColumnRenderer.setHorizontalAlignment(SwingConstants.LEFT);
-        bytecodeColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
-
-        DefaultTableCellRenderer textColumnRenderer = new DefaultTableCellRenderer();
-        textColumnRenderer.setHorizontalAlignment(SwingConstants.LEFT);
-        textColumnRenderer.setVerticalAlignment(SwingConstants.CENTER);
-
-        TableColumnModel columnModel = this.getColumnModel();
-
-        TableColumn addressColumn = columnModel.getColumn(0);
-        addressColumn.setMinWidth(ADDRESS_COLUMN_WIDTH);
-        addressColumn.setPreferredWidth(ADDRESS_COLUMN_WIDTH);
-        addressColumn.setCellRenderer(addressColumnRenderer);
-
-        TableColumn bytecodeColumn = columnModel.getColumn(1);
-        bytecodeColumn.setMinWidth(BYTECODE_COLUMN_WIDTH);
-        bytecodeColumn.setPreferredWidth(BYTECODE_COLUMN_WIDTH);
-        bytecodeColumn.setCellRenderer(bytecodeColumnRenderer);
-
-        TableColumn textColumn = columnModel.getColumn(2);
-        textColumn.setMinWidth(TEXT_COLUMN_WIDTH);
-        textColumn.setPreferredWidth(TEXT_COLUMN_WIDTH);
-        textColumn.setCellRenderer(textColumnRenderer);
-    }
-
     private boolean isCurrentInstructionRow(int row) {
         if (this.model.disassembler == null) {
             return false;
         }
-        int ordinal = this.model.disassembler.getOrdinalForAddress(currentAddress);
+        int ordinal = this.model.disassembler.getOrdinalForAddress(currentProgramCounter);
         return ordinal >= 0 && ordinal == row;
     }
 
@@ -218,7 +214,7 @@ public class DisassemblerTable extends JTable {
         if (!this.model.disassembler.isEnabled()) {
             return;
         }
-        this.scrollToAddress(currentAddress);
+        this.scrollToAddress(currentProgramCounter);
     }
 
     public void clearBreakpoints() {
@@ -226,6 +222,9 @@ public class DisassemblerTable extends JTable {
     }
 
     public void scrollToAddress(int address) {
+        if (!(this.getParent() instanceof JViewport viewport)) {
+            return;
+        }
         if (this.model.disassembler == null) {
             return;
         }
@@ -237,7 +236,7 @@ public class DisassemblerTable extends JTable {
             return;
         }
         int targetY = ordinal * this.getRowHeight();
-        ((JViewport) this.getParent()).setViewPosition(new Point(0, targetY));
+        viewport.setViewPosition(new Point(viewport.getViewPosition().x, targetY));
     }
 
     private void onFrame(@NotNull Emulator emulator) {
@@ -321,10 +320,10 @@ public class DisassemblerTable extends JTable {
                 }
                 this.setDisassemblerEnabled(isShowing());
                 if (this.disassembler != null && this.disassembler.isEnabled()) {
+                    this.disassembler.getProgramCounterSupplier().ifPresent(pc -> currentProgramCounter = pc.getAsInt());
                     int size = this.disassembler.getSize();
-                    this.disassembler.getCurrentAddressSupplier().ifPresent(addr -> currentAddress = addr.getAsInt());
                     if (size != this.rowCount) {
-                        this.rowCount = this.disassembler.getSize();
+                        this.rowCount = size;
                         this.fireTableDataChanged();
                     } else {
                         MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
@@ -335,7 +334,7 @@ public class DisassemblerTable extends JTable {
 
         private void clear() {
             SwingUtilities.invokeLater(() -> {
-                currentAddress = -1;
+                currentProgramCounter = -1;
                 this.rowCount = 0;
                 this.clearBreakpoints();
                 this.disassembler = null;

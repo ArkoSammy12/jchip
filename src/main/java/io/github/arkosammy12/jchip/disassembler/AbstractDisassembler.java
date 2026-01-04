@@ -25,7 +25,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     protected final E emulator;
     private final AtomicBoolean enabled = new AtomicBoolean(false);
     private final AtomicBoolean running = new AtomicBoolean(true);
-    private final AtomicReference<IntSupplier> currentAddressSupplier = new AtomicReference<>(null);
+    private final AtomicReference<IntSupplier> programCounterSupplier = new AtomicReference<>(null);
 
     private final Thread disassemblerThread;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -33,7 +33,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     private final Lock writeLock = this.readWriteLock.writeLock();
 
     private final Queue<Integer> addressQueue = new MpscUnboundedArrayQueue<>(10000);
-    private final NavigableMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
+    private final ConcurrentSkipListMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
     private final IntArrayList addressOrdinalList = new IntArrayList();
 
     private final Set<Integer> breakpoints = ConcurrentHashMap.newKeySet();
@@ -70,13 +70,13 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         }
     }
 
-    public void setCurrentAddressSupplier(IntSupplier supplier) {
-        this.currentAddressSupplier.set(supplier);
+    public void setProgramCounterSupplier(IntSupplier supplier) {
+        this.programCounterSupplier.set(supplier);
     }
 
     @Override
-    public Optional<IntSupplier> getCurrentAddressSupplier() {
-        return Optional.ofNullable(this.currentAddressSupplier.get());
+    public Optional<IntSupplier> getProgramCounterSupplier() {
+        return Optional.ofNullable(this.programCounterSupplier.get());
     }
 
     @Override
@@ -155,6 +155,9 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
 
     public void disassemble(int address) {
         if (!this.isEnabled()) {
+            return;
+        }
+        if (this.entries.containsKey(address)) {
             return;
         }
         this.addressQueue.offer(address);
@@ -340,7 +343,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         private volatile int bytecode;
         private volatile String text;
 
-        public Entry(int address, int length, int bytecode, @NotNull Type type) {
+        private Entry(int address, int length, int bytecode, @NotNull Type type) {
             this.instructionAddress = address;
             this.length = length;
             this.bytecode = bytecode;

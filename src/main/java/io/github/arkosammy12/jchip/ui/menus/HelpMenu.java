@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import com.formdev.flatlaf.util.SystemInfo;
-import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 
@@ -12,7 +11,7 @@ import java.net.URI;
 
 public class HelpMenu extends JMenu {
 
-    public HelpMenu(Jchip jchip, MainWindow mainWindow) {
+    public HelpMenu(MainWindow mainWindow) {
         super("Help");
 
         this.setMnemonic(KeyEvent.VK_H);

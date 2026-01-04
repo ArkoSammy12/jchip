@@ -1,10 +1,7 @@
 package io.github.arkosammy12.jchip.ui.util;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerLabel;
-import io.github.arkosammy12.jchip.ui.debugger.MemoryTable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -12,21 +9,15 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DebuggerLabelTable extends JTable {
 
     private static final int COLUMN_WIDTH = 60;
     private static final int ROW_HEIGHT = 26;
 
-    private final AtomicBoolean updateHighlightsFlag = new AtomicBoolean(true);
-    private Color lastTextColor;
-
     private final Model model;
     private final List<? extends DebuggerLabel<?>> labels;
-    private final List<Color> lastTextColors = new ArrayList<>();
     private final int columnCount;
     private final boolean columnMayor;
 
@@ -59,7 +50,6 @@ public class DebuggerLabelTable extends JTable {
             col.setPreferredWidth(COLUMN_WIDTH);
             col.setMinWidth(COLUMN_WIDTH);
         }
-        this.lastTextColor = UIManager.getColor("Table.foreground");
     }
 
     @Override

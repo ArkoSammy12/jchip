@@ -15,15 +15,15 @@ public class DebuggerSchema {
     private final List<TextEntry<?>> cpuRegisterEntries = new ArrayList<>();
     private final List<TextEntry<?>> generalPurposeRegisterEntries = new ArrayList<>();
     private final List<TextEntry<?>> stackEntries = new ArrayList<>();
-    private Supplier<Integer> scrollAddressSupplier;
+    private Supplier<Integer> memoryPointerSupplier;
 
     private String textSectionName = DEFAULT_TEXT_SECTION_NAME;
     private String cpuRegistersSectionName = DEFAULT_CPU_REGISTERS_SECTION_NAME;
     private String generalPurposeRegistersSectionName = DEFAULT_GENERAL_PURPOSE_REGISTERS_SECTION_NAME;
     private String stackSectionName = DEFAULT_STACK_SECTION_NAME;
 
-    public void setScrollAddressSupplier(Supplier<Integer> scrollAddressSupplier) {
-        this.scrollAddressSupplier = scrollAddressSupplier;
+    public void setMemoryPointerSupplier(Supplier<Integer> memoryPointerSupplier) {
+        this.memoryPointerSupplier = memoryPointerSupplier;
     }
 
     public void setTextSectionName(String name) {
@@ -114,8 +114,8 @@ public class DebuggerSchema {
         return this.stackEntries.stream().map(TextEntry::getDebuggerLabel).collect(Collectors.toList());
     }
 
-    Optional<Supplier<Integer>> getScrollAddressSupplier() {
-        return Optional.ofNullable(this.scrollAddressSupplier);
+    Optional<Supplier<Integer>> getMemoryPointerSupplier() {
+        return Optional.ofNullable(this.memoryPointerSupplier);
     }
 
     public static class TextEntry<T> {

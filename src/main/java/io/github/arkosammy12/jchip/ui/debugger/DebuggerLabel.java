@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 public class DebuggerLabel<T> extends JLabel {
 
     private final DebuggerSchema.TextEntry<T> textEntry;
+
     private final AtomicReference<T> state = new AtomicReference<>(null);
     private final AtomicBoolean stateChanged = new AtomicBoolean(false);
     private final AtomicReference<Color> lastForegroundColor = new AtomicReference<>(UIManager.getColor("Table.foreground"));
@@ -52,7 +53,6 @@ public class DebuggerLabel<T> extends JLabel {
             this.setText(text);
         }
     }
-
 
     public Color getForegroundColor() {
         return this.lastForegroundColor.get();

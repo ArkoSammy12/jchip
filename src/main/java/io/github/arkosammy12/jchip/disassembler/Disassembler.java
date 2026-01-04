@@ -15,7 +15,7 @@ public interface Disassembler extends Closeable {
 
     int getSize();
 
-    Optional<IntSupplier> getCurrentAddressSupplier();
+    Optional<IntSupplier> getProgramCounterSupplier();
 
     int getOrdinalForAddress(int address);
 

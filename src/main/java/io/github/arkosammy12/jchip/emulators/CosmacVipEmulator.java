@@ -70,7 +70,7 @@ public class CosmacVipEmulator implements Emulator {
             }
             this.debuggerSchema = this.createDebuggerSchema();
             this.disassembler = new CosmacVipDisassembler<>(this);
-            this.disassembler.setCurrentAddressSupplier(this::getActualCurrentInstructionAddress);
+            this.disassembler.setProgramCounterSupplier(this::getActualCurrentInstructionAddress);
         } catch (Exception e) {
             throw new EmulatorException(e);
         }
@@ -273,7 +273,7 @@ public class CosmacVipEmulator implements Emulator {
     protected DebuggerSchema createDebuggerSchema() {
         DebuggerSchema debuggerSchema = new DebuggerSchema();
         debuggerSchema.setTextSectionName("Cosmac VIP");
-        debuggerSchema.setScrollAddressSupplier(() -> this.processor.getR(this.processor.getX()));
+        debuggerSchema.setMemoryPointerSupplier(() -> this.processor.getR(this.processor.getX()));
 
         Function<Integer, String> byteFormatter = val -> String.format("%02X", val);
         Function<Integer, String> nibbleFormatter = val -> String.format("%01X", val);
