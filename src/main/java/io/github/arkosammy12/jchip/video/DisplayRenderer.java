@@ -72,6 +72,7 @@ public class DisplayRenderer extends JPanel implements Closeable {
         try {
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             g2.drawImage(bufferedImage, drawTransform, null);
+            Toolkit.getDefaultToolkit().sync();
         } finally {
             g2.dispose();
         }

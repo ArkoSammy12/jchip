@@ -3,7 +3,7 @@ package io.github.arkosammy12.jchip.disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import org.jctools.queues.MpscUnboundedArrayQueue;
+import org.jctools.queues.MpscArrayQueue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +32,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     private final Lock readLock = this.readWriteLock.readLock();
     private final Lock writeLock = this.readWriteLock.writeLock();
 
-    private final Queue<Integer> addressQueue = new MpscUnboundedArrayQueue<>(10000);
+    private final Queue<Integer> addressQueue = new MpscArrayQueue<>(200000);
     private final ConcurrentSkipListMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
     private final IntArrayList addressOrdinalList = new IntArrayList();
 
@@ -155,9 +155,6 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
 
     public void disassemble(int address) {
         if (!this.isEnabled()) {
-            return;
-        }
-        if (this.entries.containsKey(address)) {
             return;
         }
         this.addressQueue.offer(address);
