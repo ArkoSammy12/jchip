@@ -12,10 +12,9 @@ public abstract class AbstractEmulatorSettings implements EmulatorSettings {
     private final int[] rom;
     private final Jchip jchip;
 
-    public AbstractEmulatorSettings(Jchip jchip) {
+    public AbstractEmulatorSettings(Jchip jchip, PrimarySettingsProvider settings) {
         this.jchip = jchip;
 
-        PrimarySettingsProvider settings = this.jchip.getMainWindow().getSettingsBar();
         Optional<byte[]> rawRomOptional = settings.getRawRom();
 
         if (rawRomOptional.isEmpty()) {

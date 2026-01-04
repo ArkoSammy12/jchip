@@ -39,10 +39,10 @@ public class MainWindow extends JFrame implements Closeable {
         this.setLayout(migLayout);
         this.setBackground(Color.BLACK);
 
-        this.leftPanel = new LeftPanel(jchip);
+        this.leftPanel = new LeftPanel(jchip, this);
         this.settingsBar = new SettingsBar(jchip, this);
         this.infoBar = new InfoBar(jchip);
-        DebuggerPanel debuggerPanel = new DebuggerPanel(jchip);
+        DebuggerPanel debuggerPanel = new DebuggerPanel(jchip, this);
         this.mainSplitPane = new ToggleableSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.leftPanel, debuggerPanel, 5, 0.5);
 
         this.infoBarConstraints = new CC().grow().pushX().dockSouth().height("28!");

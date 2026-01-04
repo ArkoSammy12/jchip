@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui.disassembly;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
@@ -17,7 +18,7 @@ public class DisassemblyPanel extends JPanel {
     private final DisassemblerTable disassemblerTable;
     private final JCheckBox followCheckbox;
 
-    public DisassemblyPanel(Jchip jchip) {
+    public DisassemblyPanel(Jchip jchip, MainWindow mainWindow) {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
 
@@ -45,7 +46,7 @@ public class DisassemblyPanel extends JPanel {
                 address = Integer.decode(text);
             } catch (NumberFormatException _) {
                 JOptionPane.showMessageDialog(
-                        jchip.getMainWindow(),
+                        mainWindow,
                         "The address must be valid integer!",
                         "Invalid address value",
                         JOptionPane.WARNING_MESSAGE
@@ -54,7 +55,7 @@ public class DisassemblyPanel extends JPanel {
             }
             if (!this.disassemblerTable.isAddressVisible(address)) {
                 JOptionPane.showMessageDialog(
-                        jchip.getMainWindow(),
+                        mainWindow,
                         "No disassembly currently exists for the provided instruction address!",
                         "Invalid address value",
                         JOptionPane.WARNING_MESSAGE

@@ -4,7 +4,6 @@ import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.jetbrains.annotations.Nullable;
-import org.tinylog.Logger;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -49,11 +48,12 @@ public class MemoryTable extends JTable {
             @Override
             public void componentResized(ComponentEvent e) {
                 int currentBytesPerRow = model.getBytesPerRow();
+                int currentWidth = getSize().width;
                 int newBytesPerRow = 8;
 
-                if (getSize().width > (ADDRESS_COLUMN_WIDTH + (MEMORY_COLUMN_WIDTH * 32))) {
+                if (currentWidth > (ADDRESS_COLUMN_WIDTH + (MEMORY_COLUMN_WIDTH * 32))) {
                     newBytesPerRow = 32;
-                } else if (getSize().width > (ADDRESS_COLUMN_WIDTH + (MEMORY_COLUMN_WIDTH * 16))) {
+                } else if (currentWidth > (ADDRESS_COLUMN_WIDTH + (MEMORY_COLUMN_WIDTH * 16))) {
                     newBytesPerRow = 16;
                 }
                 if (newBytesPerRow != currentBytesPerRow) {

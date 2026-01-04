@@ -47,18 +47,21 @@ public class SChipModernEmulator extends SChip11Emulator {
     }
 
     @Override
+    @NotNull
     protected SChipModernProcessor<?> createProcessor() {
         this.processor = new SChipModernProcessor<>(this);
         return this.processor;
     }
 
     @Override
+    @NotNull
     protected SChipModernDisplay<?> createDisplay() {
         this.display = new SChipModernDisplay<>(this);
         return this.display;
     }
 
     @Override
+    @NotNull
     protected SoundSystem createSoundSystem() {
         this.soundSystem = new Chip8SoundSystem(this);
         return this.soundSystem;

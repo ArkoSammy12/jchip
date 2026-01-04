@@ -3,8 +3,7 @@ package io.github.arkosammy12.jchip.config.database;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.config.SettingsProvider;
-import io.github.arkosammy12.jchip.exceptions.EmulatorException;
+import io.github.arkosammy12.jchip.config.Chip8SettingsInitializer;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
@@ -26,7 +25,7 @@ import static io.github.arkosammy12.jchip.util.Variant.MEGA_CHIP;
 import static io.github.arkosammy12.jchip.util.Variant.SUPER_CHIP_11;
 import static io.github.arkosammy12.jchip.util.Variant.XO_CHIP;
 
-public class Chip8Database implements SettingsProvider {
+public class Chip8Database implements Chip8SettingsInitializer {
 
     private final Hashes hashes;
     private final Platforms platforms;
@@ -81,7 +80,7 @@ public class Chip8Database implements SettingsProvider {
 
             Optional<List<PlatformEntry>> platformsOptional = this.getPlatforms().flatMap(Platforms::getPlatformEntries);
             if (platformsOptional.isEmpty()) {
-                throw new EmulatorException("Missing platform entries database!");
+                throw new RuntimeException("Missing platform entries database!");
             }
 
             List<PlatformEntry> platformEntryList = platformsOptional.get();

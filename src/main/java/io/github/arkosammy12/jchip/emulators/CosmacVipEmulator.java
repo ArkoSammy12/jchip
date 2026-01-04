@@ -259,8 +259,8 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public void close() {
         try {
-            if (this.getDisplay() != null) {
-                this.getDisplay().close();
+            if (this.display != null) {
+                this.display.close();
             }
             if (this.disassembler != null) {
                 this.disassembler.close();

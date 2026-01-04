@@ -6,7 +6,7 @@ import io.github.arkosammy12.jchip.emulators.*;
 import picocli.CommandLine;
 
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public enum Variant implements DisplayNameProvider {
     CHIP_8("chip-8", "CHIP-8", Chip8EmulatorSettings::new),
@@ -18,16 +18,16 @@ public enum Variant implements DisplayNameProvider {
     SUPER_CHIP_MODERN("schip-modern", "SUPER-CHIP MODERN", Chip8EmulatorSettings::new),
     XO_CHIP("xo-chip", "XO-CHIP", Chip8EmulatorSettings::new),
     MEGA_CHIP("mega-chip", "MEGA-CHIP", Chip8EmulatorSettings::new),
-    HYPERWAVE_CHIP_64("hyperwave-chip-64", "HyperWaveCHIP-64", (Chip8EmulatorSettings::new)),
-    HYBRID_CHIP_8("hybrid-chip-8", "HYBRID CHIP-8", jchip -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8)),
-    HYBRID_CHIP_8X("hybrid-chip-8x", "HYBRID CHIP-8X", jchip -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8X)),
-    COSMAC_VIP("cosmac-vip", "COSMAC-VIP", jchip -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.NONE));
+    HYPERWAVE_CHIP_64("hyperwave-chip-64", "HyperWaveCHIP-64", Chip8EmulatorSettings::new),
+    HYBRID_CHIP_8("hybrid-chip-8", "HYBRID CHIP-8", (jchip, settings) -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8, settings)),
+    HYBRID_CHIP_8X("hybrid-chip-8x", "HYBRID CHIP-8X", (jchip, settings) -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.CHIP_8X, settings)),
+    COSMAC_VIP("cosmac-vip", "COSMAC-VIP", (jchip, settings) -> new CosmacVipEmulatorSettings(jchip, CosmacVipEmulatorSettings.Chip8Interpreter.NONE, settings));
 
     private final String identifier;
     private final String displayName;
-    private final Function<Jchip, ? extends EmulatorSettings> emulatorSettingsProvider;
+    private final BiFunction<Jchip, PrimarySettingsProvider, ? extends EmulatorSettings> emulatorSettingsProvider;
 
-    Variant(String identifier, String displayName, Function<Jchip, ? extends EmulatorSettings> emulatorSettingsProvider) {
+    Variant(String identifier, String displayName, BiFunction<Jchip, PrimarySettingsProvider, ? extends EmulatorSettings> emulatorSettingsProvider) {
         this.identifier = identifier;
         this.displayName = displayName;
         this.emulatorSettingsProvider = emulatorSettingsProvider;
@@ -38,12 +38,12 @@ public enum Variant implements DisplayNameProvider {
         return this.displayName;
     }
 
-    public static Emulator getEmulator(Jchip jchip) {
-        Optional<Variant> optionalVariant = jchip.getMainWindow().getSettingsBar().getVariant();
+    public static Emulator getEmulator(Jchip jchip, PrimarySettingsProvider settings) {
+        Optional<Variant> optionalVariant = settings.getVariant();
         if (optionalVariant.isPresent()) {
-            return optionalVariant.get().emulatorSettingsProvider.apply(jchip).getEmulator();
+            return optionalVariant.get().emulatorSettingsProvider.apply(jchip, settings).getEmulator();
         }
-        return new Chip8EmulatorSettings(jchip).getEmulator();
+        return new Chip8EmulatorSettings(jchip, settings).getEmulator();
     }
 
     public static Variant getVariantForIdentifier(String identifier) {

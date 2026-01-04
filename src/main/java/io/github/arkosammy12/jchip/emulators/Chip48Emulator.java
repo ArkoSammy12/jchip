@@ -24,6 +24,7 @@ public class Chip48Emulator extends Chip8Emulator {
     }
 
     @Override
+    @NotNull
     protected SoundSystem createSoundSystem() {
         this.soundSystem = new Chip48SoundSystem(this);
         return this.soundSystem;

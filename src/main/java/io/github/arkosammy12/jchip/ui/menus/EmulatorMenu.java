@@ -109,7 +109,7 @@ public class EmulatorMenu extends JMenu {
                 }
             } catch (NumberFormatException ignored) {
                 JOptionPane.showMessageDialog(
-                        jchip.getMainWindow(),
+                        mainWindow,
                         "The IPF value must be a valid positive integer!",
                         "Incorrect formatting",
                         JOptionPane.WARNING_MESSAGE

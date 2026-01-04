@@ -17,7 +17,6 @@ import io.github.arkosammy12.jchip.util.*;
 import io.github.arkosammy12.jchip.video.Chip8Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.tinylog.Logger;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
@@ -32,16 +31,9 @@ public class Chip8Emulator implements Emulator {
 
     protected final Jchip jchip;
 
-    @Nullable
     private final Chip8Processor<?> processor;
-
-    @Nullable
     private final Chip8Bus bus;
-
-    @Nullable
     private final Chip8Display<?> display;
-
-    @Nullable
     private final SoundSystem soundSystem;
 
     private final Keypad keypad;
@@ -102,22 +94,22 @@ public class Chip8Emulator implements Emulator {
         return Objects.requireNonNull(this.soundSystem);
     }
 
-    @Nullable
+    @NotNull
     protected Chip8Processor<?> createProcessor() {
         return new Chip8Processor<>(this);
     }
 
-    @Nullable
+    @NotNull
     protected Chip8Display<?> createDisplay() {
         return new Chip8Display<>(this);
     }
 
-    @Nullable
+    @NotNull
     protected Chip8Bus createBus() {
         return new Chip8Bus(this);
     }
 
-    @Nullable
+    @NotNull
     protected SoundSystem createSoundSystem() {
         return new Chip8SoundSystem(this);
     }
@@ -241,14 +233,16 @@ public class Chip8Emulator implements Emulator {
         return false;
     }
 
-    protected void terminate() {
-        this.getEmulatorSettings().getJchip().stop();
+    private void terminate() {
+        this.jchip.stop();
     }
 
     @Override
     public void close() {
         try {
-            this.getDisplay().close();
+            if (this.display != null) {
+                this.display.close();
+            }
             if (this.disassembler != null) {
                 this.disassembler.close();
             }

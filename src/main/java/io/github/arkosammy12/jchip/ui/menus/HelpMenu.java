@@ -3,22 +3,22 @@ package io.github.arkosammy12.jchip.ui.menus;
 import com.formdev.flatlaf.util.SystemInfo;
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.desktop.QuitStrategy;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 
 public class HelpMenu extends JMenu {
 
-    public HelpMenu(Jchip jchip) {
+    public HelpMenu(Jchip jchip, MainWindow mainWindow) {
         super("Help");
 
         this.setMnemonic(KeyEvent.VK_H);
 
         Runnable showAboutDialog = () -> JOptionPane.showMessageDialog(
-                jchip.getMainWindow(),
+                mainWindow,
                 String.format("Jchip\nVersion %s\n\nBy ArkoSammy12", Main.VERSION_STRING),
                 "About Jchip",
                 JOptionPane.INFORMATION_MESSAGE);
@@ -47,7 +47,7 @@ public class HelpMenu extends JMenu {
             try {
                 Desktop.getDesktop().browse(new URI("https://github.com/ArkoSammy12/jchip"));
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(jchip.getMainWindow(), "Unable to open source link.");
+                JOptionPane.showMessageDialog(mainWindow, "Unable to open source link.");
             }
         });
 
@@ -57,7 +57,7 @@ public class HelpMenu extends JMenu {
             try {
                 Desktop.getDesktop().browse(new URI("https://github.com/ArkoSammy12/jchip/issues"));
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(jchip.getMainWindow(), "Unable to open issues link.");
+                JOptionPane.showMessageDialog(mainWindow, "Unable to open issues link.");
             }
         });
 

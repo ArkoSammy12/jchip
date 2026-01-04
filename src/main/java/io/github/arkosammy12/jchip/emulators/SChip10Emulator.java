@@ -38,12 +38,14 @@ public class SChip10Emulator extends Chip48Emulator {
     }
 
     @Override
+    @NotNull
     protected SChip10Processor<?> createProcessor() {
         this.processor = new SChip10Processor<>(this);
         return this.processor;
     }
 
     @Override
+    @NotNull
     protected SChip10Display<?> createDisplay() {
         this.display = new SChip10Display<>(this);
         return this.display;

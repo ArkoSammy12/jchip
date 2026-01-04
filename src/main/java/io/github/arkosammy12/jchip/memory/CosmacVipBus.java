@@ -175,6 +175,15 @@ public class CosmacVipBus implements Bus {
         return 0xFFF;
     }
 
+    @Override
+    public int getByte(int address) {
+        if (address >= 0x8000) {
+            return MONITOR_ROM[address & 0x1FF];
+        } else {
+            return this.bytes[address & 0xFFF];
+        }
+    }
+
     public int readByte(int address) {
         int actualAddress = this.addressMsbLatched ? address | 0x8000 : address;
         int value;
@@ -194,15 +203,6 @@ public class CosmacVipBus implements Bus {
             return;
         }
         this.bytes[actualAddress & 0xFFF] = value & 0xFF;
-    }
-
-    @Override
-    public int getByte(int address) {
-        if (address >= 0x8000) {
-            return MONITOR_ROM[address & 0x1FF];
-        } else {
-            return this.bytes[address & 0xFFF];
-        }
     }
 
     public void unlatchAddressMsb() {

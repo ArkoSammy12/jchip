@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
 import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
@@ -49,7 +50,7 @@ public class DebuggerPanel extends JPanel {
 
     private final JCheckBox memoryFollowCheckBox;
 
-    public DebuggerPanel(Jchip jchip) {
+    public DebuggerPanel(Jchip jchip, MainWindow mainWindow) {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
 
@@ -142,7 +143,7 @@ public class DebuggerPanel extends JPanel {
                 }
             } catch (NumberFormatException _) {
                 JOptionPane.showMessageDialog(
-                        jchip.getMainWindow(),
+                        mainWindow,
                         "The address must be valid integer between 0 and " + maximumAddress + " (0x" + Integer.toHexString(maximumAddress).toUpperCase() + ")",
                         "Invalid address value",
                         JOptionPane.WARNING_MESSAGE

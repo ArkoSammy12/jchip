@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
+import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 
@@ -16,7 +17,7 @@ public class SettingsMenu extends JMenu {
 
     private final JRadioButtonMenuItem showInfoPanelButton;
 
-    public SettingsMenu(Jchip jchip) {
+    public SettingsMenu(Jchip jchip, MainWindow mainWindow) {
         super("Settings");
 
         this.setMnemonic(KeyEvent.VK_S);
@@ -45,7 +46,7 @@ public class SettingsMenu extends JMenu {
 
         this.showInfoPanelButton = new JRadioButtonMenuItem("Show info bar");
         this.showInfoPanelButton.setSelected(true);
-        this.showInfoPanelButton.addActionListener(_ -> jchip.getMainWindow().setInfoBarEnabled(this.showInfoPanelButton.isSelected()));
+        this.showInfoPanelButton.addActionListener(_ -> mainWindow.setInfoBarEnabled(this.showInfoPanelButton.isSelected()));
 
         this.add(volumeMenu);
         this.add(muteButton);

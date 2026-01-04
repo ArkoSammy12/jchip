@@ -55,24 +55,28 @@ public class XOChipEmulator extends SChipModernEmulator {
     }
 
     @Override
+    @NotNull
     protected XOChipProcessor<?> createProcessor() {
         this.processor = new XOChipProcessor<>(this);
         return this.processor;
     }
 
     @Override
+    @NotNull
     protected XOChipDisplay<?> createDisplay() {
         this.display = new XOChipDisplay<>(this);
         return this.display;
     }
 
     @Override
+    @NotNull
     protected XOChipBus createBus() {
         this.bus = new XOChipBus(this);
         return this.bus;
     }
 
     @Override
+    @NotNull
     protected XOChipSoundSystem createSoundSystem() {
         this.soundSystem = new XOChipSoundSystem(this);
         return this.soundSystem;

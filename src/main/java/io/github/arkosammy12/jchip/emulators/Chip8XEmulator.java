@@ -55,24 +55,28 @@ public class Chip8XEmulator extends Chip8Emulator {
     }
 
     @Override
+    @NotNull
     protected Chip8XProcessor<?> createProcessor() {
         this.processor = new Chip8XProcessor<>(this);
         return this.processor;
     }
 
     @Override
+    @NotNull
     protected Chip8XDisplay<?> createDisplay() {
         this.display = new Chip8XDisplay<>(this);
         return this.display;
     }
 
     @Override
+    @NotNull
     protected Chip8XBus createBus() {
         this.bus = new Chip8XBus(this);
         return this.bus;
     }
 
     @Override
+    @NotNull
     protected Chip8XSoundSystem createSoundSystem() {
         this.soundSystem = new Chip8XSoundSystem(this);
         return this.soundSystem;

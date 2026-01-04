@@ -35,12 +35,14 @@ public class SChip11Emulator extends SChip10Emulator {
     }
 
     @Override
+    @NotNull
     protected SChip11Processor<?> createProcessor() {
         this.processor = new SChip11Processor<>(this);
         return this.processor;
     }
 
     @Override
+    @NotNull
     protected SChip11Display<?> createDisplay() {
         this.display = new SChip11Display<>(this);
         return this.display;

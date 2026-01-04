@@ -32,10 +32,9 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     private final boolean doShiftVXInPlace;
     private final boolean doJumpWithVX;
 
-    public Chip8EmulatorSettings(Jchip jchip) {
-        super(jchip);
+    public Chip8EmulatorSettings(Jchip jchip, PrimarySettingsProvider settings) {
+        super(jchip, settings);
 
-        PrimarySettingsProvider settings = this.getJchip().getMainWindow().getSettingsBar();
         Chip8Database database = jchip.getDatabase();
         database.fetchDataForRom(this.getRawRom());
 

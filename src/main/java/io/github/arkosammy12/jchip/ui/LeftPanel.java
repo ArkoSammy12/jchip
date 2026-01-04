@@ -15,11 +15,11 @@ public class LeftPanel extends JPanel {
     private final ToggleableSplitPane splitPane;
     private final EmulatorViewport emulatorViewport;
 
-    public LeftPanel(Jchip jchip) {
+    public LeftPanel(Jchip jchip, MainWindow mainWindow) {
         MigLayout migLayout = new MigLayout(new LC().insets("0"));
         super(migLayout);
         this.emulatorViewport = new EmulatorViewport();
-        DisassemblyPanel disassemblyPanel = new DisassemblyPanel(jchip);
+        DisassemblyPanel disassemblyPanel = new DisassemblyPanel(jchip, mainWindow);
         this.splitPane = new ToggleableSplitPane(JSplitPane.VERTICAL_SPLIT, this.emulatorViewport, disassemblyPanel, 5, 0.75);
 
         this.add(this.splitPane, new CC().grow().push());

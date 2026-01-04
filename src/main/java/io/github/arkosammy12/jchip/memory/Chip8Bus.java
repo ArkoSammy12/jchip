@@ -68,13 +68,13 @@ public class Chip8Bus implements Bus {
         }
     }
 
-    public int readByte(int address) {
-        return this.bytes[address & this.memoryBoundsMask];
-    }
-
     @Override
     public int getByte(int address) {
         return this.readByte(address);
+    }
+
+    public int readByte(int address) {
+        return this.bytes[address & this.memoryBoundsMask];
     }
 
     public void writeByte(int address, int value) {

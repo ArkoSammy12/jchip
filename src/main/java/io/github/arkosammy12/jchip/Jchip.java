@@ -99,7 +99,7 @@ public class Jchip {
 
             if (cliArgs != null) {
                 this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
-                this.currentEmulator = Variant.getEmulator(this);
+                this.currentEmulator = Variant.getEmulator(this, this.mainWindow.getSettingsBar());
             }
             this.audioRenderer = new DefaultAudioRenderer(this);
             SwingUtilities.invokeLater(() -> this.mainWindow.setVisible(true));
@@ -209,7 +209,7 @@ public class Jchip {
             this.mainWindow.setEmulatorRenderer(null);
         }
         this.audioRenderer.setPaused(true);
-        this.currentEmulator = Variant.getEmulator(this);
+        this.currentEmulator = Variant.getEmulator(this, this.mainWindow.getSettingsBar());
         this.enqueueState(resetAndPause ? State.PAUSED : State.RUNNING);
     }
 

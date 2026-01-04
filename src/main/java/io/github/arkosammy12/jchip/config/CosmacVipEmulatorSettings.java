@@ -18,10 +18,9 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
     private final Variant variant;
     private final Chip8Interpreter chip8Interpreter;
 
-    public CosmacVipEmulatorSettings(Jchip jchip, Chip8Interpreter chip8Interpreter) {
-        super(jchip);
+    public CosmacVipEmulatorSettings(Jchip jchip, Chip8Interpreter chip8Interpreter, PrimarySettingsProvider settings) {
+        super(jchip, settings);
 
-        PrimarySettingsProvider settings = this.getJchip().getMainWindow().getSettingsBar();
         this.displayAngle = settings.getDisplayAngle().orElse(DisplayAngle.DEG_0);
         this.romTitle = settings.getRomPath().map(path -> path.getFileName().toString()).orElse(null);
         this.variant = settings.getVariant().orElse(COSMAC_VIP);

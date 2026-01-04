@@ -6,7 +6,7 @@ import io.github.arkosammy12.jchip.video.ColorPalette;
 
 import java.util.Optional;
 
-public interface SettingsProvider {
+public interface Chip8SettingsInitializer {
 
     Optional<Integer> getInstructionsPerFrame();
 
