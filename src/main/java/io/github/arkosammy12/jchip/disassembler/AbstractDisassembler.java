@@ -417,7 +417,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
                 this.strength = strength;
             }
 
-            boolean canOverwrite(Type other) {
+            private boolean canOverwrite(Type other) {
                 return this.strength >= other.strength;
             }
         }
