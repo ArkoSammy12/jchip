@@ -3,11 +3,9 @@ package io.github.arkosammy12.jchip.disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import org.jctools.queues.MpscArrayQueue;
 import org.jctools.queues.MpscBlockingConsumerArrayQueue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.tinylog.Logger;
 
 import java.io.IOException;
 import java.util.*;
