@@ -51,7 +51,7 @@ public class VP590<E extends CosmacVipEmulator> extends CDP1861<E> {
             super.onOutput(port, value);
             return;
         }
-        this.backgroundColorIndex = (backgroundColorIndex + 1) % BACKGROUND_COLORS.length;
+        this.backgroundColorIndex = (this.backgroundColorIndex + 1) % BACKGROUND_COLORS.length;
     }
 
     @Override

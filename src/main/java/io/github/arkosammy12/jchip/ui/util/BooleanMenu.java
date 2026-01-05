@@ -7,11 +7,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BooleanMenu extends JMenu {
 
+    private final AtomicReference<Boolean> state = new AtomicReference<>(null);
+
     private final JRadioButtonMenuItem unspecifiedItem;
     private final JRadioButtonMenuItem enabledItem;
     private final JRadioButtonMenuItem disabledItem;
-
-    private final AtomicReference<Boolean> state = new AtomicReference<>(null);
 
     public BooleanMenu(String name) {
         super(name);

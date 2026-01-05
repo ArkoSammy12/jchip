@@ -47,9 +47,9 @@ public class Chip8Display<E extends Chip8Emulator> extends Display<E> {
     }
 
     protected void populateRenderBuffer(int[][] renderBuffer) {
-        for (int y = 0; y < imageHeight; y++) {
-            for (int x = 0; x < imageWidth; x++) {
-                renderBuffer[x][y] = colorPalette.getColorARGB(bitplaneBuffer[x][y] & 0xF);
+        for (int y = 0; y < this.imageHeight; y++) {
+            for (int x = 0; x < this.imageWidth; x++) {
+                renderBuffer[x][y] = this.colorPalette.getColorARGB(this.bitplaneBuffer[x][y] & 0xF);
             }
         }
     }

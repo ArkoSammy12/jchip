@@ -24,7 +24,7 @@ public final class WindowTitleManager {
     }
 
     private void updateTitle() {
-        SwingUtilities.invokeLater(() -> mainWindow.setTitle(String.join(" | ", sections)));
+        SwingUtilities.invokeLater(() -> this.mainWindow.setTitle(String.join(" | ", sections)));
     }
 
     public void clear() {

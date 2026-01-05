@@ -26,9 +26,9 @@ public final class StrictChip8Display extends Chip8Display<StrictChip8Emulator> 
 
     protected void populateRenderBuffer(int[][] renderBuffer) {
         StrictChip8Bus bus = this.emulator.getBus();
-        for (int y = 0; y < imageHeight; y++) {
-            for (int x = 0; x < imageWidth; x++) {
-                renderBuffer[x][y] = colorPalette.getColorARGB(bus.getDisplayPixel(x, y) ? 1 : 0);
+        for (int y = 0; y < this.imageHeight; y++) {
+            for (int x = 0; x < this.imageWidth; x++) {
+                renderBuffer[x][y] = this.colorPalette.getColorARGB(bus.getDisplayPixel(x, y) ? 1 : 0);
             }
         }
     }

@@ -135,7 +135,7 @@ public class DebuggerLabelTable extends JTable {
 
         @Override
         public int getRowCount() {
-            int natural = getNaturalRowCount();
+            int natural = this.getNaturalRowCount();
             int viewportHeight = 0;
             if (getParent() instanceof JViewport viewport) {
                 viewportHeight = viewport.getHeight();

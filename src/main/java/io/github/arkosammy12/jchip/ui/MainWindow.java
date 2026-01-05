@@ -29,6 +29,7 @@ public class MainWindow extends JFrame implements Closeable {
 
     public MainWindow(Jchip jchip) {
         super(DEFAULT_TITLE);
+
         this.windowTitleManager = new WindowTitleManager(this);
         this.setTitleSection(0, DEFAULT_TITLE);
         this.setBackground(Color.BLACK);
@@ -57,7 +58,6 @@ public class MainWindow extends JFrame implements Closeable {
         this.setPreferredSize(new Dimension((int) (screenSize.getWidth() / 1.5), (int) (screenSize.getHeight() / 1.5)));
         this.pack();
         this.setLocationRelativeTo(null);
-
     }
 
     public SettingsBar getSettingsBar() {

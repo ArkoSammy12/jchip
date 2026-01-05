@@ -36,7 +36,7 @@ public class Chip8XDisplay<E extends Chip8XEmulator> extends Chip8Display<E> {
     }
 
     public void cycleBackgroundColor() {
-        this.backgroundColorIndex = (backgroundColorIndex + 1) % BACKGROUND_COLORS.length;
+        this.backgroundColorIndex = (this.backgroundColorIndex + 1) % BACKGROUND_COLORS.length;
     }
 
     public void setForegroundColor(int column, int row, int colorIndex) {
@@ -49,8 +49,8 @@ public class Chip8XDisplay<E extends Chip8XEmulator> extends Chip8Display<E> {
 
     protected void populateRenderBuffer(int[][] renderBuffer) {
         if (this.hiresColor) {
-            for (int y = 0; y < imageHeight; y++) {
-                for (int x = 0; x < imageWidth; x++) {
+            for (int y = 0; y < this.imageHeight; y++) {
+                for (int x = 0; x < this.imageWidth; x++) {
                     renderBuffer[x][y] = this.bitplaneBuffer[x][y] != 0 ? FOREGROUND_COLORS[this.foregroundColorIndexes[x][y]] : BACKGROUND_COLORS[this.backgroundColorIndex];
                 }
             }

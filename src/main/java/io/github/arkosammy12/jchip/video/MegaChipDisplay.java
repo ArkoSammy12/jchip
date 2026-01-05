@@ -76,7 +76,7 @@ public class MegaChipDisplay<E extends MegaChipEmulator> extends SChip11Display<
         if (index < 1) {
             return;
         }
-        this.colorPalette[index] = argb ;
+        this.colorPalette[index] = argb;
     }
 
     public void setCollisionIndex(int index) {

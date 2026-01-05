@@ -33,7 +33,7 @@ public enum DisplayAngle implements DisplayNameProvider {
                 return displayAngle;
             }
         }
-        throw new IllegalArgumentException("Invalid display angle value: " + intValue + "!");
+        throw new IllegalArgumentException("Invalid display angle value \"" + intValue + "\"!");
     }
 
     @Override

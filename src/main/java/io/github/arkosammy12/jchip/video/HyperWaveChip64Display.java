@@ -49,9 +49,9 @@ public class HyperWaveChip64Display<E extends HyperWaveChip64Emulator> extends X
     }
 
     protected void populateRenderBuffer(int[][] renderBuffer) {
-        for (int y = 0; y < imageHeight; y++) {
-            for (int x = 0; x < imageWidth; x++) {
-                renderBuffer[x][y] = this.colorPalette[bitplaneBuffer[x][y] & 0xF];
+        for (int y = 0; y < this.imageHeight; y++) {
+            for (int x = 0; x < this.imageWidth; x++) {
+                renderBuffer[x][y] = this.colorPalette[this.bitplaneBuffer[x][y] & 0xF];
             }
         }
     }

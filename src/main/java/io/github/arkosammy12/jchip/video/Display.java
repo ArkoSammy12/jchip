@@ -17,8 +17,8 @@ public abstract class Display<E extends Emulator> implements Closeable {
     public Display(E emulator) {
         this.emulator = emulator;
         this.displayAngle = emulator.getEmulatorSettings().getDisplayAngle();
-        this.imageWidth = getImageWidth();
-        this.imageHeight = getImageHeight();
+        this.imageWidth = this.getImageWidth();
+        this.imageHeight = this.getImageHeight();
         this.displayRenderer = new DisplayRenderer(this, emulator.getKeyAdapters());
     }
 

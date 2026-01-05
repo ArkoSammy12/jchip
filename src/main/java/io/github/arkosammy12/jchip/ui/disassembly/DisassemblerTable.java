@@ -108,17 +108,16 @@ public class DisassemblerTable extends JTable {
         textColumn.setPreferredWidth(TEXT_COLUMN_WIDTH);
         textColumn.setCellRenderer(textColumnRenderer);
 
-        jchip.addFrameListener(emulator -> {
-            if (emulator != null) {
-                this.onFrame(emulator);
-            }
-        });
         jchip.addStateChangedListener((_, _, newState) -> {
             if (newState.isStopped()) {
                 this.onStopped();
             }
         });
-
+        jchip.addFrameListener(emulator -> {
+            if (emulator != null) {
+                this.onFrame(emulator);
+            }
+        });
     }
 
     @Override

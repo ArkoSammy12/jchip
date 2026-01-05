@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
 
+    private final AtomicReference<E> state = new AtomicReference<>(null);
     private final Map<E, JRadioButtonMenuItem> buttonMap = new HashMap<>();
     private final JRadioButtonMenuItem unspecifiedItem;
-    private final AtomicReference<E> state = new AtomicReference<>(null);
 
     public EnumMenu(String name, Class<E> enumClass, boolean withUnspecifiedOption) {
         super(name);

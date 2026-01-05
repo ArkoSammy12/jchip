@@ -76,7 +76,7 @@ public enum BuiltInColorPalette implements ColorPalette, DisplayNameProvider {
                 return palette;
             }
         }
-        throw new IllegalArgumentException("Unknown color palette identifier: " + identifier + "!");
+        throw new IllegalArgumentException("Unknown color palette identifier \"" + identifier + "\"!");
     }
 
     @Override

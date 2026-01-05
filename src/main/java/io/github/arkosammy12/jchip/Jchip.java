@@ -152,7 +152,8 @@ public class Jchip {
                     continue;
                 }
                 State oldState = this.updateState();
-                switch (this.currentState.get()) {
+                State newState = this.getState();
+                switch (newState) {
                     case STOPPED, PAUSED, PAUSED_STOPPED -> onIdle();
                     case RESETTING_AND_RUNNING -> onResetting(false);
                     case RESETTING_AND_PAUSING -> onResetting(true);
@@ -161,7 +162,7 @@ public class Jchip {
                     case STEPPING_FRAME -> onSteppingFrame();
                     case STEPPING_CYCLE -> onSteppingCycle();
                 }
-                this.notifyStateChangedListeners(oldState, this.getState());
+                this.notifyStateChangedListeners(oldState, newState);
                 this.notifyFrameListeners();
             } catch (EmulatorException e) {
                 Logger.error("Exception while running emulator: {}", e);
