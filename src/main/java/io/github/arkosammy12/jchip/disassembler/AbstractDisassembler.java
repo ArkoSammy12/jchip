@@ -4,13 +4,14 @@ import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jctools.queues.MpscArrayQueue;
+import org.jctools.queues.MpscBlockingConsumerArrayQueue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.tinylog.Logger;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,7 +33,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     private final Lock readLock = this.readWriteLock.readLock();
     private final Lock writeLock = this.readWriteLock.writeLock();
 
-    private final Queue<Integer> addressQueue = new MpscArrayQueue<>(200000);
+    private final BlockingQueue<Integer> addressQueue = new MpscBlockingConsumerArrayQueue<>(200000);
     private final ConcurrentSkipListMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
     private final IntArrayList addressOrdinalList = new IntArrayList();
 
@@ -184,15 +185,21 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
 
     private void disassemblerLoop() {
         while (this.running.get()) {
-            Integer address = this.addressQueue.poll();
-            if (address == null) {
+            try {
                 if (this.staticDisassemblyFinished) {
-                    Thread.onSpinWait();
+                    this.disassembleDynamic(this.addressQueue.take());
                 } else {
-                    this.disassembleStatic();
+                    Integer address = this.addressQueue.poll();
+                    if (address == null) {
+                        this.disassembleStatic();
+                    } else {
+                        this.disassembleDynamic(address);
+                    }
                 }
-            } else {
-                this.disassembleDynamic(address);
+            } catch (InterruptedException e) {
+                if (!this.running.get()) {
+                    return;
+                }
             }
         }
     }
