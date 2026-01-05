@@ -34,7 +34,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     private final Lock writeLock = this.readWriteLock.writeLock();
 
     private final BlockingQueue<Integer> addressQueue = new MpscBlockingConsumerArrayQueue<>(200000);
-    private final ConcurrentSkipListMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
+    private final NavigableMap<Integer, Entry> entries = new ConcurrentSkipListMap<>();
     private final IntArrayList addressOrdinalList = new IntArrayList();
 
     private final Set<Integer> breakpoints = ConcurrentHashMap.newKeySet();
@@ -98,8 +98,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
             if (ordinal < 0 || ordinal >= addressOrdinalList.size()) {
                 return null;
             }
-            int address = this.addressOrdinalList.get(ordinal);
-            Entry entry = this.entries.get(address);
+            Entry entry = this.entries.get(this.addressOrdinalList.get(ordinal));
             if (entry == null) {
                 return null;
             }
@@ -171,9 +170,8 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
             currentAddress += this.getLengthForInstructionAt(address);
         }
         for (int i = 0; i < range; i++) {
-            int length = this.getLengthForInstructionAt(currentAddress);
             this.addressQueue.offer(currentAddress | RANGE_ADDRESS_FLAG);
-            currentAddress += length;
+            currentAddress += this.getLengthForInstructionAt(currentAddress);
         }
     }
 
@@ -234,7 +232,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
         }
 
         // If the structure changed, overwrite the existing entry with a new entry, unless we are attempting to overwrite
-        // with a range entry and it is currently covered by trace entries.
+        // with a range entry, and it is currently covered by trace entries.
         if ((entry.getLength() != length || entry.getAddress() != address) && (!isRangeAddress || !this.isAddressCovered(address, length, Entry.Type.RANGE))) {
             this.addEntry(new Entry(address, length, bytecode, isRangeAddress ? Entry.Type.RANGE : Entry.Type.TRACE));
             return;
