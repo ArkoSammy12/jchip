@@ -44,7 +44,7 @@ public class Jchip {
 
     Jchip(String[] args) {
         try {
-            CLIArgs cliArgs = null;
+            CLIArgs cliArgs;
             if (args.length > 0) {
                 cliArgs = new CLIArgs();
                 CommandLine cli = new CommandLine(cliArgs);
@@ -59,6 +59,8 @@ public class Jchip {
                         System.exit(exitCodeOnVersionHelp);
                     }
                 }
+            } else {
+                cliArgs = null;
             }
 
             SwingUtilities.invokeAndWait(() -> {
@@ -98,7 +100,7 @@ public class Jchip {
             });
 
             if (cliArgs != null) {
-                this.mainWindow.getSettingsBar().initializeSettings(cliArgs);
+                SwingUtilities.invokeAndWait(() -> this.mainWindow.getSettingsBar().initializeSettings(cliArgs));
                 this.currentEmulator = Variant.getEmulator(this, this.mainWindow.getSettingsBar());
             }
             this.audioRenderer = new DefaultAudioRenderer(this);

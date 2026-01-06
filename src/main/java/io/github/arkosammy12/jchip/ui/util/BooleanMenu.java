@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BooleanMenu extends JMenu {
 
-    private final AtomicReference<Boolean> state = new AtomicReference<>(null);
+    private volatile Boolean state = null;
 
     private final JRadioButtonMenuItem unspecifiedItem;
     private final JRadioButtonMenuItem enabledItem;
@@ -42,7 +42,7 @@ public class BooleanMenu extends JMenu {
     }
 
     public void setState(Boolean val) {
-        this.state.set(val);
+        this.state = val;
         this.unspecifiedItem.setSelected(false);
         this.enabledItem.setSelected(false);
         this.disabledItem.setSelected(false);
@@ -56,7 +56,7 @@ public class BooleanMenu extends JMenu {
     }
 
      public Optional<Boolean> getState() {
-        return Optional.ofNullable(this.state.get());
+        return Optional.ofNullable(this.state);
      }
 
 }

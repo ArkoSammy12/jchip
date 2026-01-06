@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
 
-    private final AtomicReference<E> state = new AtomicReference<>(null);
+    private volatile E state = null;
     private final Map<E, JRadioButtonMenuItem> buttonMap = new HashMap<>();
     private final JRadioButtonMenuItem unspecifiedItem;
 
@@ -20,7 +20,7 @@ public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
         ButtonGroup buttonGroup = new ButtonGroup();
         if (withUnspecifiedOption) {
             JRadioButtonMenuItem unspecifiedItem = new JRadioButtonMenuItem("Unspecified");
-            unspecifiedItem.addActionListener(_ -> this.state.set(null));
+            unspecifiedItem.addActionListener(_ -> this.state = null);
             unspecifiedItem.setSelected(true);
             buttonGroup.add(unspecifiedItem);
             this.unspecifiedItem = unspecifiedItem;
@@ -30,7 +30,7 @@ public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
         }
         for (E enumConstant : enumClass.getEnumConstants()) {
             JRadioButtonMenuItem item = new JRadioButtonMenuItem(enumConstant.getDisplayName());
-            item.addActionListener(_ -> this.state.set(enumConstant));
+            item.addActionListener(_ -> this.state = enumConstant);
             buttonGroup.add(item);
             this.buttonMap.put(enumConstant, item);
             this.add(item);
@@ -38,7 +38,7 @@ public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
     }
 
     public void setState(E val) {
-        this.state.set(val);
+        this.state = val;
         for (Map.Entry<E, JRadioButtonMenuItem> map : this.buttonMap.entrySet()) {
             map.getValue().setSelected(false);
         }
@@ -55,7 +55,7 @@ public class EnumMenu<E extends Enum<E> & DisplayNameProvider> extends JMenu {
     }
 
     public Optional<E> getState() {
-        return Optional.ofNullable(this.state.get());
+        return Optional.ofNullable(this.state);
     }
 
 }
