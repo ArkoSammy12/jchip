@@ -22,26 +22,25 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Jchip {
 
     private MainWindow mainWindow;
-    private Emulator currentEmulator;
+    private volatile Emulator currentEmulator;
 
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
     private final Chip8Database database = new Chip8Database();
     private final DefaultAudioRenderer audioRenderer;
+
     private final int[] flagsStorage = new int[16];
 
     private final List<StateChangedListener> stateChangedListeners = new CopyOnWriteArrayList<>();
     private final List<FrameListener> frameListeners = new CopyOnWriteArrayList<>();
-    private final List<OnShutdownListener> shutdownListeners = new CopyOnWriteArrayList<>();
+    private final List<ShutdownListener> shutdownListeners = new CopyOnWriteArrayList<>();
 
     private final Queue<State> queuedStates = new ConcurrentLinkedQueue<>();
-    private final AtomicReference<State> currentState = new AtomicReference<>(State.STOPPED);
-    private final AtomicBoolean running = new AtomicBoolean(true);
+    private volatile State currentState = State.STOPPED;
+    private volatile boolean running = true;
 
     Jchip(String[] args) {
         try {
@@ -88,7 +87,7 @@ public class Jchip {
                     @Override
                     public void windowClosing(WindowEvent e) {
                         try {
-                            running.set(false);
+                            running = false;
                             onShutdown();
                         } catch (Exception ex) {
                             Logger.error("Failed to release application resources: {}", ex);
@@ -109,22 +108,6 @@ public class Jchip {
         }
     }
 
-    public void addStateChangedListener(StateChangedListener l) {
-        this.stateChangedListeners.add(l);
-    }
-
-    public void addFrameListener(FrameListener l) {
-        this.frameListeners.add(l);
-    }
-
-    public void addShutdownListener(OnShutdownListener l) {
-        this.shutdownListeners.add(l);
-    }
-
-    public State getState() {
-        return this.currentState.get();
-    }
-
     public MainWindow getMainWindow() {
         return this.mainWindow;
     }
@@ -137,6 +120,22 @@ public class Jchip {
         return this.audioRenderer;
     }
 
+    public void addStateChangedListener(StateChangedListener l) {
+        this.stateChangedListeners.add(l);
+    }
+
+    public void addFrameListener(FrameListener l) {
+        this.frameListeners.add(l);
+    }
+
+    public void addShutdownListener(ShutdownListener l) {
+        this.shutdownListeners.add(l);
+    }
+
+    public State getState() {
+        return this.currentState;
+    }
+
     public void setFlagRegister(int index, int value) {
         this.flagsStorage[index] = value;
     }
@@ -146,7 +145,7 @@ public class Jchip {
     }
 
     public void start() throws Exception {
-        while (this.running.get()) {
+        while (this.running) {
             try {
                 if (!this.pacer.isFrameReady(true)) {
                     continue;
@@ -265,7 +264,9 @@ public class Jchip {
         if (enqueuedState == null) {
             return this.getState();
         }
-        return currentState.getAndSet(enqueuedState);
+        State oldState = this.currentState;
+        this.currentState = enqueuedState;
+        return oldState;
     }
 
     private void notifyStateChangedListeners(State oldState, State newState) {
@@ -284,7 +285,7 @@ public class Jchip {
     }
 
     private void notifyShutdownListeners() {
-        for (OnShutdownListener l : this.shutdownListeners) {
+        for (ShutdownListener l : this.shutdownListeners) {
             l.onShutdown();
         }
     }
@@ -338,7 +339,7 @@ public class Jchip {
 
     }
 
-    public interface OnShutdownListener {
+    public interface ShutdownListener {
 
         void onShutdown();
 
