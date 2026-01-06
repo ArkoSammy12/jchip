@@ -325,7 +325,7 @@ public class DisassemblerTable extends JTable {
                         this.rowCount = size;
                         this.fireTableDataChanged();
                     } else {
-                        MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this);
+                        MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this, this);
                     }
                 }
             });

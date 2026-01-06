@@ -12,6 +12,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.io.Closeable;
 
@@ -106,7 +107,7 @@ public class MainWindow extends JFrame implements Closeable {
         SwingUtilities.invokeLater(this::dispose);
     }
 
-    public static void fireVisibleRowsUpdated(JTable table) {
+    public static void fireVisibleRowsUpdated(JTable table, AbstractTableModel model) {
         Rectangle visibleRect = table.getVisibleRect();
 
         int firstRow = table.rowAtPoint(visibleRect.getLocation());
@@ -122,7 +123,7 @@ public class MainWindow extends JFrame implements Closeable {
         int modelFirstRow = table.convertRowIndexToModel(firstRow);
         int modelLastRow = table.convertRowIndexToModel(lastRow);
 
-        ((AbstractTableModel) table.getModel()).fireTableRowsUpdated(modelFirstRow, modelLastRow);
+        model.fireTableRowsUpdated(modelFirstRow, modelLastRow);
     }
 
 }

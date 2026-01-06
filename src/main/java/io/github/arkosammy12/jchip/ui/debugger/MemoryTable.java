@@ -220,7 +220,7 @@ public class MemoryTable extends JTable {
                 bytes = new int[memory.getMemorySize()];
                 this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) this.bytesPerRow);
             }
-            MainWindow.fireVisibleRowsUpdated(MemoryTable.this);
+            MainWindow.fireVisibleRowsUpdated(MemoryTable.this, this);
         }
 
         public void clear() {

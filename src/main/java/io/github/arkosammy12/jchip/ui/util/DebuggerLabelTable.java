@@ -79,7 +79,7 @@ public class DebuggerLabelTable extends JTable {
             }
         }
         this.updateColumnWidthIfNecessary();
-        MainWindow.fireVisibleRowsUpdated(this);
+        MainWindow.fireVisibleRowsUpdated(this, this.model);
     }
 
     private void updateColumnWidthIfNecessary() {
