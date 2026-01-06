@@ -5,6 +5,7 @@ import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -12,7 +13,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.util.*;
 
 public class DisassemblerTable extends JTable {
 
@@ -108,16 +108,14 @@ public class DisassemblerTable extends JTable {
         textColumn.setPreferredWidth(TEXT_COLUMN_WIDTH);
         textColumn.setCellRenderer(textColumnRenderer);
 
-        jchip.addStateChangedListener((_, _, newState) -> {
-            if (newState.isStopped()) {
-                this.onStopped();
+        jchip.addStateChangedListener((emulator, _, newState) -> {
+            if (emulator == null || newState.isStopping()) {
+                this.onStopping();
+            } else if (newState.isResetting()) {
+                this.onResetting(emulator);
             }
         });
-        jchip.addFrameListener(emulator -> {
-            if (emulator != null) {
-                this.onFrame(emulator);
-            }
-        });
+        jchip.addFrameListener(this::onFrame);
     }
 
     @Override
@@ -238,12 +236,24 @@ public class DisassemblerTable extends JTable {
         viewport.setViewPosition(new Point(viewport.getViewPosition().x, targetY));
     }
 
-    private void onFrame(@NotNull Emulator emulator) {
-        this.model.update(emulator);
+    private void onResetting(@NotNull Emulator emulator) {
+        Disassembler disassembler = emulator.getDisassembler();
+        SwingUtilities.invokeLater(() -> {
+            this.model.disassembler = disassembler;
+            this.clearBreakpoints();
+            this.model.fireTableDataChanged();
+        });
     }
 
-    private void onStopped() {
-        this.model.clear();
+    private void onStopping() {
+        SwingUtilities.invokeLater(this.model::clear);
+    }
+
+    private void onFrame(@Nullable Emulator emulator) {
+        if (emulator == null) {
+            return;
+        }
+        SwingUtilities.invokeLater(this.model::update);
     }
 
     private static Color blend(Color base, Color overlay, float alpha) {
@@ -310,35 +320,26 @@ public class DisassemblerTable extends JTable {
             }
         }
 
-        private void update(Emulator emulator) {
-            Disassembler disassembler = emulator.getDisassembler();
-            SwingUtilities.invokeLater(() -> {
-                if (!Objects.equals(disassembler, this.disassembler)) {
-                    this.disassembler = disassembler;
-                    this.clearBreakpoints();
+        private void update() {
+            this.setDisassemblerEnabled(isShowing());
+            if (this.disassembler != null && this.disassembler.isEnabled()) {
+                this.disassembler.getProgramCounterSupplier().ifPresent(pc -> currentProgramCounter = pc.getAsInt());
+                int size = this.disassembler.getSize();
+                if (size != this.rowCount) {
+                    this.rowCount = size;
+                    this.fireTableDataChanged();
+                } else {
+                    MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this, this);
                 }
-                this.setDisassemblerEnabled(isShowing());
-                if (this.disassembler != null && this.disassembler.isEnabled()) {
-                    this.disassembler.getProgramCounterSupplier().ifPresent(pc -> currentProgramCounter = pc.getAsInt());
-                    int size = this.disassembler.getSize();
-                    if (size != this.rowCount) {
-                        this.rowCount = size;
-                        this.fireTableDataChanged();
-                    } else {
-                        MainWindow.fireVisibleRowsUpdated(DisassemblerTable.this, this);
-                    }
-                }
-            });
+            }
         }
 
         private void clear() {
-            SwingUtilities.invokeLater(() -> {
-                currentProgramCounter = -1;
-                this.rowCount = 0;
-                this.clearBreakpoints();
-                this.disassembler = null;
-                this.fireTableDataChanged();
-            });
+            currentProgramCounter = -1;
+            this.rowCount = 0;
+            this.clearBreakpoints();
+            this.disassembler = null;
+            this.fireTableDataChanged();
         }
 
         private void addBreakpoint(int row) {

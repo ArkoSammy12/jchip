@@ -30,11 +30,7 @@ public class EmulatorViewport extends JPanel {
         });
 
         jchip.addStateChangedListener((emulator, _, newState) -> {
-            if (emulator == null) {
-                this.setDisplayRenderer(null);
-                return;
-            }
-            if (newState.isStopping()) {
+            if (emulator == null || newState.isStopping()) {
                 this.setDisplayRenderer(null);
             } else if (newState.isResetting()) {
                 this.setDisplayRenderer(emulator.getDisplay().getDisplayRenderer());

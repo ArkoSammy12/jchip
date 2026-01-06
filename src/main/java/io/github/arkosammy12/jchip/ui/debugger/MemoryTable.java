@@ -1,8 +1,10 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
+import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.memory.Bus;
 import io.github.arkosammy12.jchip.ui.MainWindow;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -13,7 +15,6 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.Objects;
 
 public class MemoryTable extends JTable {
 
@@ -30,7 +31,7 @@ public class MemoryTable extends JTable {
 
     private int @Nullable [] bytes;
 
-    public MemoryTable() {
+    public MemoryTable(Jchip jchip) {
         super();
         this.model = new Model();
         this.setModel(model);
@@ -47,73 +48,24 @@ public class MemoryTable extends JTable {
 
             @Override
             public void componentResized(ComponentEvent e) {
-                int currentBytesPerRow = model.getBytesPerRow();
-                int currentWidth = getSize().width;
-                int newBytesPerRow = 8;
-
-                if (currentWidth > (ADDRESS_COLUMN_WIDTH + (MEMORY_COLUMN_WIDTH * 32))) {
-                    newBytesPerRow = 32;
-                } else if (currentWidth > (ADDRESS_COLUMN_WIDTH + (MEMORY_COLUMN_WIDTH * 16))) {
-                    newBytesPerRow = 16;
-                }
-                if (newBytesPerRow != currentBytesPerRow) {
+                int newBytesPerRow = calculateBytesPerRow();
+                if ((newBytesPerRow != model.getBytesPerRow())) {
                     model.setBytesPerRow(newBytesPerRow);
-                    buildTable();
+                    rebuildTable();
                 }
             }
 
         });
-        this.buildTable();
-    }
+        this.rebuildTable();
 
-    public int getCurrentMaximumAddress() {
-        return this.model.memory == null ? MAX_SHOWN_BYTES - 1 : this.model.memory.getMaximumAddress();
-    }
-
-    private void buildTable() {
-        this.model.rebuildColumns();
-        TableColumnModel colModel = this.getColumnModel();
-
-        TableColumn addressColumn = colModel.getColumn(0);
-        addressColumn.setPreferredWidth(ADDRESS_COLUMN_WIDTH);
-        addressColumn.setMinWidth(ADDRESS_COLUMN_WIDTH);
-
-        for (int i = 1; i < colModel.getColumnCount(); i++) {
-            TableColumn col = colModel.getColumn(i);
-            col.setPreferredWidth(MEMORY_COLUMN_WIDTH);
-            col.setMinWidth(MEMORY_COLUMN_WIDTH);
-        }
-
-        this.revalidate();
-        this.repaint();
-    }
-
-    public void update(Emulator emulator, boolean updateChangeHighlights) {
-        if (updateChangeHighlights && this.bytes != null) {
-            JViewport vp = (JViewport) getParent();
-            Rectangle view = vp.getViewRect();
-
-            int firstRow = view.y / getRowHeight();
-            int lastRow  = (view.y + view.height) / getRowHeight();
-
-            int startIdx = firstRow * model.bytesPerRow;
-            int endIdx = Math.min((lastRow + 1) * model.bytesPerRow, bytes.length);
-
-            for (int i = startIdx; i < endIdx; i++) {
-                if ((bytes[i] & CHANGED_FLAG) != 0) {
-                    bytes[i] |= HIGHLIGHT_FLAG;
-                } else {
-                    bytes[i] &= ~HIGHLIGHT_FLAG;
-                }
+        jchip.addStateChangedListener((emulator, _, newState) -> {
+            if (emulator == null || newState.isStopping()) {
+                this.onStopping();
+            } else if (newState.isResetting()) {
+                this.onResetting(emulator);
             }
-        }
-        this.model.update(emulator);
-    }
-
-    public void clear() {
-        this.bytes = null;
-        this.model.clear();
-        this.scrollToAddress(0);
+        });
+        jchip.addFrameListener(this::onFrame);
     }
 
     @Override
@@ -141,6 +93,57 @@ public class MemoryTable extends JTable {
         return c;
     }
 
+    private void onResetting(@NotNull Emulator emulator) {
+        Bus memory = emulator.getBus();
+        SwingUtilities.invokeLater(() -> {
+            this.model.memory = memory;
+            this.bytes = new int[memory.getMemorySize()];
+            this.rebuildTable();
+        });
+    }
+
+    private void onStopping() {
+        SwingUtilities.invokeLater(() -> {
+            this.bytes = null;
+            this.model.clear();
+            this.rebuildTable();
+            this.scrollToAddress(0);
+        });
+    }
+
+    private void onFrame(@Nullable Emulator emulator) {
+        if (emulator == null) {
+            return;
+        }
+        Jchip.State state = emulator.getEmulatorSettings().getJchip().getState();
+        boolean updateChangeHighlights = state.isRunning() || state.isStepping();
+        SwingUtilities.invokeLater(() -> {
+            if (updateChangeHighlights && this.bytes != null) {
+                JViewport vp = (JViewport) getParent();
+                Rectangle view = vp.getViewRect();
+
+                int firstRow = view.y / getRowHeight();
+                int lastRow  = (view.y + view.height) / getRowHeight();
+
+                int startIdx = firstRow * model.bytesPerRow;
+                int endIdx = Math.min((lastRow + 1) * model.bytesPerRow, bytes.length);
+
+                for (int i = startIdx; i < endIdx; i++) {
+                    if ((bytes[i] & CHANGED_FLAG) != 0) {
+                        bytes[i] |= HIGHLIGHT_FLAG;
+                    } else {
+                        bytes[i] &= ~HIGHLIGHT_FLAG;
+                    }
+                }
+            }
+            this.model.update();
+        });
+    }
+
+    public int getCurrentMaximumAddress() {
+        return this.model.memory == null ? MAX_SHOWN_BYTES - 1 : this.model.memory.getMaximumAddress();
+    }
+
     public void scrollToAddress(int address) {
         if (!(this.getParent() instanceof JViewport viewport)) {
             return;
@@ -150,6 +153,34 @@ public class MemoryTable extends JTable {
             targetY = 0;
         }
         viewport.setViewPosition(new Point(viewport.getViewPosition().x, targetY));
+    }
+
+    private int calculateBytesPerRow() {
+        int currentWidth = getSize().width;
+        if (currentWidth > (ADDRESS_COLUMN_WIDTH + MEMORY_COLUMN_WIDTH * 32)) {
+            return 32;
+        } else if (currentWidth > (ADDRESS_COLUMN_WIDTH + MEMORY_COLUMN_WIDTH * 16)) {
+            return 16;
+        }
+        return 8;
+    }
+
+    private void rebuildTable() {
+        this.model.rebuildColumns();
+        TableColumnModel colModel = this.getColumnModel();
+
+        TableColumn addressColumn = colModel.getColumn(0);
+        addressColumn.setPreferredWidth(ADDRESS_COLUMN_WIDTH);
+        addressColumn.setMinWidth(ADDRESS_COLUMN_WIDTH);
+
+        for (int i = 1; i < colModel.getColumnCount(); i++) {
+            TableColumn col = colModel.getColumn(i);
+            col.setPreferredWidth(MEMORY_COLUMN_WIDTH);
+            col.setMinWidth(MEMORY_COLUMN_WIDTH);
+        }
+
+        this.revalidate();
+        this.repaint();
     }
 
     private class Model extends DefaultTableModel {
@@ -162,14 +193,6 @@ public class MemoryTable extends JTable {
         public Model() {
             super();
             this.rowCount = (int) Math.ceil(MAX_SHOWN_BYTES / (double) this.bytesPerRow);
-        }
-
-        public void setBytesPerRow(int bytesPerRow) {
-            this.bytesPerRow = bytesPerRow;
-        }
-
-        public int getBytesPerRow() {
-            return this.bytesPerRow;
         }
 
         @Override
@@ -187,7 +210,15 @@ public class MemoryTable extends JTable {
             return false;
         }
 
-        void rebuildColumns() {
+        private void setBytesPerRow(int bytesPerRow) {
+            this.bytesPerRow = bytesPerRow;
+        }
+
+        private int getBytesPerRow() {
+            return this.bytesPerRow;
+        }
+
+        private void rebuildColumns() {
             this.updateRowCount();
             this.fireTableStructureChanged();
         }
@@ -213,19 +244,12 @@ public class MemoryTable extends JTable {
             }
         }
 
-        public void update(Emulator emulator) {
-            Bus memory = emulator.getBus();
-            if (!Objects.equals(memory, this.memory)) {
-                this.memory = memory;
-                bytes = new int[memory.getMemorySize()];
-                this.rowCount = (int) Math.ceil(this.memory.getMemorySize() / (double) this.bytesPerRow);
-            }
+        private void update() {
             MainWindow.fireVisibleRowsUpdated(MemoryTable.this, this);
         }
 
-        public void clear() {
+        private void clear() {
             this.memory = null;
-            this.fireTableDataChanged();
         }
 
         private void updateRowCount() {

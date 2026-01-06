@@ -19,7 +19,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class DebuggerPanel extends JPanel {
 
@@ -77,7 +76,7 @@ public class DebuggerPanel extends JPanel {
         this.cpuRegistersTable = new DebuggerLabelTable(this.cpuRegisterLabels, 2);
         this.generalPurposeRegistersTable = new DebuggerLabelTable(this.generalPurposeRegisterLabels, 2, true);
         this.stackTable = new DebuggerLabelTable(this.stackLabels, 2, true);
-        this.memoryTable = new MemoryTable();
+        this.memoryTable = new MemoryTable(jchip);
 
         this.textScrollPane = new JScrollPane(textArea);
         this.textScrollPane.setPreferredSize(new Dimension(this.textScrollPane.getWidth(), 120));
@@ -175,29 +174,44 @@ public class DebuggerPanel extends JPanel {
 
         this.add(mainSplit, new CC().grow().push().width("500"));
 
-        jchip.addFrameListener(emulator -> {
-            if (emulator != null) {
-                this.onFrame(emulator);
+        jchip.addStateChangedListener((emulator, _, newState) -> {
+            if (emulator == null || newState.isStopping()) {
+                this.onStopping();
+            } else if (newState.isResetting()) {
+                this.onResetting(emulator);
             }
         });
-        jchip.addStateChangedListener((_, _, newState) -> {
-            if (newState.isStopped()) {
-                this.onStopped();
-            }
+        jchip.addFrameListener(this::onFrame);
+    }
+
+    private void onResetting(@NotNull Emulator emulator) {
+        DebuggerSchema debuggerSchema = emulator.getDebuggerSchema();
+        SwingUtilities.invokeLater(() -> {
+            this.debuggerSchema = debuggerSchema;
+            this.initializeDebuggerPanel();
         });
     }
 
-    private void onFrame(@NotNull Emulator emulator) {
-        DebuggerSchema debuggerSchema = emulator.getDebuggerSchema();
+    private void onStopping() {
+        SwingUtilities.invokeLater(() -> {
+            this.debuggerSchema = null;
+            this.clear();
+            this.textArea.setText("");
+            this.setDefaultBorders();
+            this.revalidate();
+            this.repaint();
+        });
+    }
+
+    private void onFrame(@Nullable Emulator emulator) {
+        if (emulator == null) {
+            return;
+        }
         Jchip.State state = emulator.getEmulatorSettings().getJchip().getState();
         boolean updateChangeHighlights = state.isRunning() || state.isStepping();
         SwingUtilities.invokeLater(() -> {
             if (!this.isShowing()) {
                 return;
-            }
-            if (!Objects.equals(debuggerSchema, this.debuggerSchema)) {
-                this.debuggerSchema = debuggerSchema;
-                this.initializeDebuggerPanel();
             }
 
             StringBuilder sb = new StringBuilder();
@@ -219,21 +233,9 @@ public class DebuggerPanel extends JPanel {
             this.generalPurposeRegistersTable.update(updateChangeHighlights);
             this.stackTable.update(updateChangeHighlights);
 
-            this.memoryTable.update(emulator, updateChangeHighlights);
             if (this.memoryFollowCheckBox.isSelected() && this.debuggerSchema != null) {
                 this.debuggerSchema.getMemoryPointerSupplier().ifPresent(addr -> this.memoryTable.scrollToAddress(addr.get()));
             }
-        });
-    }
-
-    private void onStopped() {
-        SwingUtilities.invokeLater(() -> {
-            this.debuggerSchema = null;
-            this.clear();
-            this.textArea.setText("");
-            this.setDefaultBorders();
-            this.revalidate();
-            this.repaint();
         });
     }
 
@@ -296,8 +298,6 @@ public class DebuggerPanel extends JPanel {
         this.cpuRegistersTable.update(true);
         this.generalPurposeRegistersTable.update(true);
         this.stackTable.update(true);
-
-        this.memoryTable.clear();
     }
 
     private void setDefaultBorders() {

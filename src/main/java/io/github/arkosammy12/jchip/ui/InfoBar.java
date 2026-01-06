@@ -6,7 +6,7 @@ import net.miginfocom.layout.AC;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.Objects;
@@ -37,32 +37,12 @@ public class InfoBar extends JPanel {
         this.add(createScrollPanel(frameTimeField, "The current frame time value average, in milliseconds."), new CC().grow().push());
         this.add(createScrollPanel(fpsField, "The current frames per second value average."), new CC().grow().push());
 
-        jchip.addStateChangedListener((_, _, newState) -> {
-            if (newState.isStopped()) {
-                this.lastWindowTitleUpdate = 0;
-                this.lastFrameTime = System.nanoTime();
-                this.framesSinceLastUpdate = 0;
-                this.totalIpfSinceLastUpdate = 0;
-                this.totalFrameTimeSinceLastUpdate = 0;
-                SwingUtilities.invokeLater(() -> {
-                    this.variantField.setText("");
-
-                    this.romTitleField.setText("");
-
-                    this.ipfField.setText("");
-                    this.mipsField.setText("");
-                    this.frameTimeField.setText("");
-                    this.fpsField.setText("");
-                    this.revalidate();
-                    this.repaint();
-                });
+        jchip.addStateChangedListener((emulator, _, newState) -> {
+            if (emulator == null || newState.isStopping()) {
+                this.onStopping();
             }
         });
-        jchip.addFrameListener(emulator -> {
-            if (emulator != null) {
-                this.onFrame(emulator);
-            }
-        });
+        jchip.addFrameListener(this::onFrame);
     }
 
     private static JTextField createField() {
@@ -79,7 +59,30 @@ public class InfoBar extends JPanel {
         return new JScrollPane(field, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     }
 
-    private void onFrame(@NotNull Emulator emulator) {
+    private void onStopping() {
+        this.lastWindowTitleUpdate = 0;
+        this.lastFrameTime = System.nanoTime();
+        this.framesSinceLastUpdate = 0;
+        this.totalIpfSinceLastUpdate = 0;
+        this.totalFrameTimeSinceLastUpdate = 0;
+        SwingUtilities.invokeLater(() -> {
+            this.variantField.setText("");
+
+            this.romTitleField.setText("");
+
+            this.ipfField.setText("");
+            this.mipsField.setText("");
+            this.frameTimeField.setText("");
+            this.fpsField.setText("");
+            this.revalidate();
+            this.repaint();
+        });
+    }
+
+    private void onFrame(@Nullable Emulator emulator) {
+        if (emulator == null) {
+            return;
+        }
         String romTitle = emulator.getEmulatorSettings().getRomTitle().orElse("N/A");
         String variantName = emulator.getVariant().getDisplayName();
 
