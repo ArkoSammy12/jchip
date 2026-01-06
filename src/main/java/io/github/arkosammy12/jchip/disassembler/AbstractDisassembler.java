@@ -10,9 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.IntSupplier;
@@ -22,9 +20,9 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     private static final int RANGE_ADDRESS_FLAG = 0x8000_0000;
 
     protected final E emulator;
-    private final AtomicBoolean enabled = new AtomicBoolean(false);
-    private final AtomicBoolean running = new AtomicBoolean(true);
-    private final AtomicReference<IntSupplier> programCounterSupplier = new AtomicReference<>(null);
+    private volatile boolean enabled = false;
+    private volatile boolean running = true;
+    private volatile IntSupplier programCounterSupplier = null;
 
     private final Thread disassemblerThread;
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -51,12 +49,12 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
 
     @Override
     public void setEnabled(boolean enabled) {
-        this.enabled.set(enabled);
+        this.enabled = enabled;
     }
 
     @Override
     public boolean isEnabled() {
-        return this.enabled.get();
+        return this.enabled;
     }
 
     @Override
@@ -70,12 +68,12 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     }
 
     public void setProgramCounterSupplier(IntSupplier supplier) {
-        this.programCounterSupplier.set(supplier);
+        this.programCounterSupplier = supplier;
     }
 
     @Override
     public Optional<IntSupplier> getProgramCounterSupplier() {
-        return Optional.ofNullable(this.programCounterSupplier.get());
+        return Optional.ofNullable(this.programCounterSupplier);
     }
 
     @Override
@@ -144,7 +142,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
 
     @Override
     public void close() throws IOException {
-        this.running.set(false);
+        this.running = false;
         this.disassemblerThread.interrupt();
         try {
             this.disassemblerThread.join();
@@ -180,7 +178,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
     protected abstract String getTextForInstructionAt(int address);
 
     private void disassemblerLoop() {
-        while (this.running.get()) {
+        while (this.running) {
             try {
                 if (this.staticDisassemblyFinished) {
                     this.disassembleDynamic(this.addressQueue.take());
@@ -193,7 +191,7 @@ public abstract class AbstractDisassembler<E extends Emulator> implements Disass
                     }
                 }
             } catch (InterruptedException e) {
-                if (!this.running.get()) {
+                if (!this.running) {
                     return;
                 }
             }
