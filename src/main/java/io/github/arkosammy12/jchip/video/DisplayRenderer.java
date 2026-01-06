@@ -25,16 +25,15 @@ public class DisplayRenderer extends JPanel implements Closeable {
     private final AffineTransform rotationTransform = new AffineTransform();
     private final AffineTransform drawTransform = new AffineTransform();
 
-    private int lastWidth = -1;
-    private int lastHeight = -1;
-
-    private final AtomicBoolean running = new AtomicBoolean(true);
-    private final AtomicBoolean frameRequested = new AtomicBoolean(false);
-
+    private final Thread renderThread;
     private final Object renderLock = new Object();
     protected final Object renderBufferLock = new Object();
 
-    private Thread renderThread;
+    private volatile boolean running = true;
+    private boolean frameRequested = false;
+
+    private int lastWidth = -1;
+    private int lastHeight = -1;
 
     public DisplayRenderer(Display<?> display, List<KeyAdapter> keyAdapters) {
         this.display = display;
@@ -59,9 +58,10 @@ public class DisplayRenderer extends JPanel implements Closeable {
                 rotationTransform.rotate(Math.toRadians(270));
             }
         }
-
         SwingUtilities.invokeLater(() -> keyAdapters.forEach(this::addKeyListener));
-        this.startRenderThread();
+        this.renderThread = new Thread(this::renderLoop, "jchip-render-thread");
+        this.renderThread.setDaemon(true);
+        this.renderThread.start();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class DisplayRenderer extends JPanel implements Closeable {
         Graphics2D g2 = (Graphics2D) g.create();
         try {
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            g2.drawImage(bufferedImage, drawTransform, null);
+            g2.drawImage(this.bufferedImage, this.drawTransform, null);
         } finally {
             g2.dispose();
         }
@@ -113,26 +113,20 @@ public class DisplayRenderer extends JPanel implements Closeable {
 
     public void requestFrame() {
         synchronized (this.renderLock) {
-            this.frameRequested.set(true);
+            this.frameRequested = true;
             this.renderLock.notify();
         }
     }
 
-    private void startRenderThread() {
-        this.renderThread = new Thread(this::renderLoop, "jchip-render-thread");
-        this.renderThread.setDaemon(true);
-        this.renderThread.start();
-    }
-
     private void renderLoop() {
-        while (this.running.get()) {
+        while (this.running) {
             synchronized (this.renderLock) {
-                while (this.running.get() && !this.frameRequested.get()) {
+                while (this.running && !this.frameRequested) {
                     try {
                         this.renderLock.wait();
                     } catch (InterruptedException _) {}
                 }
-                this.frameRequested.set(false);
+                this.frameRequested = false;
             }
             this.renderFrame();
         }
@@ -153,7 +147,7 @@ public class DisplayRenderer extends JPanel implements Closeable {
 
     @Override
     public void close() {
-        this.running.set(false);
+        this.running = false;
         synchronized (this.renderLock) {
             this.renderLock.notifyAll();
         }
