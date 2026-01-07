@@ -1,18 +1,24 @@
 package io.github.arkosammy12.jchip.config;
 
+import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
+import io.github.arkosammy12.jchip.util.Variant;
 
 import java.nio.file.Path;
 import java.util.Optional;
 
-public interface PrimarySettingsProvider extends Chip8SettingsInitializer {
+public interface EmulatorInitializer {
 
     Optional<Path> getRomPath();
 
     Optional<byte[]> getRawRom();
 
-    boolean useVariantQuirks();
+    Optional<Variant> getVariant();
+
+    Optional<DisplayAngle> getDisplayAngle();
 
     Optional<KeyboardLayout> getKeyboardLayout();
+
+    boolean useVariantQuirks();
 
 }

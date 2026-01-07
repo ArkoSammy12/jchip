@@ -12,10 +12,10 @@ public abstract class AbstractEmulatorSettings implements EmulatorSettings {
     private final int[] rom;
     private final Jchip jchip;
 
-    public AbstractEmulatorSettings(Jchip jchip, PrimarySettingsProvider settings) {
+    public AbstractEmulatorSettings(Jchip jchip, EmulatorInitializer initializer) {
         this.jchip = jchip;
 
-        Optional<byte[]> rawRomOptional = settings.getRawRom();
+        Optional<byte[]> rawRomOptional = initializer.getRawRom();
 
         if (rawRomOptional.isEmpty()) {
             throw new EmulatorException("Must select a ROM file before starting emulation!");

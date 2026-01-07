@@ -101,7 +101,7 @@ public class Jchip {
 
             if (cliArgs != null) {
                 SwingUtilities.invokeAndWait(() -> this.mainWindow.getSettingsBar().initializeSettings(cliArgs));
-                this.currentEmulator = Variant.getEmulator(this, this.mainWindow.getSettingsBar());
+                this.currentEmulator = Variant.getEmulator(this, cliArgs);
             }
             this.audioRenderer = new DefaultAudioRenderer(this);
             SwingUtilities.invokeLater(() -> this.mainWindow.setVisible(true));

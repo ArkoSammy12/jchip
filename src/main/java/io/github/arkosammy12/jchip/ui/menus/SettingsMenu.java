@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.MainInitializer;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
@@ -60,8 +61,8 @@ public class SettingsMenu extends JMenu {
         return this.keyboardLayoutMenu.getState();
     }
 
-    public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        primarySettingsProvider.getKeyboardLayout().ifPresent(this.keyboardLayoutMenu::setState);
+    public void initializeSettings(MainInitializer initializer) {
+        initializer.getKeyboardLayout().ifPresent(this.keyboardLayoutMenu::setState);
     }
 
 }

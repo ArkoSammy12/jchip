@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
+import io.github.arkosammy12.jchip.config.MainInitializer;
 import io.github.arkosammy12.jchip.ui.menus.*;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
+public class SettingsBar extends JMenuBar implements MainInitializer {
 
     private final FileMenu fileMenu;
     private final EmulatorMenu emulatorMenu;
@@ -35,10 +35,10 @@ public class SettingsBar extends JMenuBar implements PrimarySettingsProvider {
         this.add(helpMenu);
     }
 
-    public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        this.fileMenu.initializeSettings(primarySettingsProvider);
-        this.emulatorMenu.initializeSettings(primarySettingsProvider);
-        this.settingsMenu.initializeSettings(primarySettingsProvider);
+    public void initializeSettings(MainInitializer initializer) {
+        this.fileMenu.initializeSettings(initializer);
+        this.emulatorMenu.initializeSettings(initializer);
+        this.settingsMenu.initializeSettings(initializer);
     }
 
     public void onBreakpoint() {

@@ -16,6 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <!--
     <repositories>
         <repository>
             <id>sonatype-snapshots</id>
@@ -27,12 +28,14 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+
         <repository>
             <id>enjarai-maven</id>
             <name>Trans Fish Maven</name>
             <url>https://maven.enjarai.dev/releases</url>
         </repository>
     </repositories>
+    -->
 
     <dependencies>
         <dependency>
@@ -95,6 +98,11 @@
             <groupId>net.harawata</groupId>
             <artifactId>appdirs</artifactId>
             <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.wasabithumb</groupId>
+            <artifactId>jtoml</artifactId>
+            <version>1.4.1</version>
         </dependency>
     </dependencies>
 

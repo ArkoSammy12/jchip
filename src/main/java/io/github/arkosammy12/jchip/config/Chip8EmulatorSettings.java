@@ -32,21 +32,21 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     private final boolean doShiftVXInPlace;
     private final boolean doJumpWithVX;
 
-    public Chip8EmulatorSettings(Jchip jchip, PrimarySettingsProvider settings) {
-        super(jchip, settings);
+    public Chip8EmulatorSettings(Jchip jchip, MainInitializer initializer) {
+        super(jchip, initializer);
 
         Chip8Database database = jchip.getDatabase();
         database.fetchDataForRom(this.getRawRom());
 
-        this.romTitle = database.getProgramTitle().orElse(settings.getRomPath().map(path -> path.getFileName().toString()).orElse(null));
-        this.colorPalette = settings.getColorPalette().orElse(database.getColorPalette().orElse(BuiltInColorPalette.CADMIUM));
-        this.displayAngle = settings.getDisplayAngle().orElse(database.getDisplayAngle().orElse(DisplayAngle.DEG_0));
-        this.variant = settings.getVariant().orElse(database.getVariant().orElse(CHIP_8));
+        this.romTitle = database.getProgramTitle().orElse(initializer.getRomPath().map(path -> path.getFileName().toString()).orElse(null));
+        this.colorPalette = initializer.getColorPalette().orElse(database.getColorPalette().orElse(BuiltInColorPalette.CADMIUM));
+        this.displayAngle = initializer.getDisplayAngle().orElse(database.getDisplayAngle().orElse(DisplayAngle.DEG_0));
+        this.variant = initializer.getVariant().orElse(database.getVariant().orElse(CHIP_8));
 
         DefaultQuirkSet defaultQuirkset = getDefaultQuirkSet(this.variant).orElse(new DefaultQuirkSet(false, MemoryIncrementQuirk.NONE, false, false, false, false, _ -> 0));
         this.hexSpriteFont = getHexSpriteFont(this.variant);
 
-        if (settings.useVariantQuirks()) {
+        if (initializer.useVariantQuirks()) {
             this.doVFReset = defaultQuirkset.doVFReset();
             this.memoryIncrementQuirk = defaultQuirkset.memoryIncrementQuirk();
             this.doDisplayWait = defaultQuirkset.doDisplayWait();
@@ -55,13 +55,13 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
             this.doJumpWithVX = defaultQuirkset.doJumpWithVX();
             this.instructionsPerFrame = defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait);
         } else {
-            this.doVFReset = settings.doVFReset().orElse(database.doVFReset().orElse(defaultQuirkset.doVFReset()));
-            this.memoryIncrementQuirk = settings.getMemoryIncrementQuirk().orElse(database.getMemoryIncrementQuirk().orElse(defaultQuirkset.memoryIncrementQuirk()));
-            this.doDisplayWait = settings.doDisplayWait().orElse(database.doDisplayWait().orElse((defaultQuirkset.doDisplayWait())));
-            this.doClipping = settings.doClipping().orElse(database.doClipping().orElse(defaultQuirkset.doClipping()));
-            this.doShiftVXInPlace = settings.doShiftVXInPlace().orElse(database.doShiftVXInPlace().orElse(defaultQuirkset.doShiftVXInPlace()));
-            this.doJumpWithVX = settings.doJumpWithVX().orElse(database.doJumpWithVX().orElse(defaultQuirkset.doJumpWithVX()));
-            this.instructionsPerFrame = settings.getInstructionsPerFrame().orElse(database.getInstructionsPerFrame().orElse(defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait)));
+            this.doVFReset = initializer.doVFReset().orElse(database.doVFReset().orElse(defaultQuirkset.doVFReset()));
+            this.memoryIncrementQuirk = initializer.getMemoryIncrementQuirk().orElse(database.getMemoryIncrementQuirk().orElse(defaultQuirkset.memoryIncrementQuirk()));
+            this.doDisplayWait = initializer.doDisplayWait().orElse(database.doDisplayWait().orElse((defaultQuirkset.doDisplayWait())));
+            this.doClipping = initializer.doClipping().orElse(database.doClipping().orElse(defaultQuirkset.doClipping()));
+            this.doShiftVXInPlace = initializer.doShiftVXInPlace().orElse(database.doShiftVXInPlace().orElse(defaultQuirkset.doShiftVXInPlace()));
+            this.doJumpWithVX = initializer.doJumpWithVX().orElse(database.doJumpWithVX().orElse(defaultQuirkset.doJumpWithVX()));
+            this.instructionsPerFrame = initializer.getInstructionsPerFrame().orElse(database.getInstructionsPerFrame().orElse(defaultQuirkset.instructionsPerFrame().applyAsInt(this.doDisplayWait)));
         }
     }
 

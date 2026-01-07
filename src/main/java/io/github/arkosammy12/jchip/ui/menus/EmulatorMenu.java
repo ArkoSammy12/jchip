@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.MainInitializer;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
@@ -236,11 +237,11 @@ public class EmulatorMenu extends JMenu {
         return Optional.ofNullable(this.instructionsPerFrame);
     }
 
-    public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        this.quirksMenu.initializeSettings(primarySettingsProvider);
-        primarySettingsProvider.getVariant().ifPresent(this.variantMenu::setState);
-        primarySettingsProvider.getDisplayAngle().ifPresent(this.displayAngleMenu::setState);
-        primarySettingsProvider.getInstructionsPerFrame().ifPresent(val -> {
+    public void initializeSettings(MainInitializer initializer) {
+        this.quirksMenu.initializeSettings(initializer);
+        initializer.getVariant().ifPresent(this.variantMenu::setState);
+        initializer.getDisplayAngle().ifPresent(this.displayAngleMenu::setState);
+        initializer.getInstructionsPerFrame().ifPresent(val -> {
             this.instructionsPerFrame = val;
             this.instructionsPerFrameField.setText(String.valueOf(val));
         });

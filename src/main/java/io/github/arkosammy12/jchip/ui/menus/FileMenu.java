@@ -3,6 +3,7 @@ package io.github.arkosammy12.jchip.ui.menus;
 import com.formdev.flatlaf.icons.*;
 import com.formdev.flatlaf.util.SystemFileChooser;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
+import io.github.arkosammy12.jchip.config.MainInitializer;
 import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
@@ -111,9 +112,9 @@ public class FileMenu extends JMenu {
         return Optional.of(Arrays.copyOf(val, val.length));
     }
 
-    public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        primarySettingsProvider.getRawRom().ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
-        primarySettingsProvider.getRomPath().map(Path::toAbsolutePath).ifPresent(this.romPath::set);
+    public void initializeSettings(MainInitializer initializer) {
+        initializer.getRawRom().ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
+        initializer.getRomPath().map(Path::toAbsolutePath).ifPresent(this.romPath::set);
     }
 
     private void loadFile(Path filePath) {

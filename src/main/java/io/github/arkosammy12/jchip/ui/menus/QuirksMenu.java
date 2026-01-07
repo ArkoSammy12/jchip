@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
+import io.github.arkosammy12.jchip.config.MainInitializer;
 import io.github.arkosammy12.jchip.ui.util.BooleanMenu;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 
@@ -87,15 +87,15 @@ public class QuirksMenu extends JMenu {
         return this.doJumpWithVXMenu.getState();
     }
 
-    public void initializeSettings(PrimarySettingsProvider primarySettingsProvider) {
-        this.forceVariantQuirks = primarySettingsProvider.useVariantQuirks();
+    public void initializeSettings(MainInitializer initializer) {
+        this.forceVariantQuirks = initializer.useVariantQuirks();
         this.forceVariantQuirksButton.setSelected(this.forceVariantQuirks);
-        primarySettingsProvider.doVFReset().ifPresent(this.doVFResetMenu::setState);
-        primarySettingsProvider.getMemoryIncrementQuirk().ifPresent(this.memoryIncrementQuirkEnumMenu::setState);
-        primarySettingsProvider.doDisplayWait().ifPresent(this.doDisplayWaitMenu::setState);
-        primarySettingsProvider.doClipping().ifPresent(this.doClippingMenu::setState);
-        primarySettingsProvider.doShiftVXInPlace().ifPresent(this.doShiftVXInPlaceMenu::setState);
-        primarySettingsProvider.doJumpWithVX().ifPresent(this.doJumpWithVXMenu::setState);
+        initializer.doVFReset().ifPresent(this.doVFResetMenu::setState);
+        initializer.getMemoryIncrementQuirk().ifPresent(this.memoryIncrementQuirkEnumMenu::setState);
+        initializer.doDisplayWait().ifPresent(this.doDisplayWaitMenu::setState);
+        initializer.doClipping().ifPresent(this.doClippingMenu::setState);
+        initializer.doShiftVXInPlace().ifPresent(this.doShiftVXInPlaceMenu::setState);
+        initializer.doJumpWithVX().ifPresent(this.doJumpWithVXMenu::setState);
     }
 
 }

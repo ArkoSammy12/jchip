@@ -18,7 +18,7 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
     private final Variant variant;
     private final Chip8Interpreter chip8Interpreter;
 
-    public CosmacVipEmulatorSettings(Jchip jchip, Chip8Interpreter chip8Interpreter, PrimarySettingsProvider settings) {
+    public CosmacVipEmulatorSettings(Jchip jchip, Chip8Interpreter chip8Interpreter, EmulatorInitializer settings) {
         super(jchip, settings);
 
         this.displayAngle = settings.getDisplayAngle().orElse(DisplayAngle.DEG_0);

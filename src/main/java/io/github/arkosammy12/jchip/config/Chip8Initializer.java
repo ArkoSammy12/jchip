@@ -1,12 +1,12 @@
 package io.github.arkosammy12.jchip.config;
 
-import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
+import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.video.ColorPalette;
 
 import java.util.Optional;
 
-public interface Chip8SettingsInitializer {
+public interface Chip8Initializer {
 
     Optional<Integer> getInstructionsPerFrame();
 

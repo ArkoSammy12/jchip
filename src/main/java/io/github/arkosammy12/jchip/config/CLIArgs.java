@@ -17,7 +17,7 @@ import java.util.Optional;
         version = Main.VERSION_STRING,
         description = "Initializes jchip with the desired configurations and starts emulation."
 )
-public class CLIArgs implements PrimarySettingsProvider {
+public class CLIArgs implements MainInitializer {
 
     @CommandLine.Option(
             names = {"--rom", "-r"},

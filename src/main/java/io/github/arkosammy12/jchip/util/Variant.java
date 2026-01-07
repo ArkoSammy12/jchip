@@ -25,12 +25,12 @@ public enum Variant implements DisplayNameProvider {
 
     private final String identifier;
     private final String displayName;
-    private final BiFunction<Jchip, PrimarySettingsProvider, ? extends EmulatorSettings> emulatorSettingsProvider;
+    private final BiFunction<Jchip, MainInitializer, ? extends EmulatorSettings> initializer;
 
-    Variant(String identifier, String displayName, BiFunction<Jchip, PrimarySettingsProvider, ? extends EmulatorSettings> emulatorSettingsProvider) {
+    Variant(String identifier, String displayName, BiFunction<Jchip, MainInitializer, ? extends EmulatorSettings> initializer) {
         this.identifier = identifier;
         this.displayName = displayName;
-        this.emulatorSettingsProvider = emulatorSettingsProvider;
+        this.initializer = initializer;
     }
 
     @Override
@@ -38,12 +38,12 @@ public enum Variant implements DisplayNameProvider {
         return this.displayName;
     }
 
-    public static Emulator getEmulator(Jchip jchip, PrimarySettingsProvider settings) {
-        Optional<Variant> optionalVariant = settings.getVariant();
+    public static Emulator getEmulator(Jchip jchip, MainInitializer mainInitializer) {
+        Optional<Variant> optionalVariant = mainInitializer.getVariant();
         if (optionalVariant.isPresent()) {
-            return optionalVariant.get().emulatorSettingsProvider.apply(jchip, settings).getEmulator();
+            return optionalVariant.get().initializer.apply(jchip, mainInitializer).getEmulator();
         }
-        return new Chip8EmulatorSettings(jchip, settings).getEmulator();
+        return new Chip8EmulatorSettings(jchip, mainInitializer).getEmulator();
     }
 
     public static Variant getVariantForIdentifier(String identifier) {
