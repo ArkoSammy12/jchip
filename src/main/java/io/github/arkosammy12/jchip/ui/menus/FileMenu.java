@@ -4,7 +4,6 @@ import com.formdev.flatlaf.icons.*;
 import com.formdev.flatlaf.util.SystemFileChooser;
 import io.github.arkosammy12.jchip.config.EmulatorSettings;
 import io.github.arkosammy12.jchip.config.MainInitializer;
-import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.tinylog.Logger;

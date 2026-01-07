@@ -2,7 +2,6 @@ package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.config.MainInitializer;
-import io.github.arkosammy12.jchip.config.PrimarySettingsProvider;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;

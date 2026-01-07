@@ -2,6 +2,7 @@ package io.github.arkosammy12.jchip;
 
 import com.formdev.flatlaf.intellijthemes.FlatOneDarkIJTheme;
 import io.github.arkosammy12.jchip.config.CLIArgs;
+import io.github.arkosammy12.jchip.config.Config;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
@@ -29,6 +30,7 @@ public class Jchip {
     private volatile Emulator currentEmulator;
 
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
+    private final Config config = new Config();
     private final Chip8Database database = new Chip8Database();
     private final DefaultAudioRenderer audioRenderer;
 
