@@ -4,17 +4,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class DebuggerLabel<T> extends JLabel {
 
     private final DebuggerSchema.TextEntry<T> textEntry;
 
-    private final AtomicReference<T> state = new AtomicReference<>(null);
-    private final AtomicBoolean stateChanged = new AtomicBoolean(false);
-    private final AtomicReference<Color> lastForegroundColor = new AtomicReference<>(UIManager.getColor("Table.foreground"));
+    private T state = null;
+    private boolean stateChanged = false;
+    private Color lastForegroundColor = UIManager.getColor("Table.foreground");
 
     public DebuggerLabel(DebuggerSchema.TextEntry<T> textEntry) {
         super(textEntry.getName().orElse(""));
@@ -22,32 +20,32 @@ public class DebuggerLabel<T> extends JLabel {
     }
 
     private boolean stateHasChanged() {
-        return this.stateChanged.get();
+        return this.stateChanged;
     }
 
     public void update() {
-        T oldState = this.state.get();
+        T oldState = this.state;
         Optional<Supplier<T>> stateUpdaterOptional = this.textEntry.getStateUpdater();
         if (stateUpdaterOptional.isEmpty()) {
-            this.stateChanged.set(false);
+            this.stateChanged = false;
             return;
         }
         T newState = stateUpdaterOptional.get().get();
-        this.state.set(newState);
+        this.state = newState;
 
         String name = this.textEntry.getName().orElse("");
         if (newState == null) {
             this.setText(name);
-            this.stateChanged.set(false);
+            this.stateChanged = false;
             return;
         }
-        this.stateChanged.set(!Objects.equals(oldState, newState));
+        this.stateChanged =!Objects.equals(oldState, newState);
 
         String text = "";
         if (!name.isEmpty()) {
             text += name;
         }
-        text += ": " + this.textEntry.getToStringFunction().orElse(Object::toString).apply(this.state.get());
+        text += ": " + this.textEntry.getToStringFunction().orElse(Object::toString).apply(this.state);
 
         if (!text.equals(this.getText())) {
             this.setText(text);
@@ -55,11 +53,11 @@ public class DebuggerLabel<T> extends JLabel {
     }
 
     public Color getForegroundColor() {
-        return this.lastForegroundColor.get();
+        return this.lastForegroundColor;
     }
 
     public void updateForegroundColor() {
-        this.lastForegroundColor.set(this.stateHasChanged() ? Color.YELLOW : UIManager.getColor("Table.foreground"));
+        this.lastForegroundColor = this.stateHasChanged() ? Color.YELLOW : UIManager.getColor("Table.foreground");
     }
 
 }
