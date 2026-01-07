@@ -118,6 +118,9 @@ public class MemoryTable extends JTable {
         Jchip.State state = emulator.getEmulatorSettings().getJchip().getState();
         boolean updateChangeHighlights = state.isRunning() || state.isStepping();
         SwingUtilities.invokeLater(() -> {
+            if (!this.isShowing()) {
+                return;
+            }
             if (updateChangeHighlights && this.bytes != null) {
                 JViewport vp = (JViewport) getParent();
                 Rectangle view = vp.getViewRect();
