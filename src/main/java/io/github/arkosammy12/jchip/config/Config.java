@@ -111,8 +111,14 @@ public class Config implements ApplicationInitializer {
             return Unit.INSTANCE;
         });
         manager.section("ui", ui -> {
-            DEBUGGER_FOLLOW = ui.booleanSetting("debugger_follow", false, _ -> Unit.INSTANCE);
-            DISASSEMBLER_FOLLOW = ui.booleanSetting("disassembler_follow", false, _ -> Unit.INSTANCE);
+            ui.section("debugger", debugger -> {
+                DEBUGGER_FOLLOW = debugger.booleanSetting("debugger_follow", false, _ -> Unit.INSTANCE);
+                return Unit.INSTANCE;
+            });
+            ui.section("disassembler", disassembler -> {
+                DISASSEMBLER_FOLLOW = disassembler.booleanSetting("disassembler_follow", false, _ -> Unit.INSTANCE);
+                return Unit.INSTANCE;
+            });
             return Unit.INSTANCE;
         });
         return Unit.INSTANCE;
