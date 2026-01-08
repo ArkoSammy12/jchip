@@ -84,7 +84,7 @@ public class Config implements ApplicationInitializer {
             COLOR_PALETTE = emulator.enumSetting("color_palette", ColorPaletteValue.unspecified, _ -> Unit.INSTANCE);
             DISPLAY_ANGLE = emulator.numberSetting("display_angle", -1, displayAngle -> {
                 displayAngle.setMinValue(-1);
-                displayAngle.setMinValue(360);
+                displayAngle.setMaxValue(360);
                 return Unit.INSTANCE;
             });
             INSTRUCTIONS_PER_FRAME = emulator.numberSetting("instructions_per_frame", -1, ipf -> {
