@@ -1,15 +1,19 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
-import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.config.MainInitializer;
+import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
+import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.util.BooleanMenu;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
+import java.util.function.Function;
 
-public class QuirksMenu extends JMenu {
+public class QuirksMenu extends JMenu implements EmulatorInitializerConsumer {
 
     private final JRadioButtonMenuItem forceVariantQuirksButton;
     private final BooleanMenu doVFResetMenu;
@@ -19,15 +23,15 @@ public class QuirksMenu extends JMenu {
     private final BooleanMenu doShiftVXInPlaceMenu;
     private final BooleanMenu doJumpWithVXMenu;
 
-    private boolean forceVariantQuirks;
+    private volatile boolean forceVariantQuirks;
 
-    public QuirksMenu() {
+    public QuirksMenu(Jchip jchip) {
         super("Quirks");
 
         this.setMnemonic(KeyEvent.VK_Q);
 
         this.forceVariantQuirksButton = new JRadioButtonMenuItem("Force Variant Quirks");
-        this.forceVariantQuirksButton.addActionListener(_ -> this.forceVariantQuirks = forceVariantQuirksButton.isSelected());
+        this.forceVariantQuirksButton.addChangeListener(_ -> this.forceVariantQuirks = this.forceVariantQuirksButton.isSelected());
         this.forceVariantQuirksButton.setToolTipText("Force the used quirks to be of the variant used to run the current ROM.");
         this.forceVariantQuirksButton.setMnemonic(KeyEvent.VK_F);
 
@@ -57,6 +61,30 @@ public class QuirksMenu extends JMenu {
         this.add(this.doClippingMenu);
         this.add(this.doShiftVXInPlaceMenu);
         this.add(this.doJumpWithVXMenu);
+
+        jchip.addShutdownListener(() -> {
+            Config config = jchip.getConfig();
+
+            Function<Optional<Boolean>, Config.BooleanValue> booleanMapper = optional -> switch (optional) {
+                case Optional<Boolean> opt when opt.isPresent() -> opt.get() ? Config.BooleanValue.enabled : Config.BooleanValue.disabled;
+                case null, default -> Config.BooleanValue.unspecified;
+            };
+
+            config.setBooleanSettingIfPresent(Config.USE_VARIANT_QUIRKS, this.forceVariantQuirks);
+            config.setEnumSettingIfPresent(Config.VF_RESET, booleanMapper.apply(this.doVFReset()));
+            config.setEnumSettingIfPresent(Config.I_INCREMENT, switch (this.getMemoryIncrementQuirk()) {
+                case Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> optional when optional.isPresent() -> switch (optional.get()) {
+                    case NONE -> Config.MemoryIncrementValue.none;
+                    case INCREMENT_X -> Config.MemoryIncrementValue.increment_x;
+                    case INCREMENT_X_1 -> Config.MemoryIncrementValue.increment_x_1;
+                };
+                case null, default -> Config.MemoryIncrementValue.unspecified;
+            });
+            config.setEnumSettingIfPresent(Config.DISPLAY_WAIT, booleanMapper.apply(this.doDisplayWait()));
+            config.setEnumSettingIfPresent(Config.CLIPPING, booleanMapper.apply(this.doClipping()));
+            config.setEnumSettingIfPresent(Config.SHIFT_VX_IN_PLACE, booleanMapper.apply(this.doShiftVXInPlace()));
+            config.setEnumSettingIfPresent(Config.JUMP_WITH_VX, booleanMapper.apply(this.doJumpWithVX()));
+        });
     }
 
     public boolean forceVariantQuirks() {
@@ -87,9 +115,9 @@ public class QuirksMenu extends JMenu {
         return this.doJumpWithVXMenu.getState();
     }
 
-    public void initializeSettings(MainInitializer initializer) {
-        this.forceVariantQuirks = initializer.useVariantQuirks();
-        this.forceVariantQuirksButton.setSelected(this.forceVariantQuirks);
+    @Override
+    public void accept(EmulatorInitializer initializer) {
+        initializer.useVariantQuirks().ifPresent(this.forceVariantQuirksButton::setSelected);
         initializer.doVFReset().ifPresent(this.doVFResetMenu::setState);
         initializer.getMemoryIncrementQuirk().ifPresent(this.memoryIncrementQuirkEnumMenu::setState);
         initializer.doDisplayWait().ifPresent(this.doDisplayWaitMenu::setState);
@@ -97,5 +125,5 @@ public class QuirksMenu extends JMenu {
         initializer.doShiftVXInPlace().ifPresent(this.doShiftVXInPlaceMenu::setState);
         initializer.doJumpWithVX().ifPresent(this.doJumpWithVXMenu::setState);
     }
-
 }
+

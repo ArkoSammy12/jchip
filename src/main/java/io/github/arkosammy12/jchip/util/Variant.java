@@ -1,7 +1,10 @@
 package io.github.arkosammy12.jchip.util;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.*;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.CosmacVipEmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.*;
 import picocli.CommandLine;
 
@@ -25,9 +28,9 @@ public enum Variant implements DisplayNameProvider {
 
     private final String identifier;
     private final String displayName;
-    private final BiFunction<Jchip, MainInitializer, ? extends EmulatorSettings> initializer;
+    private final BiFunction<Jchip, EmulatorInitializer, ? extends EmulatorSettings> initializer;
 
-    Variant(String identifier, String displayName, BiFunction<Jchip, MainInitializer, ? extends EmulatorSettings> initializer) {
+    Variant(String identifier, String displayName, BiFunction<Jchip, EmulatorInitializer, ? extends EmulatorSettings> initializer) {
         this.identifier = identifier;
         this.displayName = displayName;
         this.initializer = initializer;
@@ -38,7 +41,7 @@ public enum Variant implements DisplayNameProvider {
         return this.displayName;
     }
 
-    public static Emulator getEmulator(Jchip jchip, MainInitializer mainInitializer) {
+    public static Emulator getEmulator(Jchip jchip, EmulatorInitializer mainInitializer) {
         Optional<Variant> optionalVariant = mainInitializer.getVariant();
         if (optionalVariant.isPresent()) {
             return optionalVariant.get().initializer.apply(jchip, mainInitializer).getEmulator();

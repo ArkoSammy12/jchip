@@ -1,6 +1,7 @@
-package io.github.arkosammy12.jchip.config;
+package io.github.arkosammy12.jchip.config.settings;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.*;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -32,7 +33,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
     private final boolean doShiftVXInPlace;
     private final boolean doJumpWithVX;
 
-    public Chip8EmulatorSettings(Jchip jchip, MainInitializer initializer) {
+    public Chip8EmulatorSettings(Jchip jchip, EmulatorInitializer initializer) {
         super(jchip, initializer);
 
         Chip8Database database = jchip.getDatabase();
@@ -46,7 +47,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         DefaultQuirkSet defaultQuirkset = getDefaultQuirkSet(this.variant).orElse(new DefaultQuirkSet(false, MemoryIncrementQuirk.NONE, false, false, false, false, _ -> 0));
         this.hexSpriteFont = getHexSpriteFont(this.variant);
 
-        if (initializer.useVariantQuirks()) {
+        if (initializer.useVariantQuirks().isPresent() && initializer.useVariantQuirks().get()) {
             this.doVFReset = defaultQuirkset.doVFReset();
             this.memoryIncrementQuirk = defaultQuirkset.memoryIncrementQuirk();
             this.doDisplayWait = defaultQuirkset.doDisplayWait();

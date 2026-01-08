@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.Processor;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.memory.Bus;

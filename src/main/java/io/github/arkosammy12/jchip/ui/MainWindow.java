@@ -2,6 +2,8 @@ package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
 import io.github.arkosammy12.jchip.ui.util.WindowTitleManager;
@@ -12,11 +14,10 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.io.Closeable;
 
-public class MainWindow extends JFrame implements Closeable {
+public class MainWindow extends JFrame implements EmulatorInitializerConsumer, Closeable {
 
     public static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
 
@@ -65,6 +66,26 @@ public class MainWindow extends JFrame implements Closeable {
         return this.settingsBar;
     }
 
+    @Override
+    public void accept(EmulatorInitializer initializer) {
+        for (Component child : this.getComponents()) {
+            this.visit(child, initializer);
+        }
+    }
+
+    private void visit(Component component, EmulatorInitializer emulatorInitializer) {
+        if (component instanceof EmulatorInitializerConsumer consumer) {
+            consumer.accept(emulatorInitializer);
+        }
+        if (component instanceof Container container) {
+            for (Component child : container.getComponents()) {
+                if (child instanceof Container c) {
+                    this.visit(c, emulatorInitializer);
+                }
+            }
+        }
+    }
+
     public void setTitleSection(int index, String text) {
         this.windowTitleManager.setSection(index, text);
     }
@@ -90,7 +111,7 @@ public class MainWindow extends JFrame implements Closeable {
         });
     }
 
-    public void showExceptionDialog(Exception e) {
+    public void showExceptionDialog(Throwable e) {
         SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
                 e.getClass().getSimpleName() + ": " + e.getMessage(),
                 "Emulation has stopped unexpectedly!",

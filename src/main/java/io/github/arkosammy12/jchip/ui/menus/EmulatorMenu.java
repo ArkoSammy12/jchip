@@ -1,7 +1,9 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.MainInitializer;
+import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import io.github.arkosammy12.jchip.ui.util.NumberOnlyTextField;
@@ -19,7 +21,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
 
-public class EmulatorMenu extends JMenu {
+public class EmulatorMenu extends JMenu implements EmulatorInitializerConsumer {
 
     private final MainWindow mainWindow;
 
@@ -36,7 +38,7 @@ public class EmulatorMenu extends JMenu {
 
     private final JTextField instructionsPerFrameField;
 
-    private Integer instructionsPerFrame;
+    private volatile Integer instructionsPerFrame;
 
     public EmulatorMenu(Jchip jchip, MainWindow mainWindow) {
         super("Emulator");
@@ -78,7 +80,7 @@ public class EmulatorMenu extends JMenu {
         this.stepCycleButton.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK, true));
         this.stepCycleButton.setEnabled(false);
 
-        this.quirksMenu = new QuirksMenu();
+        this.quirksMenu = new QuirksMenu(jchip);
         this.variantMenu = new EnumMenu<>("Variant", Variant.class, true);
         this.variantMenu.setMnemonic(KeyEvent.VK_V);
 
@@ -210,13 +212,65 @@ public class EmulatorMenu extends JMenu {
                 }
             });
         }));
+
+        jchip.addShutdownListener(() -> {
+            Config config = jchip.getConfig();
+            config.setEnumSettingIfPresent(Config.VARIANT, switch (this.getVariant()) {
+                case Optional<Variant> optional when optional.isPresent() -> switch (optional.get()) {
+                    case CHIP_8 -> Config.VariantValue.chip_8;
+                    case STRICT_CHIP_8 -> Config.VariantValue.strict_chip_8;
+                    case CHIP_8X -> Config.VariantValue.chip_8x;
+                    case CHIP_48 -> Config.VariantValue.chip_48;
+                    case SUPER_CHIP_10 -> Config.VariantValue.schip_10;
+                    case SUPER_CHIP_11 -> Config.VariantValue.schip_11;
+                    case SUPER_CHIP_MODERN -> Config.VariantValue.schip_modern;
+                    case XO_CHIP -> Config.VariantValue.xo_chip;
+                    case MEGA_CHIP -> Config.VariantValue.mega_chip;
+                    case HYPERWAVE_CHIP_64 -> Config.VariantValue.hyperwave_chip_64;
+                    case HYBRID_CHIP_8 -> Config.VariantValue.hybrid_chip_8;
+                    case HYBRID_CHIP_8X -> Config.VariantValue.hybrid_chip_8x;
+                    case COSMAC_VIP -> Config.VariantValue.cosmac_vip;
+                };
+                case null, default -> Config.VariantValue.unspecified;
+            });
+            config.setEnumSettingIfPresent(Config.COLOR_PALETTE, switch (this.getColorPalette()) {
+                case Optional<ColorPalette> optional when optional.isPresent() && optional.get() instanceof BuiltInColorPalette builtInColorPalette -> switch (builtInColorPalette) {
+                    case CADMIUM -> Config.ColorPaletteValue.cadmium;
+                    case SILICON8 -> Config.ColorPaletteValue.silicon8;
+                    case PICO8 -> Config.ColorPaletteValue.pico8;
+                    case OCTO_CLASSIC -> Config.ColorPaletteValue.octoclassic;
+                    case LCD -> Config.ColorPaletteValue.lcd;
+                    case C64 -> Config.ColorPaletteValue.c64;
+                    case INTELLIVISION -> Config.ColorPaletteValue.intellivision;
+                    case CGA -> Config.ColorPaletteValue.cga;
+                };
+                case null, default -> Config.ColorPaletteValue.unspecified;
+            });
+            config.setIntegerSettingIfPresent(Config.DISPLAY_ANGLE, switch (this.getDisplayAngle()) {
+                case Optional<DisplayAngle> optional when optional.isPresent() -> switch (optional.get()) {
+                    case DEG_0 -> 0;
+                    case DEG_90 -> 90;
+                    case DEG_180 -> 180;
+                    case DEG_270 -> 270;
+                };
+                case null, default -> -1;
+            });
+            config.setIntegerSettingIfPresent(Config.INSTRUCTIONS_PER_FRAME, switch (this.getInstructionsPerFrame()) {
+                case Optional<Integer> optional when optional.isPresent() -> switch (optional.get()) {
+                    case Integer i when i > 0 -> i;
+                    default -> -1;
+                };
+                default -> -1;
+            });
+        });
+
     }
 
     public QuirksMenu getQuirksMenu() {
         return this.quirksMenu;
     }
 
-    public Optional<Variant> getChip8Variant() {
+    public Optional<Variant> getVariant() {
         return this.variantMenu.getState();
     }
 
@@ -236,17 +290,6 @@ public class EmulatorMenu extends JMenu {
         return Optional.ofNullable(this.instructionsPerFrame);
     }
 
-    public void initializeSettings(MainInitializer initializer) {
-        this.quirksMenu.initializeSettings(initializer);
-        initializer.getVariant().ifPresent(this.variantMenu::setState);
-        initializer.getDisplayAngle().ifPresent(this.displayAngleMenu::setState);
-        initializer.getInstructionsPerFrame().ifPresent(val -> {
-            this.instructionsPerFrame = val;
-            this.instructionsPerFrameField.setText(String.valueOf(val));
-        });
-        this.resetButton.doClick();
-    }
-
     public void onBreakpoint() {
         if (!SwingUtilities.isEventDispatchThread()) {
             try {
@@ -259,6 +302,21 @@ public class EmulatorMenu extends JMenu {
                 this.mainWindow.showExceptionDialog(e);
             }
         }
+    }
+
+    @Override
+    public void accept(EmulatorInitializer initializer) {
+        initializer.getVariant().ifPresent(this.variantMenu::setState);
+        initializer.getColorPalette().ifPresent(colorPalette -> {
+            if (colorPalette instanceof BuiltInColorPalette builtInColorPalette) {
+                this.colorPaletteMenu.setState(builtInColorPalette);
+            }
+        });
+        initializer.getDisplayAngle().ifPresent(this.displayAngleMenu::setState);
+        initializer.getInstructionsPerFrame().ifPresent(val -> {
+            this.instructionsPerFrame = val;
+            this.instructionsPerFrameField.setText(String.valueOf(val));
+        });
     }
 
 }

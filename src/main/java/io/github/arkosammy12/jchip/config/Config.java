@@ -1,7 +1,9 @@
 package io.github.arkosammy12.jchip.config;
 
-import com.google.errorprone.annotations.Var;
+import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
+import io.github.arkosammy12.jchip.util.KeyboardLayout;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
 import io.github.arkosammy12.jchip.video.ColorPalette;
@@ -12,48 +14,47 @@ import io.github.arkosammy12.monkeyconfig.managers.ConfigManagerUtils;
 import io.github.arkosammy12.monkeyconfig.types.ListType;
 import io.github.arkosammy12.monkeyconfig.types.StringType;
 import io.github.arkosammy12.monkeyconfig.util.ElementPath;
-import kotlin.OptionalExpectation;
 import kotlin.Unit;
 import net.harawata.appdirs.AppDirsFactory;
 import org.jetbrains.annotations.Nullable;
 import org.tinylog.Logger;
 
-import javax.swing.text.html.Option;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class Config implements Chip8Initializer {
+public class Config implements ApplicationInitializer {
 
-    private static ElementPath USE_VARIANT_QUIRKS;
+    public static ElementPath RECENT_FILES;
 
-    private static ElementPath VF_RESET;
-    private static ElementPath I_INCREMENT;
-    private static ElementPath DISPLAY_WAIT;
-    private static ElementPath CLIPPING;
-    private static ElementPath SHIFT_VX_IN_PLACE;
-    private static ElementPath JUMP_WITH_VX;
+    public static ElementPath USE_VARIANT_QUIRKS;
 
-    private static ElementPath VARIANT;
-    private static ElementPath COLOR_PALETTE;
-    private static ElementPath DISPLAY_ANGLE;
-    private static ElementPath INSTRUCTIONS_PER_FRAME;
+    public static ElementPath VF_RESET;
+    public static ElementPath I_INCREMENT;
+    public static ElementPath DISPLAY_WAIT;
+    public static ElementPath CLIPPING;
+    public static ElementPath SHIFT_VX_IN_PLACE;
+    public static ElementPath JUMP_WITH_VX;
 
-    private static ElementPath VOLUME;
-    private static ElementPath MUTED;
-    private static ElementPath KEYBOARD_LAYOUT;
-    private static ElementPath SHOW_INFO_BAR;
+    public static ElementPath VARIANT;
+    public static ElementPath COLOR_PALETTE;
+    public static ElementPath DISPLAY_ANGLE;
+    public static ElementPath INSTRUCTIONS_PER_FRAME;
 
-    private static ElementPath SHOW_DEBUGGER;
-    private static ElementPath SHOW_DISASSEMBLER;
+    public static ElementPath VOLUME;
+    public static ElementPath MUTED;
+    public static ElementPath KEYBOARD_LAYOUT;
+    public static ElementPath SHOW_INFO_BAR;
+
+    public static ElementPath SHOW_DEBUGGER;
+    public static ElementPath SHOW_DISASSEMBLER;
 
     private static final Path APP_DIR = Path.of(AppDirsFactory.getInstance().getUserDataDir("jchip", null, null));
-    public static final ConfigManager CONFIG_MANAGER = ConfigManagerBuilderKt.tomlConfigManager("data", APP_DIR.resolve("data.toml"), manager -> {
+    private static final ConfigManager CONFIG_MANAGER = ConfigManagerBuilderKt.tomlConfigManager("data", APP_DIR.resolve("data.toml"), manager -> {
         manager.section("file", file -> {
-            file.<Path, StringType>listSetting("recent_files", List.of(), recentFiles -> {
+            RECENT_FILES = file.<Path, StringType>listSetting("recent_files", List.of(), recentFiles -> {
                recentFiles.setSerializer(list -> new ListType<>(list.stream().map(e -> new StringType(e.toString())).collect(Collectors.toList())));
                recentFiles.setDeserializer(list -> list.getValue().stream().map(e -> Path.of(e.getValue())).collect(Collectors.toList()));
                return Unit.INSTANCE;
@@ -109,16 +110,53 @@ public class Config implements Chip8Initializer {
 
 
     public Config() {
-        /*
-        if (!Files.exists(APP_DIR)) {
-            try {
-                Files.createDirectory(APP_DIR);
-            } catch (Exception e) {}
+        try {
+            CONFIG_MANAGER.loadFromFile();
+        } catch (Exception e) {
+            Logger.error("Error while loading data file from directory {}: {}", APP_DIR, e);
         }
-        CONFIG_MANAGER.loadFromFile();
-        CONFIG_MANAGER.saveToFile();
+    }
 
-         */
+    public <T> void setListSettingIfPresent(ElementPath path, List<T> list) {
+        Setting<List<T>, ?> setting = ConfigManagerUtils.getListSetting(CONFIG_MANAGER, path);
+        if (setting == null) {
+            return;
+        }
+        setting.getValue().setRaw(list);
+    }
+
+    public <T extends Enum<T>> void setEnumSettingIfPresent(ElementPath path, T val) {
+        Setting<T, ?> setting = ConfigManagerUtils.getEnumSetting(CONFIG_MANAGER, path);
+        if (setting == null){
+            return;
+        }
+        setting.getValue().setRaw(val);
+    }
+
+    public void setBooleanSettingIfPresent(ElementPath path, boolean value) {
+        Setting<Boolean, ?> setting = ConfigManagerUtils.getBooleanSetting(CONFIG_MANAGER, path);
+        if (setting == null) {
+            return;
+        }
+        setting.getValue().setRaw(value);
+    }
+
+    public void setIntegerSettingIfPresent(ElementPath path, int value) {
+        Setting<Number, ?> setting = ConfigManagerUtils.getNumberSetting(CONFIG_MANAGER, path);
+        if (setting == null) {
+            return;
+        }
+        setting.getValue().setRaw(value);
+    }
+
+    @Override
+    public Optional<Path> getRomPath() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<byte[]> getRawRom() {
+        return Optional.empty();
     }
 
     @Override
@@ -157,6 +195,26 @@ public class Config implements Chip8Initializer {
             };
             case null, default -> Optional.empty();
         };
+    }
+
+    @Override
+    public Optional<KeyboardLayout> getKeyboardLayout() {
+        return switch (this.<KeyboardLayoutValue>getRawEnumSetting(KEYBOARD_LAYOUT)) {
+            case qwerty -> Optional.of(KeyboardLayout.QWERTY);
+            case dvorak -> Optional.of(KeyboardLayout.DVORAK);
+            case colemak -> Optional.of(KeyboardLayout.COLEMAK);
+            case azerty -> Optional.of(KeyboardLayout.AZERTY);
+            case null -> Optional.empty();
+        };
+    }
+
+    @Override
+    public Optional<Boolean> useVariantQuirks() {
+        Boolean val = this.getRawBooleanSetting(USE_VARIANT_QUIRKS);
+        if (val == null) {
+            return Optional.empty();
+        }
+        return Optional.of(val);
     }
 
     @Override
@@ -251,20 +309,72 @@ public class Config implements Chip8Initializer {
         return setting.getValue().getRaw();
     }
 
-    private enum BooleanValue {
+    @Override
+    public Optional<List<Path>> getRecentFiles() {
+        Setting<List<Path>, ?> setting = ConfigManagerUtils.getListSetting(CONFIG_MANAGER, RECENT_FILES);
+        if (setting == null) {
+            return Optional.empty();
+        }
+        return Optional.of(setting.getValue().getRaw());
+    }
+
+    @Override
+    public Optional<Integer> getVolume() {
+        return switch (this.getRawNumberSetting(VOLUME)) {
+            case Integer i when i >= 0 && i <= 100 -> Optional.of(i);
+            case null, default -> Optional.empty();
+        };
+    }
+
+    @Override
+    public Optional<Boolean> isMuted() {
+        return Optional.ofNullable(this.getRawBooleanSetting(MUTED));
+    }
+
+    @Override
+    public Optional<Boolean> isShowingInfoBar() {
+        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_INFO_BAR));
+    }
+
+    @Override
+    public Optional<Boolean> isShowingDebugger() {
+        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_DEBUGGER));
+    }
+
+    @Override
+    public Optional<Boolean> isShowingDisassembler() {
+        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_DISASSEMBLER));
+    }
+
+    public void save() {
+        if (!Files.exists(APP_DIR)) {
+            try {
+                Files.createDirectory(APP_DIR);
+            } catch (Exception e) {
+                Logger.error("Error creating app data directory in {}: {}", APP_DIR, e);
+            }
+        }
+        try {
+            CONFIG_MANAGER.saveToFile();
+        } catch (Exception e) {
+            Logger.error("Error saving data to data file: {}", e);
+        }
+    }
+
+    public enum BooleanValue {
         unspecified,
         enabled,
         disabled,
     }
 
-    private enum MemoryIncrementValue {
+    public enum MemoryIncrementValue {
         unspecified,
         none,
         increment_x,
         increment_x_1,
     }
 
-    private enum VariantValue {
+    public enum VariantValue {
         unspecified,
         chip_8,
         strict_chip_8,
@@ -281,7 +391,7 @@ public class Config implements Chip8Initializer {
         cosmac_vip
     }
 
-    private enum ColorPaletteValue {
+    public enum ColorPaletteValue {
         unspecified,
         cadmium,
         silicon8,
@@ -293,7 +403,7 @@ public class Config implements Chip8Initializer {
         cga
     }
 
-    private enum KeyboardLayoutValue {
+    public enum KeyboardLayoutValue {
         qwerty,
         dvorak,
         azerty,

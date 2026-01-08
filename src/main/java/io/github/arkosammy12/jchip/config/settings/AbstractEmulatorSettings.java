@@ -1,6 +1,7 @@
-package io.github.arkosammy12.jchip.config;
+package io.github.arkosammy12.jchip.config.settings;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.initializers.CommonInitializer;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 
 import java.util.Arrays;
@@ -12,7 +13,7 @@ public abstract class AbstractEmulatorSettings implements EmulatorSettings {
     private final int[] rom;
     private final Jchip jchip;
 
-    public AbstractEmulatorSettings(Jchip jchip, EmulatorInitializer initializer) {
+    public AbstractEmulatorSettings(Jchip jchip, CommonInitializer initializer) {
         this.jchip = jchip;
 
         Optional<byte[]> rawRomOptional = initializer.getRawRom();

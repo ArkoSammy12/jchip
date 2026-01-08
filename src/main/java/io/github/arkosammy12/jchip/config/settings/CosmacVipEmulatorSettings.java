@@ -1,6 +1,7 @@
-package io.github.arkosammy12.jchip.config;
+package io.github.arkosammy12.jchip.config.settings;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.initializers.CommonInitializer;
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -18,7 +19,7 @@ public class CosmacVipEmulatorSettings extends AbstractEmulatorSettings {
     private final Variant variant;
     private final Chip8Interpreter chip8Interpreter;
 
-    public CosmacVipEmulatorSettings(Jchip jchip, Chip8Interpreter chip8Interpreter, EmulatorInitializer settings) {
+    public CosmacVipEmulatorSettings(Jchip jchip, Chip8Interpreter chip8Interpreter, CommonInitializer settings) {
         super(jchip, settings);
 
         this.displayAngle = settings.getDisplayAngle().orElse(DisplayAngle.DEG_0);

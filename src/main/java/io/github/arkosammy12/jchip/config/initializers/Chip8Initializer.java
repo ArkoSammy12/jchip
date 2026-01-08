@@ -1,5 +1,6 @@
-package io.github.arkosammy12.jchip.config;
+package io.github.arkosammy12.jchip.config.initializers;
 
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.video.ColorPalette;

@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.sound.Chip48SoundSystem;
 import io.github.arkosammy12.jchip.sound.SoundSystem;
 import org.jetbrains.annotations.NotNull;

@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
 import io.github.arkosammy12.jchip.memory.StrictChip8Bus;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerSchema;

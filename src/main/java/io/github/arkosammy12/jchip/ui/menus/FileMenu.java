@@ -2,8 +2,12 @@ package io.github.arkosammy12.jchip.ui.menus;
 
 import com.formdev.flatlaf.icons.*;
 import com.formdev.flatlaf.util.SystemFileChooser;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
-import io.github.arkosammy12.jchip.config.MainInitializer;
+import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.*;
+import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
+import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.tinylog.Logger;
@@ -14,12 +18,13 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class FileMenu extends JMenu {
+public class FileMenu extends JMenu implements EmulatorInitializerConsumer {
 
     private static final String[] FILE_EXTENSIONS = {"ch8", "c8x", "sc8", "sc11", "scm", "xo8", "mc8", "hc8", "cos", "bin"};
 
@@ -32,7 +37,7 @@ public class FileMenu extends JMenu {
     private final JMenuItem clearRecentButton;
     private final CircularFifoQueue<Path> recentFilePaths = new CircularFifoQueue<>(10);
 
-    public FileMenu(MainWindow mainWindow) {
+    public FileMenu(Jchip jchip, MainWindow mainWindow) {
         super("File");
         this.mainWindow = mainWindow;
 
@@ -97,6 +102,12 @@ public class FileMenu extends JMenu {
         this.openRecentMenu.add(this.clearRecentButton);
         this.add(openItem);
         this.add(openRecentMenu);
+
+        jchip.addShutdownListener(() -> {
+            Config config = jchip.getConfig();
+
+            config.setListSettingIfPresent(Config.RECENT_FILES, new ArrayList<>(this.recentFilePaths));
+        });
     }
 
     public Optional<Path> getRomPath() {
@@ -111,9 +122,22 @@ public class FileMenu extends JMenu {
         return Optional.of(Arrays.copyOf(val, val.length));
     }
 
-    public void initializeSettings(MainInitializer initializer) {
+    @Override
+    public void accept(EmulatorInitializer initializer) {
         initializer.getRawRom().ifPresent(rawRom -> this.rawRom.set(Arrays.copyOf(rawRom, rawRom.length)));
-        initializer.getRomPath().map(Path::toAbsolutePath).ifPresent(this.romPath::set);
+        initializer.getRomPath().map(Path::toAbsolutePath).ifPresent(this::loadFile);
+        if (initializer instanceof ApplicationInitializer applicationInitializer) {
+            applicationInitializer.getRecentFiles().ifPresent(recentFiles -> {
+                this.recentFilePaths.clear();
+                recentFiles.forEach(file -> {
+                    if (this.recentFilePaths.contains(file)) {
+                        return;
+                    }
+                    this.recentFilePaths.offer(file);
+                });
+                this.rebuildOpenRecentMenu();
+            });
+        }
     }
 
     private void loadFile(Path filePath) {

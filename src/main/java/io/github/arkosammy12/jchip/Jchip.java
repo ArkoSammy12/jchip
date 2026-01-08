@@ -29,11 +29,6 @@ public class Jchip {
     private MainWindow mainWindow;
     private volatile Emulator currentEmulator;
 
-    private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
-    private final Config config = new Config();
-    private final Chip8Database database = new Chip8Database();
-    private final DefaultAudioRenderer audioRenderer;
-
     private final int[] flagsStorage = new int[16];
 
     private final List<StateChangedListener> stateChangedListeners = new CopyOnWriteArrayList<>();
@@ -44,7 +39,13 @@ public class Jchip {
     private volatile State currentState = State.STOPPED;
     private volatile boolean running = true;
 
+    private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
+    private final Config config = new Config();
+    private final Chip8Database database = new Chip8Database();
+    private final DefaultAudioRenderer audioRenderer = new DefaultAudioRenderer(this);
+
     Jchip(String[] args) {
+        this.installEDTExceptionHandler();
         try {
             CLIArgs cliArgs;
             if (args.length > 0) {
@@ -99,13 +100,14 @@ public class Jchip {
                     }
 
                 });
+                this.mainWindow.accept(this.config);
             });
 
             if (cliArgs != null) {
-                SwingUtilities.invokeAndWait(() -> this.mainWindow.getSettingsBar().initializeSettings(cliArgs));
+                SwingUtilities.invokeAndWait(() -> this.mainWindow.accept(cliArgs));
                 this.currentEmulator = Variant.getEmulator(this, cliArgs);
+                this.reset(false);
             }
-            this.audioRenderer = new DefaultAudioRenderer(this);
             SwingUtilities.invokeLater(() -> this.mainWindow.setVisible(true));
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize jchip", e);
@@ -122,6 +124,10 @@ public class Jchip {
 
     public AudioRenderer getAudioRenderer() {
         return this.audioRenderer;
+    }
+
+    public Config getConfig() {
+        return this.config;
     }
 
     public void addStateChangedListener(StateChangedListener l) {
@@ -261,6 +267,7 @@ public class Jchip {
         }
         this.audioRenderer.close();
         this.notifyShutdownListeners();
+        this.config.save();
     }
 
     private State updateState() {
@@ -296,6 +303,19 @@ public class Jchip {
 
     private void enqueueState(State newState) {
         this.queuedStates.offer(newState);
+    }
+
+    private void installEDTExceptionHandler() {
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            if (SwingUtilities.isEventDispatchThread()) {
+                Logger.error("Uncaught exception on EDT: {}", throwable);
+                if (this.mainWindow != null) {
+                    this.mainWindow.showExceptionDialog(throwable);
+                }
+            } else {
+                Logger.error("Uncaught exception on thread " + thread.getName() + ": {}", throwable);
+            }
+        });
     }
 
     public enum State {

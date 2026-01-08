@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.config.MainInitializer;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.ui.menus.*;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public class SettingsBar extends JMenuBar implements MainInitializer {
+public class SettingsBar extends JMenuBar implements EmulatorInitializer {
 
     private final FileMenu fileMenu;
     private final EmulatorMenu emulatorMenu;
@@ -22,10 +22,10 @@ public class SettingsBar extends JMenuBar implements MainInitializer {
     public SettingsBar(Jchip jchip, MainWindow mainWindow) {
         super();
 
-        this.fileMenu = new FileMenu(mainWindow);
+        this.fileMenu = new FileMenu(jchip, mainWindow);
         this.emulatorMenu = new EmulatorMenu(jchip, mainWindow);
         this.settingsMenu = new SettingsMenu(jchip, mainWindow);
-        DebugMenu debugMenu = new DebugMenu(mainWindow);
+        DebugMenu debugMenu = new DebugMenu(jchip, mainWindow);
         HelpMenu helpMenu = new HelpMenu(mainWindow);
 
         this.add(fileMenu);
@@ -33,12 +33,6 @@ public class SettingsBar extends JMenuBar implements MainInitializer {
         this.add(settingsMenu);
         this.add(debugMenu);
         this.add(helpMenu);
-    }
-
-    public void initializeSettings(MainInitializer initializer) {
-        this.fileMenu.initializeSettings(initializer);
-        this.emulatorMenu.initializeSettings(initializer);
-        this.settingsMenu.initializeSettings(initializer);
     }
 
     public void onBreakpoint() {
@@ -76,12 +70,12 @@ public class SettingsBar extends JMenuBar implements MainInitializer {
 
     @Override
     public Optional<Variant> getVariant() {
-        return this.emulatorMenu.getChip8Variant();
+        return this.emulatorMenu.getVariant();
     }
 
     @Override
-    public boolean useVariantQuirks() {
-        return this.emulatorMenu.getQuirksMenu().forceVariantQuirks();
+    public Optional<Boolean> useVariantQuirks() {
+        return Optional.of(this.emulatorMenu.getQuirksMenu().forceVariantQuirks());
     }
 
     @Override

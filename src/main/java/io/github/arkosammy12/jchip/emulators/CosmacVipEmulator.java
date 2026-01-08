@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
-import io.github.arkosammy12.jchip.config.EmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.CosmacVipEmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
 import io.github.arkosammy12.jchip.disassembler.CosmacVipDisassembler;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;

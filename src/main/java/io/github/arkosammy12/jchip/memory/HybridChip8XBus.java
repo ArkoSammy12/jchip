@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.memory;
 
-import io.github.arkosammy12.jchip.config.CosmacVipEmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.video.VP590;
 

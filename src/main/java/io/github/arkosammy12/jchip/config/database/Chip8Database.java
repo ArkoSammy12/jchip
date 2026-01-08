@@ -2,8 +2,8 @@ package io.github.arkosammy12.jchip.config.database;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import io.github.arkosammy12.jchip.config.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.config.Chip8Initializer;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
+import io.github.arkosammy12.jchip.config.initializers.Chip8Initializer;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.video.BuiltInColorPalette;

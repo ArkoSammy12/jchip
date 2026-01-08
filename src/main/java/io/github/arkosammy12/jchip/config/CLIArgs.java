@@ -1,6 +1,9 @@
 package io.github.arkosammy12.jchip.config;
 
 import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
+import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
@@ -17,7 +20,7 @@ import java.util.Optional;
         version = Main.VERSION_STRING,
         description = "Initializes jchip with the desired configurations and starts emulation."
 )
-public class CLIArgs implements MainInitializer {
+public class CLIArgs implements EmulatorInitializer {
 
     @CommandLine.Option(
             names = {"--rom", "-r"},
@@ -51,8 +54,8 @@ public class CLIArgs implements MainInitializer {
 
     @CommandLine.Option(
             names = {"--keyboard-layout", "-k"},
-            defaultValue = "qwerty",
             converter = KeyboardLayout.Converter.class,
+            defaultValue = CommandLine.Option.NULL_VALUE,
             description = "Select the desired keyboard layout configuration for using the CHIP-8 keypad."
     )
     private Optional<KeyboardLayout> keyboardLayout;
@@ -60,10 +63,10 @@ public class CLIArgs implements MainInitializer {
     @CommandLine.Option(
             names = "--force-variant-quirks",
             negatable = true,
-            defaultValue = "false",
+            defaultValue = CommandLine.Option.NULL_VALUE,
             description = "Force the used quirks to be of the variant used to run the current ROM."
     )
-    private Boolean useVariantQuirks;
+    private Optional<Boolean> useVariantQuirks;
 
     @CommandLine.Option(
             names = {"-a", "--angle"},
@@ -132,7 +135,7 @@ public class CLIArgs implements MainInitializer {
     }
 
     @Override
-    public boolean useVariantQuirks() {
+    public Optional<Boolean> useVariantQuirks() {
         return this.useVariantQuirks;
     }
 

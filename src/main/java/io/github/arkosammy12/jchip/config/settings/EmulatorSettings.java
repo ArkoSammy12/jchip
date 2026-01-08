@@ -1,4 +1,4 @@
-package io.github.arkosammy12.jchip.config;
+package io.github.arkosammy12.jchip.config.settings;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
