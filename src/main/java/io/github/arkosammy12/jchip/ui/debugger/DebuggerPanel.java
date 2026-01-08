@@ -1,6 +1,10 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
@@ -20,7 +24,7 @@ import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DebuggerPanel extends JPanel {
+public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer {
 
     public static final String DEFAULT_TEXT_SECTION_NAME = "Current Quirks";
     public static final String DEFAULT_CPU_REGISTERS_SECTION_NAME = "CPU Registers";
@@ -159,7 +163,7 @@ public class DebuggerPanel extends JPanel {
 
         this.memoryFollowCheckBox = new JCheckBox("Follow");
         this.memoryFollowCheckBox.setFocusable(false);
-        this.memoryFollowCheckBox.addActionListener(_ -> goToAddressField.setEnabled(!this.memoryFollowCheckBox.isSelected()));
+        this.memoryFollowCheckBox.addChangeListener(_ -> goToAddressField.setEnabled(!this.memoryFollowCheckBox.isSelected()));
 
         rightPanel.add(this.memoryFollowCheckBox, new CC().growX().pushX().alignX(AlignX.CENTER));
         rightPanel.add(goToAddressLabel, new CC().split(2).alignX(AlignX.CENTER));
@@ -182,6 +186,12 @@ public class DebuggerPanel extends JPanel {
             }
         });
         jchip.addFrameListener(this::onFrame);
+
+        jchip.addShutdownListener(() -> {
+            Config config = jchip.getConfig();
+
+            config.setBooleanSettingIfPresent(Config.DEBUGGER_FOLLOW, this.memoryFollowCheckBox.isSelected());
+        });
     }
 
     private void onResetting(@NotNull Emulator emulator) {
@@ -330,4 +340,10 @@ public class DebuggerPanel extends JPanel {
                 this.stackScrollPane.getFont().deriveFont(Font.BOLD)));
     }
 
+    @Override
+    public void accept(EmulatorInitializer initializer) {
+        if (initializer instanceof ApplicationInitializer applicationInitializer) {
+            applicationInitializer.debuggerFollow().ifPresent(this.memoryFollowCheckBox::setSelected);
+        }
+    }
 }

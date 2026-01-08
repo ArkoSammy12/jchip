@@ -10,7 +10,6 @@ import io.github.arkosammy12.jchip.video.ColorPalette;
 import io.github.arkosammy12.monkeyconfig.base.ConfigManager;
 import io.github.arkosammy12.monkeyconfig.base.Setting;
 import io.github.arkosammy12.monkeyconfig.builders.ConfigManagerBuilderKt;
-import io.github.arkosammy12.monkeyconfig.builders.StringSettingBuilder;
 import io.github.arkosammy12.monkeyconfig.managers.ConfigManagerUtils;
 import io.github.arkosammy12.monkeyconfig.types.ListType;
 import io.github.arkosammy12.monkeyconfig.types.StringType;
@@ -52,6 +51,9 @@ public class Config implements ApplicationInitializer {
 
     public static ElementPath SHOW_DEBUGGER;
     public static ElementPath SHOW_DISASSEMBLER;
+
+    public static ElementPath DEBUGGER_FOLLOW;
+    public static ElementPath DISASSEMBLER_FOLLOW;
 
     private static final Path APP_DIR = Path.of(AppDirsFactory.getInstance().getUserDataDir("jchip", null, null));
     private static final ConfigManager CONFIG_MANAGER = ConfigManagerBuilderKt.tomlConfigManager("data", APP_DIR.resolve("data.toml"), manager -> {
@@ -106,6 +108,11 @@ public class Config implements ApplicationInitializer {
         manager.section("debug", debug -> {
             SHOW_DEBUGGER = debug.booleanSetting("show_debugger", false, _ -> Unit.INSTANCE);
             SHOW_DISASSEMBLER = debug.booleanSetting("show_disassembler", false, _ -> Unit.INSTANCE);
+            return Unit.INSTANCE;
+        });
+        manager.section("ui", ui -> {
+            DEBUGGER_FOLLOW = ui.booleanSetting("debugger_follow", false, _ -> Unit.INSTANCE);
+            DISASSEMBLER_FOLLOW = ui.booleanSetting("disassembler_follow", false, _ -> Unit.INSTANCE);
             return Unit.INSTANCE;
         });
         return Unit.INSTANCE;
@@ -364,6 +371,16 @@ public class Config implements ApplicationInitializer {
     @Override
     public Optional<Boolean> isShowingDisassembler() {
         return Optional.ofNullable(this.getRawBooleanSetting(SHOW_DISASSEMBLER));
+    }
+
+    @Override
+    public Optional<Boolean> debuggerFollow() {
+        return Optional.ofNullable(this.getRawBooleanSetting(DEBUGGER_FOLLOW));
+    }
+
+    @Override
+    public Optional<Boolean> disassemblerFollow() {
+        return Optional.ofNullable(this.getRawBooleanSetting(DISASSEMBLER_FOLLOW));
     }
 
     public void save() {

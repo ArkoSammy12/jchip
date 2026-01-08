@@ -20,4 +20,8 @@ public interface ApplicationInitializer extends EmulatorInitializer {
 
     Optional<Boolean> isShowingDisassembler();
 
+    Optional<Boolean> debuggerFollow();
+
+    Optional<Boolean> disassemblerFollow();
+
 }

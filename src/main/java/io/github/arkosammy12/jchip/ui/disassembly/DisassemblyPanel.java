@@ -1,6 +1,10 @@
 package io.github.arkosammy12.jchip.ui.disassembly;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
+import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.MainWindow;
 import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
@@ -13,7 +17,7 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-public class DisassemblyPanel extends JPanel {
+public class DisassemblyPanel extends JPanel implements EmulatorInitializerConsumer {
 
     private final DisassemblerTable disassemblerTable;
     private final JCheckBox followCheckbox;
@@ -77,7 +81,7 @@ public class DisassemblyPanel extends JPanel {
 
         this.followCheckbox = new JCheckBox("Follow");
         this.followCheckbox.setFocusable(false);
-        this.followCheckbox.addActionListener(_ -> goToAddressField.setEnabled(!this.followCheckbox.isSelected()));
+        this.followCheckbox.addChangeListener(_ -> goToAddressField.setEnabled(!this.followCheckbox.isSelected()));
 
         JScrollPane disassemblerScrollPane = new JScrollPane(this.disassemblerTable);
 
@@ -88,6 +92,13 @@ public class DisassemblyPanel extends JPanel {
         this.add(disassemblerScrollPane, new CC().grow().push().spanX());
 
         jchip.addFrameListener(_ -> this.onFrame());
+
+        jchip.addShutdownListener(() -> {
+            Config config = jchip.getConfig();
+
+            config.setBooleanSettingIfPresent(Config.DISASSEMBLER_FOLLOW, this.followCheckbox.isSelected());
+        });
+
     }
 
     private void onFrame() {
@@ -99,6 +110,13 @@ public class DisassemblyPanel extends JPanel {
                 this.disassemblerTable.scrollToCurrentAddress();
             }
         });
+    }
+
+    @Override
+    public void accept(EmulatorInitializer initializer) {
+        if (initializer instanceof ApplicationInitializer applicationInitializer) {
+            applicationInitializer.disassemblerFollow().ifPresent(this.followCheckbox::setSelected);
+        }
     }
 
 }
