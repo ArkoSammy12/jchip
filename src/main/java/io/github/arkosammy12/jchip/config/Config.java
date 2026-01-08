@@ -10,6 +10,7 @@ import io.github.arkosammy12.jchip.video.ColorPalette;
 import io.github.arkosammy12.monkeyconfig.base.ConfigManager;
 import io.github.arkosammy12.monkeyconfig.base.Setting;
 import io.github.arkosammy12.monkeyconfig.builders.ConfigManagerBuilderKt;
+import io.github.arkosammy12.monkeyconfig.builders.StringSettingBuilder;
 import io.github.arkosammy12.monkeyconfig.managers.ConfigManagerUtils;
 import io.github.arkosammy12.monkeyconfig.types.ListType;
 import io.github.arkosammy12.monkeyconfig.types.StringType;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class Config implements ApplicationInitializer {
 
     public static ElementPath RECENT_FILES;
+    public static ElementPath CURRENT_DIRECTORY;
 
     public static ElementPath USE_VARIANT_QUIRKS;
 
@@ -59,6 +61,7 @@ public class Config implements ApplicationInitializer {
                recentFiles.setDeserializer(list -> list.getValue().stream().map(e -> Path.of(e.getValue())).collect(Collectors.toList()));
                return Unit.INSTANCE;
             });
+            CURRENT_DIRECTORY = file.stringSetting("current_directory", "", _ -> Unit.INSTANCE);
             return Unit.INSTANCE;
         });
         manager.section("emulator", emulator -> {
@@ -143,6 +146,14 @@ public class Config implements ApplicationInitializer {
 
     public void setIntegerSettingIfPresent(ElementPath path, int value) {
         Setting<Number, ?> setting = ConfigManagerUtils.getNumberSetting(CONFIG_MANAGER, path);
+        if (setting == null) {
+            return;
+        }
+        setting.getValue().setRaw(value);
+    }
+
+    public void setStringSettingIfPresent(ElementPath path, String value) {
+        Setting<String, ?> setting = ConfigManagerUtils.getStringSetting(CONFIG_MANAGER, path);
         if (setting == null) {
             return;
         }
@@ -312,6 +323,15 @@ public class Config implements ApplicationInitializer {
     @Override
     public Optional<List<Path>> getRecentFiles() {
         Setting<List<Path>, ?> setting = ConfigManagerUtils.getListSetting(CONFIG_MANAGER, RECENT_FILES);
+        if (setting == null) {
+            return Optional.empty();
+        }
+        return Optional.of(setting.getValue().getRaw());
+    }
+
+    @Override
+    public Optional<String> getCurrentDirectory() {
+        Setting<String, ?> setting = ConfigManagerUtils.getStringSetting(CONFIG_MANAGER, CURRENT_DIRECTORY);
         if (setting == null) {
             return Optional.empty();
         }

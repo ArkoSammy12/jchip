@@ -107,6 +107,9 @@ public class FileMenu extends JMenu implements EmulatorInitializerConsumer {
             Config config = jchip.getConfig();
 
             config.setListSettingIfPresent(Config.RECENT_FILES, new ArrayList<>(this.recentFilePaths));
+            if (this.currentDirectory != null) {
+                config.setStringSettingIfPresent(Config.CURRENT_DIRECTORY, this.currentDirectory.toString());
+            }
         });
     }
 
@@ -136,6 +139,11 @@ public class FileMenu extends JMenu implements EmulatorInitializerConsumer {
                     this.recentFilePaths.offer(file);
                 });
                 this.rebuildOpenRecentMenu();
+            });
+            applicationInitializer.getCurrentDirectory().ifPresent(dir -> {
+                if (!dir.isBlank()) {
+                    this.currentDirectory = Path.of(dir);
+                }
             });
         }
     }

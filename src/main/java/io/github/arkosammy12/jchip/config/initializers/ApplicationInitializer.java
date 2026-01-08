@@ -8,6 +8,8 @@ public interface ApplicationInitializer extends EmulatorInitializer {
 
     Optional<List<Path>> getRecentFiles();
 
+    Optional<String> getCurrentDirectory();
+
     Optional<Integer> getVolume();
 
     Optional<Boolean> isMuted();
