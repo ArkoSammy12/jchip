@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.github.arkosammy12.jchip.video.BuiltInColorPalette.*;
+
 public class Config implements ApplicationInitializer {
 
     public static ElementPath RECENT_FILES;
@@ -91,7 +93,6 @@ public class Config implements ApplicationInitializer {
                 ipf.setMinValue(-1);
                 return Unit.INSTANCE;
             });
-
             return Unit.INSTANCE;
         });
         manager.section("settings", settings -> {
@@ -184,6 +185,62 @@ public class Config implements ApplicationInitializer {
     }
 
     @Override
+    public Optional<List<Path>> getRecentFiles() {
+        Setting<List<Path>, ?> setting = ConfigManagerUtils.getListSetting(CONFIG_MANAGER, RECENT_FILES);
+        if (setting == null) {
+            return Optional.empty();
+        }
+        return Optional.of(setting.getValue().getRaw());
+    }
+
+    @Override
+    public Optional<String> getCurrentDirectory() {
+        Setting<String, ?> setting = ConfigManagerUtils.getStringSetting(CONFIG_MANAGER, CURRENT_DIRECTORY);
+        if (setting == null) {
+            return Optional.empty();
+        }
+        return Optional.of(setting.getValue().getRaw());
+    }
+
+    @Override
+    public Optional<Integer> getVolume() {
+        return switch (this.getRawNumberSetting(VOLUME)) {
+            case Integer i when i >= 0 && i <= 100 -> Optional.of(i);
+            case null, default -> Optional.empty();
+        };
+    }
+
+    @Override
+    public Optional<Boolean> getMuted() {
+        return Optional.ofNullable(this.getRawBooleanSetting(MUTED));
+    }
+
+    @Override
+    public Optional<Boolean> getShowingInfoBar() {
+        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_INFO_BAR));
+    }
+
+    @Override
+    public Optional<Boolean> getShowingDebugger() {
+        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_DEBUGGER));
+    }
+
+    @Override
+    public Optional<Boolean> getShowingDisassembler() {
+        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_DISASSEMBLER));
+    }
+
+    @Override
+    public Optional<Boolean> getDebuggerFollowing() {
+        return Optional.ofNullable(this.getRawBooleanSetting(DEBUGGER_FOLLOW));
+    }
+
+    @Override
+    public Optional<Boolean> getDisassemblerFollowing() {
+        return Optional.ofNullable(this.getRawBooleanSetting(DISASSEMBLER_FOLLOW));
+    }
+
+    @Override
     public Optional<Integer> getInstructionsPerFrame() {
         return switch (this.getRawNumberSetting(INSTRUCTIONS_PER_FRAME)) {
             case Integer i when i > 0 -> Optional.of(i);
@@ -192,17 +249,17 @@ public class Config implements ApplicationInitializer {
     }
 
     @Override
+    public Optional<Variant> getVariant() {
+        return switch (this.<VariantValue>getRawEnumSetting(VARIANT)) {
+            case VariantValue val -> val.mapToInternal();
+            case null -> Optional.empty();
+        };
+    }
+
+    @Override
     public Optional<ColorPalette> getColorPalette() {
         return switch (this.<ColorPaletteValue>getRawEnumSetting(COLOR_PALETTE)) {
-            case unspecified -> Optional.empty();
-            case cadmium -> Optional.of(BuiltInColorPalette.CADMIUM);
-            case silicon8 -> Optional.of(BuiltInColorPalette.SILICON8);
-            case pico8 -> Optional.of(BuiltInColorPalette.PICO8);
-            case octoclassic -> Optional.of(BuiltInColorPalette.OCTO_CLASSIC);
-            case lcd -> Optional.of(BuiltInColorPalette.LCD);
-            case c64 -> Optional.of(BuiltInColorPalette.C64);
-            case intellivision -> Optional.of(BuiltInColorPalette.INTELLIVISION);
-            case cga -> Optional.of(BuiltInColorPalette.CGA);
+            case ColorPaletteValue val -> val.mapToInternal();
             case null -> Optional.empty();
         };
     }
@@ -224,10 +281,7 @@ public class Config implements ApplicationInitializer {
     @Override
     public Optional<KeyboardLayout> getKeyboardLayout() {
         return switch (this.<KeyboardLayoutValue>getRawEnumSetting(KEYBOARD_LAYOUT)) {
-            case qwerty -> Optional.of(KeyboardLayout.QWERTY);
-            case dvorak -> Optional.of(KeyboardLayout.DVORAK);
-            case colemak -> Optional.of(KeyboardLayout.COLEMAK);
-            case azerty -> Optional.of(KeyboardLayout.AZERTY);
+            case KeyboardLayoutValue val -> val.mapToInternal();
             case null -> Optional.empty();
         };
     }
@@ -242,27 +296,6 @@ public class Config implements ApplicationInitializer {
     }
 
     @Override
-    public Optional<Variant> getVariant() {
-        return switch (this.<VariantValue>getRawEnumSetting(VARIANT)) {
-            case unspecified -> Optional.empty();
-            case chip_8 -> Optional.of(Variant.CHIP_8);
-            case strict_chip_8 -> Optional.of(Variant.STRICT_CHIP_8);
-            case chip_8x -> Optional.of(Variant.CHIP_8X);
-            case chip_48 -> Optional.of(Variant.CHIP_48);
-            case schip_10 -> Optional.of(Variant.SUPER_CHIP_10);
-            case schip_11 -> Optional.of(Variant.SUPER_CHIP_11);
-            case schip_modern -> Optional.of(Variant.SUPER_CHIP_MODERN);
-            case xo_chip -> Optional.of(Variant.XO_CHIP);
-            case mega_chip -> Optional.of(Variant.MEGA_CHIP);
-            case hyperwave_chip_64 -> Optional.of(Variant.HYPERWAVE_CHIP_64);
-            case hybrid_chip_8 -> Optional.of(Variant.HYBRID_CHIP_8);
-            case hybrid_chip_8x -> Optional.of(Variant.HYBRID_CHIP_8X);
-            case cosmac_vip -> Optional.of(Variant.COSMAC_VIP);
-            case null -> Optional.empty();
-        };
-    }
-
-    @Override
     public Optional<Boolean> doVFReset() {
         return this.getBooleanQuirk(VF_RESET);
     }
@@ -270,10 +303,7 @@ public class Config implements ApplicationInitializer {
     @Override
     public Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> getMemoryIncrementQuirk() {
         return switch (this.<MemoryIncrementValue>getRawEnumSetting(I_INCREMENT)) {
-            case unspecified -> Optional.empty();
-            case none -> Optional.of(Chip8EmulatorSettings.MemoryIncrementQuirk.NONE);
-            case increment_x -> Optional.of(Chip8EmulatorSettings.MemoryIncrementQuirk.INCREMENT_X);
-            case increment_x_1 -> Optional.of(Chip8EmulatorSettings.MemoryIncrementQuirk.INCREMENT_X_1);
+            case MemoryIncrementValue val -> val.mapToInternal();
             case null -> Optional.empty();
         };
     }
@@ -300,9 +330,8 @@ public class Config implements ApplicationInitializer {
 
     private Optional<Boolean> getBooleanQuirk(ElementPath path) {
         return switch (this.<BooleanValue>getRawEnumSetting(path)) {
-            case enabled -> Optional.of(true);
-            case disabled -> Optional.of(false);
-            case null, default -> Optional.empty();
+            case BooleanValue val -> val.mapToInternal();
+            case null -> Optional.empty();
         };
     }
 
@@ -333,62 +362,6 @@ public class Config implements ApplicationInitializer {
         return setting.getValue().getRaw();
     }
 
-    @Override
-    public Optional<List<Path>> getRecentFiles() {
-        Setting<List<Path>, ?> setting = ConfigManagerUtils.getListSetting(CONFIG_MANAGER, RECENT_FILES);
-        if (setting == null) {
-            return Optional.empty();
-        }
-        return Optional.of(setting.getValue().getRaw());
-    }
-
-    @Override
-    public Optional<String> getCurrentDirectory() {
-        Setting<String, ?> setting = ConfigManagerUtils.getStringSetting(CONFIG_MANAGER, CURRENT_DIRECTORY);
-        if (setting == null) {
-            return Optional.empty();
-        }
-        return Optional.of(setting.getValue().getRaw());
-    }
-
-    @Override
-    public Optional<Integer> getVolume() {
-        return switch (this.getRawNumberSetting(VOLUME)) {
-            case Integer i when i >= 0 && i <= 100 -> Optional.of(i);
-            case null, default -> Optional.empty();
-        };
-    }
-
-    @Override
-    public Optional<Boolean> isMuted() {
-        return Optional.ofNullable(this.getRawBooleanSetting(MUTED));
-    }
-
-    @Override
-    public Optional<Boolean> isShowingInfoBar() {
-        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_INFO_BAR));
-    }
-
-    @Override
-    public Optional<Boolean> isShowingDebugger() {
-        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_DEBUGGER));
-    }
-
-    @Override
-    public Optional<Boolean> isShowingDisassembler() {
-        return Optional.ofNullable(this.getRawBooleanSetting(SHOW_DISASSEMBLER));
-    }
-
-    @Override
-    public Optional<Boolean> debuggerFollow() {
-        return Optional.ofNullable(this.getRawBooleanSetting(DEBUGGER_FOLLOW));
-    }
-
-    @Override
-    public Optional<Boolean> disassemblerFollow() {
-        return Optional.ofNullable(this.getRawBooleanSetting(DISASSEMBLER_FOLLOW));
-    }
-
     public void save() {
         if (!Files.exists(APP_DIR)) {
             try {
@@ -404,17 +377,61 @@ public class Config implements ApplicationInitializer {
         }
     }
 
+    public static int mapDisplayAngleToSerialized(@Nullable DisplayAngle displayAngle) {
+        return displayAngle == null ? -1 : displayAngle.getIntValue();
+    }
+
+    public static int mapIpfToSerialized(@Nullable Integer i) {
+        return i == null || i <= 0 ? -1 : i;
+    }
+
     public enum BooleanValue {
         unspecified,
         enabled,
-        disabled,
+        disabled;
+
+        public Optional<Boolean> mapToInternal() {
+            return Optional.ofNullable(switch (this) {
+                case unspecified -> null;
+                case enabled -> true;
+                case disabled -> false;
+            });
+        }
+
+        public static BooleanValue mapToSerialized(@Nullable Boolean val) {
+            if (val == null) {
+                return unspecified;
+            } else {
+                return val ? enabled : disabled;
+            }
+        }
+
     }
 
     public enum MemoryIncrementValue {
         unspecified,
         none,
         increment_x,
-        increment_x_1,
+        increment_x_1;
+
+        public Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> mapToInternal() {
+            return Optional.ofNullable(switch (this) {
+                case unspecified -> null;
+                case none -> Chip8EmulatorSettings.MemoryIncrementQuirk.NONE;
+                case increment_x -> Chip8EmulatorSettings.MemoryIncrementQuirk.INCREMENT_X;
+                case increment_x_1 -> Chip8EmulatorSettings.MemoryIncrementQuirk.INCREMENT_X_1;
+            });
+        }
+
+        public static MemoryIncrementValue mapToSerialized(@Nullable Chip8EmulatorSettings.MemoryIncrementQuirk quirk) {
+            return switch (quirk) {
+                case NONE -> none;
+                case INCREMENT_X -> increment_x;
+                case INCREMENT_X_1 -> increment_x_1;
+                case null -> unspecified;
+            };
+        }
+
     }
 
     public enum VariantValue {
@@ -431,7 +448,46 @@ public class Config implements ApplicationInitializer {
         hyperwave_chip_64,
         hybrid_chip_8,
         hybrid_chip_8x,
-        cosmac_vip
+        cosmac_vip;
+
+        public Optional<Variant> mapToInternal() {
+            return Optional.ofNullable(switch (this) {
+                case unspecified -> null;
+                case chip_8 -> Variant.CHIP_8;
+                case strict_chip_8 -> Variant.STRICT_CHIP_8;
+                case chip_8x -> Variant.CHIP_8X;
+                case chip_48 -> Variant.CHIP_48;
+                case schip_10 -> Variant.SUPER_CHIP_10;
+                case schip_11 -> Variant.SUPER_CHIP_11;
+                case schip_modern -> Variant.SUPER_CHIP_MODERN;
+                case xo_chip -> Variant.XO_CHIP;
+                case mega_chip -> Variant.MEGA_CHIP;
+                case hyperwave_chip_64 -> Variant.HYPERWAVE_CHIP_64;
+                case hybrid_chip_8 -> Variant.HYBRID_CHIP_8;
+                case hybrid_chip_8x -> Variant.HYBRID_CHIP_8X;
+                case cosmac_vip -> Variant.COSMAC_VIP;
+            });
+        }
+
+        public static VariantValue mapToSerialized(@Nullable Variant variant) {
+            return switch (variant) {
+                case CHIP_8 -> chip_8;
+                case STRICT_CHIP_8 -> strict_chip_8;
+                case CHIP_8X -> chip_8x;
+                case CHIP_48 -> chip_48;
+                case SUPER_CHIP_10 -> schip_10;
+                case SUPER_CHIP_11 -> schip_11;
+                case SUPER_CHIP_MODERN -> schip_modern;
+                case XO_CHIP -> xo_chip;
+                case MEGA_CHIP -> mega_chip;
+                case HYPERWAVE_CHIP_64 -> hyperwave_chip_64;
+                case HYBRID_CHIP_8 -> hybrid_chip_8;
+                case HYBRID_CHIP_8X -> hybrid_chip_8x;
+                case COSMAC_VIP -> cosmac_vip;
+                case null -> unspecified;
+            };
+        }
+
     }
 
     public enum ColorPaletteValue {
@@ -443,14 +499,65 @@ public class Config implements ApplicationInitializer {
         lcd,
         c64,
         intellivision,
-        cga
+        cga;
+
+        public Optional<ColorPalette> mapToInternal() {
+            return Optional.ofNullable(switch (this) {
+                case unspecified -> null;
+                case cadmium -> CADMIUM;
+                case silicon8 -> SILICON8;
+                case pico8 -> PICO8;
+                case octoclassic -> OCTO_CLASSIC;
+                case lcd -> LCD;
+                case c64 -> C64;
+                case intellivision -> INTELLIVISION;
+                case cga -> CGA;
+            });
+        }
+
+        public static ColorPaletteValue mapToSerialized(@Nullable ColorPalette colorPalette) {
+            return switch (colorPalette) {
+                case BuiltInColorPalette palette -> switch (palette) {
+                    case CADMIUM -> cadmium;
+                    case SILICON8 -> silicon8;
+                    case PICO8 -> pico8;
+                    case OCTO_CLASSIC -> octoclassic;
+                    case LCD -> lcd;
+                    case C64 -> c64;
+                    case INTELLIVISION -> intellivision;
+                    case CGA -> cga;
+                };
+                case null, default -> unspecified;
+            };
+        }
+
     }
 
     public enum KeyboardLayoutValue {
         qwerty,
         dvorak,
         azerty,
-        colemak
+        colemak;
+
+        public Optional<KeyboardLayout> mapToInternal() {
+            return Optional.of(switch (this) {
+                case qwerty -> KeyboardLayout.QWERTY;
+                case dvorak -> KeyboardLayout.DVORAK;
+                case colemak -> KeyboardLayout.COLEMAK;
+                case azerty -> KeyboardLayout.AZERTY;
+            });
+        }
+
+        public static KeyboardLayoutValue mapToSerialized(@Nullable KeyboardLayout keyboardLayout) {
+            return switch (keyboardLayout) {
+                case QWERTY -> qwerty;
+                case DVORAK -> dvorak;
+                case COLEMAK -> colemak;
+                case AZERTY -> azerty;
+                case null -> qwerty;
+            };
+        }
+
     }
 
 }

@@ -115,7 +115,7 @@ public class DisassemblyPanel extends JPanel implements EmulatorInitializerConsu
     @Override
     public void accept(EmulatorInitializer initializer) {
         if (initializer instanceof ApplicationInitializer applicationInitializer) {
-            applicationInitializer.disassemblerFollow().ifPresent(this.followCheckbox::setSelected);
+            applicationInitializer.getDisassemblerFollowing().ifPresent(this.followCheckbox::setSelected);
         }
     }
 

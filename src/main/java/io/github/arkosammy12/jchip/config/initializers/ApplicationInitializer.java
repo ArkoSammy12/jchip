@@ -12,16 +12,16 @@ public interface ApplicationInitializer extends EmulatorInitializer {
 
     Optional<Integer> getVolume();
 
-    Optional<Boolean> isMuted();
+    Optional<Boolean> getMuted();
 
-    Optional<Boolean> isShowingInfoBar();
+    Optional<Boolean> getShowingInfoBar();
 
-    Optional<Boolean> isShowingDebugger();
+    Optional<Boolean> getShowingDebugger();
 
-    Optional<Boolean> isShowingDisassembler();
+    Optional<Boolean> getShowingDisassembler();
 
-    Optional<Boolean> debuggerFollow();
+    Optional<Boolean> getDebuggerFollowing();
 
-    Optional<Boolean> disassemblerFollow();
+    Optional<Boolean> getDisassemblerFollowing();
 
 }

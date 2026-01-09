@@ -11,7 +11,6 @@ import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class QuirksMenu extends JMenu implements EmulatorInitializerConsumer {
 
@@ -65,25 +64,13 @@ public class QuirksMenu extends JMenu implements EmulatorInitializerConsumer {
         jchip.addShutdownListener(() -> {
             Config config = jchip.getConfig();
 
-            Function<Optional<Boolean>, Config.BooleanValue> booleanMapper = optional -> switch (optional) {
-                case Optional<Boolean> opt when opt.isPresent() -> opt.get() ? Config.BooleanValue.enabled : Config.BooleanValue.disabled;
-                case null, default -> Config.BooleanValue.unspecified;
-            };
-
             config.setBooleanSettingIfPresent(Config.USE_VARIANT_QUIRKS, this.forceVariantQuirks);
-            config.setEnumSettingIfPresent(Config.VF_RESET, booleanMapper.apply(this.doVFReset()));
-            config.setEnumSettingIfPresent(Config.I_INCREMENT, switch (this.getMemoryIncrementQuirk()) {
-                case Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> optional when optional.isPresent() -> switch (optional.get()) {
-                    case NONE -> Config.MemoryIncrementValue.none;
-                    case INCREMENT_X -> Config.MemoryIncrementValue.increment_x;
-                    case INCREMENT_X_1 -> Config.MemoryIncrementValue.increment_x_1;
-                };
-                case null, default -> Config.MemoryIncrementValue.unspecified;
-            });
-            config.setEnumSettingIfPresent(Config.DISPLAY_WAIT, booleanMapper.apply(this.doDisplayWait()));
-            config.setEnumSettingIfPresent(Config.CLIPPING, booleanMapper.apply(this.doClipping()));
-            config.setEnumSettingIfPresent(Config.SHIFT_VX_IN_PLACE, booleanMapper.apply(this.doShiftVXInPlace()));
-            config.setEnumSettingIfPresent(Config.JUMP_WITH_VX, booleanMapper.apply(this.doJumpWithVX()));
+            config.setEnumSettingIfPresent(Config.VF_RESET, Config.BooleanValue.mapToSerialized(this.doVFReset().orElse(null)));
+            config.setEnumSettingIfPresent(Config.I_INCREMENT, Config.MemoryIncrementValue.mapToSerialized(this.getMemoryIncrementQuirk().orElse(null)));
+            config.setEnumSettingIfPresent(Config.DISPLAY_WAIT, Config.BooleanValue.mapToSerialized(this.doDisplayWait().orElse(null)));
+            config.setEnumSettingIfPresent(Config.CLIPPING, Config.BooleanValue.mapToSerialized(this.doClipping().orElse(null)));
+            config.setEnumSettingIfPresent(Config.SHIFT_VX_IN_PLACE, Config.BooleanValue.mapToSerialized(this.doShiftVXInPlace().orElse(null)));
+            config.setEnumSettingIfPresent(Config.JUMP_WITH_VX, Config.BooleanValue.mapToSerialized(this.doJumpWithVX().orElse(null)));
         });
     }
 

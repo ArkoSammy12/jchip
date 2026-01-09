@@ -215,55 +215,11 @@ public class EmulatorMenu extends JMenu implements EmulatorInitializerConsumer {
 
         jchip.addShutdownListener(() -> {
             Config config = jchip.getConfig();
-            config.setEnumSettingIfPresent(Config.VARIANT, switch (this.getVariant()) {
-                case Optional<Variant> optional when optional.isPresent() -> switch (optional.get()) {
-                    case CHIP_8 -> Config.VariantValue.chip_8;
-                    case STRICT_CHIP_8 -> Config.VariantValue.strict_chip_8;
-                    case CHIP_8X -> Config.VariantValue.chip_8x;
-                    case CHIP_48 -> Config.VariantValue.chip_48;
-                    case SUPER_CHIP_10 -> Config.VariantValue.schip_10;
-                    case SUPER_CHIP_11 -> Config.VariantValue.schip_11;
-                    case SUPER_CHIP_MODERN -> Config.VariantValue.schip_modern;
-                    case XO_CHIP -> Config.VariantValue.xo_chip;
-                    case MEGA_CHIP -> Config.VariantValue.mega_chip;
-                    case HYPERWAVE_CHIP_64 -> Config.VariantValue.hyperwave_chip_64;
-                    case HYBRID_CHIP_8 -> Config.VariantValue.hybrid_chip_8;
-                    case HYBRID_CHIP_8X -> Config.VariantValue.hybrid_chip_8x;
-                    case COSMAC_VIP -> Config.VariantValue.cosmac_vip;
-                };
-                case null, default -> Config.VariantValue.unspecified;
-            });
-            config.setEnumSettingIfPresent(Config.COLOR_PALETTE, switch (this.getColorPalette()) {
-                case Optional<ColorPalette> optional when optional.isPresent() && optional.get() instanceof BuiltInColorPalette builtInColorPalette -> switch (builtInColorPalette) {
-                    case CADMIUM -> Config.ColorPaletteValue.cadmium;
-                    case SILICON8 -> Config.ColorPaletteValue.silicon8;
-                    case PICO8 -> Config.ColorPaletteValue.pico8;
-                    case OCTO_CLASSIC -> Config.ColorPaletteValue.octoclassic;
-                    case LCD -> Config.ColorPaletteValue.lcd;
-                    case C64 -> Config.ColorPaletteValue.c64;
-                    case INTELLIVISION -> Config.ColorPaletteValue.intellivision;
-                    case CGA -> Config.ColorPaletteValue.cga;
-                };
-                case null, default -> Config.ColorPaletteValue.unspecified;
-            });
-            config.setIntegerSettingIfPresent(Config.DISPLAY_ANGLE, switch (this.getDisplayAngle()) {
-                case Optional<DisplayAngle> optional when optional.isPresent() -> switch (optional.get()) {
-                    case DEG_0 -> 0;
-                    case DEG_90 -> 90;
-                    case DEG_180 -> 180;
-                    case DEG_270 -> 270;
-                };
-                case null, default -> -1;
-            });
-            config.setIntegerSettingIfPresent(Config.INSTRUCTIONS_PER_FRAME, switch (this.getInstructionsPerFrame()) {
-                case Optional<Integer> optional when optional.isPresent() -> switch (optional.get()) {
-                    case Integer i when i > 0 -> i;
-                    default -> -1;
-                };
-                default -> -1;
-            });
+            config.setEnumSettingIfPresent(Config.VARIANT, Config.VariantValue.mapToSerialized(this.getVariant().orElse(null)));
+            config.setEnumSettingIfPresent(Config.COLOR_PALETTE, Config.ColorPaletteValue.mapToSerialized(this.getColorPalette().orElse(null)));
+            config.setIntegerSettingIfPresent(Config.DISPLAY_ANGLE, Config.mapDisplayAngleToSerialized(this.getDisplayAngle().orElse(null)));
+            config.setIntegerSettingIfPresent(Config.INSTRUCTIONS_PER_FRAME, Config.mapIpfToSerialized(this.getInstructionsPerFrame().orElse(null)));
         });
-
     }
 
     public QuirksMenu getQuirksMenu() {

@@ -40,8 +40,8 @@ public class DebugMenu extends JMenu implements EmulatorInitializerConsumer {
     @Override
     public void accept(EmulatorInitializer initializer) {
         if (initializer instanceof ApplicationInitializer applicationInitializer) {
-            applicationInitializer.isShowingDebugger().ifPresent(this.showDebuggerButton::setSelected);
-            applicationInitializer.isShowingDisassembler().ifPresent(this.showDisassemblerButton::setSelected);
+            applicationInitializer.getShowingDebugger().ifPresent(this.showDebuggerButton::setSelected);
+            applicationInitializer.getShowingDisassembler().ifPresent(this.showDisassemblerButton::setSelected);
         }
     }
 }

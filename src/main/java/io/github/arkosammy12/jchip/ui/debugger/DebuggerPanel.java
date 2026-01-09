@@ -343,7 +343,7 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
     @Override
     public void accept(EmulatorInitializer initializer) {
         if (initializer instanceof ApplicationInitializer applicationInitializer) {
-            applicationInitializer.debuggerFollow().ifPresent(this.memoryFollowCheckBox::setSelected);
+            applicationInitializer.getDebuggerFollowing().ifPresent(this.memoryFollowCheckBox::setSelected);
         }
     }
 }

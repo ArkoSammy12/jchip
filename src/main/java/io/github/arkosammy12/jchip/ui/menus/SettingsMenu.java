@@ -68,15 +68,7 @@ public class SettingsMenu extends JMenu implements EmulatorInitializerConsumer {
             config.setBooleanSettingIfPresent(Config.MUTED, this.muteButton.isSelected());
             config.setBooleanSettingIfPresent(Config.SHOW_INFO_BAR, this.showInfoBarButton.isSelected());
 
-            config.setEnumSettingIfPresent(Config.KEYBOARD_LAYOUT, switch (this.getKeyboardLayout()) {
-                case Optional<KeyboardLayout> optional when optional.isPresent() -> switch (optional.get()) {
-                    case QWERTY -> Config.KeyboardLayoutValue.qwerty;
-                    case DVORAK -> Config.KeyboardLayoutValue.dvorak;
-                    case COLEMAK -> Config.KeyboardLayoutValue.colemak;
-                    case AZERTY -> Config.KeyboardLayoutValue.azerty;
-                };
-                case null, default -> Config.KeyboardLayoutValue.qwerty;
-            });
+            config.setEnumSettingIfPresent(Config.KEYBOARD_LAYOUT, Config.KeyboardLayoutValue.mapToSerialized(this.getKeyboardLayout().orElse(null)));
         });
     }
 
@@ -89,8 +81,8 @@ public class SettingsMenu extends JMenu implements EmulatorInitializerConsumer {
         initializer.getKeyboardLayout().ifPresent(this.keyboardLayoutMenu::setState);
         if (initializer instanceof ApplicationInitializer applicationInitializer) {
             applicationInitializer.getVolume().ifPresent(this.volumeSlider::setValue);
-            applicationInitializer.isMuted().ifPresent(this.muteButton::setSelected);
-            applicationInitializer.isShowingInfoBar().ifPresent(this.showInfoBarButton::setSelected);
+            applicationInitializer.getMuted().ifPresent(this.muteButton::setSelected);
+            applicationInitializer.getShowingInfoBar().ifPresent(this.showInfoBarButton::setSelected);
         }
     }
 
