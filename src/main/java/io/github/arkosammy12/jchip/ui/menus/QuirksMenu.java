@@ -29,7 +29,7 @@ public class QuirksMenu extends JMenu implements EmulatorInitializerConsumer {
 
         this.setMnemonic(KeyEvent.VK_Q);
 
-        this.forceVariantQuirksButton = new JRadioButtonMenuItem("Force Variant Quirks");
+        this.forceVariantQuirksButton = new JRadioButtonMenuItem("Use Variant Quirks");
         this.forceVariantQuirksButton.addChangeListener(_ -> this.forceVariantQuirks = this.forceVariantQuirksButton.isSelected());
         this.forceVariantQuirksButton.setToolTipText("Force the used quirks to be of the variant used to run the current ROM.");
         this.forceVariantQuirksButton.setMnemonic(KeyEvent.VK_F);

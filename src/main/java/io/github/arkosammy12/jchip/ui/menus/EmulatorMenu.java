@@ -262,6 +262,8 @@ public class EmulatorMenu extends JMenu implements EmulatorInitializerConsumer {
 
     @Override
     public void accept(EmulatorInitializer initializer) {
+        this.quirksMenu.accept(initializer);
+
         initializer.getVariant().ifPresent(this.variantMenu::setState);
         initializer.getColorPalette().ifPresent(colorPalette -> {
             if (colorPalette instanceof BuiltInColorPalette builtInColorPalette) {
