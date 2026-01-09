@@ -26,7 +26,7 @@ A multi-variant CHIP-8 interpreter and COSMAC-VIP emulator written in Java.
 * [Features](#features)
   * [Variants](#variants)
   * [Configurable quirks](#configurable-quirks)
-  * [Debugger](#debugger)
+  * [Debugger and Disassembler](#debugger-and-disassembler)
   * [Database](#database)
 * [Usage](#usage)
   * [Menus](#menus)
@@ -123,13 +123,15 @@ The default values for the different variants are:
 
 This value can also be individually configured like the rest of the quirks, though it receives its own category within the emulator's UI.
 
-### Debugger
+### Debugger and Disassembler
 
 jchip comes with a toggleable debugger view, which allows the user to see the current state of the emulator via a panel located to the right side of the emulator window.
 It displays the current registers, stack contents, and includes a full memory viewer, and updates in real-time at the end of each frame. The current implementation is basic,
 but support for proper debugging features, such as stepping, disassembly view, and breakpoints are planned for the future.
 
 The debugger panel also shows the quirks that are currently being used to run the current ROM. The current IPF and variant can be seen in the window title.
+
+The disassembler panel shows a live runtime disassembly of the currently running ROM that is updated on the fly as instructions are executed. During normal running, only instructions which have been directly executed are disassembler, while in stepping cycles or frames, instructions are disassembler ahead of the current program counter as well as the current instruction.
 
 ### Database
 
@@ -174,7 +176,7 @@ After changing any of the previous settings, an emulator reset is required to ap
 Additionally, you can find the following menus:
 - **File** – Load ROM files via file explorer. Requires a reset to apply.
 - **Settings** - Configure the application volume and keyboard layout for mapping the hexadecimal keypad to the keyboard according to the selected keyboard layout.
-- **Debugger** – Toggle the debugger panel and configure it.
+- **Debug** – Settings related to the debugger and disassembler views.
 - **Help** - Provides metadata about jchip and links for reporting issues or browsing the source.
 
 ### Command line
