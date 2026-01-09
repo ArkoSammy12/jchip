@@ -46,6 +46,11 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
     private final JScrollPane generalPurposeRegistersScrollPane;
     private final JScrollPane stackScrollPane;
 
+    private final JSplitPane firstSplit;
+    private final JSplitPane secondSplit;
+    private final JSplitPane thirdSplit;
+    private final JSplitPane mainSplit;
+
     private final DebuggerLabelTable cpuRegistersTable;
     private final DebuggerLabelTable generalPurposeRegistersTable;
     private final DebuggerLabelTable stackTable;
@@ -98,17 +103,17 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
 
         this.setDefaultBorders();
 
-        JSplitPane firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.textScrollPane, this.cpuRegistersScrollPane);
+        this.firstSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.textScrollPane, this.cpuRegistersScrollPane);
         firstSplit.setDividerSize(3);
         firstSplit.setResizeWeight(0.5);
         firstSplit.setContinuousLayout(true);
 
-        JSplitPane secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, this.generalPurposeRegistersScrollPane);
+        this.secondSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, firstSplit, this.generalPurposeRegistersScrollPane);
         secondSplit.setDividerSize(3);
         secondSplit.setResizeWeight(0.5);
         secondSplit.setContinuousLayout(true);
 
-        JSplitPane thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, this.stackScrollPane);
+        this.thirdSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, secondSplit, this.stackScrollPane);
         thirdSplit.setDividerSize(3);
         thirdSplit.setResizeWeight(0.5);
         thirdSplit.setContinuousLayout(true);
@@ -170,7 +175,7 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
         rightPanel.add(goToAddressField, new CC().growX().pushX().alignX(AlignX.CENTER).wrap());
         rightPanel.add(memoryScrollPane, new CC().grow().push().spanX());
 
-        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+        this.mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         mainSplit.setDividerSize(5);
         mainSplit.setResizeWeight(0.5);
         mainSplit.setContinuousLayout(true);
@@ -191,6 +196,10 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
             Config config = jchip.getConfig();
 
             config.setBooleanSettingIfPresent(Config.DEBUGGER_FOLLOW, this.memoryFollowCheckBox.isSelected());
+            config.setIntegerSettingIfPresent(Config.DEBUGGER_MEMORY_DIVIDER_LOCATION, this.mainSplit.getDividerLocation());
+            config.setIntegerSettingIfPresent(Config.DEBUGGER_DIVIDER_LOCATION_1, this.firstSplit.getDividerLocation());
+            config.setIntegerSettingIfPresent(Config.DEBUGGER_DIVIDER_LOCATION_2, this.secondSplit.getDividerLocation());
+            config.setIntegerSettingIfPresent(Config.DEBUGGER_DIVIDER_LOCATION_3, this.thirdSplit.getDividerLocation());
         });
     }
 
@@ -344,6 +353,10 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
     public void accept(EmulatorInitializer initializer) {
         if (initializer instanceof ApplicationInitializer applicationInitializer) {
             applicationInitializer.getDebuggerFollowing().ifPresent(this.memoryFollowCheckBox::setSelected);
+            applicationInitializer.getDebuggerMemoryDividerLocation().ifPresent(this.mainSplit::setDividerLocation);
+            applicationInitializer.getDebuggerDividerLocation1().ifPresent(this.firstSplit::setDividerLocation);
+            applicationInitializer.getDebuggerDividerLocation2().ifPresent(this.secondSplit::setDividerLocation);
+            applicationInitializer.getDebuggerDividerLocation3().ifPresent(this.thirdSplit::setDividerLocation);
         }
     }
 }

@@ -24,4 +24,24 @@ public interface ApplicationInitializer extends EmulatorInitializer {
 
     Optional<Boolean> getDisassemblerFollowing();
 
+    Optional<Integer> getMainWindowWidth();
+
+    Optional<Integer> getMainWindowHeight();
+
+    Optional<Integer> getMainWindowX();
+
+    Optional<Integer> getMainWindowY();
+
+    Optional<Integer> getMainSplitDividerLocation();
+
+    Optional<Integer> getViewportDisassemblerDividerLocation();
+
+    Optional<Integer> getDebuggerMemoryDividerLocation();
+
+    Optional<Integer> getDebuggerDividerLocation1();
+
+    Optional<Integer> getDebuggerDividerLocation2();
+
+    Optional<Integer> getDebuggerDividerLocation3();
+
 }

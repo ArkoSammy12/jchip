@@ -2,6 +2,8 @@ package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
@@ -60,6 +62,15 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
         this.setPreferredSize(new Dimension((int) (screenSize.getWidth() / 1.5), (int) (screenSize.getHeight() / 1.5)));
         this.pack();
         this.setLocationRelativeTo(null);
+
+        jchip.addShutdownListener(() -> {
+            Config config = jchip.getConfig();
+            config.setIntegerSettingIfPresent(Config.MAIN_WINDOW_WIDTH, this.getWidth());
+            config.setIntegerSettingIfPresent(Config.MAIN_WINDOW_HEIGHT, this.getHeight());
+            config.setIntegerSettingIfPresent(Config.MAIN_WINDOW_X, this.getLocation().x);
+            config.setIntegerSettingIfPresent(Config.MAIN_WINDOW_Y, this.getLocation().y);
+            config.setIntegerSettingIfPresent(Config.MAIN_SPLIT_DIVIDER_LOCATION, this.mainSplitPane.getAbsoluteDividerLocation());
+        });
     }
 
     public SettingsBar getSettingsBar() {
@@ -68,6 +79,13 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
 
     @Override
     public void accept(EmulatorInitializer initializer) {
+        if (initializer instanceof ApplicationInitializer applicationInitializer) {
+            applicationInitializer.getMainWindowWidth().ifPresent(width -> this.setSize(width, this.getHeight()));
+            applicationInitializer.getMainWindowHeight().ifPresent(height -> this.setSize(this.getWidth(), height));
+            applicationInitializer.getMainWindowX().ifPresent(x -> this.setLocation(x, this.getLocation().y));
+            applicationInitializer.getMainWindowY().ifPresent(y -> this.setLocation(this.getLocation().x, y));
+            applicationInitializer.getMainSplitDividerLocation().ifPresent(this.mainSplitPane::setAbsoluteDividerLocation);
+        }
         for (Component child : this.getComponents()) {
             this.visit(child, initializer);
         }

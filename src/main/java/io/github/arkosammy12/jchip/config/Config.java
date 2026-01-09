@@ -57,6 +57,19 @@ public class Config implements ApplicationInitializer {
     public static ElementPath DEBUGGER_FOLLOW;
     public static ElementPath DISASSEMBLER_FOLLOW;
 
+    public static ElementPath MAIN_WINDOW_WIDTH;
+    public static ElementPath MAIN_WINDOW_HEIGHT;
+
+    public static ElementPath MAIN_WINDOW_X;
+    public static ElementPath MAIN_WINDOW_Y;
+
+    public static ElementPath MAIN_SPLIT_DIVIDER_LOCATION;
+    public static ElementPath VIEWPORT_DISASSEMBLER_DIVIDER_LOCATION;
+    public static ElementPath DEBUGGER_MEMORY_DIVIDER_LOCATION;
+    public static ElementPath DEBUGGER_DIVIDER_LOCATION_1;
+    public static ElementPath DEBUGGER_DIVIDER_LOCATION_2;
+    public static ElementPath DEBUGGER_DIVIDER_LOCATION_3;
+
     private static final Path APP_DIR = Path.of(AppDirsFactory.getInstance().getUserDataDir("jchip", null, null));
     private static final ConfigManager CONFIG_MANAGER = ConfigManagerBuilderKt.tomlConfigManager("data", APP_DIR.resolve("data.toml"), manager -> {
         manager.section("file", file -> {
@@ -112,8 +125,55 @@ public class Config implements ApplicationInitializer {
             return Unit.INSTANCE;
         });
         manager.section("ui", ui -> {
+            MAIN_WINDOW_WIDTH = ui.numberSetting("main_window_width", -1, mainWindowWidth -> {
+                mainWindowWidth.setMinValue(-1);
+                return Unit.INSTANCE;
+            });
+
+            MAIN_WINDOW_HEIGHT = ui.numberSetting("main_window_height", -1, mainWindowHeight -> {
+                mainWindowHeight.setMinValue(-1);
+                return Unit.INSTANCE;
+            });
+
+            MAIN_WINDOW_X = ui.numberSetting("main_window_x", -1, mainWindowX -> {
+                mainWindowX.setMinValue(-1);
+                return Unit.INSTANCE;
+            });
+
+            MAIN_WINDOW_Y = ui.numberSetting("main_window_y", -1, mainWindowY -> {
+                mainWindowY.setMinValue(-1);
+                return Unit.INSTANCE;
+            });
+
+            MAIN_SPLIT_DIVIDER_LOCATION = ui.numberSetting("main_split_divider_location", -1, mainSplitDividerLocation -> {
+                mainSplitDividerLocation.setMinValue(-1);
+                return Unit.INSTANCE;
+            });
+
+            VIEWPORT_DISASSEMBLER_DIVIDER_LOCATION = ui.numberSetting("viewport_disassembler_divider_location", -1, viewportDisassemblerDividerLocation -> {
+                viewportDisassemblerDividerLocation.setMinValue(-1);
+                return Unit.INSTANCE;
+            });
+
             ui.section("debugger", debugger -> {
                 DEBUGGER_FOLLOW = debugger.booleanSetting("debugger_follow", false, _ -> Unit.INSTANCE);
+                DEBUGGER_MEMORY_DIVIDER_LOCATION = debugger.numberSetting("debugger_memory_divider_location", -1, debuggerMemoryDividerLocation -> {
+                    debuggerMemoryDividerLocation.setMinValue(-1);
+                    return Unit.INSTANCE;
+                });
+                DEBUGGER_DIVIDER_LOCATION_1 = debugger.numberSetting("debugger_divider_location_1", -1, debuggerDividerLocation1 -> {
+                    debuggerDividerLocation1.setMinValue(-1);
+                    return Unit.INSTANCE;
+                });
+                DEBUGGER_DIVIDER_LOCATION_2 = debugger.numberSetting("debugger_divider_location_2", -1, debuggerDividerLocation2 -> {
+                    debuggerDividerLocation2.setMinValue(-1);
+                    return Unit.INSTANCE;
+                });
+                DEBUGGER_DIVIDER_LOCATION_3 = debugger.numberSetting("debugger_divider_location_3", -1, debuggerDividerLocation3 -> {
+                    debuggerDividerLocation3.setMinValue(-1);
+                    return Unit.INSTANCE;
+                });
+
                 return Unit.INSTANCE;
             });
             ui.section("disassembler", disassembler -> {
@@ -241,11 +301,61 @@ public class Config implements ApplicationInitializer {
     }
 
     @Override
+    public Optional<Integer> getMainWindowWidth() {
+        return this.getUiIntSetting(MAIN_WINDOW_WIDTH);
+    }
+
+    @Override
+    public Optional<Integer> getMainWindowHeight() {
+        return this.getUiIntSetting(MAIN_WINDOW_HEIGHT);
+    }
+
+    @Override
+    public Optional<Integer> getMainWindowX() {
+        return this.getUiIntSetting(MAIN_WINDOW_X);
+    }
+
+    @Override
+    public Optional<Integer> getMainWindowY() {
+        return this.getUiIntSetting(MAIN_WINDOW_Y);
+    }
+
+    @Override
+    public Optional<Integer> getMainSplitDividerLocation() {
+        return this.getUiIntSetting(MAIN_SPLIT_DIVIDER_LOCATION);
+    }
+
+    @Override
+    public Optional<Integer> getViewportDisassemblerDividerLocation() {
+        return this.getUiIntSetting(VIEWPORT_DISASSEMBLER_DIVIDER_LOCATION);
+    }
+
+    @Override
+    public Optional<Integer> getDebuggerMemoryDividerLocation() {
+        return this.getUiIntSetting(DEBUGGER_MEMORY_DIVIDER_LOCATION);
+    }
+
+    @Override
+    public Optional<Integer> getDebuggerDividerLocation1() {
+        return this.getUiIntSetting(DEBUGGER_DIVIDER_LOCATION_1);
+    }
+
+    @Override
+    public Optional<Integer> getDebuggerDividerLocation2() {
+        return this.getUiIntSetting(DEBUGGER_DIVIDER_LOCATION_2);
+    }
+
+    @Override
+    public Optional<Integer> getDebuggerDividerLocation3() {
+        return this.getUiIntSetting(DEBUGGER_DIVIDER_LOCATION_3);
+    }
+
+    @Override
     public Optional<Integer> getInstructionsPerFrame() {
-        return switch (this.getRawNumberSetting(INSTRUCTIONS_PER_FRAME)) {
-            case Integer i when i > 0 -> Optional.of(i);
-            case null, default -> Optional.empty();
-        };
+        return Optional.ofNullable(switch (this.getRawNumberSetting(INSTRUCTIONS_PER_FRAME)) {
+            case Integer i when i > 0 -> i;
+            case null, default -> null;
+        });
     }
 
     @Override
@@ -333,6 +443,13 @@ public class Config implements ApplicationInitializer {
             case BooleanValue val -> val.mapToInternal();
             case null -> Optional.empty();
         };
+    }
+
+    private Optional<Integer> getUiIntSetting(ElementPath path) {
+        return Optional.ofNullable(switch (this.getRawNumberSetting(path)) {
+            case Integer i when i >= 0 -> i;
+            case null, default -> null;
+        });
     }
 
     @Nullable

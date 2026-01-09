@@ -39,6 +39,14 @@ public class ToggleableSplitPane extends JPanel {
         this.layout.show(this.left.getParent(), SINGLE);
     }
 
+    public void setAbsoluteDividerLocation(int location) {
+        this.splitPane.setDividerLocation(location);
+    }
+
+    public int getAbsoluteDividerLocation() {
+        return this.splitPane.getDividerLocation();
+    }
+
     public void toggleShowSplit(boolean enabled) {
         if (enabled) {
             if (!this.isSplitVisible()) {
