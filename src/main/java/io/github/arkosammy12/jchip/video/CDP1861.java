@@ -24,6 +24,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     private static final int DMAO_END = 12 - 1;  // dmao cycle will be acknowledged on the next cycle
 
     protected final int[][] displayBuffer;
+    protected long cycles;
     protected int scanlineIndex;
 
     private DmaStatus dmaStatus = DmaStatus.NONE;
@@ -68,15 +69,14 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
 
     @Override
     public void cycle() {
-        long cpuMachineCycles = this.emulator.getProcessor().getMachineCycles();
-        if (cpuMachineCycles % CosmacVipEmulator.CYCLES_PER_FRAME == 0) {
+        if (this.cycles % CosmacVipEmulator.CYCLES_PER_FRAME == 0) {
             this.enabled = this.displayEnableLatch;
         }
         if (this.enabled) {
             this.emulator.getProcessor().setEF(0, (this.scanlineIndex >= FIRST_EFX_BEGIN && this.scanlineIndex < FIRST_EFX_END) || (this.scanlineIndex >= SECOND_EFX_BEGIN && this.scanlineIndex < SECOND_EFX_END));
             this.interrupting = this.scanlineIndex >= INTERRUPT_BEGIN && this.scanlineIndex < INTERRUPT_END;
             if (this.scanlineIndex >= DISPLAY_AREA_BEGIN && this.scanlineIndex < DISPLAY_AREA_END) {
-                long scanLineCycles = cpuMachineCycles % MACHINE_CYCLES_PER_SCANLINE;
+                long scanLineCycles = this.cycles % MACHINE_CYCLES_PER_SCANLINE;
                 if (scanLineCycles >= DMAO_BEGIN && scanLineCycles < DMAO_END) {
                     this.dmaStatus = DmaStatus.OUT;
                 } else {
@@ -88,9 +88,10 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
             this.dmaStatus = DmaStatus.NONE;
             this.emulator.getProcessor().setEF(0, false);
         }
-        if (cpuMachineCycles % MACHINE_CYCLES_PER_SCANLINE == 0) {
+        if (this.cycles != 0 && (this.cycles % MACHINE_CYCLES_PER_SCANLINE == 0)) {
             this.scanlineIndex = (this.scanlineIndex + 1) % SCANLINES_PER_FRAME;
         }
+        this.cycles++;
     }
 
     @Override
@@ -103,7 +104,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
         if (row < 0 || row >= this.getHeight()) {
             return;
         }
-        int dmaIndex = (int) ((this.emulator.getProcessor().getMachineCycles() % MACHINE_CYCLES_PER_SCANLINE) - DMAO_BEGIN);
+        int dmaIndex = (int) ((this.cycles % MACHINE_CYCLES_PER_SCANLINE) - DMAO_BEGIN) - 1;
         int colStart = dmaIndex * 8;
         for (int i = 0, mask = 0x80; i < 8; i++, mask >>>= 1) {
             int col = colStart + i;

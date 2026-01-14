@@ -64,7 +64,7 @@ public class VP590<E extends CosmacVipEmulator> extends CDP1861<E> {
         if (row < 0 || row >= this.getHeight()) {
             return;
         }
-        int dmaIndex = (int) ((this.emulator.getProcessor().getMachineCycles() % MACHINE_CYCLES_PER_SCANLINE) - DMAO_BEGIN);
+        int dmaIndex = (int) ((this.cycles % MACHINE_CYCLES_PER_SCANLINE) - DMAO_BEGIN) - 1;
         int colStart = dmaIndex * 8;
         int color = 0xFF000000;
         int backgroundColor;

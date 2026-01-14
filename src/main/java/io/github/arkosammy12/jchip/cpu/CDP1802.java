@@ -16,7 +16,6 @@ public class CDP1802 implements Processor {
     private State currentState = State.S1_RESET;
     private boolean longInstruction = false;
     private boolean idling = false;
-    private long machineCycles;
 
     private int accumulator; // D
     private boolean dataFlagRegister; // DF
@@ -156,10 +155,6 @@ public class CDP1802 implements Processor {
         return this.externalFlagInputs[index];
     }
 
-    public long getMachineCycles() {
-        return this.machineCycles;
-    }
-
     @Override
     public int cycle() {
         int flags = switch (currentState) {
@@ -174,7 +169,6 @@ public class CDP1802 implements Processor {
         if (!isHandled(flags)) {
             throw new InvalidInstructionException((getI() << 4) | getN(), this.emulator.getVariant());
         }
-        this.machineCycles++;
         return flags;
     }
 
