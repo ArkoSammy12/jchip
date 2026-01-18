@@ -10,7 +10,7 @@ public class MegaChipDisplay<E extends MegaChipEmulator> extends SChip11Display<
     private final int[] colorPalette = new int[256];
     private int spriteWidth = 0;
     private int spriteHeight = 0;
-    private int screenAlpha = 0;
+    private int screenAlpha = 0xFF;
     private int collisionIndex = 0;
     private BlendMode blendMode = BlendMode.BLEND_NORMAL;
 
@@ -65,7 +65,7 @@ public class MegaChipDisplay<E extends MegaChipEmulator> extends SChip11Display<
     }
 
     public void setScreenAlpha(int alpha) {
-        this.screenAlpha = alpha;
+        this.screenAlpha = alpha & 0xFF;
     }
 
     public void setBlendMode(BlendMode blendMode) {
@@ -236,7 +236,7 @@ public class MegaChipDisplay<E extends MegaChipEmulator> extends SChip11Display<
                     if ((front & 0xFF000000) != 0) {
                         pixel = front;
                     }
-                    renderBuffer[x][y] = pixel;
+                    renderBuffer[x][y] = blendAlpha(pixel, 0xFF000000, this.screenAlpha);
                 }
             }
         } else {
