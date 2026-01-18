@@ -134,8 +134,8 @@ public class CosmacVipDisassembler<E extends CosmacVipEmulator> extends Abstract
                 case 0xF -> "LSDF";
                 default -> "invalid";
             };
-            case 0xD -> "SEP " + getNFormatted(opcode);
-            case 0xE -> "SEX " + getNFormatted(opcode);
+            case 0xD -> "SEP R" + getNFormatted(opcode);
+            case 0xE -> "SEX R" + getNFormatted(opcode);
             case 0xF -> switch (getN(opcode)) {
                 case 0x0 -> "LDX";
                 case 0x1 -> "OR";
