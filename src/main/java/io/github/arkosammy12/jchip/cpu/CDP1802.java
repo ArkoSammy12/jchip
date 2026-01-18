@@ -3,13 +3,16 @@ package io.github.arkosammy12.jchip.cpu;
 import io.github.arkosammy12.jchip.emulators.CosmacVipEmulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 
-import java.util.Random;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Arrays;
 
 import static io.github.arkosammy12.jchip.cpu.CDP1802.State.*;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.HANDLED;
 import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isHandled;
+import static io.github.arkosammy12.jchip.emulators.CosmacVipEmulator.REGISTERS_ENTRY_KEY;
 
-public class CDP1802 implements Processor {
+public class CDP1802 implements Processor, Closeable {
 
     private final CosmacVipEmulator emulator;
     private int currentInstructionAddress;
@@ -33,10 +36,7 @@ public class CDP1802 implements Processor {
 
     public CDP1802(CosmacVipEmulator emulator) {
         this.emulator = emulator;
-        Random random = new Random();
-        for (int i = 0; i < this.registers.length; i++) {
-            this.registers[i] = random.nextInt(0xFFFF + 1);
-        }
+        System.arraycopy(emulator.getEmulatorSettings().getJchip().getDataManager().getTransientOrCompute(REGISTERS_ENTRY_KEY, int[].class, () -> new int[16]), 0, this.registers, 0, this.registers.length);
     }
 
     public State getCurrentState() {
@@ -864,6 +864,11 @@ public class CDP1802 implements Processor {
             };
             default -> 0;
         };
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.emulator.getEmulatorSettings().getJchip().getDataManager().putTransient(REGISTERS_ENTRY_KEY, Arrays.copyOf(this.registers, this.registers.length));
     }
 
     public enum State {

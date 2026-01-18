@@ -31,6 +31,7 @@ import static io.github.arkosammy12.jchip.util.vip.IODevice.DmaStatus.OUT;
 public class CosmacVipEmulator implements Emulator {
 
     public static final int CYCLES_PER_FRAME = 3668;
+    public static final String REGISTERS_ENTRY_KEY = "cosmacvip.processor.registers";
 
     private final Jchip jchip;
     private final CosmacVipEmulatorSettings settings;
@@ -259,6 +260,9 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public void close() {
         try {
+            if (this.processor != null) {
+                this.processor.close();
+            }
             if (this.display != null) {
                 this.display.close();
             }

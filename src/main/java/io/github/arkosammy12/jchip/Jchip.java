@@ -155,14 +155,6 @@ public class Jchip {
         return this.currentState;
     }
 
-    public void setFlagRegister(int index, int value) {
-        this.flagsStorage[index] = value;
-    }
-
-    public int getFlagRegister(int index) {
-        return this.flagsStorage[index];
-    }
-
     public void start() throws Exception {
         while (this.running) {
             try {

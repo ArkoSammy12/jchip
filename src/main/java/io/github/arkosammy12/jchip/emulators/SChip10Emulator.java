@@ -15,6 +15,8 @@ import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
 
 public class SChip10Emulator extends Chip48Emulator {
 
+    public static final String FLAG_REGISTERS_ENTRY_KEY = "schip10.processor.flag_registers";
+
     @Nullable
     private SChip10Processor<?> processor;
 

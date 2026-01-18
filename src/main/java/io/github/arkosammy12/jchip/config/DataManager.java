@@ -22,6 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public final class DataManager implements ApplicationInitializer {
 
@@ -114,6 +116,28 @@ public final class DataManager implements ApplicationInitializer {
             return Optional.empty();
         }
         return Optional.of((T) entry);
+    }
+
+    public <T> T getTransientOrCompute(String key, Class<T> clazz, Supplier<T> supplier) {
+        return clazz.cast(
+                this.transientEntries.compute(key, (_, v) -> {
+                    if (clazz.isInstance(v)) {
+                        return v;
+                    }
+                    return supplier.get();
+                })
+        );
+    }
+
+
+    public <T> void modifyTransientOrCompute(String key, Class<T> clazz, Supplier<T> supplier, UnaryOperator<T> modifier) {
+        this.transientEntries.compute(key, (_, v) -> {
+            if (clazz.isInstance(v)) {
+                return modifier.apply(clazz.cast(v));
+            }
+            return supplier.get();
+        });
+
     }
 
     public void putPersistent(String key, String value) {

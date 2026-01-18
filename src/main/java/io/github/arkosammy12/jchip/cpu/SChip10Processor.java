@@ -1,10 +1,11 @@
 package io.github.arkosammy12.jchip.cpu;
 
-import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.emulators.SChip10Emulator;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.memory.Chip8Bus;
 import io.github.arkosammy12.jchip.video.SChip10Display;
+
+import static io.github.arkosammy12.jchip.emulators.SChip10Emulator.FLAG_REGISTERS_ENTRY_KEY;
 
 public class SChip10Processor<E extends SChip10Emulator> extends Chip8Processor<E> {
 
@@ -125,18 +126,20 @@ public class SChip10Processor<E extends SChip10Emulator> extends Chip8Processor<
                 yield HANDLED | FONT_SPRITE_POINTER;
             }
             case 0x75 -> { // FX75: saveflags vX
-                Jchip jchip = this.emulator.getEmulatorSettings().getJchip();
-                int X = getX(firstByte, NN);
-                for (int i = 0; i <= X; i++) {
-                    jchip.setFlagRegister(i, this.getRegister(i));
-                }
+                this.emulator.getEmulatorSettings().getJchip().getDataManager().modifyTransientOrCompute(FLAG_REGISTERS_ENTRY_KEY, int[].class, () -> new int[16], flagsRegisters -> {
+                    int X = getX(firstByte, NN);
+                    for (int i = 0; i <= X; i++) {
+                        flagsRegisters[i] = this.getRegister(i);
+                    }
+                    return flagsRegisters;
+                });
                 yield HANDLED;
             }
             case 0x85 -> { // FX85: loadflags vX
-                Jchip jchip = this.emulator.getEmulatorSettings().getJchip();
+                int[] flagsRegister = this.emulator.getEmulatorSettings().getJchip().getDataManager().getTransientOrCompute(FLAG_REGISTERS_ENTRY_KEY, int[].class, () -> new int[16]);
                 int X = getX(firstByte, NN);
                 for (int i = 0; i <= X; i++) {
-                    this.setRegister(i, jchip.getFlagRegister(i));
+                    this.setRegister(i, flagsRegister[i]);
                 }
                 yield HANDLED;
             }
