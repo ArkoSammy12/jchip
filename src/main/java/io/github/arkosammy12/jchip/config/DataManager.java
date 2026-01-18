@@ -20,10 +20,7 @@ import org.tinylog.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class DataManager implements ApplicationInitializer {
@@ -76,32 +73,30 @@ public final class DataManager implements ApplicationInitializer {
                     if (primitive.isString()) {
                         this.persistentEntries.put(key.toString(), primitive.asString());
                     } else {
-
+                        Logger.warn("Primitive value for key \"{}\" was not a string. This key will be skipped!", key);
                     }
                 } else if (value.isArray()) {
                     TomlArray tomlArray = value.asArray();
-                    int size = tomlArray.size();
-                    String[] arr = new String[size];
-                    for (int i = 0; i < size; i++) {
-                        TomlValue element = tomlArray.get(i);
+                    List<String> list = new ArrayList<>();
+                    for (TomlValue element : tomlArray) {
                         if (element.isPrimitive()) {
                             TomlPrimitive primitive = element.asPrimitive();
                             if (primitive.isString()) {
-                                arr[i] = primitive.asString();
+                                list.add(primitive.asString());
                             } else {
-                                // TODO: Log
+                                Logger.warn("Primitive value in array for key \"{}\" was not a string. This element will be skipped!", key);
                             }
                         } else {
-                            // TODO: Log
+                            Logger.warn("Non primitive value found in array for key: {}. This element will be skipped!", key);
                         }
                     }
-                    this.persistentEntries.put(key.toString(), arr);
+                    this.persistentEntries.put(key.toString(), list.toArray(new String[tomlArray.size()]));
                 } else {
-                    // TODO: Log
+                    Logger.warn("Non primitive value found for key: {}. This key will be skipped!", key);
                 }
             }
         } catch (Exception e) {
-            Logger.error("Error while loading data file from directory {}: {}", APP_DIR, e);
+            Logger.warn("Error loading data file from directory {}: {}", APP_DIR, e.getCause());
         }
     }
 
@@ -142,7 +137,7 @@ public final class DataManager implements ApplicationInitializer {
             try {
                 Files.createDirectories(APP_DIR);
             } catch (Exception e) {
-                Logger.error("Error creating app data directory in {}: {}", APP_DIR, e);
+                Logger.error("Error creating app data directories in {}: {}", APP_DIR, e.getCause());
             }
         }
         try {
@@ -159,7 +154,7 @@ public final class DataManager implements ApplicationInitializer {
                     }
                     table.put(entry.getKey(), tomlArray);
                 } else {
-                    // TODO: Log
+                    throw new IllegalStateException("Found non string or non string array value: \"" + value.toString() + "\" for key \"" + entry.getKey() + "\" in persistent entries map!");
                 }
             }
             jtoml.write(DATA_FILE, table);
