@@ -13,7 +13,7 @@ public class Main {
     public static final long FRAME_INTERVAL = 1_000_000_000L / FRAMES_PER_SECOND;
 
     // Increment this here, in pom.xml and in the version tag in the README.
-    public static final String VERSION_STRING = "v5.0.0";
+    public static final String VERSION_STRING = "v5.1.0";
 
     static void main(String[] args) throws Exception {
 

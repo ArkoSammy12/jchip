@@ -19,7 +19,7 @@ A multi-variant CHIP-8 interpreter and COSMAC-VIP emulator written in Java.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-blue)
-[![Latest Release Tag](https://img.shields.io/github/tag/arkosammy12/jchip.svg)](https://github.com/arkosammy12/jchip/tree/v5.0.0)
+[![Latest Release Tag](https://img.shields.io/github/tag/arkosammy12/jchip.svg)](https://github.com/arkosammy12/jchip/tree/v5.1.0)
 
 * [jchip](#jchip)
 * [Introduction](#introduction)
@@ -244,12 +244,6 @@ if you are on Windows.
 
 The built JAR will be located in the `target` directory.
 You may also get pre-compiled JARs from the [releases page](https://github.com/ArkoSammy12/jchip/releases).
-
-## Libraries Used
-
-- [picocli](https://github.com/remkop/picocli) – CLI argument parsing
-- [gson](https://github.com/google/gson) – JSON parsing
-- [tinylog](https://github.com/tinylog-org/tinylog) - Logging
 
 ## Resources and general links
 
