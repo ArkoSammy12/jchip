@@ -2,7 +2,7 @@ package io.github.arkosammy12.jchip;
 
 import com.formdev.flatlaf.intellijthemes.FlatOneDarkIJTheme;
 import io.github.arkosammy12.jchip.config.CLIArgs;
-import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
@@ -40,7 +40,8 @@ public class Jchip {
     private volatile boolean running = true;
 
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
-    private final Config config = new Config();
+    //private final Config config = new Config();
+    private final DataManager dataManager = new DataManager();
     private final Chip8Database database = new Chip8Database();
     private final DefaultAudioRenderer audioRenderer = new DefaultAudioRenderer(this);
 
@@ -100,7 +101,8 @@ public class Jchip {
                     }
 
                 });
-                this.mainWindow.accept(this.config);
+                this.mainWindow.accept(this.dataManager);
+                //this.mainWindow.accept(this.config);
             });
 
             if (cliArgs != null) {
@@ -126,8 +128,15 @@ public class Jchip {
         return this.audioRenderer;
     }
 
+    /*
     public Config getConfig() {
         return this.config;
+    }
+
+     */
+
+    public DataManager getDataManager() {
+        return this.dataManager;
     }
 
     public void addStateChangedListener(StateChangedListener l) {
@@ -267,7 +276,8 @@ public class Jchip {
         }
         this.audioRenderer.close();
         this.notifyShutdownListeners();
-        this.config.save();
+        this.dataManager.save();
+        //this.config.save();
     }
 
     private State updateState() {

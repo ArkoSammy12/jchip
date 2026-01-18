@@ -1,8 +1,9 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.DataManager;
+import io.github.arkosammy12.jchip.config.Serializable;
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.config.Config;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.util.BooleanMenu;
@@ -62,15 +63,15 @@ public class QuirksMenu extends JMenu implements EmulatorInitializerConsumer {
         this.add(this.doJumpWithVXMenu);
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
+            DataManager dataManager = jchip.getDataManager();
+            dataManager.putPersistent(DataManager.USE_VARIANT_QUIRKS, String.valueOf(this.forceVariantQuirks));
+            dataManager.putPersistent(DataManager.VF_RESET, DataManager.BooleanValue.toSerialized(this.doVFReset().orElse(null)));
+            dataManager.putPersistent(DataManager.I_INCREMENT, Serializable.serialize(this.getMemoryIncrementQuirk().orElse(null)));
+            dataManager.putPersistent(DataManager.DISPLAY_WAIT, DataManager.BooleanValue.toSerialized(this.doDisplayWait().orElse(null)));
+            dataManager.putPersistent(DataManager.CLIPPING, DataManager.BooleanValue.toSerialized(this.doClipping().orElse(null)));
+            dataManager.putPersistent(DataManager.SHIFT_VX_IN_PLACE, DataManager.BooleanValue.toSerialized(this.doShiftVXInPlace().orElse(null)));
+            dataManager.putPersistent(DataManager.JUMP_WITH_VX, DataManager.BooleanValue.toSerialized(this.doJumpWithVX().orElse(null)));
 
-            config.setBooleanSettingIfPresent(Config.USE_VARIANT_QUIRKS, this.forceVariantQuirks);
-            config.setEnumSettingIfPresent(Config.VF_RESET, Config.BooleanValue.mapToSerialized(this.doVFReset().orElse(null)));
-            config.setEnumSettingIfPresent(Config.I_INCREMENT, Config.MemoryIncrementValue.mapToSerialized(this.getMemoryIncrementQuirk().orElse(null)));
-            config.setEnumSettingIfPresent(Config.DISPLAY_WAIT, Config.BooleanValue.mapToSerialized(this.doDisplayWait().orElse(null)));
-            config.setEnumSettingIfPresent(Config.CLIPPING, Config.BooleanValue.mapToSerialized(this.doClipping().orElse(null)));
-            config.setEnumSettingIfPresent(Config.SHIFT_VX_IN_PLACE, Config.BooleanValue.mapToSerialized(this.doShiftVXInPlace().orElse(null)));
-            config.setEnumSettingIfPresent(Config.JUMP_WITH_VX, Config.BooleanValue.mapToSerialized(this.doJumpWithVX().orElse(null)));
         });
     }
 

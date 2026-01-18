@@ -18,7 +18,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -104,11 +103,10 @@ public class FileMenu extends JMenu implements EmulatorInitializerConsumer {
         this.add(openRecentMenu);
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
-
-            config.setListSettingIfPresent(Config.RECENT_FILES, new ArrayList<>(this.recentFilePaths));
+            DataManager dataManager = jchip.getDataManager();
+            dataManager.putPersistent(DataManager.RECENT_FILES, this.recentFilePaths.stream().map(Path::toString).toArray(String[]::new));
             if (this.currentDirectory != null) {
-                config.setStringSettingIfPresent(Config.CURRENT_DIRECTORY, this.currentDirectory.toString());
+                dataManager.putPersistent(DataManager.CURRENT_DIRECTORY, this.currentDirectory.toString());
             }
         });
     }

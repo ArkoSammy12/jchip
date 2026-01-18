@@ -105,6 +105,11 @@
             <artifactId>monkey-config</artifactId>
             <version>1.0.7</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.wasabithumb</groupId>
+            <artifactId>jtoml</artifactId>
+            <version>1.4.2</version>
+        </dependency>
     </dependencies>
 
     <build>

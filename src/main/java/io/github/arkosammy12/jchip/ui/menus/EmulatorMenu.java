@@ -1,7 +1,8 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.DataManager;
+import io.github.arkosammy12.jchip.config.Serializable;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.MainWindow;
@@ -214,11 +215,16 @@ public class EmulatorMenu extends JMenu implements EmulatorInitializerConsumer {
         }));
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
-            config.setEnumSettingIfPresent(Config.VARIANT, Config.VariantValue.mapToSerialized(this.getVariant().orElse(null)));
-            config.setEnumSettingIfPresent(Config.COLOR_PALETTE, Config.ColorPaletteValue.mapToSerialized(this.getColorPalette().orElse(null)));
-            config.setIntegerSettingIfPresent(Config.DISPLAY_ANGLE, Config.mapDisplayAngleToSerialized(this.getDisplayAngle().orElse(null)));
-            config.setIntegerSettingIfPresent(Config.INSTRUCTIONS_PER_FRAME, Config.mapIpfToSerialized(this.getInstructionsPerFrame().orElse(null)));
+            DataManager dataManager = jchip.getDataManager();
+
+            dataManager.putPersistent(DataManager.VARIANT, Serializable.serialize(this.getVariant().orElse(null)));
+            this.getColorPalette().ifPresent(palette -> {
+                if (palette instanceof BuiltInColorPalette builtInColorPalette) {
+                    dataManager.putPersistent(DataManager.COLOR_PALETTE, Serializable.serialize(builtInColorPalette));
+                }
+            });
+            dataManager.putPersistent(DataManager.DISPLAY_ANGLE, Serializable.serialize(this.getDisplayAngle().orElse(null)));
+            dataManager.putPersistent(DataManager.INSTRUCTIONS_PER_FRAME, String.valueOf(this.getInstructionsPerFrame().orElse(-1)));
         });
     }
 

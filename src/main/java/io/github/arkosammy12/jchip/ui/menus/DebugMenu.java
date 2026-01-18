@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
-import io.github.arkosammy12.jchip.config.Config;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.MainWindow;
@@ -30,10 +30,10 @@ public class DebugMenu extends JMenu implements EmulatorInitializerConsumer {
         this.add(this.showDisassemblerButton);
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
+            DataManager dataManager = jchip.getDataManager();
+            dataManager.putPersistent(DataManager.SHOW_DEBUGGER, String.valueOf(this.showDebuggerButton.isSelected()));
+            dataManager.putPersistent(DataManager.SHOW_DISASSEMBLER, String.valueOf(this.showDisassemblerButton.isSelected()));
 
-            config.setBooleanSettingIfPresent(Config.SHOW_DEBUGGER, this.showDebuggerButton.isSelected());
-            config.setBooleanSettingIfPresent(Config.SHOW_DISASSEMBLER, this.showDisassemblerButton.isSelected());
         });
     }
 

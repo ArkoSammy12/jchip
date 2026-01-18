@@ -1,11 +1,12 @@
 package io.github.arkosammy12.jchip.util;
 
+import io.github.arkosammy12.jchip.config.Serializable;
 import picocli.CommandLine;
 
 import java.awt.event.KeyEvent;
 import java.util.function.IntUnaryOperator;
 
-public enum KeyboardLayout implements DisplayNameProvider {
+public enum KeyboardLayout implements DisplayNameProvider, Serializable {
     QWERTY("Qwerty", "qwerty", keyCode -> switch (keyCode) {
         case KeyEvent.VK_X -> 0x0;
         case KeyEvent.VK_1 -> 0x1;
@@ -111,6 +112,11 @@ public enum KeyboardLayout implements DisplayNameProvider {
         return this.displayName;
     }
 
+    @Override
+    public String getSerializedString() {
+        return this.identifier;
+    }
+
     public static class Converter implements CommandLine.ITypeConverter<KeyboardLayout> {
 
         @Override
@@ -119,4 +125,5 @@ public enum KeyboardLayout implements DisplayNameProvider {
         }
 
     }
+
 }

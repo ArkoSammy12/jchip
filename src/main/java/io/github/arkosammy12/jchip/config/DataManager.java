@@ -1,0 +1,337 @@
+package io.github.arkosammy12.jchip.config;
+
+import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
+import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
+import io.github.arkosammy12.jchip.util.DisplayAngle;
+import io.github.arkosammy12.jchip.util.KeyboardLayout;
+import io.github.arkosammy12.jchip.util.Variant;
+import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
+import io.github.arkosammy12.jchip.video.ColorPalette;
+import io.github.wasabithumb.jtoml.JToml;
+import io.github.wasabithumb.jtoml.key.TomlKey;
+import io.github.wasabithumb.jtoml.value.TomlValue;
+import io.github.wasabithumb.jtoml.value.array.TomlArray;
+import io.github.wasabithumb.jtoml.value.primitive.TomlPrimitive;
+import io.github.wasabithumb.jtoml.value.table.TomlTable;
+import net.harawata.appdirs.AppDirsFactory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.tinylog.Logger;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
+public final class DataManager implements ApplicationInitializer {
+
+    public static final String RECENT_FILES = "file.recent_files";
+    public static final String CURRENT_DIRECTORY = "file.current_directory";
+
+    public static final String USE_VARIANT_QUIRKS = "emulator.quirks.use_variant_quirks";
+
+    public static final String VF_RESET = "emulator.quirks.vf_reset";
+    public static final String I_INCREMENT = "emulator.quirks.i_increment";
+    public static final String DISPLAY_WAIT = "emulator.quirks.display_wait";
+    public static final String CLIPPING = "emulator.quirks.clipping";
+    public static final String SHIFT_VX_IN_PLACE = "emulator.quirks.shift_vx_in_place";
+    public static final String JUMP_WITH_VX = "emulator.quirks.jump_with_vx";
+
+    public static final String VARIANT = "emulator.variant";
+    public static final String COLOR_PALETTE = "emulator.color_palette";
+    public static final String DISPLAY_ANGLE = "emulator.display_angle";
+    public static final String INSTRUCTIONS_PER_FRAME = "emulator.instructions_per_frame";
+
+    public static final String VOLUME = "settings.volume";
+    public static final String MUTED = "settings.muted";
+    public static final String KEYBOARD_LAYOUT = "settings.keyboard_layout";
+    public static final String SHOW_INFO_BAR = "settings.show_info_bar";
+
+    public static final String SHOW_DEBUGGER = "debug.show_debugger";
+    public static final String SHOW_DISASSEMBLER = "debug.show_disassembler";
+
+    public static final String DEBUGGER_FOLLOW = "ui.debugger.debugger_follow";
+    public static final String DISASSEMBLER_FOLLOW = "ui.disassembler.disassembler_follow";
+
+    private static final Path APP_DIR = Path.of(AppDirsFactory.getInstance().getUserDataDir("jchip", null, null));
+    private static final Path DATA_FILE = APP_DIR.resolve("data.toml");
+
+    private final Map<String, Object> transientEntries = new ConcurrentHashMap<>();
+    private final Map<String, Object> persistentEntries = new ConcurrentHashMap<>();
+
+    public DataManager() {
+        try {
+            JToml jToml = JToml.jToml();
+            TomlTable table = jToml.read(DATA_FILE);
+            for (TomlKey key : table.keys()) {
+                TomlValue value = table.get(key);
+                if (value == null) {
+                    continue;
+                }
+                if (value.isPrimitive()) {
+                    TomlPrimitive primitive = value.asPrimitive();
+                    if (primitive.isString()) {
+                        this.persistentEntries.put(key.toString(), primitive.asString());
+                    } else {
+
+                    }
+                } else if (value.isArray()) {
+                    TomlArray tomlArray = value.asArray();
+                    int size = tomlArray.size();
+                    String[] arr = new String[size];
+                    for (int i = 0; i < size; i++) {
+                        TomlValue element = tomlArray.get(i);
+                        if (element.isPrimitive()) {
+                            TomlPrimitive primitive = element.asPrimitive();
+                            if (primitive.isString()) {
+                                arr[i] = primitive.asString();
+                            } else {
+                                // TODO: Log
+                            }
+                        } else {
+                            // TODO: Log
+                        }
+                    }
+                    this.persistentEntries.put(key.toString(), arr);
+                } else {
+                    // TODO: Log
+                }
+            }
+        } catch (Exception e) {
+            Logger.error("Error while loading data file from directory {}: {}", APP_DIR, e);
+        }
+    }
+
+    public void putTransient(String key, Object value) {
+        this.transientEntries.put(key, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> getTransient(String key, Class<T> clazz) {
+        Object entry = this.transientEntries.get(key);
+        if (entry == null) {
+            return Optional.empty();
+        }
+        if (!clazz.isInstance(entry)) {
+            return Optional.empty();
+        }
+        return Optional.of((T) entry);
+    }
+
+    public void putPersistent(String key, String value) {
+        this.persistentEntries.put(key, value);
+    }
+
+    public void putPersistent(String key, String[] value) {
+        this.persistentEntries.put(key, value);
+    }
+
+    public Optional<String> getPersistent(String key) {
+        return Optional.ofNullable(this.persistentEntries.get(key) instanceof String str ? str : null);
+    }
+
+    public Optional<String[]> getPersistentArray(String key) {
+        return Optional.ofNullable(this.persistentEntries.get(key) instanceof String[] str ? str : null);
+    }
+
+    public void save() {
+        if (!Files.exists(APP_DIR)) {
+            try {
+                Files.createDirectories(APP_DIR);
+            } catch (Exception e) {
+                Logger.error("Error creating app data directory in {}: {}", APP_DIR, e);
+            }
+        }
+        try {
+            JToml jtoml = JToml.jToml();
+            TomlTable table = TomlTable.create();
+            for (Map.Entry<String, Object> entry : this.persistentEntries.entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof String str) {
+                    table.put(entry.getKey(), str);
+                } else if (value instanceof String[] arr) {
+                    TomlArray tomlArray = TomlArray.create();
+                    for (String e : arr) {
+                        tomlArray.add(e);
+                    }
+                    table.put(entry.getKey(), tomlArray);
+                } else {
+                    // TODO: Log
+                }
+            }
+            jtoml.write(DATA_FILE, table);
+        } catch (Exception e) {
+            Logger.error("Error saving data to data file: {}", e);
+        }
+    }
+
+    @Override
+    public Optional<Path> getRomPath() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<byte[]> getRawRom() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<Path>> getRecentFiles() {
+        return this.getPersistentArray(RECENT_FILES).map(recentFiles -> Arrays.stream(recentFiles).map(Path::of).toList());
+    }
+
+    @Override
+    public Optional<String> getCurrentDirectory() {
+        return this.getPersistent(CURRENT_DIRECTORY);
+    }
+
+    @Override
+    public Optional<Integer> getVolume() {
+        return this.getPersistent(VOLUME).map(Integer::valueOf);
+    }
+
+    @Override
+    public Optional<Boolean> getMuted() {
+        return this.getPersistent(MUTED).map(Boolean::valueOf);
+    }
+
+    @Override
+    public Optional<Boolean> getShowingInfoBar() {
+        return this.getPersistent(SHOW_INFO_BAR).map(Boolean::valueOf);
+    }
+
+    @Override
+    public Optional<Boolean> getShowingDebugger() {
+        return this.getPersistent(SHOW_DEBUGGER).map(Boolean::valueOf);
+    }
+
+    @Override
+    public Optional<Boolean> getShowingDisassembler() {
+        return this.getPersistent(SHOW_DISASSEMBLER).map(Boolean::valueOf);
+    }
+
+    @Override
+    public Optional<Boolean> getDebuggerFollowing() {
+        return this.getPersistent(DEBUGGER_FOLLOW).map(Boolean::valueOf);
+    }
+
+    @Override
+    public Optional<Boolean> getDisassemblerFollowing() {
+        return this.getPersistent(DISASSEMBLER_FOLLOW).map(Boolean::valueOf);
+    }
+
+    @Override
+    public Optional<Integer> getInstructionsPerFrame() {
+        return this.getPersistent(INSTRUCTIONS_PER_FRAME).map(Integer::valueOf);
+    }
+
+    @Override
+    public Optional<ColorPalette> getColorPalette() {
+        return this.getPersistent(COLOR_PALETTE).map(str -> getEnumFromSerialized(BuiltInColorPalette.class, str));
+    }
+
+    @Override
+    public Optional<DisplayAngle> getDisplayAngle() {
+        return this.getPersistent(DISPLAY_ANGLE).flatMap(str -> {
+            try {
+                return Optional.of(DisplayAngle.getDisplayAngleForIntValue(Integer.parseInt(str)));
+            } catch (IllegalArgumentException e) {
+                return Optional.empty();
+            }
+        });
+    }
+
+    @Override
+    public Optional<KeyboardLayout> getKeyboardLayout() {
+        return this.getPersistent(KEYBOARD_LAYOUT).map(str -> getEnumFromSerialized(KeyboardLayout.class, str));
+    }
+
+    @Override
+    public Optional<Boolean> useVariantQuirks() {
+        return this.getPersistent(USE_VARIANT_QUIRKS).map(Boolean::valueOf);
+    }
+
+    @Override
+    public Optional<Variant> getVariant() {
+        return this.getPersistent(VARIANT).map(str -> getEnumFromSerialized(Variant.class, str));
+    }
+
+    @Override
+    public Optional<Boolean> doVFReset() {
+        return this.getPersistent(VF_RESET).map(str -> getEnumFromSerialized(BooleanValue.class, str)).flatMap(BooleanValue::mapToInternal);
+    }
+
+    @Override
+    public Optional<Chip8EmulatorSettings.MemoryIncrementQuirk> getMemoryIncrementQuirk() {
+        return this.getPersistent(I_INCREMENT).map(str -> getEnumFromSerialized(Chip8EmulatorSettings.MemoryIncrementQuirk.class, str));
+    }
+
+    @Override
+    public Optional<Boolean> doDisplayWait() {
+        return this.getPersistent(DISPLAY_WAIT).map(str -> getEnumFromSerialized(BooleanValue.class, str)).flatMap(BooleanValue::mapToInternal);
+    }
+
+    @Override
+    public Optional<Boolean> doClipping() {
+        return this.getPersistent(CLIPPING).map(str -> getEnumFromSerialized(BooleanValue.class, str)).flatMap(BooleanValue::mapToInternal);
+    }
+
+    @Override
+    public Optional<Boolean> doShiftVXInPlace() {
+        return this.getPersistent(SHIFT_VX_IN_PLACE).map(str -> getEnumFromSerialized(BooleanValue.class, str)).flatMap(BooleanValue::mapToInternal);
+    }
+
+    @Override
+    public Optional<Boolean> doJumpWithVX() {
+        return this.getPersistent(JUMP_WITH_VX).map(str -> getEnumFromSerialized(BooleanValue.class, str)).flatMap(BooleanValue::mapToInternal);
+    }
+
+    @Nullable
+    private static <E extends Enum<E> & Serializable> E getEnumFromSerialized(Class<E> enumClass, @NotNull String str) {
+        for (E e : enumClass.getEnumConstants()) {
+            if (e.getSerializedString().equals(str)) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    public enum BooleanValue implements Serializable {
+        NULL("null"),
+        TRUE("true"),
+        FALSE("false");
+
+        private final String serializedString;
+
+        BooleanValue(String serializedString) {
+            this.serializedString = serializedString;
+        }
+
+        private Optional<Boolean> mapToInternal() {
+            return Optional.ofNullable(switch (this) {
+                case NULL -> null;
+                case TRUE -> true;
+                case FALSE -> false;
+            });
+        }
+
+        public static String toSerialized(@Nullable Boolean val) {
+            BooleanValue value = switch (val) {
+                case Boolean bool when bool -> TRUE;
+                case null -> NULL;
+                default -> FALSE;
+            };
+            return value.getSerializedString();
+        }
+
+        @Override
+        public String getSerializedString() {
+            return this.serializedString;
+        }
+
+    }
+
+}

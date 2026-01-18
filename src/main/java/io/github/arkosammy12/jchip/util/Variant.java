@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.util;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.Serializable;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.config.settings.CosmacVipEmulatorSettings;
@@ -11,7 +12,7 @@ import picocli.CommandLine;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public enum Variant implements DisplayNameProvider {
+public enum Variant implements DisplayNameProvider, Serializable {
     CHIP_8("chip-8", "CHIP-8", Chip8EmulatorSettings::new),
     STRICT_CHIP_8("strict-chip-8", "STRICT CHIP-8", Chip8EmulatorSettings::new),
     CHIP_8X("chip-8x", "CHIP-8X", Chip8EmulatorSettings::new),
@@ -56,6 +57,11 @@ public enum Variant implements DisplayNameProvider {
             }
         }
         throw new IllegalArgumentException("Unknown variant identifier \"" + identifier + "\"!");
+    }
+
+    @Override
+    public String getSerializedString() {
+        return this.identifier;
     }
 
     public static class Converter implements CommandLine.ITypeConverter<Variant> {

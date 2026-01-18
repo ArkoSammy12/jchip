@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.ui.disassembly;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
@@ -94,9 +94,8 @@ public class DisassemblyPanel extends JPanel implements EmulatorInitializerConsu
         jchip.addFrameListener(_ -> this.onFrame());
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
-
-            config.setBooleanSettingIfPresent(Config.DISASSEMBLER_FOLLOW, this.followCheckbox.isSelected());
+            DataManager dataManager = jchip.getDataManager();
+            dataManager.putPersistent(DataManager.DISASSEMBLER_FOLLOW, String.valueOf(this.followCheckbox.isSelected()));
         });
 
     }

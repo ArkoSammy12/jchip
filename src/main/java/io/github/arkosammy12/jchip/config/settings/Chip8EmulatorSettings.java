@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.config.settings;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.Serializable;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.*;
@@ -158,7 +159,7 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
         };
     }
 
-    public enum MemoryIncrementQuirk implements DisplayNameProvider {
+    public enum MemoryIncrementQuirk implements DisplayNameProvider, Serializable {
         NONE("None", "none"),
         INCREMENT_X("Increment by X", "increment-x"),
         INCREMENT_X_1("Increment by X + 1", "increment-x-1");
@@ -183,6 +184,11 @@ public class Chip8EmulatorSettings extends AbstractEmulatorSettings {
                 }
             }
             throw new IllegalArgumentException("Unknown memory increment quirk identifier: " + identifier + "!");
+        }
+
+        @Override
+        public String getSerializedString() {
+            return this.identifier;
         }
 
         public static class Converter implements CommandLine.ITypeConverter<MemoryIncrementQuirk> {

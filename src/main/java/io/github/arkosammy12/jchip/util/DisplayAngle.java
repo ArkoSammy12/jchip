@@ -1,8 +1,9 @@
 package io.github.arkosammy12.jchip.util;
 
+import io.github.arkosammy12.jchip.config.Serializable;
 import picocli.CommandLine;
 
-public enum DisplayAngle implements DisplayNameProvider {
+public enum DisplayAngle implements DisplayNameProvider, Serializable {
     DEG_0("No rotation", 0, "0"),
     DEG_90("90 degrees", 90, "90"),
     DEG_180("180 degrees", 180, "180"),
@@ -43,6 +44,11 @@ public enum DisplayAngle implements DisplayNameProvider {
     @Override
     public String getDisplayName() {
         return this.displayName;
+    }
+
+    @Override
+    public String getSerializedString() {
+        return this.identifier;
     }
 
     public static class Converter implements CommandLine.ITypeConverter<DisplayAngle> {

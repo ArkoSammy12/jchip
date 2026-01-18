@@ -1,8 +1,7 @@
 package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.Config;
-import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
+import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.disassembly.DisassemblyPanel;
@@ -27,8 +26,8 @@ public class LeftPanel extends JPanel implements EmulatorInitializerConsumer {
         this.add(this.splitPane, new CC().grow().push());
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
-            config.setIntegerSettingIfPresent(Config.VIEWPORT_DISASSEMBLER_DIVIDER_LOCATION, this.splitPane.getAbsoluteDividerLocation());
+            DataManager dataManager = jchip.getDataManager();
+            dataManager.putPersistent("ui.viewport_disassembler_divider_location", String.valueOf(this.splitPane.getAbsoluteDividerLocation()));
         });
     }
 
@@ -42,8 +41,8 @@ public class LeftPanel extends JPanel implements EmulatorInitializerConsumer {
 
     @Override
     public void accept(EmulatorInitializer initializer) {
-        if (initializer instanceof ApplicationInitializer applicationInitializer) {
-            applicationInitializer.getViewportDisassemblerDividerLocation().ifPresent(this.splitPane::setAbsoluteDividerLocation);
+        if (initializer instanceof DataManager dataManager) {
+            dataManager.getPersistent("ui.viewport_disassembler_divider_location").map(Integer::valueOf).ifPresent(this.splitPane::setAbsoluteDividerLocation);
         }
     }
 }

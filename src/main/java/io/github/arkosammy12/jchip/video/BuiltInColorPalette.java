@@ -1,9 +1,10 @@
 package io.github.arkosammy12.jchip.video;
 
+import io.github.arkosammy12.jchip.config.Serializable;
 import io.github.arkosammy12.jchip.util.DisplayNameProvider;
 import picocli.CommandLine;
 
-public enum BuiltInColorPalette implements ColorPalette, DisplayNameProvider {
+public enum BuiltInColorPalette implements ColorPalette, DisplayNameProvider, Serializable {
     CADMIUM("Cadmium", "cadmium", new int[] {
             0x1a1c2cff, 0xf4f4f4ff, 0x94b0c2ff, 0x333c57ff,
             0xb13e53ff, 0xa7f070ff, 0x3b5dc9ff, 0xffcd75ff,
@@ -87,6 +88,11 @@ public enum BuiltInColorPalette implements ColorPalette, DisplayNameProvider {
     @Override
     public int getColorARGB(int colorIndex) {
         return this.argbColors[colorIndex];
+    }
+
+    @Override
+    public String getSerializedString() {
+        return this.identifier;
     }
 
     public static class Converter implements CommandLine.ITypeConverter<BuiltInColorPalette> {

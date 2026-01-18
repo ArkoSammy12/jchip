@@ -24,6 +24,7 @@ public interface ApplicationInitializer extends EmulatorInitializer {
 
     Optional<Boolean> getDisassemblerFollowing();
 
+    /*
     Optional<Integer> getMainWindowWidth();
 
     Optional<Integer> getMainWindowHeight();
@@ -43,5 +44,7 @@ public interface ApplicationInitializer extends EmulatorInitializer {
     Optional<Integer> getDebuggerDividerLocation2();
 
     Optional<Integer> getDebuggerDividerLocation3();
+
+     */
 
 }

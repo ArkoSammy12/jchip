@@ -1,8 +1,9 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.config.DataManager;
+import io.github.arkosammy12.jchip.config.Serializable;
 import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
-import io.github.arkosammy12.jchip.config.Config;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.MainWindow;
@@ -62,13 +63,11 @@ public class SettingsMenu extends JMenu implements EmulatorInitializerConsumer {
         this.add(showInfoBarButton);
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
-
-            config.setIntegerSettingIfPresent(Config.VOLUME, this.volumeSlider.getValue());
-            config.setBooleanSettingIfPresent(Config.MUTED, this.muteButton.isSelected());
-            config.setBooleanSettingIfPresent(Config.SHOW_INFO_BAR, this.showInfoBarButton.isSelected());
-
-            config.setEnumSettingIfPresent(Config.KEYBOARD_LAYOUT, Config.KeyboardLayoutValue.mapToSerialized(this.getKeyboardLayout().orElse(null)));
+            DataManager dataManager = jchip.getDataManager();
+            dataManager.putPersistent(DataManager.VOLUME, String.valueOf(this.volumeSlider.getValue()));
+            dataManager.putPersistent(DataManager.MUTED, String.valueOf(this.muteButton.isSelected()));
+            dataManager.putPersistent(DataManager.SHOW_INFO_BAR, String.valueOf(this.showInfoBarButton.isSelected()));
+            dataManager.putPersistent(DataManager.KEYBOARD_LAYOUT, Serializable.serialize(this.getKeyboardLayout().orElse(null)));
         });
     }
 

@@ -2,8 +2,7 @@ package io.github.arkosammy12.jchip.ui;
 
 import io.github.arkosammy12.jchip.Jchip;
 import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.config.Config;
-import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
+import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
@@ -64,12 +63,13 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
         this.setLocationRelativeTo(null);
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
-            config.setIntegerSettingIfPresent(Config.MAIN_WINDOW_WIDTH, this.getWidth());
-            config.setIntegerSettingIfPresent(Config.MAIN_WINDOW_HEIGHT, this.getHeight());
-            config.setIntegerSettingIfPresent(Config.MAIN_WINDOW_X, this.getLocation().x);
-            config.setIntegerSettingIfPresent(Config.MAIN_WINDOW_Y, this.getLocation().y);
-            config.setIntegerSettingIfPresent(Config.MAIN_SPLIT_DIVIDER_LOCATION, this.mainSplitPane.getAbsoluteDividerLocation());
+            DataManager dataManager = jchip.getDataManager();
+            dataManager.putPersistent("ui.main_window_width", String.valueOf(this.getWidth()));
+            dataManager.putPersistent("ui.main_window_height", String.valueOf(this.getHeight()));
+            dataManager.putPersistent("ui.main_window_x", String.valueOf(this.getLocation().x));
+            dataManager.putPersistent("ui.main_window_y", String.valueOf(this.getLocation().y));
+            dataManager.putPersistent("ui.main_window_extended_state", String.valueOf(this.getExtendedState()));
+            dataManager.putPersistent("ui.main_split_divider_location", String.valueOf(this.mainSplitPane.getAbsoluteDividerLocation()));
         });
     }
 
@@ -79,12 +79,17 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
 
     @Override
     public void accept(EmulatorInitializer initializer) {
-        if (initializer instanceof ApplicationInitializer applicationInitializer) {
-            applicationInitializer.getMainWindowWidth().ifPresent(width -> this.setSize(width, this.getHeight()));
-            applicationInitializer.getMainWindowHeight().ifPresent(height -> this.setSize(this.getWidth(), height));
-            applicationInitializer.getMainWindowX().ifPresent(x -> this.setLocation(x, this.getLocation().y));
-            applicationInitializer.getMainWindowY().ifPresent(y -> this.setLocation(this.getLocation().x, y));
-            applicationInitializer.getMainSplitDividerLocation().ifPresent(this.mainSplitPane::setAbsoluteDividerLocation);
+        if (initializer instanceof DataManager dataManager) {
+            dataManager.getPersistent("ui.main_window_width").map(Integer::valueOf).ifPresent(width -> this.setSize(width, this.getHeight()));
+            dataManager.getPersistent("ui.main_window_height").map(Integer::valueOf).ifPresent(height -> this.setSize(this.getWidth(), height));
+            dataManager.getPersistent("ui.main_window_x").map(Integer::valueOf).ifPresent(x -> this.setLocation(x, this.getLocation().y));
+            dataManager.getPersistent("ui.main_window_y").map(Integer::valueOf).ifPresent(y -> this.setLocation(this.getLocation().x, y));
+            dataManager.getPersistent("ui.main_window_extended_state").map(Integer::valueOf).ifPresent(state -> {
+                if ((state & Frame.ICONIFIED) == 0) {
+                    this.setExtendedState(state);
+                }
+            });
+            dataManager.getPersistent("ui.main_split_divider_location").map(Integer::valueOf).ifPresent(this.mainSplitPane::setAbsoluteDividerLocation);
         }
         for (Component child : this.getComponents()) {
             this.visit(child, initializer);

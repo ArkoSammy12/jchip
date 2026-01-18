@@ -1,7 +1,7 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.config.Config;
+import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
@@ -193,13 +193,12 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
         jchip.addFrameListener(this::onFrame);
 
         jchip.addShutdownListener(() -> {
-            Config config = jchip.getConfig();
-
-            config.setBooleanSettingIfPresent(Config.DEBUGGER_FOLLOW, this.memoryFollowCheckBox.isSelected());
-            config.setIntegerSettingIfPresent(Config.DEBUGGER_MEMORY_DIVIDER_LOCATION, this.mainSplit.getDividerLocation());
-            config.setIntegerSettingIfPresent(Config.DEBUGGER_DIVIDER_LOCATION_1, this.firstSplit.getDividerLocation());
-            config.setIntegerSettingIfPresent(Config.DEBUGGER_DIVIDER_LOCATION_2, this.secondSplit.getDividerLocation());
-            config.setIntegerSettingIfPresent(Config.DEBUGGER_DIVIDER_LOCATION_3, this.thirdSplit.getDividerLocation());
+            DataManager dataManager = jchip.getDataManager();
+            dataManager.putPersistent(DataManager.DEBUGGER_FOLLOW, String.valueOf(this.memoryFollowCheckBox.isSelected()));
+            dataManager.putPersistent("ui.debugger.debugger_memory_divider_location", String.valueOf(this.mainSplit.getDividerLocation()));
+            dataManager.putPersistent("ui.debugger.debugger_divider_location_1", String.valueOf(this.firstSplit.getDividerLocation()));
+            dataManager.putPersistent("ui.debugger.debugger_divider_location_2", String.valueOf(this.secondSplit.getDividerLocation()));
+            dataManager.putPersistent("ui.debugger.debugger_divider_location_3", String.valueOf(this.thirdSplit.getDividerLocation()));
         });
     }
 
@@ -353,10 +352,12 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
     public void accept(EmulatorInitializer initializer) {
         if (initializer instanceof ApplicationInitializer applicationInitializer) {
             applicationInitializer.getDebuggerFollowing().ifPresent(this.memoryFollowCheckBox::setSelected);
-            applicationInitializer.getDebuggerMemoryDividerLocation().ifPresent(this.mainSplit::setDividerLocation);
-            applicationInitializer.getDebuggerDividerLocation1().ifPresent(this.firstSplit::setDividerLocation);
-            applicationInitializer.getDebuggerDividerLocation2().ifPresent(this.secondSplit::setDividerLocation);
-            applicationInitializer.getDebuggerDividerLocation3().ifPresent(this.thirdSplit::setDividerLocation);
+        }
+        if (initializer instanceof DataManager dataManager) {
+            dataManager.getPersistent("ui.debugger.debugger_memory_divider_location").map(Integer::valueOf).ifPresent(this.mainSplit::setDividerLocation);
+            dataManager.getPersistent("ui.debugger.debugger_divider_location_1").map(Integer::valueOf).ifPresent(this.firstSplit::setDividerLocation);
+            dataManager.getPersistent("ui.debugger.debugger_divider_location_2").map(Integer::valueOf).ifPresent(this.secondSplit::setDividerLocation);
+            dataManager.getPersistent("ui.debugger.debugger_divider_location_3").map(Integer::valueOf).ifPresent(this.thirdSplit::setDividerLocation);
         }
     }
 }
