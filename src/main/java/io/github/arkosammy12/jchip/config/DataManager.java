@@ -62,6 +62,10 @@ public final class DataManager implements ApplicationInitializer {
     private final Map<String, Object> persistentEntries = new ConcurrentHashMap<>();
 
     public DataManager() {
+        if (!Files.exists(DATA_FILE)) {
+            Logger.warn("Found no existing data file at \"{}\"", DATA_FILE);
+            return;
+        }
         try {
             JToml jToml = JToml.jToml();
             TomlTable table = jToml.read(DATA_FILE);
@@ -209,7 +213,7 @@ public final class DataManager implements ApplicationInitializer {
 
     @Override
     public Optional<Integer> getVolume() {
-        return this.getPersistent(VOLUME).map(Integer::valueOf);
+        return this.getPersistent(VOLUME).map(Integer::valueOf).filter(i -> i >= 0 && i <= 100);
     }
 
     @Override
@@ -244,7 +248,7 @@ public final class DataManager implements ApplicationInitializer {
 
     @Override
     public Optional<Integer> getInstructionsPerFrame() {
-        return this.getPersistent(INSTRUCTIONS_PER_FRAME).map(Integer::valueOf);
+        return this.getPersistent(INSTRUCTIONS_PER_FRAME).map(Integer::valueOf).filter(i -> i > 0);
     }
 
     @Override
