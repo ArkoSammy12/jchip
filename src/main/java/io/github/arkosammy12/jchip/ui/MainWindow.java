@@ -18,6 +18,8 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.io.Closeable;
 
+import static io.github.arkosammy12.jchip.config.DataManager.tryOptional;
+
 public class MainWindow extends JFrame implements EmulatorInitializerConsumer, Closeable {
 
     public static final String DEFAULT_TITLE = "jchip " + Main.VERSION_STRING;
@@ -80,16 +82,16 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
     @Override
     public void accept(EmulatorInitializer initializer) {
         if (initializer instanceof DataManager dataManager) {
-            dataManager.getPersistent("ui.main_window_width").map(Integer::valueOf).ifPresent(width -> this.setSize(width, this.getHeight()));
-            dataManager.getPersistent("ui.main_window_height").map(Integer::valueOf).ifPresent(height -> this.setSize(this.getWidth(), height));
-            dataManager.getPersistent("ui.main_window_x").map(Integer::valueOf).ifPresent(x -> this.setLocation(x, this.getLocation().y));
-            dataManager.getPersistent("ui.main_window_y").map(Integer::valueOf).ifPresent(y -> this.setLocation(this.getLocation().x, y));
-            dataManager.getPersistent("ui.main_window_extended_state").map(Integer::valueOf).ifPresent(state -> {
+            dataManager.getPersistent("ui.main_window_width").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(width -> this.setSize(width, this.getHeight()));
+            dataManager.getPersistent("ui.main_window_height").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(height -> this.setSize(this.getWidth(), height));
+            dataManager.getPersistent("ui.main_window_x").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(x -> this.setLocation(x, this.getLocation().y));
+            dataManager.getPersistent("ui.main_window_y").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(y -> this.setLocation(this.getLocation().x, y));
+            dataManager.getPersistent("ui.main_window_extended_state").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(state -> {
                 if ((state & Frame.ICONIFIED) == 0) {
                     this.setExtendedState(state);
                 }
             });
-            dataManager.getPersistent("ui.main_split_divider_location").map(Integer::valueOf).ifPresent(this.mainSplitPane::setAbsoluteDividerLocation);
+            dataManager.getPersistent("ui.main_split_divider_location").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(this.mainSplitPane::setAbsoluteDividerLocation);
         }
         for (Component child : this.getComponents()) {
             this.visit(child, initializer);

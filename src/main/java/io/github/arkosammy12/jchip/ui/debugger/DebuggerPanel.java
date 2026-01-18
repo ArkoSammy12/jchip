@@ -24,6 +24,8 @@ import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.github.arkosammy12.jchip.config.DataManager.tryOptional;
+
 public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer {
 
     public static final String DEFAULT_TEXT_SECTION_NAME = "Current Quirks";
@@ -354,10 +356,10 @@ public class DebuggerPanel extends JPanel implements EmulatorInitializerConsumer
             applicationInitializer.getDebuggerFollowing().ifPresent(this.memoryFollowCheckBox::setSelected);
         }
         if (initializer instanceof DataManager dataManager) {
-            dataManager.getPersistent("ui.debugger.debugger_memory_divider_location").map(Integer::valueOf).ifPresent(this.mainSplit::setDividerLocation);
-            dataManager.getPersistent("ui.debugger.debugger_divider_location_1").map(Integer::valueOf).ifPresent(this.firstSplit::setDividerLocation);
-            dataManager.getPersistent("ui.debugger.debugger_divider_location_2").map(Integer::valueOf).ifPresent(this.secondSplit::setDividerLocation);
-            dataManager.getPersistent("ui.debugger.debugger_divider_location_3").map(Integer::valueOf).ifPresent(this.thirdSplit::setDividerLocation);
+            dataManager.getPersistent("ui.debugger.debugger_memory_divider_location").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(this.mainSplit::setDividerLocation);
+            dataManager.getPersistent("ui.debugger.debugger_divider_location_1").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(this.firstSplit::setDividerLocation);
+            dataManager.getPersistent("ui.debugger.debugger_divider_location_2").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(this.secondSplit::setDividerLocation);
+            dataManager.getPersistent("ui.debugger.debugger_divider_location_3").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(this.thirdSplit::setDividerLocation);
         }
     }
 }

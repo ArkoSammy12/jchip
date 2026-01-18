@@ -203,7 +203,7 @@ public final class DataManager implements ApplicationInitializer {
 
     @Override
     public Optional<List<Path>> getRecentFiles() {
-        return this.getPersistentArray(RECENT_FILES).map(recentFiles -> Arrays.stream(recentFiles).map(Path::of).toList());
+        return this.getPersistentArray(RECENT_FILES).flatMap(recentFiles -> tryOptional(() -> Arrays.stream(recentFiles).map(Path::of).toList()));
     }
 
     @Override
@@ -213,42 +213,42 @@ public final class DataManager implements ApplicationInitializer {
 
     @Override
     public Optional<Integer> getVolume() {
-        return this.getPersistent(VOLUME).map(Integer::valueOf).filter(i -> i >= 0 && i <= 100);
+        return this.getPersistent(VOLUME).flatMap(v -> tryOptional(() -> Integer.valueOf(v))).filter(i -> i >= 0 && i <= 100);
     }
 
     @Override
     public Optional<Boolean> getMuted() {
-        return this.getPersistent(MUTED).map(Boolean::valueOf);
+        return this.getPersistent(MUTED).flatMap(v -> tryOptional(() -> Boolean.valueOf(v)));
     }
 
     @Override
     public Optional<Boolean> getShowingInfoBar() {
-        return this.getPersistent(SHOW_INFO_BAR).map(Boolean::valueOf);
+        return this.getPersistent(SHOW_INFO_BAR).flatMap(v -> tryOptional(() -> Boolean.valueOf(v)));
     }
 
     @Override
     public Optional<Boolean> getShowingDebugger() {
-        return this.getPersistent(SHOW_DEBUGGER).map(Boolean::valueOf);
+        return this.getPersistent(SHOW_DEBUGGER).flatMap(v -> tryOptional(() -> Boolean.valueOf(v)));
     }
 
     @Override
     public Optional<Boolean> getShowingDisassembler() {
-        return this.getPersistent(SHOW_DISASSEMBLER).map(Boolean::valueOf);
+        return this.getPersistent(SHOW_DISASSEMBLER).flatMap(v -> tryOptional(() -> Boolean.valueOf(v)));
     }
 
     @Override
     public Optional<Boolean> getDebuggerFollowing() {
-        return this.getPersistent(DEBUGGER_FOLLOW).map(Boolean::valueOf);
+        return this.getPersistent(DEBUGGER_FOLLOW).flatMap(v -> tryOptional(() -> Boolean.valueOf(v)));
     }
 
     @Override
     public Optional<Boolean> getDisassemblerFollowing() {
-        return this.getPersistent(DISASSEMBLER_FOLLOW).map(Boolean::valueOf);
+        return this.getPersistent(DISASSEMBLER_FOLLOW).flatMap(v -> tryOptional(() -> Boolean.valueOf(v)));
     }
 
     @Override
     public Optional<Integer> getInstructionsPerFrame() {
-        return this.getPersistent(INSTRUCTIONS_PER_FRAME).map(Integer::valueOf).filter(i -> i > 0);
+        return this.getPersistent(INSTRUCTIONS_PER_FRAME).flatMap(v -> tryOptional(() -> Integer.valueOf(v))).filter(i -> i > 0);
     }
 
     @Override
@@ -258,13 +258,7 @@ public final class DataManager implements ApplicationInitializer {
 
     @Override
     public Optional<DisplayAngle> getDisplayAngle() {
-        return this.getPersistent(DISPLAY_ANGLE).flatMap(str -> {
-            try {
-                return Optional.of(DisplayAngle.getDisplayAngleForIntValue(Integer.parseInt(str)));
-            } catch (IllegalArgumentException e) {
-                return Optional.empty();
-            }
-        });
+        return this.getPersistent(DISPLAY_ANGLE).flatMap(str -> tryOptional(() -> DisplayAngle.getDisplayAngleForIdentifier(str)));
     }
 
     @Override
@@ -274,7 +268,7 @@ public final class DataManager implements ApplicationInitializer {
 
     @Override
     public Optional<Boolean> useVariantQuirks() {
-        return this.getPersistent(USE_VARIANT_QUIRKS).map(Boolean::valueOf);
+        return this.getPersistent(USE_VARIANT_QUIRKS).flatMap(v -> tryOptional(() -> Boolean.valueOf(v)));
     }
 
     @Override
@@ -310,6 +304,14 @@ public final class DataManager implements ApplicationInitializer {
     @Override
     public Optional<Boolean> doJumpWithVX() {
         return this.getPersistent(JUMP_WITH_VX).map(str -> getEnumFromSerialized(BooleanValue.class, str)).flatMap(BooleanValue::mapToInternal);
+    }
+
+    public static <T> Optional<T> tryOptional(Supplier<@Nullable T> supplier) {
+        try {
+            return Optional.ofNullable(supplier.get());
+        } catch (Exception _) {
+            return Optional.empty();
+        }
     }
 
     @Nullable

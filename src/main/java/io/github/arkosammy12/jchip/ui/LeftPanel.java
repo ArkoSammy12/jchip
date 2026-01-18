@@ -12,6 +12,8 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
+import static io.github.arkosammy12.jchip.config.DataManager.tryOptional;
+
 public class LeftPanel extends JPanel implements EmulatorInitializerConsumer {
 
     private final ToggleableSplitPane splitPane;
@@ -42,7 +44,7 @@ public class LeftPanel extends JPanel implements EmulatorInitializerConsumer {
     @Override
     public void accept(EmulatorInitializer initializer) {
         if (initializer instanceof DataManager dataManager) {
-            dataManager.getPersistent("ui.viewport_disassembler_divider_location").map(Integer::valueOf).ifPresent(this.splitPane::setAbsoluteDividerLocation);
+            dataManager.getPersistent("ui.viewport_disassembler_divider_location").flatMap(v -> tryOptional(() -> Integer.valueOf(v))).ifPresent(this.splitPane::setAbsoluteDividerLocation);
         }
     }
 }
