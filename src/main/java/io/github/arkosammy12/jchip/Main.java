@@ -38,8 +38,7 @@ public class Main {
             jchip = new Jchip(args);
             jchip.start();
         } catch (Throwable t) {
-            Logger.error("jchip has crashed!");
-            throw new RuntimeException(t);
+            Logger.error("jchip has crashed! {}", t);
         } finally {
             if (jchip != null) {
                 jchip.onShutdown();

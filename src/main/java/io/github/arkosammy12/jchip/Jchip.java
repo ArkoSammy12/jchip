@@ -108,7 +108,10 @@ public class Jchip {
             }
             SwingUtilities.invokeLater(() -> this.mainWindow.setVisible(true));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize jchip", e);
+            if (this.mainWindow != null) {
+                SwingUtilities.invokeLater(() -> this.mainWindow.dispose());
+            }
+            throw new RuntimeException("Failed to initialize jchip: " + e);
         }
     }
 
