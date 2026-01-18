@@ -29,8 +29,6 @@ public class Jchip {
     private MainWindow mainWindow;
     private volatile Emulator currentEmulator;
 
-    private final int[] flagsStorage = new int[16];
-
     private final List<StateChangedListener> stateChangedListeners = new CopyOnWriteArrayList<>();
     private final List<FrameListener> frameListeners = new CopyOnWriteArrayList<>();
     private final List<ShutdownListener> shutdownListeners = new CopyOnWriteArrayList<>();
@@ -40,7 +38,6 @@ public class Jchip {
     private volatile boolean running = true;
 
     private final FrameLimiter pacer = new FrameLimiter(Main.FRAMES_PER_SECOND, true, true);
-    //private final Config config = new Config();
     private final DataManager dataManager = new DataManager();
     private final Chip8Database database = new Chip8Database();
     private final DefaultAudioRenderer audioRenderer = new DefaultAudioRenderer(this);
@@ -102,7 +99,6 @@ public class Jchip {
 
                 });
                 this.mainWindow.accept(this.dataManager);
-                //this.mainWindow.accept(this.config);
             });
 
             if (cliArgs != null) {
@@ -127,13 +123,6 @@ public class Jchip {
     public AudioRenderer getAudioRenderer() {
         return this.audioRenderer;
     }
-
-    /*
-    public Config getConfig() {
-        return this.config;
-    }
-
-     */
 
     public DataManager getDataManager() {
         return this.dataManager;
@@ -269,7 +258,6 @@ public class Jchip {
         this.audioRenderer.close();
         this.notifyShutdownListeners();
         this.dataManager.save();
-        //this.config.save();
     }
 
     private State updateState() {
