@@ -1,6 +1,7 @@
 package io.github.arkosammy12.jchip.sound;
 
 import io.github.arkosammy12.jchip.Jchip;
+import org.tinylog.Logger;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -99,21 +100,13 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
             this.audioLine.flush();
             this.audioLine.start();
         }
-        this.audioLine.write(samples, 0, Math.min(this.getBytesToWrite(samples.length), this.audioLine.available()));
+        this.audioLine.write(samples, 0, Math.min(samples.length, this.audioLine.available()));
     }
 
     public void close() {
         this.audioLine.stop();
         this.audioLine.flush();
         this.audioLine.close();
-    }
-
-    private int getBytesToWrite(int idealLength) {
-        int diff = (this.audioLine.getBufferSize() - this.audioLine.available()) - (SAMPLES_PER_FRAME * 2);
-        if (diff < 0) {
-            return idealLength;
-        }
-        return Math.max(idealLength - diff, 0);
     }
 
 }
