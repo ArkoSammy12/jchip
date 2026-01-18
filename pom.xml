@@ -7,7 +7,7 @@
 
     <groupId>io.github.arkosammy12</groupId>
     <artifactId>jchip</artifactId>
-    <version>5.1.1</version>
+    <version>5.1.2</version>
     <packaging>jar</packaging>
 
     <properties>
