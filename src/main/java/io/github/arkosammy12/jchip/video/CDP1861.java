@@ -20,8 +20,8 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     private static final int SECOND_EFX_BEGIN = 204;
     private static final int SECOND_EFX_END = 208;
 
-    protected static final int DMAO_BEGIN = 4 - 1; // Shift begin and end indices back by one, since the actual
-    private static final int DMAO_END = 12 - 1;  // dmao cycle will be acknowledged on the next cycle
+    protected static final int DMAO_BEGIN = 4; // Shift begin and end indices back by one, since the actual
+    private static final int DMAO_END = 12;  // dmao cycle will be acknowledged on the next cycle
 
     protected final int[][] displayBuffer;
     protected long cycles;
@@ -77,7 +77,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
             this.interrupting = this.scanlineIndex >= INTERRUPT_BEGIN && this.scanlineIndex < INTERRUPT_END;
             if (this.scanlineIndex >= DISPLAY_AREA_BEGIN && this.scanlineIndex < DISPLAY_AREA_END) {
                 long scanLineCycles = this.cycles % MACHINE_CYCLES_PER_SCANLINE;
-                if (scanLineCycles >= DMAO_BEGIN && scanLineCycles < DMAO_END) {
+                if (scanLineCycles >= (DMAO_BEGIN - 1) && scanLineCycles < (DMAO_END - 1)) {
                     this.dmaStatus = DmaStatus.OUT;
                 } else {
                     this.dmaStatus = DmaStatus.NONE;
@@ -104,7 +104,7 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
         if (row < 0 || row >= this.getHeight()) {
             return;
         }
-        int dmaIndex = (int) ((this.cycles % MACHINE_CYCLES_PER_SCANLINE) - DMAO_BEGIN) - 1;
+        int dmaIndex = (int) ((this.cycles % MACHINE_CYCLES_PER_SCANLINE) - DMAO_BEGIN);
         int colStart = dmaIndex * 8;
         for (int i = 0, mask = 0x80; i < 8; i++, mask >>>= 1) {
             int col = colStart + i;
