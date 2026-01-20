@@ -20,8 +20,8 @@ public class CDP1861<E extends CosmacVipEmulator> extends Display<E> implements 
     private static final int SECOND_EFX_BEGIN = 204;
     private static final int SECOND_EFX_END = 208;
 
-    protected static final int DMAO_BEGIN = 4; // Shift begin and end indices back by one, since the actual
-    private static final int DMAO_END = 12;  // dmao cycle will be acknowledged on the next cycle
+    protected static final int DMAO_BEGIN = 4;
+    private static final int DMAO_END = 12;
 
     protected final int[][] displayBuffer;
     protected long cycles;
