@@ -16,6 +16,8 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.Closeable;
 
 import static io.github.arkosammy12.jchip.config.DataManager.tryOptional;
@@ -31,6 +33,11 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
     private final InfoBar infoBar;
 
     private final CC infoBarConstraints;
+
+    private Point lastUnmaximizedLocation = new Point(0, 0);
+    private int lastUnmaximizedWidth = 0;
+    private int lastUnmaximizedHeight = 0;
+
 
     public MainWindow(Jchip jchip) {
         super(DEFAULT_TITLE);
@@ -64,12 +71,31 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
         this.pack();
         this.setLocationRelativeTo(null);
 
+        this.addComponentListener(new ComponentAdapter() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if ((getExtendedState() & Frame.MAXIMIZED_BOTH) == 0) {
+                    lastUnmaximizedWidth = getWidth();
+                    lastUnmaximizedHeight = getHeight();
+                }
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                if ((getExtendedState() & Frame.MAXIMIZED_BOTH) == 0) {
+                    lastUnmaximizedLocation = getLocation();
+                }
+            }
+
+        });
+
         jchip.addShutdownListener(() -> {
             DataManager dataManager = jchip.getDataManager();
-            dataManager.putPersistent("ui.main_window_width", String.valueOf(this.getWidth()));
-            dataManager.putPersistent("ui.main_window_height", String.valueOf(this.getHeight()));
-            dataManager.putPersistent("ui.main_window_x", String.valueOf(this.getLocation().x));
-            dataManager.putPersistent("ui.main_window_y", String.valueOf(this.getLocation().y));
+            dataManager.putPersistent("ui.main_window_width", String.valueOf(this.lastUnmaximizedWidth));
+            dataManager.putPersistent("ui.main_window_height", String.valueOf(this.lastUnmaximizedHeight));
+            dataManager.putPersistent("ui.main_window_x", String.valueOf(this.lastUnmaximizedLocation.x));
+            dataManager.putPersistent("ui.main_window_y", String.valueOf(this.lastUnmaximizedLocation.y));
             dataManager.putPersistent("ui.main_window_extended_state", String.valueOf(this.getExtendedState()));
             dataManager.putPersistent("ui.main_split_divider_location", String.valueOf(this.mainSplitPane.getAbsoluteDividerLocation()));
         });
