@@ -12,24 +12,27 @@ import static io.github.arkosammy12.jchip.sound.SoundSystem.SAMPLES_PER_FRAME;
 import static io.github.arkosammy12.jchip.sound.SoundSystem.SAMPLE_RATE;
 
 import java.io.Closeable;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
 
     private static final byte[] EMPTY_SAMPLES = new byte[SAMPLES_PER_FRAME * 2];
+    private static final int BUFFER_SIZE = (SAMPLES_PER_FRAME * 2) * 5;
 
     private final SourceDataLine audioLine;
     private final FloatControl volumeControl;
     private final Queue<byte[]> samples = new LinkedList<>();
     private boolean paused = true;
     private boolean muted = false;
+    private boolean started = false;
 
     public DefaultAudioRenderer(Jchip jchip) {
         try {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
             audioLine = AudioSystem.getSourceDataLine(format);
-            audioLine.open(format);
+            audioLine.open(format, BUFFER_SIZE);
             FloatControl control = null;
             if (audioLine.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 control = (FloatControl) audioLine.getControl(FloatControl.Type.MASTER_GAIN);
@@ -96,11 +99,15 @@ public final class DefaultAudioRenderer implements AudioRenderer, Closeable {
         if (samples == null || this.muted) {
             samples = EMPTY_SAMPLES;
         }
-        if (!this.audioLine.isRunning()) {
+
+        if (!this.started) {
             this.audioLine.flush();
             this.audioLine.start();
+            // Prefill with 0s
+            samples = new byte [this.audioLine.getBufferSize()];
+            this.started = true;
         }
-        this.audioLine.write(samples, 0, Math.min(samples.length, this.audioLine.available()));
+        this.audioLine.write(samples, 0, samples.length);
     }
 
     public void close() {
