@@ -16,7 +16,6 @@ public class Main {
     static void main(String[] args) throws Exception {
 
         if (SystemInfo.isMacOS) {
-            System.setProperty("apple.laf.useScreenMenuBar", Boolean.TRUE.toString());
             System.setProperty("apple.awt.application.appearance", "system");
             System.setProperty("apple.awt.application.name", "jchip");
 
