@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.Serializable;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;

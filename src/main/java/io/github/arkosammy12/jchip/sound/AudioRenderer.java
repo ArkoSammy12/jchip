@@ -10,4 +10,6 @@ public interface AudioRenderer {
 
     void setMuted(boolean muted);
 
+    int getSamplesPerFrame();
+
 }

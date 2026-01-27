@@ -24,13 +24,14 @@ public class XOChipSoundSystem extends Chip8SoundSystem {
             this.phase = 0;
             return;
         }
-        byte[] data = new byte[SAMPLES_PER_FRAME];
+        AudioRenderer audioRenderer = this.jchip.getAudioRenderer();
+        byte[] data = new byte[audioRenderer.getSamplesPerFrame()];
         for (int i = 0; i < data.length; i++) {
             int bitStep = (int) (this.phase * 128);
             data[i] = (byte) (((this.patternBuffer[bitStep >> 3]) & (1 << (7 ^ (bitStep & 7)))) != 0 ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
             this.phase = (this.phase + step) % 1.0;
         }
-        this.jchip.getAudioRenderer().pushSamples8(data);
+        audioRenderer.pushSamples8(data);
     }
 
 }

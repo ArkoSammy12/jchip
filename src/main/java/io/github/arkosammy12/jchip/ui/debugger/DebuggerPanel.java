@@ -1,12 +1,12 @@
 package io.github.arkosammy12.jchip.ui.debugger;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.ui.MainWindow;
+import io.github.arkosammy12.jchip.main.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.DebuggerLabelTable;
 import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;

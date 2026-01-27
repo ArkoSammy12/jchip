@@ -24,6 +24,11 @@ public class Chip48Emulator extends Chip8Emulator {
     }
 
     @Override
+    public int getFramerate() {
+        return 64;
+    }
+
+    @Override
     @NotNull
     protected SoundSystem createSoundSystem() {
         this.soundSystem = new Chip48SoundSystem(this);

@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.config.settings;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.util.DisplayAngle;

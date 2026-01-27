@@ -1,9 +1,9 @@
 package io.github.arkosammy12.jchip.ui.disassembly;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.ui.MainWindow;
+import io.github.arkosammy12.jchip.main.MainWindow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

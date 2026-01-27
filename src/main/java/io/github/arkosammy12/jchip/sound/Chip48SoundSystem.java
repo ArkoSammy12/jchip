@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.sound;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 
 public class Chip48SoundSystem implements SoundSystem {
@@ -44,11 +44,12 @@ public class Chip48SoundSystem implements SoundSystem {
             this.phase = 0;
             return;
         }
-        short[] data = new short[SAMPLES_PER_FRAME];
+        AudioRenderer audioRenderer = this.jchip.getAudioRenderer();
+        short[] data = new short[audioRenderer.getSamplesPerFrame()];
         for (int i = 0; i < data.length; i++) {
             data[i] = (short) HP48_BUZZER_SAMPLES[(int) phase];
             this.phase = (phase + 1) % HP48_BUZZER_SAMPLES.length;
         }
-        this.jchip.getAudioRenderer().pushSamples16(data);
+        audioRenderer.pushSamples16(data);
     }
 }

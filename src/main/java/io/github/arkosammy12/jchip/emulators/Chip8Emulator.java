@@ -1,7 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.Main;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.*;
 import io.github.arkosammy12.jchip.disassembler.Chip8Disassembler;
@@ -42,6 +41,7 @@ public class Chip8Emulator implements Emulator {
     private final DebuggerSchema debuggerSchema;
     protected final AbstractDisassembler<?> disassembler;
     private final int targetInstructionsPerFrame;
+    private final long frameInterval = 1_000_000_000L / this.getFramerate();
 
     private int currentInstructionsPerFrame;
     private int waitFrames = 0;
@@ -144,8 +144,14 @@ public class Chip8Emulator implements Emulator {
         return this.emulatorSettings;
     }
 
+    @Override
     public int getCurrentInstructionsPerFrame() {
         return this.currentInstructionsPerFrame;
+    }
+
+    @Override
+    public int getFramerate() {
+        return 60;
     }
 
     @Override
@@ -157,7 +163,7 @@ public class Chip8Emulator implements Emulator {
         long endOfFrame = System.nanoTime();
         long frameTime = endOfFrame - startOfFrame;
         if (this.targetInstructionsPerFrame >= IPF_THROTTLE_THRESHOLD) {
-            long adjust = (frameTime - Main.FRAME_INTERVAL) / 100;
+            long adjust = (frameTime - this.frameInterval) / 100;
             this.currentInstructionsPerFrame = Math.clamp(this.currentInstructionsPerFrame - adjust, 1, this.targetInstructionsPerFrame);
         }
     }

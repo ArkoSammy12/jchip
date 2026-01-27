@@ -1,9 +1,10 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
+import io.github.arkosammy12.jchip.main.MainWindow;
 import io.github.arkosammy12.jchip.ui.disassembly.DisassemblyPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
 import net.miginfocom.layout.CC;

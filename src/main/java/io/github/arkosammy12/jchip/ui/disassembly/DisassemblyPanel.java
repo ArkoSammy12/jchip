@@ -1,11 +1,11 @@
 package io.github.arkosammy12.jchip.ui.disassembly;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
-import io.github.arkosammy12.jchip.ui.MainWindow;
+import io.github.arkosammy12.jchip.main.MainWindow;
 import net.miginfocom.layout.AlignX;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;

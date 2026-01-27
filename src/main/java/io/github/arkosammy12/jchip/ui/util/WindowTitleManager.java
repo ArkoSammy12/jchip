@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui.util;
 
-import io.github.arkosammy12.jchip.ui.MainWindow;
+import io.github.arkosammy12.jchip.main.MainWindow;
 import org.apache.commons.collections4.list.GrowthList;
 
 import javax.swing.*;

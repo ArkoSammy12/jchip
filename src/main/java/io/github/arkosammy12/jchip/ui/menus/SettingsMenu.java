@@ -1,12 +1,12 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.Serializable;
 import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
-import io.github.arkosammy12.jchip.ui.MainWindow;
+import io.github.arkosammy12.jchip.main.MainWindow;
 import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
 

@@ -1,10 +1,11 @@
-package io.github.arkosammy12.jchip.ui;
+package io.github.arkosammy12.jchip.main;
 
-import io.github.arkosammy12.jchip.Jchip;
-import io.github.arkosammy12.jchip.Main;
 import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
+import io.github.arkosammy12.jchip.ui.InfoBar;
+import io.github.arkosammy12.jchip.ui.LeftPanel;
+import io.github.arkosammy12.jchip.ui.SettingsBar;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
 import io.github.arkosammy12.jchip.ui.util.WindowTitleManager;
@@ -38,8 +39,7 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
     private int lastUnmaximizedWidth = 0;
     private int lastUnmaximizedHeight = 0;
 
-
-    public MainWindow(Jchip jchip) {
+    MainWindow(Jchip jchip) {
         super(DEFAULT_TITLE);
 
         this.windowTitleManager = new WindowTitleManager(this);
@@ -170,7 +170,7 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
         ));
     }
 
-    public void onBreakpoint() {
+    void onBreakpoint() {
         this.settingsBar.onBreakpoint();
     }
 

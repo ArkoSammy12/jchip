@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.emulators;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.settings.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
 import io.github.arkosammy12.jchip.cpu.CDP1802;
@@ -47,6 +47,7 @@ public class CosmacVipEmulator implements Emulator {
     private final CosmacVIPKeypad keypad;
     private final List<IODevice> ioDevices;
 
+    private final int frameRate;
     private int currentInstructionsPerFrame;
 
     public CosmacVipEmulator(CosmacVipEmulatorSettings emulatorSettings, CosmacVipEmulatorSettings.Chip8Interpreter chip8Interpreter) {
@@ -63,11 +64,13 @@ public class CosmacVipEmulator implements Emulator {
                 VP595 vp595 = new VP595(this);
                 this.soundSystem = vp595;
                 this.ioDevices = List.of(this.display, this.keypad, vp595);
+                this.frameRate = 61;
             } else {
                 this.bus = new CosmacVipBus(this);
                 this.display = new CDP1861<>(this);
                 this.soundSystem = new Chip8SoundSystem(this);
                 this.ioDevices = List.of(this.display, this.keypad);
+                this.frameRate = 60;
             }
             this.debuggerSchema = this.createDebuggerSchema();
             this.disassembler = new CosmacVipDisassembler<>(this);
@@ -255,6 +258,11 @@ public class CosmacVipEmulator implements Emulator {
         int ret = this.currentInstructionsPerFrame;
         this.currentInstructionsPerFrame = 0;
         return ret;
+    }
+
+    @Override
+    public int getFramerate() {
+        return this.frameRate;
     }
 
     @Override

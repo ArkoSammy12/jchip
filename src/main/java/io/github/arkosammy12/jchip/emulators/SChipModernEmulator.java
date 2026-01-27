@@ -47,6 +47,11 @@ public class SChipModernEmulator extends SChip11Emulator {
     }
 
     @Override
+    public int getFramerate() {
+        return 60;
+    }
+
+    @Override
     @NotNull
     protected SChipModernProcessor<?> createProcessor() {
         this.processor = new SChipModernProcessor<>(this);

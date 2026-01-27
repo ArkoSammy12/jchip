@@ -1,5 +1,5 @@
 package io.github.arkosammy12.jchip.ui.util;
-import io.github.arkosammy12.jchip.ui.MainWindow;
+import io.github.arkosammy12.jchip.main.MainWindow;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerLabel;
 import org.jetbrains.annotations.Nullable;
 

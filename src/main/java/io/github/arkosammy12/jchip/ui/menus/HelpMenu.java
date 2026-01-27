@@ -1,8 +1,8 @@
 package io.github.arkosammy12.jchip.ui.menus;
 
 import com.formdev.flatlaf.util.SystemInfo;
-import io.github.arkosammy12.jchip.Main;
-import io.github.arkosammy12.jchip.ui.MainWindow;
+import io.github.arkosammy12.jchip.main.Main;
+import io.github.arkosammy12.jchip.main.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;

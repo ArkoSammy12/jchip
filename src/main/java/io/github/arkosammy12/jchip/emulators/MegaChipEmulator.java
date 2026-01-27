@@ -58,6 +58,11 @@ public class MegaChipEmulator extends SChip11Emulator {
     }
 
     @Override
+    public int getFramerate() {
+        return 50;
+    }
+
+    @Override
     @NotNull
     protected MegaChipProcessor<?> createProcessor() {
         this.processor = new MegaChipProcessor<>(this);

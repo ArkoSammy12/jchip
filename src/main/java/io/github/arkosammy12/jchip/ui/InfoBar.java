@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import net.miginfocom.layout.AC;
 import net.miginfocom.layout.CC;
@@ -42,7 +42,7 @@ public class InfoBar extends JPanel {
                 this.onStopping();
             }
         });
-        jchip.addFrameListener(this::onFrame);
+        jchip.addEmulatorFrameListener(this::onFrame);
     }
 
     private static JTextField createField() {

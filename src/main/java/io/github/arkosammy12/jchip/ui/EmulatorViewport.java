@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.ui;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.video.DisplayRenderer;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;
@@ -28,7 +28,6 @@ public class EmulatorViewport extends JPanel {
             }
 
         });
-
         jchip.addStateChangedListener((emulator, _, newState) -> {
             if (emulator == null || newState.isStopping()) {
                 this.setDisplayRenderer(null);
@@ -36,7 +35,7 @@ public class EmulatorViewport extends JPanel {
                 this.setDisplayRenderer(emulator.getDisplay().getDisplayRenderer());
             }
         });
-        jchip.addFrameListener(emulator -> {
+        jchip.addEmulatorFrameListener(emulator -> {
             if (emulator != null) {
                 emulator.getDisplay().getDisplayRenderer().requestFrame();
             }

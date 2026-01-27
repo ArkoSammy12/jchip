@@ -2,13 +2,13 @@ package io.github.arkosammy12.jchip.ui.menus;
 
 import com.formdev.flatlaf.icons.*;
 import com.formdev.flatlaf.util.SystemFileChooser;
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.*;
 import io.github.arkosammy12.jchip.config.initializers.ApplicationInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializer;
 import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsumer;
 import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
-import io.github.arkosammy12.jchip.ui.MainWindow;
+import io.github.arkosammy12.jchip.main.MainWindow;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.tinylog.Logger;
 

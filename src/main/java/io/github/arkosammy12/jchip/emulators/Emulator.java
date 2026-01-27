@@ -40,4 +40,6 @@ public interface Emulator extends AutoCloseable {
 
     int getCurrentInstructionsPerFrame();
 
+    int getFramerate();
+
 }

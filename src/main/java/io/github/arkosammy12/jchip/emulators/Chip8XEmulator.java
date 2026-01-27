@@ -55,6 +55,11 @@ public class Chip8XEmulator extends Chip8Emulator {
     }
 
     @Override
+    public int getFramerate() {
+        return 61;
+    }
+
+    @Override
     @NotNull
     protected Chip8XProcessor<?> createProcessor() {
         this.processor = new Chip8XProcessor<>(this);

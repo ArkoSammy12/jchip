@@ -1,16 +1,14 @@
-package io.github.arkosammy12.jchip;
+package io.github.arkosammy12.jchip.main;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import org.tinylog.Logger;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.desktop.QuitStrategy;
 
 public class Main {
 
-    public static final int FRAMES_PER_SECOND = 60;
-    public static final long FRAME_INTERVAL = 1_000_000_000L / FRAMES_PER_SECOND;
+    public static final int MAIN_FRAMERATE = 60;
 
     // Increment this here, in pom.xml and in the version tag in the README.
     public static final String VERSION_STRING = "v5.1.2";

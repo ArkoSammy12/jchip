@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.sound;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
 import io.github.arkosammy12.jchip.memory.MegaChipBus;
 
@@ -57,7 +57,8 @@ public class MegaChipSoundSystem implements SoundSystem {
             return;
         }
         MegaChipBus bus = this.emulator.getBus();
-        byte[] data = new byte[SAMPLES_PER_FRAME];
+        AudioRenderer audioRenderer = this.jchip.getAudioRenderer();
+        byte[] data = new byte[audioRenderer.getSamplesPerFrame()];
         for (int i = 0; i < data.length; i++) {
             if (loop && this.phase >= this.trackSize) {
                 this.phase %= this.trackSize;
@@ -69,7 +70,7 @@ public class MegaChipSoundSystem implements SoundSystem {
                 data[i] = 0;
             }
         }
-        this.jchip.getAudioRenderer().pushSamples8(data);
+        audioRenderer.pushSamples8(data);
     }
 
 }

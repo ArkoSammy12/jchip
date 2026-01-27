@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.sound;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.util.vip.IODevice;
 
@@ -35,13 +35,14 @@ public class VP595 implements SoundSystem, IODevice {
             phase = 0;
             return;
         }
-        byte[] data = new byte[SAMPLES_PER_FRAME];
+        AudioRenderer audioRenderer = this.jchip.getAudioRenderer();
+        byte[] data = new byte[audioRenderer.getSamplesPerFrame()];
         double step = frequency / SAMPLE_RATE;
         for (int i = 0; i < data.length; i++) {
             data[i] = (byte) ((phase < 0.5) ? SQUARE_WAVE_AMPLITUDE : -SQUARE_WAVE_AMPLITUDE);
             phase = (phase + step) % 1;
         }
-        this.jchip.getAudioRenderer().pushSamples8(data);
+        audioRenderer.pushSamples8(data);
     }
 
 }

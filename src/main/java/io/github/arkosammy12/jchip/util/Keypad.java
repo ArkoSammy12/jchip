@@ -1,6 +1,6 @@
 package io.github.arkosammy12.jchip.util;
 
-import io.github.arkosammy12.jchip.Jchip;
+import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 
 import java.awt.event.KeyAdapter;
