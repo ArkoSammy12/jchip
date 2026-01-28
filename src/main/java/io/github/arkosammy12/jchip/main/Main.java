@@ -11,7 +11,7 @@ public class Main {
     public static final int MAIN_FRAMERATE = 60;
 
     // Increment this here, in pom.xml and in the version tag in the README.
-    public static final String VERSION_STRING = "v5.1.2";
+    public static final String VERSION_STRING = "v5.2.0";
 
     static void main(String[] args) throws Exception {
 
