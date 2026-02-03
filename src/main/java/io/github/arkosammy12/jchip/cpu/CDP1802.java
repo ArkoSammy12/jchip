@@ -586,8 +586,9 @@ public class CDP1802 implements Processor, Closeable {
                         setR(getP(), getR(getP()) + 1);
                     } else {
                         this.longInstruction = false;
+                        int lowByte = this.emulator.getBus().readByte(getR(getP()));
                         setR1(getP(), getB());
-                        setR0(getP(), this.emulator.getBus().readByte(getR(getP())));
+                        setR0(getP(), lowByte);
                     }
                     yield HANDLED;
                 }
