@@ -1,12 +1,12 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.XOChipProcessor;
+import io.github.arkosammy12.jchip.emulators.cpu.XOChipProcessor;
 import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.disassembler.XOChipDisassembler;
-import io.github.arkosammy12.jchip.memory.XOChipBus;
-import io.github.arkosammy12.jchip.sound.XOChipSoundSystem;
-import io.github.arkosammy12.jchip.video.XOChipDisplay;
+import io.github.arkosammy12.jchip.emulators.bus.XOChipBus;
+import io.github.arkosammy12.jchip.emulators.sound.XOChipSoundSystem;
+import io.github.arkosammy12.jchip.emulators.video.XOChipDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

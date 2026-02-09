@@ -7,6 +7,7 @@ import io.github.arkosammy12.jchip.config.initializers.EmulatorInitializerConsum
 import io.github.arkosammy12.jchip.main.MainWindow;
 import io.github.arkosammy12.jchip.ui.disassembly.DisassemblyPanel;
 import io.github.arkosammy12.jchip.ui.util.ToggleableSplitPane;
+import io.github.arkosammy12.jchip.ui.renderer.EmulatorViewport;
 import net.miginfocom.layout.CC;
 import net.miginfocom.layout.LC;
 import net.miginfocom.swing.MigLayout;

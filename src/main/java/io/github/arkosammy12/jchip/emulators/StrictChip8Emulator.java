@@ -1,17 +1,17 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.StrictChip8Processor;
-import io.github.arkosammy12.jchip.memory.StrictChip8Bus;
+import io.github.arkosammy12.jchip.emulators.cpu.StrictChip8Processor;
+import io.github.arkosammy12.jchip.emulators.bus.StrictChip8Bus;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerSchema;
-import io.github.arkosammy12.jchip.video.StrictChip8Display;
+import io.github.arkosammy12.jchip.emulators.video.StrictChip8Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.WAITING;
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.WAITING;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.isSet;
 
 public final class StrictChip8Emulator extends Chip8Emulator {
 

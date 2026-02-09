@@ -6,7 +6,6 @@ import io.github.arkosammy12.jchip.config.DataManager;
 import io.github.arkosammy12.jchip.config.database.Chip8Database;
 import io.github.arkosammy12.jchip.emulators.Emulator;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.sound.AudioRenderer;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.FrameLimiter;
 import org.jetbrains.annotations.Nullable;

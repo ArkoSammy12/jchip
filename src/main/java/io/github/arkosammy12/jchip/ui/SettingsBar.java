@@ -8,7 +8,7 @@ import io.github.arkosammy12.jchip.ui.menus.*;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
-import io.github.arkosammy12.jchip.video.ColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.ColorPalette;
 
 import javax.swing.*;
 import java.nio.file.Path;

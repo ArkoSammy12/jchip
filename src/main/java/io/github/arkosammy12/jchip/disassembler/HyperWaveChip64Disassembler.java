@@ -1,10 +1,11 @@
 package io.github.arkosammy12.jchip.disassembler;
 
 import io.github.arkosammy12.jchip.emulators.HyperWaveChip64Emulator;
-import io.github.arkosammy12.jchip.memory.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.BusView;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.getN;
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.getX;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.getN;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.getX;
 
 public class HyperWaveChip64Disassembler<E extends HyperWaveChip64Emulator> extends XOChipDisassembler<E> {
 
@@ -14,7 +15,7 @@ public class HyperWaveChip64Disassembler<E extends HyperWaveChip64Emulator> exte
 
     @Override
     protected int getLengthForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
         return ((firstByte == 0xF0 || firstByte == 0xF1 || firstByte == 0xF2 || firstByte == 0xF3) && secondByte == 0x00) ? 4 : 2;
@@ -22,7 +23,7 @@ public class HyperWaveChip64Disassembler<E extends HyperWaveChip64Emulator> exte
 
     @Override
     protected String getTextForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
         return switch (firstByte >>> 4) {

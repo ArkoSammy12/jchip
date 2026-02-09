@@ -1,34 +1,37 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
 import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.settings.CosmacVipEmulatorSettings;
 import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.CDP1802;
+import io.github.arkosammy12.jchip.emulators.cpu.CDP1802;
 import io.github.arkosammy12.jchip.disassembler.CosmacVipDisassembler;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
-import io.github.arkosammy12.jchip.memory.CosmacVipBus;
-import io.github.arkosammy12.jchip.memory.HybridChip8XBus;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.sound.SoundSystem;
-import io.github.arkosammy12.jchip.sound.VP595;
+import io.github.arkosammy12.jchip.emulators.bus.BusView;
+import io.github.arkosammy12.jchip.emulators.bus.CosmacVipBus;
+import io.github.arkosammy12.jchip.emulators.bus.HybridChip8XBus;
+import io.github.arkosammy12.jchip.emulators.sound.Chip8SoundSystem;
+import io.github.arkosammy12.jchip.emulators.sound.SoundSystem;
+import io.github.arkosammy12.jchip.emulators.sound.VP595;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerSchema;
-import io.github.arkosammy12.jchip.util.vip.IODevice;
+import io.github.arkosammy12.jchip.emulators.misc.cosmacvip.IODevice;
 import io.github.arkosammy12.jchip.util.Variant;
-import io.github.arkosammy12.jchip.util.vip.CosmacVIPKeypad;
-import io.github.arkosammy12.jchip.video.CDP1861;
-import io.github.arkosammy12.jchip.video.VP590;
+import io.github.arkosammy12.jchip.emulators.misc.cosmacvip.CosmacVIPKeypad;
+import io.github.arkosammy12.jchip.emulators.video.CDP1861;
+import io.github.arkosammy12.jchip.emulators.video.VP590;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.event.KeyAdapter;
 import java.util.List;
 import java.util.function.Function;
 
-import static io.github.arkosammy12.jchip.util.vip.IODevice.DmaStatus.IN;
-import static io.github.arkosammy12.jchip.util.vip.IODevice.DmaStatus.OUT;
+import static io.github.arkosammy12.jchip.emulators.cpu.CDP1802.DmaStatus.IN;
+import static io.github.arkosammy12.jchip.emulators.cpu.CDP1802.DmaStatus.OUT;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.isHandled;
 
-public class CosmacVipEmulator implements Emulator {
+public class CosmacVipEmulator implements Emulator, CDP1802.SystemBus {
 
     public static final int CYCLES_PER_FRAME = 3668;
     public static final String REGISTERS_ENTRY_KEY = "cosmacvip.processor.registers";
@@ -75,6 +78,7 @@ public class CosmacVipEmulator implements Emulator {
             this.debuggerSchema = this.createDebuggerSchema();
             this.disassembler = new CosmacVipDisassembler<>(this);
             this.disassembler.setProgramCounterSupplier(this::getActualCurrentInstructionAddress);
+            this.processor.loadState(this.jchip.getDataManager());
         } catch (Exception e) {
             throw new EmulatorException(e);
         }
@@ -83,6 +87,11 @@ public class CosmacVipEmulator implements Emulator {
     @Override
     public CDP1802 getProcessor() {
         return this.processor;
+    }
+
+    @Override
+    public BusView getBusView() {
+        return this.bus;
     }
 
     @Override
@@ -150,13 +159,13 @@ public class CosmacVipEmulator implements Emulator {
         }
     }
 
-    public IODevice.DmaStatus getDmaStatus() {
-        IODevice.DmaStatus highestStatus = IODevice.DmaStatus.NONE;
+    public CDP1802.DmaStatus getDmaStatus() {
+        CDP1802.DmaStatus highestStatus = CDP1802.DmaStatus.NONE;
         for (IODevice ioDevice : this.ioDevices) {
             switch (ioDevice.getDmaStatus()) {
                 case IN -> highestStatus = IN;
                 case OUT -> {
-                    if (highestStatus == IODevice.DmaStatus.NONE) {
+                    if (highestStatus == CDP1802.DmaStatus.NONE) {
                         highestStatus = OUT;
                     }
                 }
@@ -167,7 +176,7 @@ public class CosmacVipEmulator implements Emulator {
 
     public void dispatchDmaOut(int dmaOutAddress, int value) {
         for (IODevice ioDevice : this.ioDevices) {
-            if (ioDevice.getDmaStatus() == IODevice.DmaStatus.OUT) {
+            if (ioDevice.getDmaStatus() == CDP1802.DmaStatus.OUT) {
                 ioDevice.doDmaOut(dmaOutAddress, value);
                 return;
             }
@@ -176,7 +185,7 @@ public class CosmacVipEmulator implements Emulator {
 
     public int dispatchDmaIn(int dmaInAddress) {
         for (IODevice ioDevice : this.ioDevices) {
-            if (ioDevice.getDmaStatus() == IODevice.DmaStatus.IN) {
+            if (ioDevice.getDmaStatus() == CDP1802.DmaStatus.IN) {
                 return ioDevice.doDmaIn(dmaInAddress);
             }
         }
@@ -223,7 +232,7 @@ public class CosmacVipEmulator implements Emulator {
 
     private void runCycle() {
         CDP1802.State currentState = this.processor.getCurrentState();
-        this.processor.cycle();
+        this.cycleCpu();
         this.cycleIoDevices();
         this.processor.nextState();
 
@@ -235,11 +244,18 @@ public class CosmacVipEmulator implements Emulator {
 
     @Override
     public void executeCycle() {
-        this.processor.cycle();
+        this.cycleCpu();
         this.cycleIoDevices();
         this.processor.nextState();
         this.display.flush();
         this.disassembler.disassembleRange(this.getActualCurrentInstructionAddress(), 30, true);
+    }
+
+    private void cycleCpu() {
+        int flags = this.processor.cycle();
+        if (!isHandled(flags)) {
+            throw new InvalidInstructionException((this.processor.getI() << 4) | this.processor.getN(), this.getVariant());
+        }
     }
 
     private int getActualCurrentInstructionAddress() {
@@ -269,7 +285,7 @@ public class CosmacVipEmulator implements Emulator {
     public void close() {
         try {
             if (this.processor != null) {
-                this.processor.close();
+                this.processor.saveState(this.jchip.getDataManager());
             }
             if (this.display != null) {
                 this.display.close();

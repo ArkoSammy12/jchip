@@ -1,14 +1,12 @@
 package io.github.arkosammy12.jchip.main;
 
-import io.github.arkosammy12.jchip.sound.AudioRenderer;
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
 import static io.github.arkosammy12.jchip.main.Main.MAIN_FRAMERATE;
-import static io.github.arkosammy12.jchip.sound.SoundSystem.SAMPLE_RATE;
+import static io.github.arkosammy12.jchip.emulators.sound.SoundSystem.SAMPLE_RATE;
 
 import java.io.Closeable;
 import java.util.Queue;

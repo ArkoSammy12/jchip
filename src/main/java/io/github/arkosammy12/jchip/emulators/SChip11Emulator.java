@@ -1,10 +1,10 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.SChip11Processor;
+import io.github.arkosammy12.jchip.emulators.cpu.SChip11Processor;
 import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.disassembler.SChip11Disassembler;
-import io.github.arkosammy12.jchip.video.SChip11Display;
+import io.github.arkosammy12.jchip.emulators.video.SChip11Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

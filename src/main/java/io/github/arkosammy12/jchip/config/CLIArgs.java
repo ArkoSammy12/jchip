@@ -7,8 +7,8 @@ import io.github.arkosammy12.jchip.config.settings.EmulatorSettings;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.KeyboardLayout;
-import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
-import io.github.arkosammy12.jchip.video.ColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.BuiltInColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.ColorPalette;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
@@ -18,7 +18,7 @@ import java.util.Optional;
         name = "jchip",
         mixinStandardHelpOptions = true,
         version = Main.VERSION_STRING,
-        description = "Initializes jchip with the desired configurations and starts emulation."
+        description = "Initializes jchip with the desired settings and starts emulation."
 )
 public class CLIArgs implements EmulatorInitializer {
 

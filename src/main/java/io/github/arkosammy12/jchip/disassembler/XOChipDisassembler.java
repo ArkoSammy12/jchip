@@ -1,9 +1,10 @@
 package io.github.arkosammy12.jchip.disassembler;
 
 import io.github.arkosammy12.jchip.emulators.XOChipEmulator;
-import io.github.arkosammy12.jchip.memory.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.BusView;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.*;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.*;
 
 public class XOChipDisassembler<E extends XOChipEmulator> extends SChip11Disassembler<E> {
 
@@ -13,7 +14,7 @@ public class XOChipDisassembler<E extends XOChipEmulator> extends SChip11Disasse
 
     @Override
     protected int getLengthForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
         return (firstByte == 0xF0 && secondByte == 0x00) ? 4 : 2;
@@ -21,7 +22,7 @@ public class XOChipDisassembler<E extends XOChipEmulator> extends SChip11Disasse
 
     @Override
     protected int getBytecodeForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         if (this.getLengthForInstructionAt(address) == 4) {
             return ((firstByte) << 24) | (bus.getByte(address + 2) << 8) | (bus.getByte(address + 3));
@@ -32,7 +33,7 @@ public class XOChipDisassembler<E extends XOChipEmulator> extends SChip11Disasse
 
     @Override
     protected String getTextForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
         return switch (firstByte >>> 4) {

@@ -6,9 +6,9 @@ import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.config.initializers.Chip8Initializer;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
-import io.github.arkosammy12.jchip.video.ColorPalette;
-import io.github.arkosammy12.jchip.video.CustomColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.BuiltInColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.ColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.CustomColorPalette;
 import org.tinylog.Logger;
 
 import java.io.InputStream;

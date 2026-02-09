@@ -1,10 +1,11 @@
 package io.github.arkosammy12.jchip.disassembler;
 
 import io.github.arkosammy12.jchip.emulators.MegaChipEmulator;
-import io.github.arkosammy12.jchip.memory.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.BusView;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.getX;
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.getY;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.getX;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.getY;
 
 public class MegaChipDisassembler<E extends MegaChipEmulator> extends SChip11Disassembler<E> {
 
@@ -14,14 +15,14 @@ public class MegaChipDisassembler<E extends MegaChipEmulator> extends SChip11Dis
 
     @Override
     protected int getLengthForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         return (firstByte == 0x01) ? 4 : 2;
     }
 
     @Override
     protected int getBytecodeForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
         if (this.getLengthForInstructionAt(address) == 4) {
@@ -33,7 +34,7 @@ public class MegaChipDisassembler<E extends MegaChipEmulator> extends SChip11Dis
 
     @Override
     protected String getTextForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
         if ((firstByte >>> 4) == 0x0) {

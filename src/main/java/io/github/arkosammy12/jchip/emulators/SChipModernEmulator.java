@@ -1,17 +1,17 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.Chip8Processor;
-import io.github.arkosammy12.jchip.cpu.SChipModernProcessor;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.sound.SoundSystem;
-import io.github.arkosammy12.jchip.video.SChipModernDisplay;
+import io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor;
+import io.github.arkosammy12.jchip.emulators.cpu.SChipModernProcessor;
+import io.github.arkosammy12.jchip.emulators.sound.Chip8SoundSystem;
+import io.github.arkosammy12.jchip.emulators.sound.SoundSystem;
+import io.github.arkosammy12.jchip.emulators.video.SChipModernDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.isSet;
 
 public class SChipModernEmulator extends SChip11Emulator {
 

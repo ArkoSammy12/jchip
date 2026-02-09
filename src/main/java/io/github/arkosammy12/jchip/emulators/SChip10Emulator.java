@@ -1,17 +1,17 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.Chip8Processor;
-import io.github.arkosammy12.jchip.cpu.SChip10Processor;
+import io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor;
+import io.github.arkosammy12.jchip.emulators.cpu.SChip10Processor;
 import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.disassembler.SChip10Disassembler;
-import io.github.arkosammy12.jchip.video.SChip10Display;
+import io.github.arkosammy12.jchip.emulators.video.SChip10Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.isSet;
 
 public class SChip10Emulator extends Chip48Emulator {
 

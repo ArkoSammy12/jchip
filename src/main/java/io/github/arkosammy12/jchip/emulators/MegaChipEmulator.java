@@ -3,17 +3,17 @@ package io.github.arkosammy12.jchip.emulators;
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
 import io.github.arkosammy12.jchip.disassembler.MegaChipDisassembler;
 import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
-import io.github.arkosammy12.jchip.memory.MegaChipBus;
-import io.github.arkosammy12.jchip.cpu.Chip8Processor;
-import io.github.arkosammy12.jchip.cpu.MegaChipProcessor;
-import io.github.arkosammy12.jchip.sound.MegaChipSoundSystem;
-import io.github.arkosammy12.jchip.video.MegaChipDisplay;
+import io.github.arkosammy12.jchip.emulators.bus.MegaChipBus;
+import io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor;
+import io.github.arkosammy12.jchip.emulators.cpu.MegaChipProcessor;
+import io.github.arkosammy12.jchip.emulators.sound.MegaChipSoundSystem;
+import io.github.arkosammy12.jchip.emulators.video.MegaChipDisplay;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.isSet;
 
 public class MegaChipEmulator extends SChip11Emulator {
 

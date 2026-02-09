@@ -1,19 +1,21 @@
 package io.github.arkosammy12.jchip.emulators;
 
+import io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor;
+import io.github.arkosammy12.jchip.emulators.misc.Keypad;
 import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.*;
 import io.github.arkosammy12.jchip.disassembler.Chip8Disassembler;
 import io.github.arkosammy12.jchip.disassembler.Disassembler;
 import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
 import io.github.arkosammy12.jchip.exceptions.EmulatorException;
 import io.github.arkosammy12.jchip.exceptions.InvalidInstructionException;
-import io.github.arkosammy12.jchip.memory.Chip8Bus;
-import io.github.arkosammy12.jchip.sound.Chip8SoundSystem;
-import io.github.arkosammy12.jchip.sound.SoundSystem;
+import io.github.arkosammy12.jchip.emulators.bus.BusView;
+import io.github.arkosammy12.jchip.emulators.bus.Chip8Bus;
+import io.github.arkosammy12.jchip.emulators.sound.Chip8SoundSystem;
+import io.github.arkosammy12.jchip.emulators.sound.SoundSystem;
 import io.github.arkosammy12.jchip.ui.debugger.DebuggerSchema;
 import io.github.arkosammy12.jchip.util.*;
-import io.github.arkosammy12.jchip.video.Chip8Display;
+import io.github.arkosammy12.jchip.emulators.video.Chip8Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.isSet;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.isSet;
 
 public class Chip8Emulator implements Emulator {
 
@@ -76,6 +78,7 @@ public class Chip8Emulator implements Emulator {
         return Objects.requireNonNull(this.processor);
     }
 
+
     @Override
     @NotNull
     public Chip8Display<?> getDisplay() {
@@ -83,6 +86,10 @@ public class Chip8Emulator implements Emulator {
     }
 
     @Override
+    public BusView getBusView() {
+        return this.bus;
+    }
+
     @NotNull
     public Chip8Bus getBus() {
         return Objects.requireNonNull(this.bus);

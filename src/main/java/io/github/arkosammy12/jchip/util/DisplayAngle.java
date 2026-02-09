@@ -19,10 +19,6 @@ public enum DisplayAngle implements DisplayNameProvider, Serializable {
         this.identifier = identifier;
     }
 
-    public int getIntValue() {
-        return this.intValue;
-    }
-
     public static DisplayAngle getDisplayAngleForIdentifier(String identifier) {
         for (DisplayAngle displayAngle : DisplayAngle.values()) {
             if (displayAngle.identifier.equals(identifier)) {

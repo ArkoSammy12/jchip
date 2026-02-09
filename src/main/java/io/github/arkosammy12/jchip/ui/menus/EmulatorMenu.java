@@ -10,8 +10,8 @@ import io.github.arkosammy12.jchip.ui.util.EnumMenu;
 import io.github.arkosammy12.jchip.ui.util.NumberOnlyTextField;
 import io.github.arkosammy12.jchip.util.Variant;
 import io.github.arkosammy12.jchip.util.DisplayAngle;
-import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
-import io.github.arkosammy12.jchip.video.ColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.BuiltInColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.ColorPalette;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

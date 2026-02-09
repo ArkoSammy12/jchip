@@ -9,8 +9,8 @@ import io.github.arkosammy12.jchip.util.DisplayAngle;
 import io.github.arkosammy12.jchip.util.DisplayNameProvider;
 import io.github.arkosammy12.jchip.util.HexSpriteFont;
 import io.github.arkosammy12.jchip.util.Variant;
-import io.github.arkosammy12.jchip.video.BuiltInColorPalette;
-import io.github.arkosammy12.jchip.video.ColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.BuiltInColorPalette;
+import io.github.arkosammy12.jchip.emulators.video.ColorPalette;
 import picocli.CommandLine;
 
 import java.util.Optional;

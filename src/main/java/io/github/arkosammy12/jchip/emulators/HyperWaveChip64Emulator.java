@@ -1,10 +1,10 @@
 package io.github.arkosammy12.jchip.emulators;
 
 import io.github.arkosammy12.jchip.config.settings.Chip8EmulatorSettings;
-import io.github.arkosammy12.jchip.cpu.HyperWaveChip64Processor;
+import io.github.arkosammy12.jchip.emulators.cpu.HyperWaveChip64Processor;
 import io.github.arkosammy12.jchip.disassembler.HyperWaveChip64Disassembler;
 import io.github.arkosammy12.jchip.disassembler.AbstractDisassembler;
-import io.github.arkosammy12.jchip.video.HyperWaveChip64Display;
+import io.github.arkosammy12.jchip.emulators.video.HyperWaveChip64Display;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

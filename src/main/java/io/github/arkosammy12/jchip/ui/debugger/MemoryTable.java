@@ -2,8 +2,9 @@ package io.github.arkosammy12.jchip.ui.debugger;
 
 import io.github.arkosammy12.jchip.main.Jchip;
 import io.github.arkosammy12.jchip.emulators.Emulator;
-import io.github.arkosammy12.jchip.memory.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.Bus;
 import io.github.arkosammy12.jchip.main.MainWindow;
+import io.github.arkosammy12.jchip.emulators.bus.BusView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,10 +95,10 @@ public class MemoryTable extends JTable {
     }
 
     private void onResetting(@NotNull Emulator emulator) {
-        Bus memory = emulator.getBus();
+        BusView busView = emulator.getBusView();
         SwingUtilities.invokeLater(() -> {
-            this.model.memory = memory;
-            this.bytes = new int[memory.getMemorySize()];
+            this.model.memory = busView;
+            this.bytes = new int[busView.getMemorySize()];
             this.rebuildTable();
         });
     }
@@ -188,7 +189,7 @@ public class MemoryTable extends JTable {
 
     private class Model extends DefaultTableModel {
 
-        private Bus memory;
+        private BusView memory;
 
         private int bytesPerRow = 8;
         private int rowCount;

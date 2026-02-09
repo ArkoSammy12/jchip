@@ -1,9 +1,10 @@
 package io.github.arkosammy12.jchip.disassembler;
 
 import io.github.arkosammy12.jchip.emulators.Chip8XEmulator;
-import io.github.arkosammy12.jchip.memory.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.Bus;
+import io.github.arkosammy12.jchip.emulators.bus.BusView;
 
-import static io.github.arkosammy12.jchip.cpu.Chip8Processor.*;
+import static io.github.arkosammy12.jchip.emulators.cpu.Chip8Processor.*;
 
 public class Chip8XDisassembler<E extends Chip8XEmulator> extends Chip8Disassembler<E> {
 
@@ -13,7 +14,7 @@ public class Chip8XDisassembler<E extends Chip8XEmulator> extends Chip8Disassemb
 
     @Override
     protected String getTextForInstructionAt(int address) {
-        Bus bus = this.emulator.getBus();
+        BusView bus = this.emulator.getBus();
         int firstByte = bus.getByte(address);
         int secondByte = bus.getByte(address + 1);
         return switch (firstByte >>> 4) {
