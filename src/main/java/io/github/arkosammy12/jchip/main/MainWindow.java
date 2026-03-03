@@ -92,8 +92,19 @@ public class MainWindow extends JFrame implements EmulatorInitializerConsumer, C
 
         jchip.addShutdownListener(() -> {
             DataManager dataManager = jchip.getDataManager();
-            dataManager.putPersistent("ui.main_window_width", String.valueOf(this.lastUnmaximizedWidth));
-            dataManager.putPersistent("ui.main_window_height", String.valueOf(this.lastUnmaximizedHeight));
+
+            int lastUnmaximizedWidth = this.lastUnmaximizedWidth;
+            if ((this.getExtendedState() & MAXIMIZED_HORIZ) == 0) {
+                lastUnmaximizedWidth = this.getWidth();
+            }
+
+            int lastUnmaximizedHeight = this.lastUnmaximizedHeight;
+            if ((this.getExtendedState() & MAXIMIZED_VERT) == 0) {
+                lastUnmaximizedHeight = this.getHeight();
+            }
+
+            dataManager.putPersistent("ui.main_window_width", String.valueOf(lastUnmaximizedWidth));
+            dataManager.putPersistent("ui.main_window_height", String.valueOf(lastUnmaximizedHeight));
             dataManager.putPersistent("ui.main_window_x", String.valueOf(this.lastUnmaximizedLocation.x));
             dataManager.putPersistent("ui.main_window_y", String.valueOf(this.lastUnmaximizedLocation.y));
             dataManager.putPersistent("ui.main_window_extended_state", String.valueOf(this.getExtendedState()));
